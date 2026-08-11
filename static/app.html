@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MotionHub AI — Dashboard</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body class="app-body">
+<div class="app-shell">
+<aside class="sidebar">
+ <a class="brand" href="/"><span>M</span>MotionHub <b>AI</b></a>
+ <button data-tab="create" class="side active">✨ Tạo video</button>
+ <button data-tab="jobs" class="side">▤ Job của tôi</button>
+ <button data-tab="wallet" class="side">◈ Ví credits</button>
+ <button data-tab="account" class="side">⚙ Tài khoản</button>
+ <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
+</aside>
+<section class="workspace">
+<header class="topbar"><div><h2 id="pageTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="credits">—</b> credits</span><button class="avatar" id="avatar">?</button><button class="icon" id="logout">↪</button></div></header>
+
+<div id="authGate" class="auth-gate hidden">
+ <div class="auth-card">
+  <div class="auth-tabs"><button class="active" data-auth="login">Đăng nhập</button><button data-auth="register">Đăng ký</button></div>
+  <div id="loginForm">
+   <h2>Chào mừng quay lại</h2><input id="lEmail" placeholder="Email"><input id="lPass" type="password" placeholder="Mật khẩu"><button class="primary wide" id="doLogin">Đăng nhập</button>
+  </div>
+  <div id="registerForm" class="hidden">
+   <h2>Tạo tài khoản</h2><input id="rName" placeholder="Tên hiển thị"><input id="rEmail" placeholder="Email"><input id="rPass" type="password" placeholder="Mật khẩu từ 8 ký tự"><button class="primary wide" id="doRegister">Đăng ký</button>
+  </div>
+  <div id="authMsg" class="msg"></div>
+ </div>
+</div>
+
+<main id="dashboard" class="dash">
+<section class="tab active" id="tab-create">
+<div class="create-grid">
+ <article class="panel-card">
+  <form id="jobForm">
+   <div class="two">
+    <label class="drop"><input name="image" type="file" accept="image/*" required><b>🖼️ Ảnh nhân vật</b><span id="imgName">PNG/JPG/WEBP • ≤ 25MB</span></label>
+    <label class="drop"><input name="motion" type="file" accept="video/*" required><b>🎬 Video chuyển động</b><span id="vidName">MP4/MOV/WEBM • ≤ 300MB</span></label>
+   </div>
+   <label>Model<select name="model"><option>Wan Animate 2 • Distill INT8</option><option>Wan Animate 2 • Base INT8</option></select></label>
+   <div class="two"><label>Tỷ lệ<select name="aspect_ratio"><option>9:16</option><option>16:9</option><option>1:1</option></select></label><label>Chất lượng<select name="quality" id="quality"><option value="480">480p • 10 credits</option><option value="720" selected>720p • 20 credits</option></select></label></div>
+   <label>Prompt<textarea name="prompt" rows="4" placeholder="Camera cố định, chuyển động tự nhiên, giữ nhân vật ổn định..."></textarea></label>
+   <div class="submit-row"><div><small>Chi phí</small><b id="cost">20 credits</b></div><button class="primary big" type="submit">✨ Tạo video</button></div>
+  </form>
+ </article>
+ <aside class="tip-card"><small>MẸO</small><h3>Để video ổn hơn</h3><ul><li>Ảnh rõ mặt, ít vật che.</li><li>Motion thấy đủ cơ thể.</li><li>Test 480p trước khi chạy batch 720p.</li><li>Worker có thể bật sau, job vẫn giữ nguyên.</li></ul></aside>
+</div>
+</section>
+
+<section class="tab" id="tab-jobs"><div class="sectionbar"><div><button class="dark" id="refreshJobs">↻ Làm mới</button></div><button class="primary" data-goto="create">+ Tạo job</button></div><div id="jobsList" class="jobs"></div></section>
+
+<section class="tab" id="tab-wallet">
+<div class="wallet-grid">
+ <article class="balance"><span>Số dư</span><strong><b id="walletCredits">0</b> credits</strong><small>30 credits miễn phí khi đăng ký.</small></article>
+ <article class="panel-card"><h3>Tạo yêu cầu nạp điểm</h3><div class="packs"><button data-pack="starter"><b>50</b><span>49K</span></button><button class="active" data-pack="creator"><b>250</b><span>199K</span></button><button data-pack="studio"><b>1000</b><span>699K</span></button></div><textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea><button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button><p class="muted">Admin duyệt thì credits được cộng tự động.</p></article>
+</div>
+<h3 class="subhead">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
+<h3 class="subhead">Biến động credits</h3><div id="ledgerList" class="simple-list"></div>
+</section>
+
+<section class="tab" id="tab-account"><article class="panel-card narrow"><h3>Tài khoản</h3><div id="accountInfo"></div><button class="dark" id="logout2">Đăng xuất</button></article></section>
+</main>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+<script src="/static/app.js"></script>
+</body></html>

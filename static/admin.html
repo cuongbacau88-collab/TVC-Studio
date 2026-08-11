@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MotionHub AI — Admin</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body class="app-body">
+<div class="admin-wrap">
+<header class="admin-head"><a class="brand" href="/"><span>M</span>MotionHub <b>AI Admin</b></a><div><a class="dark" href="/app">Dashboard</a><button class="dark" id="logout">Đăng xuất</button></div></header>
+<section class="stats" id="stats"></section>
+<section class="admin-grid">
+<article class="panel-card"><div class="sectionbar"><h3>Yêu cầu nạp điểm</h3><button class="dark" id="refresh">↻</button></div><div id="topups" class="table-wrap"></div></article>
+<article class="panel-card"><h3>Người dùng</h3><div id="users" class="table-wrap"></div></article>
+<article class="panel-card full-span"><h3>Jobs gần đây</h3><div id="jobs" class="table-wrap"></div></article>
+</section>
+</div><div class="toast" id="toast"></div>
+<script src="/static/admin.js"></script>
+</body></html>

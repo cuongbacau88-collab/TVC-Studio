@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MotionHub AI — AI Motion Video</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="/"><span>M</span>MotionHub <b>AI</b></a>
+  <nav><a href="#features">Tính năng</a><a href="#pricing">Bảng giá</a><a href="#faq">FAQ</a></nav>
+  <div class="nav-actions"><button class="ghost" id="loginOpen">Đăng nhập</button><a class="primary" href="/app">Bắt đầu tạo</a></div>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">WAN ANIMATE • MOTION TRANSFER</div>
+    <h1>Biến ảnh tĩnh thành <em>video chuyển động.</em></h1>
+    <p>Tải ảnh nhân vật và video mẫu. Hệ thống đưa job vào hàng đợi và worker GPU xử lý tự động khi online.</p>
+    <div class="hero-actions"><a class="primary big" href="/app">Tạo video ngay →</a><a class="dark big" href="#features">Xem cách hoạt động</a></div>
+    <div class="facts"><div><b>9:16</b><span>TikTok / Reels</span></div><div><b>16:9</b><span>YouTube</span></div><div><b>720p</b><span>Render chất lượng cao</span></div></div>
+  </div>
+  <div class="product-card">
+    <div class="window">● ● ● <span>Create Motion</span></div>
+    <div class="upload-pair"><div>🖼️<b>Ảnh nhân vật</b><small>character.png</small></div><i>+</i><div>🎬<b>Video motion</b><small>dance.mp4</small></div></div>
+    <label>Model</label><div class="fake-input">Wan Animate 2 • Distill INT8 <b>⌄</b></div>
+    <label>Chất lượng</label><div class="chips"><span>480p</span><span class="active">720p</span><span>9:16</span></div>
+    <a class="primary wide" href="/app">✨ Tạo video</a>
+    <div class="render-box"><div><span>Đang render...</span><b>68%</b></div><progress value="68" max="100"></progress></div>
+  </div>
+</section>
+
+<section class="steps"><div><b>01</b><span>Tải ảnh</span></div><i>→</i><div><b>02</b><span>Tải motion</span></div><i>→</i><div><b>03</b><span>AI render</span></div><i>→</i><div><b>04</b><span>Nhận video</span></div></section>
+
+<section class="section" id="features">
+  <div class="section-head"><span>HỆ THỐNG</span><h2>Web bán dịch vụ AI video, không chỉ là trang demo.</h2></div>
+  <div class="grid features">
+    <article class="double"><i>⚡</i><h3>Job Queue thật</h3><p>Khách tạo job ngay cả khi GPU tắt. Khi worker online, server phát job theo thứ tự và cập nhật tiến độ.</p><div class="queue"><div><b>● #1024</b><span>72%</span></div><div><b>○ #1025</b><span>Đang chờ</span></div><div><b>○ #1026</b><span>Đang chờ</span></div></div></article>
+    <article><i>👤</i><h3>Tài khoản</h3><p>Đăng ký, đăng nhập, session cookie và lịch sử riêng cho từng khách.</p></article>
+    <article><i>◈</i><h3>Credits</h3><p>Trừ điểm khi tạo job, hoàn tự động nếu worker báo render lỗi.</p></article>
+    <article><i>🛡️</i><h3>Admin</h3><p>Quản lý khách, job, yêu cầu nạp điểm và cộng trừ credits.</p></article>
+    <article><i>🖥️</i><h3>Worker API</h3><p>Máy RTX 5090 chỉ cần claim job, tải input, render rồi upload output.</p></article>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="section-head center"><span>BẢNG GIÁ MẪU</span><h2>Bán theo credits.</h2><p>Giá có thể đổi trong code hoặc đưa vào database ở bản tiếp theo.</p></div>
+  <div class="grid pricing">
+    <article><small>Dùng thử</small><h3>Starter</h3><strong>49K</strong><p>50 credits</p><a class="dark wide" href="/app">Chọn gói</a></article>
+    <article class="featured"><small>Phổ biến</small><h3>Creator</h3><strong>199K</strong><p>250 credits</p><a class="primary wide" href="/app">Chọn gói</a></article>
+    <article><small>Số lượng lớn</small><h3>Studio</h3><strong>699K</strong><p>1000 credits</p><a class="dark wide" href="/app">Chọn gói</a></article>
+  </div>
+</section>
+
+<section class="section faq" id="faq">
+ <div class="section-head"><span>FAQ</span><h2>Câu hỏi thường gặp</h2></div>
+ <details open><summary>GPU tắt thì khách có tạo job được không?</summary><p>Có. Job nằm trong SQLite ở trạng thái waiting cho đến khi worker claim.</p></details>
+ <details><summary>Render lỗi có mất credits không?</summary><p>Worker gọi endpoint fail thì hệ thống hoàn credits của job về cho khách.</p></details>
+ <details><summary>Đã có thanh toán tự động chưa?</summary><p>Bản V2 có yêu cầu nạp điểm và admin duyệt. Cổng thanh toán thật cần API merchant của đơn vị thanh toán.</p></details>
+</section>
+</main>
+
+<footer><a class="brand" href="/"><span>M</span>MotionHub <b>AI</b></a><p>© 2026 MotionHub AI Business V2</p></footer>
+
+<div class="modal-wrap" id="loginModal"><div class="modal"><button class="x" id="loginClose">×</button><h2>Đăng nhập</h2><p>Đăng nhập để vào dashboard.</p><input id="email" placeholder="Email"><input id="password" type="password" placeholder="Mật khẩu"><button class="primary wide" id="loginBtn">Đăng nhập</button><a href="/app" class="text-link">Chưa có tài khoản? Đăng ký ở dashboard</a><div id="loginMsg" class="msg"></div></div></div>
+<script>
+const m=document.getElementById('loginModal');
+document.getElementById('loginOpen').onclick=()=>m.classList.add('open');
+document.getElementById('loginClose').onclick=()=>m.classList.remove('open');
+document.getElementById('loginBtn').onclick=async()=>{
+ const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});
+ const j=await r.json(); if(r.ok) location.href=j.role==='admin'?'/admin':'/app'; else loginMsg.textContent=j.detail||'Đăng nhập thất bại';
+};
+</script>
+</body></html>
