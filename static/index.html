@@ -1,76 +1,209 @@
 <!doctype html>
 <html lang="vi">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MotionHub AI — AI Motion Video</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0715">
+<title>TVC Studio AI — Chọn model</title>
+<meta name="description" content="TVC Studio AI - chọn công cụ AI video và hình ảnh.">
+<link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body>
-<header class="nav">
-  <a class="brand" href="/"><span>M</span>MotionHub <b>AI</b></a>
-  <nav><a href="#features">Tính năng</a><a href="#pricing">Bảng giá</a><a href="#faq">FAQ</a></nav>
-  <div class="nav-actions"><button class="ghost" id="loginOpen">Đăng nhập</button><a class="primary" href="/app">Bắt đầu tạo</a></div>
+<body class="model-home">
+<header class="nav model-nav">
+  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
+  <nav>
+    <a href="#models">Model AI</a>
+    <a href="#how">Cách dùng</a>
+    <a href="#pricing">Credits</a>
+  </nav>
+  <div class="nav-actions">
+    <button class="ghost" id="loginOpen">Đăng nhập</button>
+    <a class="primary" href="/app">Dashboard</a>
+  </div>
 </header>
 
-<main>
-<section class="hero">
-  <div class="hero-copy">
-    <div class="eyebrow">WAN ANIMATE • MOTION TRANSFER</div>
-    <h1>Biến ảnh tĩnh thành <em>video chuyển động.</em></h1>
-    <p>Tải ảnh nhân vật và video mẫu. Hệ thống đưa job vào hàng đợi và worker GPU xử lý tự động khi online.</p>
-    <div class="hero-actions"><a class="primary big" href="/app">Tạo video ngay →</a><a class="dark big" href="#features">Xem cách hoạt động</a></div>
-    <div class="facts"><div><b>9:16</b><span>TikTok / Reels</span></div><div><b>16:9</b><span>YouTube</span></div><div><b>720p</b><span>Render chất lượng cao</span></div></div>
-  </div>
-  <div class="product-card">
-    <div class="window">● ● ● <span>Create Motion</span></div>
-    <div class="upload-pair"><div>🖼️<b>Ảnh nhân vật</b><small>character.png</small></div><i>+</i><div>🎬<b>Video motion</b><small>dance.mp4</small></div></div>
-    <label>Model</label><div class="fake-input">Wan Animate 2 • Distill INT8 <b>⌄</b></div>
-    <label>Chất lượng</label><div class="chips"><span>480p</span><span class="active">720p</span><span>9:16</span></div>
-    <a class="primary wide" href="/app">✨ Tạo video</a>
-    <div class="render-box"><div><span>Đang render...</span><b>68%</b></div><progress value="68" max="100"></progress></div>
-  </div>
-</section>
+<main class="model-main">
+  <section class="model-hero" id="models">
+    <div class="model-eyebrow">CHỌN MODEL</div>
+    <div class="model-title-row">
+      <div>
+        <h1>TVC Studio <em>AI</em></h1>
+        <p>Chọn một công cụ bên dưới để bắt đầu tạo nội dung.</p>
+      </div>
+      <div class="credit-note">
+        <span>◈</span>
+        <div><b>Thanh toán bằng credits</b><small>Job lỗi được hoàn credits tự động</small></div>
+      </div>
+    </div>
 
-<section class="steps"><div><b>01</b><span>Tải ảnh</span></div><i>→</i><div><b>02</b><span>Tải motion</span></div><i>→</i><div><b>03</b><span>AI render</span></div><i>→</i><div><b>04</b><span>Nhận video</span></div></section>
+    <div class="model-grid">
+      <article class="model-card live">
+        <div class="model-visual motion">
+          <img class="model-preview-image" src="/static/images/card_upscale.png" alt="AI Upscale Ảnh / Video">
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge green">ĐANG HOẠT ĐỘNG</span><span class="badge">WAN ANIMATE 2</span></div>
+          <h2>AI Copy Chuyển Động</h2>
+          <p>Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 10–20</b><span>credits / job</span></div>
+            <a class="model-button" href="/app?tool=motion">Tạo ngay <b>→</b></a>
+          </div>
+        </div>
+      </article>
 
-<section class="section" id="features">
-  <div class="section-head"><span>HỆ THỐNG</span><h2>Web bán dịch vụ AI video, không chỉ là trang demo.</h2></div>
-  <div class="grid features">
-    <article class="double"><i>⚡</i><h3>Job Queue thật</h3><p>Khách tạo job ngay cả khi GPU tắt. Khi worker online, server phát job theo thứ tự và cập nhật tiến độ.</p><div class="queue"><div><b>● #1024</b><span>72%</span></div><div><b>○ #1025</b><span>Đang chờ</span></div><div><b>○ #1026</b><span>Đang chờ</span></div></div></article>
-    <article><i>👤</i><h3>Tài khoản</h3><p>Đăng ký, đăng nhập, session cookie và lịch sử riêng cho từng khách.</p></article>
-    <article><i>◈</i><h3>Credits</h3><p>Trừ điểm khi tạo job, hoàn tự động nếu worker báo render lỗi.</p></article>
-    <article><i>🛡️</i><h3>Admin</h3><p>Quản lý khách, job, yêu cầu nạp điểm và cộng trừ credits.</p></article>
-    <article><i>🖥️</i><h3>Worker API</h3><p>Máy RTX 5090 chỉ cần claim job, tải input, render rồi upload output.</p></article>
-  </div>
-</section>
+      <article class="model-card coming">
+        <div class="model-visual outfit-video">
+          <div class="sample-panel"><span>Video mẫu</span><div class="person">🧍🏻‍♀️</div></div>
+          <div class="equation plus">+</div>
+          <div class="sample-panel clothing"><span>Ảnh trang phục</span><div class="person">👗</div></div>
+          <div class="equation equal">→</div>
+          <div class="sample-panel result"><span>Video mới</span><div class="person">💃🏻</div></div>
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">VIDEO</span></div>
+          <h2>AI Thay Đổi Trang Phục Video</h2>
+          <p>Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 25</b><span>credits dự kiến</span></div>
+            <button class="model-button secondary" data-coming="Thay trang phục video">Sắp mở</button>
+          </div>
+        </div>
+      </article>
 
-<section class="section" id="pricing">
-  <div class="section-head center"><span>BẢNG GIÁ MẪU</span><h2>Bán theo credits.</h2><p>Giá có thể đổi trong code hoặc đưa vào database ở bản tiếp theo.</p></div>
-  <div class="grid pricing">
-    <article><small>Dùng thử</small><h3>Starter</h3><strong>49K</strong><p>50 credits</p><a class="dark wide" href="/app">Chọn gói</a></article>
-    <article class="featured"><small>Phổ biến</small><h3>Creator</h3><strong>199K</strong><p>250 credits</p><a class="primary wide" href="/app">Chọn gói</a></article>
-    <article><small>Số lượng lớn</small><h3>Studio</h3><strong>699K</strong><p>1000 credits</p><a class="dark wide" href="/app">Chọn gói</a></article>
-  </div>
-</section>
+      <article class="model-card coming">
+        <div class="model-visual fix-skin">
+          <div class="portrait before">👩🏻<span>Trước</span></div>
+          <div class="big-arrow">→</div>
+          <div class="portrait after">👩🏻<span>Sau</span></div>
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
+          <h2>AI Fix Ảnh Da Nhựa</h2>
+          <p>Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
+            <button class="model-button secondary" data-coming="Fix ảnh da nhựa">Sắp mở</button>
+          </div>
+        </div>
+      </article>
 
-<section class="section faq" id="faq">
- <div class="section-head"><span>FAQ</span><h2>Câu hỏi thường gặp</h2></div>
- <details open><summary>GPU tắt thì khách có tạo job được không?</summary><p>Có. Job nằm trong SQLite ở trạng thái waiting cho đến khi worker claim.</p></details>
- <details><summary>Render lỗi có mất credits không?</summary><p>Worker gọi endpoint fail thì hệ thống hoàn credits của job về cho khách.</p></details>
- <details><summary>Đã có thanh toán tự động chưa?</summary><p>Bản V2 có yêu cầu nạp điểm và admin duyệt. Cổng thanh toán thật cần API merchant của đơn vị thanh toán.</p></details>
-</section>
+      <article class="model-card coming">
+        <div class="model-visual bg-change">
+          <div class="portrait room">🧍🏻‍♀️<span>Ảnh người</span></div>
+          <div class="big-plus">+</div>
+          <div class="portrait scenery">🏙️<span>Nền mới</span></div>
+          <div class="big-arrow">→</div>
+          <div class="portrait final">✨<span>Hoàn thành</span></div>
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
+          <h2>AI Thay Nền Ảnh</h2>
+          <p>Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
+            <button class="model-button secondary" data-coming="Thay nền ảnh">Sắp mở</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="model-card coming">
+        <div class="model-visual outfit-image">
+          <div class="portrait before">🧍🏻‍♀️<span>Nhân vật</span></div>
+          <div class="big-plus">+</div>
+          <div class="portrait clothing-only">👚<span>Trang phục</span></div>
+          <div class="big-arrow">→</div>
+          <div class="portrait after">💁🏻‍♀️<span>Kết quả</span></div>
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
+          <h2>AI Thay Trang Phục Ảnh</h2>
+          <p>Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
+            <button class="model-button secondary" data-coming="Thay trang phục ảnh">Sắp mở</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="model-card coming">
+        <div class="model-visual upscale">
+          <div class="upscale-chip">720p</div>
+          <div class="upscale-arrow">→</div>
+          <div class="upscale-chip strong">4K</div>
+          <div class="sparkles">✦ ✧ ✦</div>
+        </div>
+        <div class="model-body">
+          <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">ENHANCE</span></div>
+          <h2>AI Upscale Ảnh / Video</h2>
+          <p>Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.</p>
+          <div class="model-footer">
+            <div class="credit-price"><b>◉ 3+</b><span>credits dự kiến</span></div>
+            <button class="model-button secondary" data-coming="Upscale">Sắp mở</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-info" id="how">
+    <div class="home-info-head">
+      <span>QUY TRÌNH</span>
+      <h2>3 bước để khách tạo video.</h2>
+    </div>
+    <div class="home-process">
+      <div><b>01</b><h3>Chọn model</h3><p>Khách chọn công cụ phù hợp với nhu cầu.</p></div>
+      <div><b>02</b><h3>Tải dữ liệu</h3><p>Upload ảnh, video mẫu và nhập prompt nếu cần.</p></div>
+      <div><b>03</b><h3>Nhận kết quả</h3><p>Job vào queue, GPU xử lý và trả file về tài khoản.</p></div>
+    </div>
+  </section>
+
+  <section class="home-credit-section" id="pricing">
+    <div>
+      <span>HỆ THỐNG CREDITS</span>
+      <h2>Bán dịch vụ theo từng job.</h2>
+      <p>Bản backend hiện đã hỗ trợ tài khoản, credits, job queue, hoàn credits khi lỗi và admin duyệt nạp điểm.</p>
+    </div>
+    <a class="primary big" href="/app">Vào dashboard →</a>
+  </section>
 </main>
 
-<footer><a class="brand" href="/"><span>M</span>MotionHub <b>AI</b></a><p>© 2026 MotionHub AI Business V2</p></footer>
+<footer>
+  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
+  <p>© 2026 TVC Studio AI • V2.2</p>
+</footer>
 
-<div class="modal-wrap" id="loginModal"><div class="modal"><button class="x" id="loginClose">×</button><h2>Đăng nhập</h2><p>Đăng nhập để vào dashboard.</p><input id="email" placeholder="Email"><input id="password" type="password" placeholder="Mật khẩu"><button class="primary wide" id="loginBtn">Đăng nhập</button><a href="/app" class="text-link">Chưa có tài khoản? Đăng ký ở dashboard</a><div id="loginMsg" class="msg"></div></div></div>
+<div class="modal-wrap" id="loginModal">
+  <div class="modal">
+    <button class="x" id="loginClose">×</button>
+    <h2>Đăng nhập</h2>
+    <p>Đăng nhập để sử dụng credits và theo dõi job.</p>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Mật khẩu">
+    <button class="primary wide" id="loginBtn">Đăng nhập</button>
+    <a href="/app" class="text-link">Chưa có tài khoản? Đăng ký</a>
+    <div id="loginMsg" class="msg"></div>
+  </div>
+</div>
+
+<div class="toast" id="homeToast"></div>
 <script>
-const m=document.getElementById('loginModal');
-document.getElementById('loginOpen').onclick=()=>m.classList.add('open');
-document.getElementById('loginClose').onclick=()=>m.classList.remove('open');
+const loginModal=document.getElementById('loginModal');
+document.getElementById('loginOpen').onclick=()=>loginModal.classList.add('open');
+document.getElementById('loginClose').onclick=()=>loginModal.classList.remove('open');
 document.getElementById('loginBtn').onclick=async()=>{
- const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email.value,password:password.value})});
- const j=await r.json(); if(r.ok) location.href=j.role==='admin'?'/admin':'/app'; else loginMsg.textContent=j.detail||'Đăng nhập thất bại';
+  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('password').value})});
+  let j={}; try{j=await r.json()}catch{}
+  if(r.ok) location.href=j.role==='admin'?'/admin':'/app';
+  else document.getElementById('loginMsg').textContent=j.detail||'Đăng nhập thất bại';
 };
+const t=document.getElementById('homeToast');
+document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
+  t.textContent=btn.dataset.coming+' đang chuẩn bị worker AI.';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
+});
 </script>
-</body></html>
+</body>
+</html>
