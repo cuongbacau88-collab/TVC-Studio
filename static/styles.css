@@ -3186,3 +3186,514 @@ footer, .footer, .footer-note, .copyright{
       0 12px 28px rgba(131,149,255,.14) !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.1 — BALANCED BRIGHT GLASS
+   Giữ nền sáng pastel nhưng tăng tương phản card / chữ, bỏ cảm giác trắng bệch
+   ===================================================================== */
+
+body,
+body.v3-liquid-theme{
+  background:
+    radial-gradient(950px 520px at 5% 0%, rgba(118,190,255,.48), transparent 62%),
+    radial-gradient(900px 520px at 96% 8%, rgba(235,164,232,.30), transparent 62%),
+    radial-gradient(900px 500px at 52% 100%, rgba(156,164,255,.25), transparent 68%),
+    linear-gradient(135deg,#d8e8ff 0%,#d8e1ff 38%,#ddd3ff 70%,#f0d4e8 100%) !important;
+}
+
+/* Header / toolbar: sáng nhưng có nền để đọc rõ */
+.global-toolbar,
+.global-toolbar.liquid-toolbar{
+  background:
+    linear-gradient(180deg,rgba(55,79,155,.48),rgba(44,63,129,.34)) !important;
+  border-bottom:1px solid rgba(255,255,255,.36) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.30),
+    0 10px 30px rgba(77,94,171,.18) !important;
+}
+
+.global-toolbar .liquid-pill,
+.global-toolbar .tool-pill,
+.global-toolbar .credit-tool,
+.lang-switch,
+.account-pill{
+  background:
+    linear-gradient(180deg,rgba(42,61,125,.38),rgba(35,49,103,.24)) !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  color:#fff !important;
+}
+
+/* Các panel/card dùng blue-glass đậm hơn để chữ không chìm */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue,.dashboard-card,.task-card
+){
+  background:
+    linear-gradient(150deg,rgba(60,85,162,.48),rgba(49,65,132,.30)) !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.30),
+    0 18px 42px rgba(80,93,164,.16) !important;
+  backdrop-filter:blur(22px) saturate(145%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(145%) !important;
+}
+
+/* Giảm lớp wash trắng phủ card */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .stat,.job,.auth-card,.modal,.home-process>div,.home-credit-section
+)::before{
+  height:18% !important;
+  opacity:.42 !important;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.28),rgba(255,255,255,.06),transparent) !important;
+}
+
+.v3-liquid-theme :is(.model-card,.panel-card,.affiliate-card,.balance)::after{
+  opacity:.55 !important;
+}
+
+/* Tiêu đề và nội dung rõ hơn */
+.model-title-row h1,
+.model-body h2,
+.model-body h3,
+.panel-card h2,
+.panel-card h3,
+.affiliate-card h2,
+.affiliate-card h3,
+.home-process h3,
+.home-credit-section h2{
+  color:#ffffff !important;
+  text-shadow:0 2px 10px rgba(45,59,130,.22) !important;
+}
+
+.model-title-row p,
+.model-body p,
+.panel-card p,
+.affiliate-card p,
+.home-process p,
+.home-credit-section p,
+.muted,
+.subtle{
+  color:rgba(244,248,255,.90) !important;
+}
+
+/* phần thân card model đậm hơn riêng biệt */
+.model-body{
+  background:
+    linear-gradient(180deg,rgba(43,62,130,.26),rgba(37,51,108,.18)) !important;
+  border-top:1px solid rgba(255,255,255,.12) !important;
+}
+
+/* Preview giữ đúng màu ảnh/video, không bị wash xanh */
+.model-preview-image,
+.motion-preview-video,
+.motion-video-fallback,
+.model-thumb img{
+  filter:none !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+
+/* Khung preview kính vừa phải, không che video */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.08)) !important;
+  border:1px solid rgba(255,255,255,.42) !important;
+}
+.motion-featured .model-visual.motion::before,
+.motion-video-shell::before{
+  opacity:.26 !important;
+  height:22% !important;
+}
+.motion-featured .model-visual.motion::after,
+.motion-video-shell::after{
+  opacity:.30 !important;
+}
+
+/* Buttons: sáng, rõ, không trắng nhạt */
+.model-button,
+.primary,
+.motion-cta-button{
+  background:
+    linear-gradient(135deg,#66afff 0%,#8b8df7 45%,#e99bd8 100%) !important;
+  border:1px solid rgba(255,255,255,.46) !important;
+  color:#fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.48),
+    0 10px 25px rgba(109,119,220,.22) !important;
+}
+
+/* Coming-soon buttons cần đủ contrast */
+.model-button.secondary,
+.dark{
+  background:rgba(42,58,121,.38) !important;
+  border:1px solid rgba(255,255,255,.25) !important;
+  color:#f7f9ff !important;
+}
+
+/* Badge rõ */
+.badge,
+.model-badges .badge{
+  background:rgba(42,59,121,.38) !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  color:#fff !important;
+}
+
+/* credits */
+.credit-price b,
+.money{
+  color:#7ff0bd !important;
+}
+.credit-price span{
+  color:rgba(238,243,255,.78) !important;
+}
+
+/* input / account */
+input,select,textarea,
+.panel-card input,.panel-card select,.panel-card textarea,
+.auth-card input,.ref-code-row input,.withdraw-form input,
+.withdraw-form select,.withdraw-form textarea{
+  background:rgba(37,53,111,.32) !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+}
+
+input::placeholder,textarea::placeholder{
+  color:rgba(236,242,255,.70) !important;
+}
+
+.account-popover,
+body > .account-popover{
+  background:
+    linear-gradient(180deg,rgba(68,91,166,.90),rgba(46,64,133,.90)) !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+}
+
+/* Trang chủ: note credits rõ hơn */
+.credit-note{
+  background:
+    linear-gradient(135deg,rgba(69,94,170,.48),rgba(70,77,149,.34)) !important;
+}
+.credit-note b{color:#fff !important}
+.credit-note small{color:rgba(240,245,255,.84) !important}
+
+/* Mobile */
+@media(max-width:760px){
+  body,
+  body.v3-liquid-theme{
+    background:
+      radial-gradient(620px 320px at 7% 0%,rgba(116,189,255,.42),transparent 62%),
+      radial-gradient(620px 320px at 95% 8%,rgba(234,164,230,.26),transparent 62%),
+      linear-gradient(155deg,#d8e8ff 0%,#d9e1ff 48%,#e2d4ff 76%,#f0d5e8 100%) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    background:
+      linear-gradient(180deg,rgba(55,79,155,.66),rgba(44,63,129,.50)) !important;
+  }
+
+  .v3-liquid-theme :is(
+    .panel-card,.balance,.affiliate-card,.model-card,.stat,.job,.auth-card
+  ){
+    background:
+      linear-gradient(150deg,rgba(62,87,164,.54),rgba(49,65,132,.38)) !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.2 — Remove black edge on motion preview
+   ===================================================================== */
+
+/* bỏ nền tối/padding gây hở viền đen ở cạnh phải */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  padding: 0 !important;
+  background: transparent !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,.40) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.12),
+    0 14px 28px rgba(118,138,230,.14) !important;
+}
+
+/* bỏ các lớp phủ dễ làm lộ mép nền */
+.motion-featured .model-visual.motion::before,
+.motion-featured .model-visual.motion::after,
+.motion-video-shell::before,
+.motion-video-shell::after{
+  display: none !important;
+}
+
+/* media phải phủ kín toàn bộ khung */
+.motion-video-shell .motion-preview-video,
+.motion-video-shell .motion-video-fallback,
+.motion-featured .model-visual.motion .model-preview-image{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  inset:0 !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border-radius:23px !important;
+  background:transparent !important;
+  outline:none !important;
+  box-shadow:none !important;
+  clip-path:none !important;
+  transform:scale(1.01) !important;
+}
+
+/* nếu browser render video vẫn còn mép hở, kéo media tràn thêm 1 chút */
+.motion-video-shell .motion-preview-video,
+.motion-video-shell .motion-video-fallback{
+  width:calc(100% + 4px) !important;
+  margin-left:-2px !important;
+  margin-right:-2px !important;
+}
+
+@media(max-width:760px){
+  .motion-featured .model-visual.motion,
+  .motion-video-shell{
+    border-radius:20px !important;
+  }
+  .motion-video-shell .motion-preview-video,
+  .motion-video-shell .motion-video-fallback,
+  .motion-featured .model-visual.motion .model-preview-image{
+    border-radius:19px !important;
+    transform:scale(1.012) !important;
+  }
+  .motion-video-shell .motion-preview-video,
+  .motion-video-shell .motion-video-fallback{
+    width:calc(100% + 3px) !important;
+    margin-left:-1.5px !important;
+    margin-right:-1.5px !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.3 — Fullscreen video player with sound
+   ===================================================================== */
+.motion-video-shell.is-clickable{
+  cursor:pointer !important;
+}
+
+.motion-open-player{
+  position:absolute;
+  left:50%;
+  top:50%;
+  z-index:8;
+  width:54px;
+  height:54px;
+  transform:translate(-50%,-50%);
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.46);
+  color:#fff;
+  background:linear-gradient(180deg,rgba(38,61,132,.70),rgba(31,47,105,.54));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    0 12px 28px rgba(52,64,140,.30),
+    0 0 22px rgba(134,151,255,.20);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.motion-open-player span{
+  font-size:20px;
+  transform:translateX(2px);
+}
+
+.motion-video-shell:hover .motion-open-player{
+  transform:translate(-50%,-50%) scale(1.08);
+  background:linear-gradient(135deg,rgba(104,174,255,.82),rgba(155,141,255,.76),rgba(235,150,212,.72));
+}
+
+.motion-player-modal{
+  position:fixed;
+  inset:0;
+  z-index:50000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.motion-player-modal.open{
+  display:flex;
+  animation:motionPlayerFade .18s ease both;
+}
+
+.motion-player-backdrop{
+  position:absolute;
+  inset:0;
+  background:rgba(5,10,25,.72);
+  backdrop-filter:blur(18px) saturate(125%);
+  -webkit-backdrop-filter:blur(18px) saturate(125%);
+}
+
+.motion-player-panel{
+  position:relative;
+  z-index:2;
+  width:min(1080px,94vw);
+  max-height:92vh;
+  overflow:hidden;
+  border-radius:26px;
+  border:1px solid rgba(255,255,255,.30);
+  background:
+    radial-gradient(700px 240px at 18% 0%,rgba(109,185,255,.16),transparent 68%),
+    radial-gradient(600px 260px at 100% 100%,rgba(238,154,218,.12),transparent 70%),
+    linear-gradient(160deg,rgba(51,71,143,.76),rgba(34,48,105,.72));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    0 38px 100px rgba(0,6,30,.55);
+  backdrop-filter:blur(32px) saturate(155%);
+  -webkit-backdrop-filter:blur(32px) saturate(155%);
+}
+
+.motion-player-topbar{
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 16px 12px 20px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.motion-player-topbar>div{
+  display:flex;
+  flex-direction:column;
+}
+
+.motion-player-topbar b{
+  color:#fff;
+  font-size:15px;
+}
+
+.motion-player-topbar small{
+  margin-top:2px;
+  color:rgba(244,248,255,.72);
+  font-size:10px;
+}
+
+.motion-player-close{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.20);
+  color:#fff;
+  background:rgba(255,255,255,.10);
+  font-size:26px;
+  line-height:1;
+  cursor:pointer;
+}
+
+.motion-player-stage{
+  padding:14px;
+}
+
+.motion-player-stage video{
+  display:block;
+  width:100%;
+  max-height:calc(92vh - 150px);
+  aspect-ratio:16/9;
+  object-fit:contain;
+  background:#05070d;
+  border-radius:18px;
+  outline:1px solid rgba(255,255,255,.12);
+  box-shadow:0 18px 50px rgba(0,5,24,.28);
+}
+
+.motion-player-bottom{
+  min-height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:10px 16px 14px 20px;
+  color:rgba(244,248,255,.80);
+  font-size:11px;
+}
+
+.motion-player-create{
+  min-height:38px;
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+  color:#fff;
+  font-weight:850;
+  background:linear-gradient(135deg,#66afff,#8b8df7 48%,#e99bd8);
+  border:1px solid rgba(255,255,255,.38);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 8px 20px rgba(91,105,215,.22);
+}
+
+body.video-player-open{
+  overflow:hidden !important;
+}
+
+@keyframes motionPlayerFade{
+  from{opacity:0}
+  to{opacity:1}
+}
+
+@media(max-width:760px){
+  .motion-open-player{
+    width:46px;
+    height:46px;
+  }
+  .motion-open-player span{font-size:17px}
+
+  .motion-player-modal{
+    padding:0;
+    align-items:stretch;
+  }
+
+  .motion-player-panel{
+    width:100vw;
+    max-height:none;
+    min-height:100dvh;
+    border-radius:0;
+    border-left:0;
+    border-right:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .motion-player-topbar{
+    flex:0 0 auto;
+    padding-top:max(12px,env(safe-area-inset-top));
+  }
+
+  .motion-player-stage{
+    padding:10px;
+    flex:0 0 auto;
+  }
+
+  .motion-player-stage video{
+    width:100%;
+    max-height:72dvh;
+    aspect-ratio:auto;
+    object-fit:contain;
+    border-radius:14px;
+  }
+
+  .motion-player-bottom{
+    flex:0 0 auto;
+    padding-bottom:max(14px,env(safe-area-inset-bottom));
+  }
+}

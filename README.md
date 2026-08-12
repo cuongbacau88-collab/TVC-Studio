@@ -289,3 +289,24 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Đổi toàn bộ giao diện sang tông sáng hơn theo ảnh mẫu: xanh pastel / lavender / hồng nhạt.
 - Toolbar, card, popup, preview frame và button đều sáng hơn, mềm hơn.
 - Giữ hiệu ứng glass / mirror nhưng chuyển sang cảm giác tươi sáng, trong trẻo hơn.
+
+
+## V3.3.1 — Balanced Bright Glass
+- Giữ nền pastel sáng nhưng tăng độ tương phản của card.
+- Card chuyển sang blue-glass trong vừa phải, chữ trắng đọc rõ.
+- Bỏ cảm giác trắng bệch / mờ chữ của V3.3.
+- Preview ảnh/video giữ màu gốc, giảm lớp phủ làm tối hoặc xanh ảnh.
+
+
+## V3.3.2 — Remove black edge on motion preview
+- Xóa nền/padding gây hở viền đen ở preview card Copy Chuyển Động.
+- Cho media phủ kín khung hơn.
+- Tắt lớp overlay của preview để không lộ mép đen bên phải.
+
+
+## V3.3.3 — Bấm video mở player riêng có âm thanh
+- Bấm trực tiếp vào preview video sẽ mở một màn hình player nổi.
+- Player có controls, phát tiếng ngay sau thao tác bấm của người dùng nếu file MP4 có audio.
+- Desktop mở modal lớn; điện thoại mở gần toàn màn hình.
+- Đóng bằng nút X, bấm nền ngoài hoặc phím Esc.
+- Khi đóng player, preview nhỏ tiếp tục chạy muted.

@@ -96,6 +96,7 @@
             <source src="/static/videos/card_motion.mp4" type="video/mp4">
           </video>
           <img class="model-preview-image motion-video-fallback" src="/static/images/card_motion.png" alt="AI Copy Chuyển Động">
+          <button class="motion-open-player" type="button" aria-label="Mở video có âm thanh" title="Xem video"><span>▶</span></button>
         </div>
         <div class="model-body motion-card-body">
           <h2 data-i18n="modelMotionTitle">AI Copy Chuyển Động</h2>
@@ -390,29 +391,129 @@ async function tvcSyncToolbarAccount(){
 document.addEventListener("DOMContentLoaded",()=>{tvcInitToolbar();tvcSyncToolbarAccount();});
 </script>
 
+
+
+
+
+
+
+<div class="motion-player-modal" id="motionPlayerModal" aria-hidden="true">
+  <div class="motion-player-backdrop" data-player-close></div>
+  <div class="motion-player-panel" role="dialog" aria-modal="true" aria-label="Video Copy Chuyển Động">
+    <div class="motion-player-topbar">
+      <div>
+        <b>AI Copy Chuyển Động</b>
+        <small>Video demo</small>
+      </div>
+      <button class="motion-player-close" type="button" data-player-close aria-label="Đóng">×</button>
+    </div>
+
+    <div class="motion-player-stage">
+      <video id="motionPlayerVideo" controls playsinline preload="metadata" poster="/static/images/card_motion.png">
+        <source src="/static/videos/card_motion.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <div class="motion-player-bottom">
+      <span>🔊 Video có âm thanh</span>
+      <a href="/app?tool=motion" class="motion-player-create">🎥 Tạo Video</a>
+    </div>
+  </div>
+</div>
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('.motion-preview-video').forEach(function (video) {
-    var fallback = video.parentElement.querySelector('.motion-video-fallback');
-    var source = video.querySelector('source');
-    if (!source || !source.getAttribute('src')) {
-      video.style.display = 'none';
-      if (fallback) fallback.style.display = 'block';
-      return;
+  var shell = document.querySelector('.motion-video-shell');
+  var preview = shell ? shell.querySelector('.motion-preview-video') : null;
+  var fallback = shell ? shell.querySelector('.motion-video-fallback') : null;
+  var openBtn = shell ? shell.querySelector('.motion-open-player') : null;
+
+  var modal = document.getElementById('motionPlayerModal');
+  var player = document.getElementById('motionPlayerVideo');
+
+  if (preview) {
+    function showPreview() {
+      preview.style.display = 'block';
+      preview.classList.add('ready');
+      if (fallback) fallback.style.display = 'none';
+      preview.muted = true;
+      preview.play().catch(function(){});
     }
-    video.addEventListener('loadeddata', function () {
-      video.classList.add('ready');
-      if (fallback) fallback.style.display = 'none';
-    });
-    video.addEventListener('canplay', function () {
-      video.classList.add('ready');
-      if (fallback) fallback.style.display = 'none';
-      video.play().catch(function(){});
-    });
-    video.addEventListener('error', function () {
-      video.style.display = 'none';
+    function showFallback() {
+      preview.style.display = 'none';
       if (fallback) fallback.style.display = 'block';
+    }
+    preview.addEventListener('loadeddata', showPreview);
+    preview.addEventListener('canplay', showPreview);
+    preview.addEventListener('error', showFallback);
+  }
+
+  function openPlayer(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!modal || !player) return;
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('video-player-open');
+
+    if (preview) {
+      try {
+        player.currentTime = preview.currentTime || 0;
+      } catch (_) {}
+      preview.pause();
+    }
+
+    // Because this runs directly from a user click/tap, browsers allow audio playback.
+    player.muted = false;
+    player.volume = 1;
+    var playPromise = player.play();
+    if (playPromise && playPromise.catch) {
+      playPromise.catch(function () {
+        // If a browser still blocks autoplay with sound, native controls remain visible.
+      });
+    }
+  }
+
+  function closePlayer() {
+    if (!modal || !player) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('video-player-open');
+    player.pause();
+
+    if (preview) {
+      try {
+        preview.currentTime = player.currentTime || 0;
+      } catch (_) {}
+      preview.muted = true;
+      preview.play().catch(function(){});
+    }
+  }
+
+  if (shell) {
+    shell.classList.add('is-clickable');
+    shell.addEventListener('click', function(e) {
+      // The entire video preview can be clicked to open the player.
+      openPlayer(e);
     });
+  }
+
+  if (openBtn) {
+    openBtn.addEventListener('click', openPlayer);
+  }
+
+  document.querySelectorAll('[data-player-close]').forEach(function(btn) {
+    btn.addEventListener('click', closePlayer);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && modal && modal.classList.contains('open')) {
+      closePlayer();
+    }
   });
 });
 </script>
