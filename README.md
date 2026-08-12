@@ -368,3 +368,10 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Chỉ giữ: ảnh minh họa, tải ảnh nhân vật, tải video mẫu, chọn 9:16/16:9.
 - Có 2 nút tạo trực tiếp: Nhanh 480p / 10 credits và Chất lượng 720p / 20 credits.
 - Backend/job queue không thay đổi; các giá trị model, prompt, quality được gửi ẩn.
+
+
+## V3.3.12 — Preview phần Tạo Video dùng video
+- Thay ảnh minh họa ở đầu phần Tạo Video bằng video demo.
+- Video dùng file `static/videos/card_motion.mp4`.
+- Autoplay muted + loop + playsinline để chạy ổn trên desktop và mobile.
+- Nếu trình duyệt chưa tải video, poster vẫn dùng `static/images/card_motion.png`.
