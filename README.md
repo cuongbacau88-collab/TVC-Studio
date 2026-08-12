@@ -426,3 +426,10 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Lịch Sử / Kiếm Tiền / Nạp Credits trên toolbar app chuyển tab trực tiếp, không điều hướng lại trang.
 - Đồng bộ trạng thái selected của toolbar với tab đang mở.
 - Dữ liệu Job / Wallet / Affiliate được tải sau khi UI đã phản hồi để thao tác cảm giác nhanh hơn.
+
+
+## V3.3.19 — Xóa Tài Khoản bị lặp trên mobile
+- Xóa nút `A Tài Khoản` / `mobileAccountBtn` khỏi thanh nav.
+- Thanh nav mobile còn 4 mục nên nhẹ và gọn hơn.
+- Giữ lại đúng một nút tài khoản thật ở góc phải để mở popup tài khoản.
+- Không còn 2 phần Tài Khoản chạy đồng thời.
