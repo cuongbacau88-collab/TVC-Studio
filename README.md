@@ -159,3 +159,33 @@ Affiliate hiện tính trên topup được admin duyệt. Khi nối cổng than
 - Mobile menu responsive
 
 Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và trang admin.
+
+## V2.5.1 — Mobile toolbar fix
+- Thanh công cụ luôn hiện trên điện thoại.
+- Hàng 1: logo + TVC Studio AI + VN/EN.
+- Hàng 2: Chọn Model / Lịch Sử / Kiếm Tiền / Nạp Credits / Tài Khoản.
+- Hàng nút có thể vuốt ngang trên màn hình nhỏ.
+- Không còn ẩn toàn bộ menu sau nút hamburger.
+
+## V2.5.2 — Toolbar nổi khi cuộn
+- Cố định thanh công cụ bằng `position: fixed`.
+- Giữ toolbar luôn hiện khi vuốt xuống / cuộn trang.
+- Tăng `z-index` để không bị nội dung đè lên.
+- Hỗ trợ safe-area trên iPhone / in-app browser.
+
+## V2.6 — Liquid Glass + i18n + Account menu
+- Logo + TVC Studio AI được căn giữa thanh công cụ.
+- Thanh công cụ dùng hiệu ứng kính mờ / liquid-glass lấy cảm hứng từ iOS.
+- VN / EN hoạt động thật cho menu và các nội dung chính.
+- Thêm menu Tài Khoản ngay trên toolbar: tên, email, số dư, ví, affiliate, đăng xuất.
+- Mobile: logo vẫn ở giữa; hàng công cụ bên dưới vuốt ngang và luôn nổi khi cuộn.
+
+## V2.6.1 — Mobile toolbar giống mẫu
+- Hàng trên: logo + TVC Studio AI ở giữa, VN/EN góc phải.
+- Hàng dưới: 5 nút chia đều toàn chiều ngang.
+- Icon ở trên, chữ ở dưới.
+- Nút đang chọn có viền tím glow.
+- Nạp Credits hiển thị số dư + 🔥 như mẫu.
+- Tài khoản dùng avatar tròn + nhãn Tài Khoản.
+- Thanh luôn fixed khi vuốt xuống.
+- Desktop giữ bố cục V2.6.

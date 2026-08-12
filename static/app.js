@@ -1,33 +1,131 @@
+
+const TVC_I18N = {
+  vi:{
+    topup:"Nạp Credits", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản",
+    wallet:"Ví credits", earn:"Kiếm Tiền", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
+    chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
+    creditPayment:"Thanh toán bằng credits", refundNote:"Job lỗi được hoàn credits tự động",
+    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
+    createNow:"Tạo ngay", modelOutfitVideoTitle:"AI Thay Đổi Trang Phục Video",
+    modelOutfitVideoDesc:"Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.",
+    modelSkinTitle:"AI Fix Ảnh Da Nhựa", modelSkinDesc:"Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.",
+    modelBgTitle:"AI Thay Nền Ảnh", modelBgDesc:"Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.",
+    modelOutfitImageTitle:"AI Thay Trang Phục Ảnh", modelOutfitImageDesc:"Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.",
+    modelUpscaleTitle:"AI Upscale Ảnh / Video", modelUpscaleDesc:"Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.",
+    comingSoon:"Sắp mở", processKicker:"QUY TRÌNH", processTitle:"3 bước để khách tạo video.",
+    process1Title:"Chọn model", process1Desc:"Khách chọn công cụ phù hợp với nhu cầu.",
+    process2Title:"Tải dữ liệu", process2Desc:"Upload ảnh, video mẫu và nhập prompt nếu cần.",
+    process3Title:"Nhận kết quả", process3Desc:"Job vào queue, GPU xử lý và trả file về tài khoản.",
+    creditsKicker:"HỆ THỐNG CREDITS", creditsTitle:"Bán dịch vụ theo từng job.",
+    creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, credits, job queue, hoàn credits khi lỗi và admin duyệt nạp điểm.",
+    dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
+    walletNav:"◈ Ví credits", earnNav:"💸 Kiếm tiền", accountNav:"⚙ Tài khoản",
+    login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
+    createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
+    aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
+    tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động credits", affiliateTitle:"Kiếm Tiền Từ Giới Thiệu",
+    affiliateSubtitle:"Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư",
+    shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
+    withdrawRequest:"Yêu Cầu Rút Thưởng", commissionHistory:"Lịch sử hoa hồng", withdrawHistory:"Lịch sử rút thưởng"
+  },
+  en:{
+    topup:"Buy Credits", account:"Account", balance:"Balance", accountSettings:"Account settings",
+    wallet:"Credits Wallet", earn:"Earn", logout:"Log out", models:"Choose Model", history:"History",
+    chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
+    creditPayment:"Pay with credits", refundNote:"Credits are automatically refunded if a job fails",
+    modelMotionTitle:"AI Motion Copy", modelMotionDesc:"Create motion video from a character image and a driving video. Supports TikTok/Reels 9:16 and YouTube 16:9.",
+    createNow:"Create now", modelOutfitVideoTitle:"AI Video Outfit Change",
+    modelOutfitVideoDesc:"Change a character's outfit in video while aiming to preserve motion, body shape and lighting.",
+    modelSkinTitle:"AI Plastic-Skin Fix", modelSkinDesc:"Make images feel more realistic by reducing plastic skin and restoring natural texture.",
+    modelBgTitle:"AI Background Change", modelBgDesc:"Keep the subject, replace the background and balance lighting for social commerce images.",
+    modelOutfitImageTitle:"AI Image Outfit Change", modelOutfitImageDesc:"Replace clothing from a reference image while preserving the subject's face and composition.",
+    modelUpscaleTitle:"AI Image / Video Upscale", modelUpscaleDesc:"Increase resolution and sharpness before downloading or posting to social media.",
+    comingSoon:"Coming soon", processKicker:"WORKFLOW", processTitle:"3 steps to create a video.",
+    process1Title:"Choose a model", process1Desc:"Pick the AI tool that matches your task.",
+    process2Title:"Upload inputs", process2Desc:"Upload images, a motion video and an optional prompt.",
+    process3Title:"Get the result", process3Desc:"The job enters the queue, the GPU renders it, and the result returns to your account.",
+    creditsKicker:"CREDITS SYSTEM", creditsTitle:"Sell AI services per job.",
+    creditsDesc:"The backend already supports accounts, credits, job queue, automatic refunds on failure and admin-approved top-ups.",
+    dashboardCta:"Open dashboard →", createVideoNav:"✨ Create Video", myJobsNav:"▤ My Jobs",
+    walletNav:"◈ Credits Wallet", earnNav:"💸 Earn", accountNav:"⚙ Account",
+    login:"Log in", register:"Sign up", welcomeBack:"Welcome back", createAccount:"Create account",
+    createVideoTitle:"Create a new video", characterImage:"Character image", motionVideo:"Motion video", model:"Model",
+    aspect:"Aspect ratio", quality:"Quality", prompt:"Prompt", cost:"Estimated cost", createVideo:"Create video",
+    tips:"TIPS", betterVideo:"For better results", myJobs:"My jobs", topupRequest:"Create a top-up request",
+    topupHistory:"Top-up history", creditLedger:"Credits activity", affiliateTitle:"Earn From Referrals",
+    affiliateSubtitle:"Share your link • Earn commission by tier • Request a payout when your balance is ready",
+    shareReward:"Share & Earn", enterReferral:"Enter Referral Code",
+    withdrawRequest:"Request Payout", commissionHistory:"Commission history", withdrawHistory:"Payout history"
+  }
+};
+
+function tvcApplyLanguage(lang){
+  const dict=TVC_I18N[lang]||TVC_I18N.vi;
+  document.documentElement.lang=lang;
+  localStorage.setItem('tvc_lang',lang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(dict[key]!=null) el.textContent=dict[key];
+  });
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+}
+
+function tvcInitToolbar(){
+  const lang=localStorage.getItem('tvc_lang')||'vi';
+  tvcApplyLanguage(lang);
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.addEventListener('click',()=>tvcApplyLanguage(b.dataset.lang)));
+
+  const wrap=document.querySelector('.toolbar-account-wrap');
+  const pop=document.getElementById('accountPopover');
+  const desktopBtn=document.getElementById('toolbarAccountBtn');
+  const mobileBtn=document.getElementById('mobileAccountBtn');
+  const toggle=()=>pop?.classList.toggle('open');
+  desktopBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  mobileBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  document.addEventListener('click',e=>{
+    if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
+  });
+
+  document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
+    await fetch('/api/logout',{method:'POST'});
+    location.href='/';
+  });
+
+  const menu=document.getElementById('toolbarMenu');
+  if(menu) menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
+}
+
+async function tvcSyncToolbarAccount(){
+  try{
+    const r=await fetch('/api/me');
+    if(!r.ok) throw new Error();
+    const me=await r.json();
+    const credits=Number(me.credits||0);
+    const initial=(me.name||me.email||'T').slice(0,1).toUpperCase();
+    const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+    set('toolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));set('mobileToolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
+    set('toolbarAccountCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
+    set('toolbarAccount',me.name||'Tài Khoản');
+    set('toolbarAccountName',me.name||'Tài Khoản');
+    set('toolbarAccountEmail',me.email||'');
+    set('toolbarAccountDot',initial);
+    set('toolbarAccountAvatar',initial);set('mobileAccountInitial',initial);
+  }catch{
+    const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+    set('toolbarCredits','0.0');set('mobileToolbarCredits','0.0');
+    set('toolbarAccountCredits','0');
+    set('toolbarAccount','Tài Khoản');
+    set('toolbarAccountName','Tài Khoản');
+    set('toolbarAccountEmail',document.documentElement.lang==='en'?'Not signed in':'Chưa đăng nhập');
+  }
+}
+
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const toast=$('#toast'); function say(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400)}
 let me=null, selectedPack='creator';
 
-let toolbarLang=localStorage.getItem('tvc_lang')||'vi';
-function syncToolbar(){
-  const c=$('#toolbarCredits'), a=$('#toolbarAccount');
-  if(c && me)c.textContent=Number(me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
-  if(a && me)a.textContent=me.name||'Tài Khoản';
-}
-function initToolbar(){
-  const buttons=$$('.lang-switch button');
-  buttons.forEach(b=>{
-    b.classList.toggle('active',b.dataset.lang===toolbarLang);
-    b.onclick=()=>{
-      toolbarLang=b.dataset.lang;localStorage.setItem('tvc_lang',toolbarLang);
-      buttons.forEach(x=>x.classList.toggle('active',x===b));
-      say(toolbarLang==='vi'?'Đã chọn Tiếng Việt':'English UI will be added later');
-    };
-  });
-  const menu=$('#toolbarMenu');
-  if(menu)menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
-  document.querySelectorAll('.global-actions a[href^="/app#"]').forEach(a=>{
-    a.addEventListener('click',e=>{
-      const hash=(new URL(a.href,location.origin)).hash;
-      const map={'#jobs':'jobs','#affiliate':'affiliate','#wallet':'wallet','#account':'account'};
-      if(map[hash]){e.preventDefault();goto(map[hash]);}
-    });
-  });
-}
+
 
 
 async function api(url,opt={}){
@@ -39,7 +137,7 @@ function referralFromUrl(){
   return (p.get('ref')||'').trim();
 }
 async function boot(){
-  initToolbar();
+  tvcInitToolbar();
   const ref=referralFromUrl();
   if(ref && $('#rReferral')) $('#rReferral').value=ref;
   try{
@@ -53,7 +151,7 @@ function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').cl
 function showDashboard(){
   $('#authGate').classList.add('hidden');$('#dashboard').classList.remove('hidden');
   $('#credits').textContent=me.credits;$('#walletCredits').textContent=me.credits;
-  $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();syncToolbar()
+  $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
 }
 $$('[data-auth]').forEach(b=>b.onclick=()=>{
   $$('[data-auth]').forEach(x=>x.classList.remove('active'));b.classList.add('active');

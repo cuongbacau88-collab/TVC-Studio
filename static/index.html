@@ -11,45 +11,79 @@
 </head>
 <body class="model-home has-global-toolbar">
 
-<div class="global-toolbar">
-  <div class="global-toolbar-inner">
-    <a class="global-brand" href="/">
-      <img src="/static/images/logo-tvc.png" alt="TVC Studio">
-      <strong>TVC Studio AI</strong>
-    </a>
 
-    <div class="lang-switch" aria-label="Language">
-      <button class="active" data-lang="vi">VN</button>
-      <span>|</span>
-      <button data-lang="en">EN</button>
+<div class="global-toolbar liquid-toolbar">
+  <div class="global-toolbar-inner">
+    <div class="toolbar-left">
+      <div class="lang-switch liquid-pill" aria-label="Language">
+        <button class="active" data-lang="vi">VN</button>
+        <span>|</span>
+        <button data-lang="en">EN</button>
+      </div>
     </div>
 
-    <nav class="global-actions">
-      <a href="/" class="tool-pill" data-tool="models">✦ <span>Chọn Model</span></a>
-      <a href="/app#jobs" class="tool-pill" data-tool="history">◷ <span>Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill affiliate-pill" data-tool="affiliate">◉ <span>Kiếm Tiền</span></a>
-      <a href="/app#wallet" class="credit-tool"><b id="toolbarCredits">0.0</b> ◊ <span>Nạp Credits</span></a>
-      <a href="/app#account" class="tool-pill account-pill" data-tool="account">
-        <span class="account-dot">T</span><span id="toolbarAccount">Tài Khoản</span>
-      </a>
-    </nav>
+    <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI">
+      <span class="brand-glass-orb">
+        <img src="/static/images/logo-tvc.png" alt="TVC Studio">
+      </span>
+      <strong>TVC Studio <b>AI</b></strong>
+    </a>
 
-    <button class="toolbar-menu" id="toolbarMenu" aria-label="Menu">☰</button>
+    <div class="toolbar-right">
+      <a href="/app#wallet" class="credit-tool liquid-pill">
+        <b id="toolbarCredits">0.0</b> ◊ <span data-i18n="topup">Nạp Credits</span>
+      </a>
+
+      <div class="toolbar-account-wrap">
+        <button class="tool-pill account-pill liquid-pill" id="toolbarAccountBtn" type="button">
+          <span class="account-dot" id="toolbarAccountDot">T</span>
+          <span id="toolbarAccount" data-i18n="account">Tài Khoản</span>
+          <span class="account-chevron">⌄</span>
+        </button>
+
+        <div class="account-popover liquid-popover" id="accountPopover">
+          <div class="account-popover-head">
+            <span class="account-avatar-lg" id="toolbarAccountAvatar">T</span>
+            <div>
+              <b id="toolbarAccountName">Tài Khoản</b>
+              <small id="toolbarAccountEmail">Chưa đăng nhập</small>
+            </div>
+          </div>
+          <div class="account-popover-credit">
+            <span data-i18n="balance">Số dư</span>
+            <b><span id="toolbarAccountCredits">0</span> credits</b>
+          </div>
+          <div class="account-popover-actions">
+            <a href="/app#account" data-account-action="account"><span>👤</span><span data-i18n="accountSettings">Tài khoản</span></a>
+            <a href="/app#wallet" data-account-action="wallet"><span>◈</span><span data-i18n="wallet">Ví credits</span></a>
+            <a href="/app#affiliate" data-account-action="affiliate"><span>💸</span><span data-i18n="earn">Kiếm tiền</span></a>
+            <button type="button" id="toolbarLogout"><span>↪</span><span data-i18n="logout">Đăng xuất</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="global-actions liquid-nav">
+      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
+      <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0.0</b><i>🔥</i></span><span class="mobile-tool-label" data-i18n="topup">Nạp Credits</span></a>
+      <button class="tool-pill liquid-pill mobile-account-link" id="mobileAccountBtn" type="button"><span class="mobile-tool-icon mobile-account-icon" id="mobileAccountInitial">T</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></button>
+    </nav>
   </div>
 </div>
 
-
 <main class="model-main">
   <section class="model-hero" id="models">
-    <div class="model-eyebrow">CHỌN MODEL</div>
+    <div class="model-eyebrow" data-i18n="chooseModelEyebrow">CHỌN MODEL</div>
     <div class="model-title-row">
       <div>
         <h1>TVC Studio <em>AI</em></h1>
-        <p>Chọn một công cụ bên dưới để bắt đầu tạo nội dung.</p>
+        <p data-i18n="chooseToolSubtitle">Chọn một công cụ bên dưới để bắt đầu tạo nội dung.</p>
       </div>
       <div class="credit-note">
         <span>◈</span>
-        <div><b>Thanh toán bằng credits</b><small>Job lỗi được hoàn credits tự động</small></div>
+        <div><b data-i18n="creditPayment">Thanh toán bằng credits</b><small data-i18n="refundNote">Job lỗi được hoàn credits tự động</small></div>
       </div>
     </div>
 
@@ -60,8 +94,8 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge green">ĐANG HOẠT ĐỘNG</span><span class="badge">WAN ANIMATE 2</span></div>
-          <h2>AI Copy Chuyển Động</h2>
-          <p>Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.</p>
+          <h2 data-i18n="modelMotionTitle">AI Copy Chuyển Động</h2>
+          <p data-i18n="modelMotionDesc">Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 10–20</b><span>credits / job</span></div>
             <a class="model-button" href="/app?tool=motion">Tạo ngay <b>→</b></a>
@@ -79,11 +113,11 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">VIDEO</span></div>
-          <h2>AI Thay Đổi Trang Phục Video</h2>
-          <p>Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.</p>
+          <h2 data-i18n="modelOutfitVideoTitle">AI Thay Đổi Trang Phục Video</h2>
+          <p data-i18n="modelOutfitVideoDesc">Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 25</b><span>credits dự kiến</span></div>
-            <button class="model-button secondary" data-coming="Thay trang phục video">Sắp mở</button>
+            <button class="model-button secondary" data-coming="Thay trang phục video" data-i18n="comingSoon">Sắp mở</button>
           </div>
         </div>
       </article>
@@ -96,11 +130,11 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
-          <h2>AI Fix Ảnh Da Nhựa</h2>
-          <p>Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.</p>
+          <h2 data-i18n="modelSkinTitle">AI Fix Ảnh Da Nhựa</h2>
+          <p data-i18n="modelSkinDesc">Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
-            <button class="model-button secondary" data-coming="Fix ảnh da nhựa">Sắp mở</button>
+            <button class="model-button secondary" data-coming="Fix ảnh da nhựa" data-i18n="comingSoon">Sắp mở</button>
           </div>
         </div>
       </article>
@@ -115,11 +149,11 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
-          <h2>AI Thay Nền Ảnh</h2>
-          <p>Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.</p>
+          <h2 data-i18n="modelBgTitle">AI Thay Nền Ảnh</h2>
+          <p data-i18n="modelBgDesc">Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
-            <button class="model-button secondary" data-coming="Thay nền ảnh">Sắp mở</button>
+            <button class="model-button secondary" data-coming="Thay nền ảnh" data-i18n="comingSoon">Sắp mở</button>
           </div>
         </div>
       </article>
@@ -134,11 +168,11 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">IMAGE</span></div>
-          <h2>AI Thay Trang Phục Ảnh</h2>
-          <p>Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.</p>
+          <h2 data-i18n="modelOutfitImageTitle">AI Thay Trang Phục Ảnh</h2>
+          <p data-i18n="modelOutfitImageDesc">Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 5</b><span>credits dự kiến</span></div>
-            <button class="model-button secondary" data-coming="Thay trang phục ảnh">Sắp mở</button>
+            <button class="model-button secondary" data-coming="Thay trang phục ảnh" data-i18n="comingSoon">Sắp mở</button>
           </div>
         </div>
       </article>
@@ -152,11 +186,11 @@
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">SẮP CÓ</span><span class="badge">ENHANCE</span></div>
-          <h2>AI Upscale Ảnh / Video</h2>
-          <p>Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.</p>
+          <h2 data-i18n="modelUpscaleTitle">AI Upscale Ảnh / Video</h2>
+          <p data-i18n="modelUpscaleDesc">Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.</p>
           <div class="model-footer">
             <div class="credit-price"><b>◉ 3+</b><span>credits dự kiến</span></div>
-            <button class="model-button secondary" data-coming="Upscale">Sắp mở</button>
+            <button class="model-button secondary" data-coming="Upscale" data-i18n="comingSoon">Sắp mở</button>
           </div>
         </div>
       </article>
@@ -165,23 +199,23 @@
 
   <section class="home-info" id="how">
     <div class="home-info-head">
-      <span>QUY TRÌNH</span>
-      <h2>3 bước để khách tạo video.</h2>
+      <span data-i18n="processKicker">QUY TRÌNH</span>
+      <h2 data-i18n="processTitle">3 bước để khách tạo video.</h2>
     </div>
     <div class="home-process">
-      <div><b>01</b><h3>Chọn model</h3><p>Khách chọn công cụ phù hợp với nhu cầu.</p></div>
-      <div><b>02</b><h3>Tải dữ liệu</h3><p>Upload ảnh, video mẫu và nhập prompt nếu cần.</p></div>
-      <div><b>03</b><h3>Nhận kết quả</h3><p>Job vào queue, GPU xử lý và trả file về tài khoản.</p></div>
+      <div><b>01</b><h3 data-i18n="process1Title">Chọn model</h3><p data-i18n="process1Desc">Khách chọn công cụ phù hợp với nhu cầu.</p></div>
+      <div><b>02</b><h3 data-i18n="process2Title">Tải dữ liệu</h3><p data-i18n="process2Desc">Upload ảnh, video mẫu và nhập prompt nếu cần.</p></div>
+      <div><b>03</b><h3 data-i18n="process3Title">Nhận kết quả</h3><p data-i18n="process3Desc">Job vào queue, GPU xử lý và trả file về tài khoản.</p></div>
     </div>
   </section>
 
   <section class="home-credit-section" id="pricing">
     <div>
-      <span>HỆ THỐNG CREDITS</span>
-      <h2>Bán dịch vụ theo từng job.</h2>
-      <p>Bản backend hiện đã hỗ trợ tài khoản, credits, job queue, hoàn credits khi lỗi và admin duyệt nạp điểm.</p>
+      <span data-i18n="creditsKicker">HỆ THỐNG CREDITS</span>
+      <h2 data-i18n="creditsTitle">Bán dịch vụ theo từng job.</h2>
+      <p data-i18n="creditsDesc">Bản backend hiện đã hỗ trợ tài khoản, credits, job queue, hoàn credits khi lỗi và admin duyệt nạp điểm.</p>
     </div>
-    <a class="primary big" href="/app">Vào dashboard →</a>
+    <a class="primary big" href="/app" data-i18n="dashboardCta">Vào dashboard →</a>
   </section>
 </main>
 
@@ -223,31 +257,130 @@ document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
 </script>
 
 <script>
-(function(){
-  const langBtns=[...document.querySelectorAll('.lang-switch button')];
-  langBtns.forEach(btn=>btn.addEventListener('click',()=>{
-    langBtns.forEach(x=>x.classList.remove('active'));
-    btn.classList.add('active');
-    localStorage.setItem('tvc_lang',btn.dataset.lang);
-  }));
-  const saved=localStorage.getItem('tvc_lang');
-  if(saved){
-    const b=document.querySelector('.lang-switch button[data-lang="'+saved+'"]');
-    if(b)b.click();
+
+const TVC_I18N = {
+  vi:{
+    topup:"Nạp Credits", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản",
+    wallet:"Ví credits", earn:"Kiếm Tiền", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
+    chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
+    creditPayment:"Thanh toán bằng credits", refundNote:"Job lỗi được hoàn credits tự động",
+    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
+    createNow:"Tạo ngay", modelOutfitVideoTitle:"AI Thay Đổi Trang Phục Video",
+    modelOutfitVideoDesc:"Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.",
+    modelSkinTitle:"AI Fix Ảnh Da Nhựa", modelSkinDesc:"Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.",
+    modelBgTitle:"AI Thay Nền Ảnh", modelBgDesc:"Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.",
+    modelOutfitImageTitle:"AI Thay Trang Phục Ảnh", modelOutfitImageDesc:"Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.",
+    modelUpscaleTitle:"AI Upscale Ảnh / Video", modelUpscaleDesc:"Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.",
+    comingSoon:"Sắp mở", processKicker:"QUY TRÌNH", processTitle:"3 bước để khách tạo video.",
+    process1Title:"Chọn model", process1Desc:"Khách chọn công cụ phù hợp với nhu cầu.",
+    process2Title:"Tải dữ liệu", process2Desc:"Upload ảnh, video mẫu và nhập prompt nếu cần.",
+    process3Title:"Nhận kết quả", process3Desc:"Job vào queue, GPU xử lý và trả file về tài khoản.",
+    creditsKicker:"HỆ THỐNG CREDITS", creditsTitle:"Bán dịch vụ theo từng job.",
+    creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, credits, job queue, hoàn credits khi lỗi và admin duyệt nạp điểm.",
+    dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
+    walletNav:"◈ Ví credits", earnNav:"💸 Kiếm tiền", accountNav:"⚙ Tài khoản",
+    login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
+    createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
+    aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
+    tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động credits", affiliateTitle:"Kiếm Tiền Từ Giới Thiệu",
+    affiliateSubtitle:"Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư",
+    shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
+    withdrawRequest:"Yêu Cầu Rút Thưởng", commissionHistory:"Lịch sử hoa hồng", withdrawHistory:"Lịch sử rút thưởng"
+  },
+  en:{
+    topup:"Buy Credits", account:"Account", balance:"Balance", accountSettings:"Account settings",
+    wallet:"Credits Wallet", earn:"Earn", logout:"Log out", models:"Choose Model", history:"History",
+    chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
+    creditPayment:"Pay with credits", refundNote:"Credits are automatically refunded if a job fails",
+    modelMotionTitle:"AI Motion Copy", modelMotionDesc:"Create motion video from a character image and a driving video. Supports TikTok/Reels 9:16 and YouTube 16:9.",
+    createNow:"Create now", modelOutfitVideoTitle:"AI Video Outfit Change",
+    modelOutfitVideoDesc:"Change a character's outfit in video while aiming to preserve motion, body shape and lighting.",
+    modelSkinTitle:"AI Plastic-Skin Fix", modelSkinDesc:"Make images feel more realistic by reducing plastic skin and restoring natural texture.",
+    modelBgTitle:"AI Background Change", modelBgDesc:"Keep the subject, replace the background and balance lighting for social commerce images.",
+    modelOutfitImageTitle:"AI Image Outfit Change", modelOutfitImageDesc:"Replace clothing from a reference image while preserving the subject's face and composition.",
+    modelUpscaleTitle:"AI Image / Video Upscale", modelUpscaleDesc:"Increase resolution and sharpness before downloading or posting to social media.",
+    comingSoon:"Coming soon", processKicker:"WORKFLOW", processTitle:"3 steps to create a video.",
+    process1Title:"Choose a model", process1Desc:"Pick the AI tool that matches your task.",
+    process2Title:"Upload inputs", process2Desc:"Upload images, a motion video and an optional prompt.",
+    process3Title:"Get the result", process3Desc:"The job enters the queue, the GPU renders it, and the result returns to your account.",
+    creditsKicker:"CREDITS SYSTEM", creditsTitle:"Sell AI services per job.",
+    creditsDesc:"The backend already supports accounts, credits, job queue, automatic refunds on failure and admin-approved top-ups.",
+    dashboardCta:"Open dashboard →", createVideoNav:"✨ Create Video", myJobsNav:"▤ My Jobs",
+    walletNav:"◈ Credits Wallet", earnNav:"💸 Earn", accountNav:"⚙ Account",
+    login:"Log in", register:"Sign up", welcomeBack:"Welcome back", createAccount:"Create account",
+    createVideoTitle:"Create a new video", characterImage:"Character image", motionVideo:"Motion video", model:"Model",
+    aspect:"Aspect ratio", quality:"Quality", prompt:"Prompt", cost:"Estimated cost", createVideo:"Create video",
+    tips:"TIPS", betterVideo:"For better results", myJobs:"My jobs", topupRequest:"Create a top-up request",
+    topupHistory:"Top-up history", creditLedger:"Credits activity", affiliateTitle:"Earn From Referrals",
+    affiliateSubtitle:"Share your link • Earn commission by tier • Request a payout when your balance is ready",
+    shareReward:"Share & Earn", enterReferral:"Enter Referral Code",
+    withdrawRequest:"Request Payout", commissionHistory:"Commission history", withdrawHistory:"Payout history"
   }
+};
+
+function tvcApplyLanguage(lang){
+  const dict=TVC_I18N[lang]||TVC_I18N.vi;
+  document.documentElement.lang=lang;
+  localStorage.setItem('tvc_lang',lang);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key=el.dataset.i18n;
+    if(dict[key]!=null) el.textContent=dict[key];
+  });
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang));
+}
+
+function tvcInitToolbar(){
+  const lang=localStorage.getItem('tvc_lang')||'vi';
+  tvcApplyLanguage(lang);
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.addEventListener('click',()=>tvcApplyLanguage(b.dataset.lang)));
+
+  const wrap=document.querySelector('.toolbar-account-wrap');
+  const pop=document.getElementById('accountPopover');
+  const desktopBtn=document.getElementById('toolbarAccountBtn');
+  const mobileBtn=document.getElementById('mobileAccountBtn');
+  const toggle=()=>pop?.classList.toggle('open');
+  desktopBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  mobileBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  document.addEventListener('click',e=>{
+    if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
+  });
+
+  document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
+    await fetch('/api/logout',{method:'POST'});
+    location.href='/';
+  });
 
   const menu=document.getElementById('toolbarMenu');
-  if(menu)menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
+  if(menu) menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
+}
 
-  fetch('/api/me').then(r=>r.ok?r.json():null).then(me=>{
-    if(!me)return;
-    const c=document.getElementById('toolbarCredits');
-    const a=document.getElementById('toolbarAccount');
-    if(c)c.textContent=Number(me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
-    if(a)a.textContent=me.name||'Tài Khoản';
-  }).catch(()=>{});
-})();
+async function tvcSyncToolbarAccount(){
+  try{
+    const r=await fetch('/api/me');
+    if(!r.ok) throw new Error();
+    const me=await r.json();
+    const credits=Number(me.credits||0);
+    const initial=(me.name||me.email||'T').slice(0,1).toUpperCase();
+    const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+    set('toolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));set('mobileToolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
+    set('toolbarAccountCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
+    set('toolbarAccount',me.name||'Tài Khoản');
+    set('toolbarAccountName',me.name||'Tài Khoản');
+    set('toolbarAccountEmail',me.email||'');
+    set('toolbarAccountDot',initial);
+    set('toolbarAccountAvatar',initial);set('mobileAccountInitial',initial);
+  }catch{
+    const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
+    set('toolbarCredits','0.0');set('mobileToolbarCredits','0.0');
+    set('toolbarAccountCredits','0');
+    set('toolbarAccount','Tài Khoản');
+    set('toolbarAccountName','Tài Khoản');
+    set('toolbarAccountEmail',document.documentElement.lang==='en'?'Not signed in':'Chưa đăng nhập');
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{tvcInitToolbar();tvcSyncToolbarAccount();});
 </script>
-
 </body>
 </html>
