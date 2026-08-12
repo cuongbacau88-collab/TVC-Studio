@@ -1,4 +1,4 @@
-# MotionHub AI Business V2
+# TVC Studio AI Business V2.1
 
 Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credits, job queue, admin và Worker API.
 
@@ -102,3 +102,60 @@ motionhub_business_v2/
    ├─ outputs/
    └─ motionhub.db   (tự tạo khi chạy)
 ```
+
+
+## V2.1 - Trang chủ chọn model
+Trang `/` giờ là trang chọn model dạng card như dịch vụ AI marketplace.
+Model `AI Copy Chuyển Động` đang dẫn vào dashboard thật.
+Các model còn lại hiển thị `Sắp có` để không tạo job mà worker chưa hỗ trợ.
+
+Nếu website V2 đang chạy trên Railway:
+1. Upload lại toàn bộ thư mục `static/` của V2.1 lên repo GitHub.
+2. Commit vào `main`.
+3. Railway tự redeploy.
+
+
+## V2.2 - Card có ảnh thật
+- Thêm thư mục `static/images/`
+- Trang chủ chọn model dùng thumbnail ảnh thật cho 6 card
+- Phù hợp để cập nhật Railway chỉ bằng cách upload lại `static/`
+
+
+## V2.3
+Đã tích hợp logo TVC vào navbar, dashboard, trang admin, footer và favicon.
+
+
+## V2.3.1
+Sửa logo/brand để chữ `TVC Studio AI` luôn nằm cùng một dòng, không bị rớt chữ `AI` xuống dưới.
+
+
+## V2.4 — Affiliate / Kiếm tiền
+Đã thêm hệ thống referral thật:
+- Mã + link giới thiệu riêng cho từng tài khoản.
+- Nhập mã người giới thiệu một lần.
+- Người được giới thiệu nhận +10% credits khi topup được admin duyệt.
+- Hạng Bạc: 10% hoa hồng trên credits khách trực tiếp mua.
+- Hạng Vàng: 15% khi doanh số trực tiếp đạt 1.000 credits.
+- Hạng Vàng nhận thêm 50% override trên hoa hồng trực tiếp của affiliate cấp dưới.
+- Số dư affiliate tách khỏi ví credits sử dụng dịch vụ.
+- Tỷ giá rút mặc định: 1 affiliate credit = 2.500 VND.
+- Tối thiểu 10 affiliate credits/lần rút.
+- Admin duyệt/từ chối yêu cầu rút.
+- Dashboard admin xem đối tác, doanh số, hạng và số dư.
+
+### Lưu ý production
+Affiliate hiện tính trên topup được admin duyệt. Khi nối cổng thanh toán tự động, hãy gọi cùng logic duyệt topup sau webhook thanh toán thành công.
+
+
+## V2.5 — Thanh công cụ đầu trang
+Đã thêm thanh công cụ cố định giống bố cục mẫu:
+- Logo TVC Studio AI
+- VN / EN
+- Chọn Model
+- Lịch Sử
+- Kiếm Tiền
+- Số dư + Nạp Credits
+- Tài Khoản
+- Mobile menu responsive
+
+Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và trang admin.

@@ -1,13 +1,42 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TVC Studio AI — Dashboard</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css"></head>
-<body class="app-body">
+<body class="app-body has-global-toolbar">
+
+<div class="global-toolbar">
+  <div class="global-toolbar-inner">
+    <a class="global-brand" href="/">
+      <img src="/static/images/logo-tvc.png" alt="TVC Studio">
+      <strong>TVC Studio AI</strong>
+    </a>
+
+    <div class="lang-switch" aria-label="Language">
+      <button class="active" data-lang="vi">VN</button>
+      <span>|</span>
+      <button data-lang="en">EN</button>
+    </div>
+
+    <nav class="global-actions">
+      <a href="/" class="tool-pill" data-tool="models">✦ <span>Chọn Model</span></a>
+      <a href="/app#jobs" class="tool-pill" data-tool="history">◷ <span>Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill" data-tool="affiliate">◉ <span>Kiếm Tiền</span></a>
+      <a href="/app#wallet" class="credit-tool"><b id="toolbarCredits">0.0</b> ◊ <span>Nạp Credits</span></a>
+      <a href="/app#account" class="tool-pill account-pill" data-tool="account">
+        <span class="account-dot">T</span><span id="toolbarAccount">Tài Khoản</span>
+      </a>
+    </nav>
+
+    <button class="toolbar-menu" id="toolbarMenu" aria-label="Menu">☰</button>
+  </div>
+</div>
+
 <div class="app-shell">
 <aside class="sidebar">
  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
  <button data-tab="create" class="side active">✨ Tạo video</button>
  <button data-tab="jobs" class="side">▤ Job của tôi</button>
  <button data-tab="wallet" class="side">◈ Ví credits</button>
+ <button data-tab="affiliate" class="side">💸 Kiếm tiền</button>
  <button data-tab="account" class="side">⚙ Tài khoản</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
@@ -21,7 +50,7 @@
    <h2>Chào mừng quay lại</h2><input id="lEmail" placeholder="Email"><input id="lPass" type="password" placeholder="Mật khẩu"><button class="primary wide" id="doLogin">Đăng nhập</button>
   </div>
   <div id="registerForm" class="hidden">
-   <h2>Tạo tài khoản</h2><input id="rName" placeholder="Tên hiển thị"><input id="rEmail" placeholder="Email"><input id="rPass" type="password" placeholder="Mật khẩu từ 8 ký tự"><button class="primary wide" id="doRegister">Đăng ký</button>
+   <h2>Tạo tài khoản</h2><input id="rName" placeholder="Tên hiển thị"><input id="rEmail" placeholder="Email"><input id="rPass" type="password" placeholder="Mật khẩu từ 8 ký tự"><input id="rReferral" placeholder="Mã giới thiệu (không bắt buộc)"><button class="primary wide" id="doRegister">Đăng ký</button>
   </div>
   <div id="authMsg" class="msg"></div>
  </div>
@@ -55,6 +84,87 @@
 </div>
 <h3 class="subhead">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
 <h3 class="subhead">Biến động credits</h3><div id="ledgerList" class="simple-list"></div>
+</section>
+
+
+<section class="tab" id="tab-affiliate">
+  <div class="affiliate-page">
+    <div class="affiliate-heading">
+      <div>
+        <span class="affiliate-kicker">💸 AFFILIATE</span>
+        <h2>Kiếm Tiền Từ Giới Thiệu</h2>
+        <p>Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư</p>
+      </div>
+      <button class="dark" id="refreshAffiliate">↻ Làm mới</button>
+    </div>
+
+    <div class="affiliate-stats">
+      <article><small>HẠNG HIỆN TẠI</small><strong id="affTier">—</strong><span id="affRate">—</span></article>
+      <article><small>CÓ THỂ RÚT</small><strong class="money" id="affAvailable">0.00</strong><span id="affAvailableVnd">≈ 0 VND</span></article>
+      <article><small>TỔNG THƯỞNG</small><strong class="money" id="affTotal">0.00</strong><span>Affiliate credits tích lũy</span></article>
+      <article><small>ĐÃ GIỚI THIỆU</small><strong class="blue" id="affRefs">0</strong><span id="affPayingRefs">0 khách đã nạp</span></article>
+      <article><small>TIẾN ĐỘ THĂNG HẠNG</small><strong id="affNextTier">Vàng</strong><div class="rank-progress"><i id="affRankBar"></i></div><span id="affRankText">0 / 1,000 credits</span></article>
+    </div>
+
+    <div class="affiliate-columns">
+      <article class="affiliate-card">
+        <h3>🔗 Chia Sẻ & Nhận Thưởng</h3>
+        <div class="share-box purple-box">
+          <small>LINK GIỚI THIỆU CỦA BẠN</small>
+          <div><b id="affLink">—</b><button class="mini-copy" id="copyAffLink">Copy</button></div>
+        </div>
+        <div class="share-box green-box">
+          <small>MÃ GIỚI THIỆU</small>
+          <div><b id="affCode">—</b><button class="mini-copy" id="copyAffCode">Copy</button></div>
+        </div>
+
+        <div class="affiliate-rules">
+          <b>ℹ Cách tính phần thưởng</b>
+          <p><strong>Đối tác Tiêu chuẩn (Bạc):</strong> nhận <em>10%</em> số credits khách được giới thiệu mua.</p>
+          <p><strong>Đối tác Cao cấp (Vàng):</strong> nhận <em>15%</em> và thêm <em>50%</em> hoa hồng trực tiếp do affiliate cấp dưới kiếm được.</p>
+          <p>Khách đã nhập mã giới thiệu được cộng thêm <em>10%</em> credits khi admin duyệt giao dịch nạp.</p>
+        </div>
+      </article>
+
+      <article class="affiliate-card">
+        <h3>🏷 Nhập Mã Giới Thiệu</h3>
+        <p class="muted aff-intro">Mỗi tài khoản chỉ gắn người giới thiệu một lần.</p>
+        <div class="ref-code-row">
+          <input id="applyReferralCode" placeholder="Ví dụ: tvc123abcd">
+          <button class="primary" id="applyReferralBtn">Lưu mã</button>
+        </div>
+        <div id="referrerState" class="referrer-state"></div>
+
+        <div class="rank-panel">
+          <div class="rank-row"><span><b>●</b> Bạc<br><small>10%</small></span><span class="line"></span><span><b>●</b> Vàng<br><small>15% + override</small></span></div>
+          <p>Tỷ giá rút: <strong>10 credits = 25.000 VND</strong></p>
+          <p>Điều kiện Vàng: tổng doanh số khách trực tiếp đạt <strong>1.000 credits</strong>.</p>
+        </div>
+
+        <h3 class="withdraw-title">💳 Yêu Cầu Rút Thưởng</h3>
+        <div class="withdraw-form">
+          <div class="two">
+            <label>Số credits<input id="withdrawAmount" type="number" min="10" step="0.01" placeholder="Tối thiểu 10"></label>
+            <label>Phương thức<select id="withdrawMethod"><option value="bank">Ngân hàng</option><option value="momo">MoMo</option><option value="other">Khác</option></select></label>
+          </div>
+          <label>Thông tin nhận tiền<input id="withdrawAccount" placeholder="STK + ngân hàng / SĐT MoMo"></label>
+          <label>Ghi chú<textarea id="withdrawNote" rows="2" placeholder="Tên chủ tài khoản..."></textarea></label>
+          <button class="primary wide" id="withdrawBtn">Gửi yêu cầu rút</button>
+        </div>
+      </article>
+    </div>
+
+    <div class="affiliate-history-grid">
+      <article class="affiliate-card">
+        <div class="sectionbar"><h3>🎁 Lịch sử hoa hồng</h3></div>
+        <div id="affiliateRewardList" class="simple-list"></div>
+      </article>
+      <article class="affiliate-card">
+        <div class="sectionbar"><h3>💵 Lịch sử rút thưởng</h3></div>
+        <div id="affiliateWithdrawalList" class="simple-list"></div>
+      </article>
+    </div>
+  </div>
 </section>
 
 <section class="tab" id="tab-account"><article class="panel-card narrow"><h3>Tài khoản</h3><div id="accountInfo"></div><button class="dark" id="logout2">Đăng xuất</button></article></section>

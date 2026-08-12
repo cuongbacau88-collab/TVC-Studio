@@ -1,7 +1,22 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TVC Studio AI — Admin</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css"></head>
-<body class="app-body">
+<body class="app-body has-global-toolbar">
+
+<div class="global-toolbar admin-global-toolbar">
+  <div class="global-toolbar-inner">
+    <a class="global-brand" href="/">
+      <img src="/static/images/logo-tvc.png" alt="TVC Studio">
+      <strong>TVC Studio AI</strong>
+    </a>
+    <nav class="global-actions">
+      <a href="/" class="tool-pill">✦ <span>Chọn Model</span></a>
+      <a href="/app" class="tool-pill">⌂ <span>Dashboard</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill">◉ <span>Affiliate</span></a>
+    </nav>
+  </div>
+</div>
+
 <div class="admin-wrap">
 <header class="admin-head"><a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI Admin</b></span></a><div><a class="dark" href="/app">Dashboard</a><button class="dark" id="logout">Đăng xuất</button></div></header>
 <section class="stats" id="stats"></section>
@@ -9,6 +24,8 @@
 <article class="panel-card"><div class="sectionbar"><h3>Yêu cầu nạp điểm</h3><button class="dark" id="refresh">↻</button></div><div id="topups" class="table-wrap"></div></article>
 <article class="panel-card"><h3>Người dùng</h3><div id="users" class="table-wrap"></div></article>
 <article class="panel-card full-span"><h3>Jobs gần đây</h3><div id="jobs" class="table-wrap"></div></article>
+<article class="panel-card full-span"><h3>💸 Yêu cầu rút Affiliate</h3><div id="affiliateWithdrawals" class="table-wrap"></div></article>
+<article class="panel-card full-span"><h3>🔗 Đối tác Affiliate</h3><div id="affiliateUsers" class="table-wrap"></div></article>
 </section>
 </div><div class="toast" id="toast"></div>
 <script src="/static/admin.js"></script>

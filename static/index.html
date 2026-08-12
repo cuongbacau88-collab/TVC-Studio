@@ -9,19 +9,35 @@
 <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body class="model-home">
-<header class="nav model-nav">
-  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
-  <nav>
-    <a href="#models">Model AI</a>
-    <a href="#how">Cách dùng</a>
-    <a href="#pricing">Credits</a>
-  </nav>
-  <div class="nav-actions">
-    <button class="ghost" id="loginOpen">Đăng nhập</button>
-    <a class="primary" href="/app">Dashboard</a>
+<body class="model-home has-global-toolbar">
+
+<div class="global-toolbar">
+  <div class="global-toolbar-inner">
+    <a class="global-brand" href="/">
+      <img src="/static/images/logo-tvc.png" alt="TVC Studio">
+      <strong>TVC Studio AI</strong>
+    </a>
+
+    <div class="lang-switch" aria-label="Language">
+      <button class="active" data-lang="vi">VN</button>
+      <span>|</span>
+      <button data-lang="en">EN</button>
+    </div>
+
+    <nav class="global-actions">
+      <a href="/" class="tool-pill" data-tool="models">✦ <span>Chọn Model</span></a>
+      <a href="/app#jobs" class="tool-pill" data-tool="history">◷ <span>Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill" data-tool="affiliate">◉ <span>Kiếm Tiền</span></a>
+      <a href="/app#wallet" class="credit-tool"><b id="toolbarCredits">0.0</b> ◊ <span>Nạp Credits</span></a>
+      <a href="/app#account" class="tool-pill account-pill" data-tool="account">
+        <span class="account-dot">T</span><span id="toolbarAccount">Tài Khoản</span>
+      </a>
+    </nav>
+
+    <button class="toolbar-menu" id="toolbarMenu" aria-label="Menu">☰</button>
   </div>
-</header>
+</div>
+
 
 <main class="model-main">
   <section class="model-hero" id="models">
@@ -205,5 +221,33 @@ document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
 });
 </script>
+
+<script>
+(function(){
+  const langBtns=[...document.querySelectorAll('.lang-switch button')];
+  langBtns.forEach(btn=>btn.addEventListener('click',()=>{
+    langBtns.forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    localStorage.setItem('tvc_lang',btn.dataset.lang);
+  }));
+  const saved=localStorage.getItem('tvc_lang');
+  if(saved){
+    const b=document.querySelector('.lang-switch button[data-lang="'+saved+'"]');
+    if(b)b.click();
+  }
+
+  const menu=document.getElementById('toolbarMenu');
+  if(menu)menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
+
+  fetch('/api/me').then(r=>r.ok?r.json():null).then(me=>{
+    if(!me)return;
+    const c=document.getElementById('toolbarCredits');
+    const a=document.getElementById('toolbarAccount');
+    if(c)c.textContent=Number(me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
+    if(a)a.textContent=me.name||'Tài Khoản';
+  }).catch(()=>{});
+})();
+</script>
+
 </body>
 </html>

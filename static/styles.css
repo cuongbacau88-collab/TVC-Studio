@@ -97,3 +97,244 @@ footer .brand-img{width:40px;height:40px}
 @media(max-width:700px){
   .brand-img{width:40px;height:40px}
 }
+
+
+/* ===== V2.3.1 Brand text wrap fix ===== */
+.brand{
+  flex-wrap:nowrap !important;
+  white-space:nowrap !important;
+  min-width:max-content;
+}
+.brand-text{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:4px;
+  white-space:nowrap !important;
+  flex-wrap:nowrap !important;
+  line-height:1 !important;
+  flex-shrink:0;
+}
+.brand-text b{
+  display:inline !important;
+  white-space:nowrap !important;
+}
+.sidebar .brand{
+  min-width:190px;
+}
+.sidebar .brand-text{
+  font-size:15px;
+}
+.admin-head .brand-text,
+.model-nav .brand-text,
+footer .brand-text{
+  white-space:nowrap !important;
+}
+@media(max-width:700px){
+  .brand-text{font-size:14px}
+}
+
+
+/* ===== V2.4 Affiliate ===== */
+.affiliate-page{max-width:1120px;margin:auto;padding-bottom:30px}
+.affiliate-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}
+.affiliate-heading h2{font-size:27px;margin:6px 0 3px;letter-spacing:-.035em}
+.affiliate-heading p{margin:0;color:#7f8899;font-size:11px}
+.affiliate-kicker{font-size:9px;letter-spacing:.16em;color:#a887ff;font-weight:850}
+.affiliate-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.affiliate-stats article{border:1px solid var(--line);border-radius:14px;background:#0e1118;padding:15px;min-height:116px}
+.affiliate-stats small{display:block;font-size:8px;letter-spacing:.08em;color:#777f90;font-weight:800}
+.affiliate-stats strong{display:block;font-size:24px;margin:8px 0 2px;letter-spacing:-.03em}
+.affiliate-stats span{font-size:9px;color:#787f90}
+.affiliate-stats .money,.affiliate-row .money{color:#52e38e}
+.affiliate-stats .blue{color:#59a3ff}
+.rank-progress{height:5px;border-radius:999px;background:#262a34;overflow:hidden;margin:10px 0 5px}
+.rank-progress i{display:block;width:0;height:100%;background:linear-gradient(90deg,#7256f5,#a370ff);border-radius:inherit}
+.affiliate-columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.affiliate-card{border:1px solid var(--line);border-radius:15px;background:#0e1118;padding:20px}
+.affiliate-card h3{font-size:14px;margin:0 0 14px}
+.share-box{border:1px dashed #4c4385;border-radius:11px;padding:13px;margin:10px 0}
+.share-box small{font-size:8px;color:#818a9c;font-weight:800}
+.share-box>div{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px}
+.share-box b{font-size:13px;word-break:break-all;color:#8e7aff}
+.green-box{border-color:#236a48;background:rgba(28,96,63,.13)}
+.green-box b{color:#4be08a}
+.purple-box{background:rgba(81,63,162,.09)}
+.mini-copy{border:1px solid #4c4290;background:#282052;color:#a898ff;border-radius:8px;padding:7px 10px;font-size:9px;font-weight:800}
+.affiliate-rules{margin-top:16px;border:1px solid var(--line);border-radius:11px;background:#11141c;padding:14px}
+.affiliate-rules>b{color:#6eafff;font-size:10px}.affiliate-rules p{font-size:10px;color:#8d95a5;line-height:1.55;margin:8px 0}
+.affiliate-rules strong{color:#d9dde7}.affiliate-rules em{font-style:normal;color:#4ce392;font-weight:850}
+.ref-code-row{display:grid;grid-template-columns:1fr auto;gap:8px}
+.ref-code-row input,.withdraw-form input,.withdraw-form select,.withdraw-form textarea{width:100%;border:1px solid var(--line);background:#11151f;color:white;border-radius:9px;padding:10px;outline:none}
+.referrer-state{min-height:30px;margin-top:8px;font-size:9px}.linked-ref{color:#5bdc92}
+.rank-panel{margin:15px 0;border:1px solid var(--line);background:#11141c;border-radius:11px;padding:14px}
+.rank-row{display:flex;align-items:center;justify-content:space-between;color:#aeb5c3;font-size:10px}
+.rank-row>span{text-align:center}.rank-row b{color:#a69aff}.rank-row .line{height:2px;background:#3c3f4d;flex:1;margin:0 10px}
+.rank-panel p{font-size:9px;color:#81899a;margin:9px 0 0}.rank-panel strong{color:#58e294}
+.withdraw-title{margin-top:18px!important}.withdraw-form label{display:block;color:#8992a3;font-size:9px;font-weight:700;margin:8px 0}
+.withdraw-form label input,.withdraw-form label select,.withdraw-form label textarea{display:block;margin-top:5px}
+.affiliate-history-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.affiliate-row>div{display:flex;flex-direction:column;gap:4px}.affiliate-row strong{align-self:center}
+.pending-text{color:#f4c15d}.bad{color:#ff7583}
+.aff-intro{margin-top:-8px}
+.admin-grid .full-span{min-width:0}
+@media(max-width:1050px){.affiliate-stats{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){
+  .affiliate-columns,.affiliate-history-grid{grid-template-columns:1fr}
+  .affiliate-stats{grid-template-columns:1fr 1fr}
+  .affiliate-heading{align-items:flex-start;flex-direction:column}
+}
+@media(max-width:470px){.affiliate-stats{grid-template-columns:1fr}.ref-code-row{grid-template-columns:1fr}}
+
+
+/* ===== V2.5 Global top toolbar ===== */
+.has-global-toolbar{padding-top:58px}
+.global-toolbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  height:58px;
+  z-index:1000;
+  background:rgba(4,5,8,.96);
+  border-bottom:1px solid rgba(255,255,255,.075);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.global-toolbar-inner{
+  max-width:1200px;
+  height:100%;
+  margin:auto;
+  padding:0 18px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+.global-brand{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+.global-brand img{
+  width:32px;
+  height:32px;
+  border-radius:8px;
+  object-fit:contain;
+}
+.global-brand strong{
+  font-size:16px;
+  letter-spacing:-.02em;
+  color:#f5f6fa;
+}
+.lang-switch{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-left:auto;
+  white-space:nowrap;
+}
+.lang-switch button{
+  padding:4px 8px;
+  border:0;
+  border-radius:7px;
+  background:transparent;
+  color:#858b98;
+  font-size:10px;
+  font-weight:850;
+}
+.lang-switch button.active{
+  background:#7653ea;
+  color:white;
+}
+.lang-switch span{color:#4b505c;font-size:10px}
+.global-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.tool-pill,.credit-tool{
+  height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 13px;
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#090b10;
+  color:#e7e9ee;
+  font-size:11px;
+  font-weight:650;
+  white-space:nowrap;
+  transition:.18s ease;
+}
+.tool-pill:hover,.credit-tool:hover{
+  transform:translateY(-1px);
+  border-color:rgba(161,111,255,.55);
+  background:#11101a;
+}
+.affiliate-pill{
+  border-color:#7d58e6;
+  box-shadow:0 0 14px rgba(121,75,235,.32), inset 0 0 12px rgba(109,70,198,.08);
+}
+.credit-tool b{
+  color:#42dc84;
+  font-size:11px;
+}
+.account-dot{
+  width:20px;height:20px;border-radius:50%;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#38a8d4,#5d58dc);
+  color:#fff;font-size:9px;font-weight:900;
+}
+.toolbar-menu{
+  display:none;
+  margin-left:auto;
+  width:36px;height:36px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:9px;background:#0b0d12;color:white;
+}
+.admin-global-toolbar .global-actions{margin-left:auto}
+
+/* compensate fixed toolbar on app/admin layouts */
+.has-global-toolbar.app-body .app-shell{height:calc(100vh - 58px)}
+.has-global-toolbar .sidebar{top:58px}
+.has-global-toolbar .topbar{top:0}
+.has-global-toolbar .admin-wrap{padding-top:22px}
+
+/* Highlight when user is on corresponding hash/tab */
+body:has(#tab-affiliate.active) .global-actions [data-tool="affiliate"],
+body:has(#tab-jobs.active) .global-actions [data-tool="history"],
+body:has(#tab-wallet.active) .credit-tool,
+body:has(#tab-account.active) .global-actions [data-tool="account"]{
+  border-color:#8a5cff;
+  box-shadow:0 0 14px rgba(124,77,239,.30);
+}
+
+@media(max-width:980px){
+  .global-toolbar-inner{gap:10px}
+  .global-brand strong{display:none}
+  .tool-pill,.credit-tool{padding:0 10px}
+}
+@media(max-width:760px){
+  .has-global-toolbar{padding-top:54px}
+  .global-toolbar{height:54px}
+  .global-toolbar-inner{padding:0 12px}
+  .lang-switch{margin-left:0}
+  .toolbar-menu{display:block}
+  .global-actions{
+    position:absolute;
+    top:54px;left:10px;right:10px;
+    display:none;
+    flex-direction:column;
+    align-items:stretch;
+    padding:10px;
+    border:1px solid rgba(255,255,255,.10);
+    background:#090b11;
+    border-radius:12px;
+    box-shadow:0 20px 40px rgba(0,0,0,.35);
+  }
+  .global-actions.open{display:flex}
+  .tool-pill,.credit-tool{justify-content:flex-start;width:100%}
+  .admin-global-toolbar .global-actions{margin-left:0}
+  .has-global-toolbar.app-body .app-shell{height:calc(100vh - 54px)}
+}
