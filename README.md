@@ -613,15 +613,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Worker/Wan vẫn nhận profile nội bộ mặc định; người dùng không phải chọn chất lượng.
 
 
-## V3.3.41 — Remove homepage process guide
-- Xóa hoàn toàn khối “QUY TRÌNH / 3 bước để khách tạo video”.
-- Trang chủ chuyển thẳng từ danh sách dịch vụ xuống phần bảng giá.
-- Không để khoảng trống sau khi xóa.
-
-
-## V3.3.42 — Fix logo footer trên mobile
-- Thu logo footer xuống 24px trên mobile, 22px trên màn hình rất nhỏ.
-- Khóa cả width/min-width/max-width để CSS cũ không làm logo phóng to.
-- Footer không được tạo overflow ngang.
-- Thu khoảng cách, font và link footer để không phá bố cục mobile.
-- Desktop vẫn giữ footer gọn với logo 28px.
+## V3.3.43 — Public pages dùng toolbar như Trang Chủ
+- Bảng Giá / Về Chúng Tôi / Liên Hệ / Điều Khoản / Bảo Mật / Hoàn Tiền / Nội Dung AI dùng đúng toolbar 5 tab của Trang Chủ.
+- Toolbar giữ Chọn Model / Lịch Sử / Giới Thiệu / Nạp VIP / Đăng nhập-Tài Khoản.
+- Google Login và popup tài khoản hoạt động trên các trang public.
+- Mobile Bảng Giá ép 3 gói thành 1 cột; gói 99K/50 lượt luôn hiện đầy đủ.
+- Footer được làm lại bằng CSS sạch riêng: không dính chữ, logo nhỏ đúng tỷ lệ, copyright không bay sang góc.
+- Xóa khối “3 bước để khách tạo video” trên Trang Chủ.
+- Patch đóng gói trực tiếp từ V3.3.40.

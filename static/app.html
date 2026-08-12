@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TVC Studio AI — Dashboard</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
-<link rel="stylesheet" href="/static/styles.css"></head>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="stylesheet" href="/static/business-v3343.css?v=3343"></head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
 
@@ -133,7 +134,7 @@
       <form id="jobForm" class="simple-create-form">
         <input type="hidden" name="model" value="Wan Animate 2 • Distill INT8">
         <input type="hidden" name="aspect_ratio" id="aspectRatio" value="9:16">
-        <input type="hidden" name="quality" id="quality" value="480">
+        <input type="hidden" name="quality" id="quality" value="720">
         <input type="hidden" name="prompt" value="Giữ nhân vật ổn định, chuyển động tự nhiên theo video mẫu.">
 
         <div class="simple-field">
@@ -170,25 +171,17 @@
           </div>
         </div>
 
-        <div class="simple-render-actions">
-          <button class="simple-render-btn quick" type="submit" data-quality="480">
+        <div class="simple-render-actions single-render-action">
+          <button class="simple-render-btn quick single-render-btn" type="submit">
             <span>
-              <b>⚡ Tạo Video Thường</b>
-              <small>1 TVC</small>
+              <b>🎬 Tạo Video</b>
+              <small>1 lượt cho mỗi video</small>
             </span>
-            <em>10 ◈</em>
-          </button>
-
-          <button class="simple-render-btn quality" type="submit" data-quality="720">
-            <span>
-              <b>✨ Tạo Video Chất Lượng</b>
-              <small>2 TVC</small>
-            </span>
-            <em>20 ◈</em>
+            <em>1 lượt</em>
           </button>
         </div>
 
-        <span id="cost" class="simple-hidden-cost">1 TVC</span>
+        <span id="cost" class="simple-hidden-cost">1 lượt</span>
       </form>
     </article>
   </div>
@@ -200,12 +193,11 @@
   <div class="wallet-grid wallet-grid-v3339">
     <article class="balance video-balance-card">
       <span>LƯỢT VIDEO CÒN LẠI</span>
-      <strong><b id="walletVideoNormal">0</b> <em>lượt thường</em></strong>
-      <div class="video-balance-meta">
+      <strong><b id="walletVideoRemaining">0</b> <em>lượt video</em></strong>
+      <div class="video-balance-meta single-video-balance-meta">
         <span><b id="walletTVC">0</b> TVC</span>
-        <span>≈ <b id="walletVideoQuality">0</b> lượt Chất Lượng</span>
       </div>
-      <small>1 TVC = 1 Video Thường • Video Chất Lượng dùng 2 TVC.</small>
+      <small>1 TVC = 1 lượt tạo video. Mọi video đều cùng một mức giá.</small>
     </article>
 
     <article class="panel-card topup-pack-card">

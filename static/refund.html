@@ -1,8 +1,88 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chính Sách Hoàn Tiền — TVC Studio AI</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png"><link rel="stylesheet" href="/static/styles.css"></head>
-<body class="legal-body v3-liquid-theme">
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chính Sách Hoàn Tiền — TVC Studio AI</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png"><link rel="stylesheet" href="/static/styles.css">
+<link rel="stylesheet" href="/static/business-v3343.css?v=3343"></head>
+<body class="legal-body v3-liquid-theme has-global-toolbar public-page-v3343">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
-<header class="legal-topbar"><a class="legal-brand" href="/"><img src="/static/images/logo-tvc.png" alt="TVC Studio AI"><span>TVC Studio <b>AI</b></span></a><nav><a href="/">Trang Chủ</a><a href="/pricing">Bảng Giá</a><a href="/about">Về Chúng Tôi</a><a href="/contact">Liên Hệ</a></nav></header>
+<div class="global-toolbar liquid-toolbar">
+  <div class="global-toolbar-inner">
+    <div class="toolbar-left">
+      <div class="lang-switch liquid-pill" aria-label="Language">
+        <button class="active" data-lang="vi">VN</button>
+        <span>|</span>
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
+
+    <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI">
+      <span class="brand-glass-orb">
+        <img src="/static/images/logo-tvc.png" alt="TVC Studio">
+      </span>
+      <strong>TVC Studio <b>AI</b></strong>
+    </a>
+
+    
+
+    <nav class="global-actions liquid-nav">
+      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
+      <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Giới Thiệu</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
+      <details class="account-native-menu" id="accountMenuDetails">
+        <summary class="tool-pill liquid-pill mobile-account-link" id="accountMenuSummary"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></summary>
+        <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
+          <div class="account-v3-head">
+            <div class="account-v3-avatar" id="toolbarAccountAvatar">T</div>
+            <div class="account-v3-identity">
+              <small data-i18n="hello">Xin chào</small>
+              <strong id="toolbarAccountName">Tài Khoản</strong>
+              <span id="toolbarAccountEmail">Chưa đăng nhập</span>
+            </div>
+          </div>
+
+          <div class="account-v3-balance">
+            <div>
+              <small data-i18n="balance">Số dư</small>
+              <strong><span id="toolbarAccountCredits">0</span> <em>TVC</em></strong>
+            </div>
+            <a href="/app#wallet" data-account-action="wallet" class="account-v3-topup" data-i18n="addCredits">Nạp thêm</a>
+          </div>
+
+          <nav class="account-v3-menu">
+            <a href="/app#jobs" data-account-action="jobs">
+              <span class="account-v3-icon">◷</span>
+              <span data-i18n="history">Lịch Sử</span>
+              <i>›</i>
+            </a>
+            <a href="/app#wallet" data-account-action="wallet">
+              <span class="account-v3-icon">◇</span>
+              <span data-i18n="topup">Nạp VIP</span>
+              <i>›</i>
+            </a>
+            <a href="/app#account" data-account-action="account">
+              <span class="account-v3-icon">◎</span>
+              <span data-i18n="profile">Hồ Sơ Của Tôi</span>
+              <i>›</i>
+            </a>
+            <a href="/app#affiliate" data-account-action="affiliate">
+              <span class="account-v3-icon">◉</span>
+              <span data-i18n="affiliateMenu">Giới Thiệu</span>
+              <i>›</i>
+            </a>
+          </nav>
+
+          <div class="account-v3-divider"></div>
+
+          <button type="button" id="toolbarLogout" class="account-v3-logout">
+            <span class="account-v3-icon">↪</span>
+            <span data-i18n="logout">Đăng xuất</span>
+          </button>
+        </div>
+      </details>
+    </nav>
+
+    
+  </div>
+</div>
 <main class="legal-main">
   <section class="legal-hero"><span>HOÀN TVC</span><h1>Chính Sách Hoàn Tiền</h1></section>
   <article class="legal-card">
@@ -29,4 +109,7 @@
   </div>
   <div class="site-footer-bottom"><span>© 2026 TVC Studio AI. All rights reserved.</span><span>Dịch vụ AI vận hành bởi cá nhân.</span></div>
 </footer>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script src="/static/google-login.js?v=3336"></script>
+<script src="/static/public-toolbar-v3343.js?v=3343"></script>
 </body></html>
