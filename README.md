@@ -410,3 +410,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Desktop trở lại một hàng: Logo → VN/EN → Chọn Model / Lịch Sử / Kiếm Tiền → Credits → Tài Khoản.
 - Sửa dứt điểm lỗi Nạp Credits và Tài Khoản bị hiển thị lặp trên desktop.
 - Các phần còn lại của website vẫn giữ Global Mirror Glass mới.
+
+
+## V3.3.17 — Sửa bóng và lệch video trang Tạo Video
+- Bỏ lớp bóng lớn ở vùng tiêu đề `AI Copy Chuyển Động`.
+- Giữ card glass nhẹ nhưng phần header phẳng, sạch.
+- Sửa preview video luôn phủ kín khung 16:9.
+- Bỏ `max-height` cũ làm xuất hiện dải đen phía dưới video.
+- Căn video chính giữa trên desktop và mobile.

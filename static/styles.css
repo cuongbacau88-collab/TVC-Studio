@@ -6157,3 +6157,102 @@ textarea::placeholder{
     animation:none !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.17 — Create Video card shadow + video alignment fix
+   ===================================================================== */
+
+/* Bỏ lớp bóng lớn ở phần đầu card Tạo Video */
+.simple-create-card::before,
+.simple-create-card::after{
+  display:none !important;
+  content:none !important;
+}
+
+.simple-create-card{
+  background:
+    linear-gradient(155deg,rgba(43,58,97,.94),rgba(25,37,68,.92)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 18px 42px rgba(0,7,24,.20) !important;
+}
+
+/* Header phẳng, sạch, không có khối bóng phía sau */
+.simple-create-head{
+  position:relative !important;
+  z-index:2 !important;
+  padding:0 0 14px !important;
+  margin:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  border:0 !important;
+}
+
+.simple-create-head::before,
+.simple-create-head::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* Preview video khớp đúng khung, không còn dải đen phía dưới */
+.simple-create-preview{
+  position:relative !important;
+  width:100% !important;
+  aspect-ratio:16 / 9 !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:hidden !important;
+  border-radius:18px !important;
+  background:#0d1628 !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 10px 24px rgba(0,7,24,.14) !important;
+}
+
+.simple-create-preview::before,
+.simple-create-preview::after{
+  display:none !important;
+  content:none !important;
+}
+
+.simple-create-demo-video{
+  position:absolute !important;
+  inset:0 !important;
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  max-width:none !important;
+  max-height:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  object-fit:cover !important;
+  object-position:50% 50% !important;
+  border:0 !important;
+  border-radius:17px !important;
+  background:#0d1628 !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+
+/* tránh rule cũ ở mobile làm video thấp hơn khung */
+@media(max-width:760px){
+  .simple-create-preview{
+    aspect-ratio:16 / 9 !important;
+    border-radius:15px !important;
+  }
+
+  .simple-create-demo-video{
+    width:100% !important;
+    height:100% !important;
+    max-height:none !important;
+    border-radius:14px !important;
+    object-fit:cover !important;
+    object-position:center center !important;
+  }
+
+  .simple-create-head{
+    padding-bottom:12px !important;
+  }
+}
