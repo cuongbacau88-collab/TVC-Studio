@@ -28,7 +28,7 @@
     <nav class="global-actions liquid-nav">
       <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Giới Thiệu</span></a>
       <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
       <details class="account-native-menu" id="accountMenuDetails">
         <summary class="tool-pill liquid-pill mobile-account-link" id="accountMenuSummary"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></summary>
@@ -68,7 +68,7 @@
             </a>
             <a href="/app#affiliate" data-account-action="affiliate">
               <span class="account-v3-icon">◉</span>
-              <span data-i18n="affiliateMenu">Kiếm Tiền Affiliate</span>
+              <span data-i18n="affiliateMenu">Giới Thiệu</span>
               <i>›</i>
             </a>
           </nav>
@@ -93,7 +93,7 @@
  <button data-tab="create" class="side active" data-i18n="createVideoNav">✨ Tạo video</button>
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
  <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví TVC</button>
- <button data-tab="affiliate" class="side" data-i18n="earnNav">💸 Kiếm tiền</button>
+ <button data-tab="affiliate" class="side" data-i18n="earnNav">🔗 Giới thiệu</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">
@@ -197,97 +197,110 @@
 <section class="tab" id="tab-jobs"><div class="sectionbar"><div><button class="dark" id="refreshJobs">↻ Làm mới</button></div><button class="primary" data-goto="create">+ Tạo job</button></div><div id="jobsList" class="jobs"></div></section>
 
 <section class="tab" id="tab-wallet">
-<div class="wallet-grid">
- <article class="balance"><span>Số dư</span><strong><b id="walletTVC">0</b> TVC</strong><small>30 TVC miễn phí khi đăng ký.</small></article>
- <article class="panel-card"><h3 data-i18n="topupRequest">Tạo yêu cầu nạp điểm</h3><div class="packs"><button data-pack="starter"><b>50</b><span>49K</span></button><button class="active" data-pack="creator"><b>250</b><span>199K</span></button><button data-pack="studio"><b>1000</b><span>699K</span></button></div><textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea><button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button><p class="muted">Admin duyệt thì TVC được cộng tự động.</p></article>
-</div>
-<h3 class="subhead" data-i18n="topupHistory">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
-<h3 class="subhead" data-i18n="creditLedger">Biến động TVC</h3><div id="ledgerList" class="simple-list"></div>
+  <div class="wallet-grid wallet-grid-v3339">
+    <article class="balance video-balance-card">
+      <span>LƯỢT VIDEO CÒN LẠI</span>
+      <strong><b id="walletVideoNormal">0</b> <em>lượt thường</em></strong>
+      <div class="video-balance-meta">
+        <span><b id="walletTVC">0</b> TVC</span>
+        <span>≈ <b id="walletVideoQuality">0</b> lượt Chất Lượng</span>
+      </div>
+      <small>1 TVC = 1 Video Thường • Video Chất Lượng dùng 2 TVC.</small>
+    </article>
+
+    <article class="panel-card topup-pack-card">
+      <div class="topup-pack-head">
+        <div><small>NẠP VIP</small><h3>Chọn gói video</h3></div>
+        <a href="/pricing">Xem bảng giá</a>
+      </div>
+      <div class="packs packs-v3339">
+        <button data-pack="starter"><small>TRẢI NGHIỆM</small><b>3 lượt</b><span>10.000đ</span></button>
+        <button class="active" data-pack="creator"><small>PHỔ BIẾN ⭐</small><b>25 lượt</b><span>60.000đ</span></button>
+        <button data-pack="studio"><small>TIẾT KIỆM</small><b>50 lượt</b><span>99.000đ</span></button>
+      </div>
+      <textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea>
+      <button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button>
+      <p class="muted">Admin duyệt thì TVC được cộng tự động. Không có lượt miễn phí mặc định cho tài khoản mới.</p>
+    </article>
+  </div>
+  <h3 class="subhead" data-i18n="topupHistory">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
+  <h3 class="subhead" data-i18n="creditLedger">Biến động TVC</h3><div id="ledgerList" class="simple-list"></div>
 </section>
 
 
 <section class="tab" id="tab-affiliate">
-  <div class="affiliate-page">
-    <div class="affiliate-heading">
+  <div class="referral-page">
+    <div class="affiliate-heading referral-heading">
       <div>
-        <span class="affiliate-kicker">💸 AFFILIATE</span>
-        <h2 data-i18n="affiliateTitle">Kiếm Tiền Từ Giới Thiệu</h2>
-        <p>Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư</p>
+        <span class="affiliate-kicker">🔗 GIỚI THIỆU</span>
+        <h2>Giới Thiệu Bạn Bè</h2>
+        <p>Chia sẻ link hoặc mã của bạn. Giai đoạn hiện tại ưu tiên ghi nhận đúng người giới thiệu trước khi bật hệ thống thưởng lượt.</p>
       </div>
       <button class="dark" id="refreshAffiliate">↻ Làm mới</button>
     </div>
 
-    <div class="affiliate-stats">
-      <article><small>HẠNG HIỆN TẠI</small><strong id="affTier">—</strong><span id="affRate">—</span></article>
-      <article><small>CÓ THỂ RÚT</small><strong class="money" id="affAvailable">0.00</strong><span id="affAvailableVnd">≈ 0 VND</span></article>
-      <article><small>TỔNG THƯỞNG</small><strong class="money" id="affTotal">0.00</strong><span>Affiliate TVC tích lũy</span></article>
-      <article><small>ĐÃ GIỚI THIỆU</small><strong class="blue" id="affRefs">0</strong><span id="affPayingRefs">0 khách đã nạp</span></article>
-      <article><small>TIẾN ĐỘ THĂNG HẠNG</small><strong id="affNextTier">Vàng</strong><div class="rank-progress"><i id="affRankBar"></i></div><span id="affRankText">0 / 1,000 TVC</span></article>
+    <div class="referral-stats">
+      <article><small>ĐÃ GIỚI THIỆU</small><strong id="refDirectCount">0</strong><span>tài khoản</span></article>
+      <article><small>NGƯỜI GIỚI THIỆU</small><strong>+5 lượt</strong><span>cơ chế thưởng dự kiến</span></article>
+      <article><small>BẠN MỚI</small><strong>+1 lượt</strong><span>dùng thử qua giới thiệu</span></article>
     </div>
 
-    <div class="affiliate-columns">
-      <article class="affiliate-card">
-        <h3>🔗 Chia Sẻ & Nhận Thưởng</h3>
+    <div class="referral-columns">
+      <article class="affiliate-card referral-share-card">
+        <h3>Chia sẻ link của bạn</h3>
         <div class="share-box purple-box">
-          <small>LINK GIỚI THIỆU CỦA BẠN</small>
+          <small>LINK GIỚI THIỆU</small>
           <div><b id="affLink">—</b><button class="mini-copy" id="copyAffLink">Copy</button></div>
         </div>
         <div class="share-box green-box">
           <small>MÃ GIỚI THIỆU</small>
           <div><b id="affCode">—</b><button class="mini-copy" id="copyAffCode">Copy</button></div>
         </div>
-
-        <div class="affiliate-rules">
-          <b>ℹ Cách tính phần thưởng</b>
-          <p><strong>Đối tác Tiêu chuẩn (Bạc):</strong> nhận <em>10%</em> số TVC khách được giới thiệu mua.</p>
-          <p><strong>Đối tác Cao cấp (Vàng):</strong> nhận <em>15%</em> và thêm <em>50%</em> hoa hồng trực tiếp do affiliate cấp dưới kiếm được.</p>
-          <p>Khách đã nhập mã giới thiệu được cộng thêm <em>10%</em> TVC khi admin duyệt giao dịch nạp.</p>
+        <div class="referral-note">
+          <b>🎁 Cơ chế đã chốt</b>
+          <p>Khi hệ thống thưởng referral được kích hoạt: người giới thiệu nhận <strong>5 lượt</strong>, người được giới thiệu nhận <strong>1 lượt dùng thử</strong>.</p>
+          <small>Hiện tại chưa tự động cộng lượt thưởng; hệ thống chỉ ghi nhận quan hệ giới thiệu để phục vụ giai đoạn test.</small>
         </div>
       </article>
 
-      <article class="affiliate-card">
-        <h3>🏷 Nhập Mã Giới Thiệu</h3>
-        <p class="muted aff-intro">Mỗi tài khoản chỉ gắn người giới thiệu một lần.</p>
+      <article class="affiliate-card referral-code-card">
+        <h3>Nhập mã giới thiệu</h3>
+        <p class="muted aff-intro">Mỗi tài khoản chỉ gắn với một người giới thiệu.</p>
         <div class="ref-code-row">
           <input id="applyReferralCode" placeholder="Ví dụ: tvc123abcd">
           <button class="primary" id="applyReferralBtn">Lưu mã</button>
         </div>
         <div id="referrerState" class="referrer-state"></div>
-
-        <div class="rank-panel">
-          <div class="rank-row"><span><b>●</b> Bạc<br><small>10%</small></span><span class="line"></span><span><b>●</b> Vàng<br><small>15% + override</small></span></div>
-          <p>Tỷ giá rút: <strong>1 TVC = 25.000 VND</strong></p>
-          <p>Điều kiện Vàng: tổng doanh số khách trực tiếp đạt <strong>1.000 TVC</strong>.</p>
-        </div>
-
-        <h3 class="withdraw-title">💳 Yêu Cầu Rút Thưởng</h3>
-        <div class="withdraw-form">
-          <div class="two">
-            <label>Số TVC<input id="withdrawAmount" type="number" min="10" step="0.01" placeholder="Tối thiểu 10"></label>
-            <label>Phương thức<select id="withdrawMethod"><option value="bank">Ngân hàng</option><option value="momo">MoMo</option><option value="other">Khác</option></select></label>
-          </div>
-          <label>Thông tin nhận tiền<input id="withdrawAccount" placeholder="STK + ngân hàng / SĐT MoMo"></label>
-          <label>Ghi chú<textarea id="withdrawNote" rows="2" placeholder="Tên chủ tài khoản..."></textarea></label>
-          <button class="primary wide" id="withdrawBtn">Gửi yêu cầu rút</button>
-        </div>
       </article>
     </div>
 
-    <div class="affiliate-history-grid">
-      <article class="affiliate-card">
-        <div class="sectionbar"><h3>🎁 Lịch sử hoa hồng</h3></div>
-        <div id="affiliateRewardList" class="simple-list"></div>
-      </article>
-      <article class="affiliate-card">
-        <div class="sectionbar"><h3>💵 Lịch sử rút thưởng</h3></div>
-        <div id="affiliateWithdrawalList" class="simple-list"></div>
-      </article>
-    </div>
+    <article class="affiliate-card referral-history-card">
+      <div class="sectionbar"><h3>Người bạn đã giới thiệu</h3><span class="muted">Tối đa 100 tài khoản gần nhất</span></div>
+      <div id="referralUserList" class="simple-list"></div>
+    </article>
   </div>
 </section>
 
 <section class="tab" id="tab-account"><article class="panel-card narrow"><h3 data-i18n="account">Tài khoản</h3><div id="accountInfo"></div><button class="dark" id="logout2">Đăng xuất</button></article></section>
 </main>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-brand">
+      <a class="site-footer-logo" href="/"><img src="/static/images/logo-tvc.png" alt="TVC Studio AI"><span>TVC Studio <b>AI</b></span></a>
+      <p>Khi hình ảnh bắt đầu chuyển động.</p>
+      <div class="site-footer-contact">
+        <span>Mr Cường</span>
+        <a href="mailto:cuongtv.bx92@gmail.com">cuongtv.bx92@gmail.com</a>
+        <a href="tel:0917764222">Zalo: 0917764222</a>
+      </div>
+    </div>
+    <nav class="site-footer-links" aria-label="Liên kết cuối trang">
+      <div><b>Khám phá</b><a href="/">Trang Chủ</a><a href="/pricing">Bảng Giá</a><a href="/about">Về Chúng Tôi</a><a href="/contact">Liên Hệ</a></div>
+      <div><b>Chính sách</b><a href="/terms">Điều Khoản Dịch Vụ</a><a href="/privacy">Chính Sách Bảo Mật</a><a href="/refund">Chính Sách Hoàn Tiền</a><a href="/ai-content-policy">Chính Sách Nội Dung AI</a></div>
+    </nav>
+  </div>
+  <div class="site-footer-bottom"><span>© 2026 TVC Studio AI. All rights reserved.</span><span>Dịch vụ AI vận hành bởi cá nhân.</span></div>
+</footer>
 </section>
 </div>
 <div class="toast" id="toast"></div>

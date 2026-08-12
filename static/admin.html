@@ -28,7 +28,7 @@
     <nav class="global-actions liquid-nav">
       <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Giới Thiệu</span></a>
       <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
       <details class="account-native-menu" id="accountMenuDetails">
         <summary class="tool-pill liquid-pill mobile-account-link" id="accountMenuSummary"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></summary>
@@ -68,7 +68,7 @@
             </a>
             <a href="/app#affiliate" data-account-action="affiliate">
               <span class="account-v3-icon">◉</span>
-              <span data-i18n="affiliateMenu">Kiếm Tiền Affiliate</span>
+              <span data-i18n="affiliateMenu">Giới Thiệu</span>
               <i>›</i>
             </a>
           </nav>
@@ -103,13 +103,12 @@
 
 const TVC_I18N = {
   vi:{
-    topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Kiếm Tiền Affiliate", addTVC:"Nạp thêm",
-    wallet:"Ví TVC", earn:"Kiếm Tiền", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
+    topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
+    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
-    createNow:"Tạo ngay", modelOutfitVideoTitle:"AI Thay Đổi Trang Phục Video",
-    modelOutfitVideoDesc:"Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.",
+    createNow:"Tạo ngay",
     modelSkinTitle:"AI Fix Ảnh Da Nhựa", modelSkinDesc:"Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.",
     modelBgTitle:"AI Thay Nền Ảnh", modelBgDesc:"Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.",
     modelOutfitImageTitle:"AI Thay Trang Phục Ảnh", modelOutfitImageDesc:"Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.",
@@ -121,15 +120,14 @@ const TVC_I18N = {
     creditsKicker:"HỆ THỐNG TVC", creditsTitle:"Bán dịch vụ theo từng job.",
     creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, TVC, job queue, hoàn TVC khi lỗi và admin duyệt nạp điểm.",
     dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
-    walletNav:"◈ Ví TVC", earnNav:"💸 Kiếm tiền", accountNav:"⚙ Tài khoản",
+    walletNav:"◈ Ví TVC", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
     login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
     createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
     aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
     tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
-    topupHistory:"Lịch sử nạp", creditLedger:"Biến động TVC", affiliateTitle:"Kiếm Tiền Từ Giới Thiệu",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động TVC", affiliateTitle:"Giới Thiệu Bạn Bè",
     affiliateSubtitle:"Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư",
     shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
-    withdrawRequest:"Yêu Cầu Rút Thưởng", commissionHistory:"Lịch sử hoa hồng", withdrawHistory:"Lịch sử rút thưởng"
   },
   en:{
     topup:"VIP Top-up", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Affiliate Earnings", addTVC:"Add TVC",
@@ -137,8 +135,7 @@ const TVC_I18N = {
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
     creditPayment:"Pay with TVC", refundNote:"TVC are automatically refunded if a job fails",
     modelMotionTitle:"AI Motion Copy", modelMotionDesc:"Create motion video from a character image and a driving video. Supports TikTok/Reels 9:16 and YouTube 16:9.",
-    createNow:"Create now", modelOutfitVideoTitle:"AI Video Outfit Change",
-    modelOutfitVideoDesc:"Change a character's outfit in video while aiming to preserve motion, body shape and lighting.",
+    createNow:"Create now",
     modelSkinTitle:"AI Plastic-Skin Fix", modelSkinDesc:"Make images feel more realistic by reducing plastic skin and restoring natural texture.",
     modelBgTitle:"AI Background Change", modelBgDesc:"Keep the subject, replace the background and balance lighting for social commerce images.",
     modelOutfitImageTitle:"AI Image Outfit Change", modelOutfitImageDesc:"Replace clothing from a reference image while preserving the subject's face and composition.",
@@ -158,7 +155,6 @@ const TVC_I18N = {
     topupHistory:"Top-up history", creditLedger:"TVC activity", affiliateTitle:"Earn From Referrals",
     affiliateSubtitle:"Share your link • Earn commission by tier • Request a payout when your balance is ready",
     shareReward:"Share & Earn", enterReferral:"Enter Referral Code",
-    withdrawRequest:"Request Payout", commissionHistory:"Commission history", withdrawHistory:"Payout history"
   }
 };
 

@@ -1,13 +1,12 @@
 
 const TVC_I18N = {
   vi:{
-    topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Kiếm Tiền Affiliate", addTVC:"Nạp thêm",
-    wallet:"Ví TVC", earn:"Kiếm Tiền", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
+    topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
+    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
-    createNow:"Tạo ngay", modelOutfitVideoTitle:"AI Thay Đổi Trang Phục Video",
-    modelOutfitVideoDesc:"Thay trang phục cho nhân vật trong video, hướng tới giữ chuyển động, dáng người và ánh sáng ổn định.",
+    createNow:"Tạo ngay",
     modelSkinTitle:"AI Fix Ảnh Da Nhựa", modelSkinDesc:"Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.",
     modelBgTitle:"AI Thay Nền Ảnh", modelBgDesc:"Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.",
     modelOutfitImageTitle:"AI Thay Trang Phục Ảnh", modelOutfitImageDesc:"Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.",
@@ -19,24 +18,22 @@ const TVC_I18N = {
     creditsKicker:"HỆ THỐNG TVC", creditsTitle:"Bán dịch vụ theo từng job.",
     creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, TVC, job queue, hoàn TVC khi lỗi và admin duyệt nạp điểm.",
     dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
-    walletNav:"◈ Ví TVC", earnNav:"💸 Kiếm tiền", accountNav:"⚙ Tài khoản",
+    walletNav:"◈ Ví TVC", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
     login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
     createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
     aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
     tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
-    topupHistory:"Lịch sử nạp", creditLedger:"Biến động TVC", affiliateTitle:"Kiếm Tiền Từ Giới Thiệu",
-    affiliateSubtitle:"Chia sẻ link của bạn • Nhận hoa hồng theo hạng • Gửi yêu cầu rút khi đủ số dư",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động TVC", affiliateTitle:"Giới Thiệu Bạn Bè",
+    affiliateSubtitle:"Chia sẻ link hoặc mã giới thiệu của bạn",
     shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
-    withdrawRequest:"Yêu Cầu Rút Thưởng", commissionHistory:"Lịch sử hoa hồng", withdrawHistory:"Lịch sử rút thưởng"
   },
   en:{
-    topup:"VIP Top-up", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Affiliate Earnings", addTVC:"Add TVC",
-    wallet:"TVC Wallet", earn:"Earn", logout:"Log out", models:"Choose Model", history:"History",
+    topup:"VIP Top-up", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Referral", addTVC:"Add TVC",
+    wallet:"TVC Wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
     creditPayment:"Pay with TVC", refundNote:"TVC are automatically refunded if a job fails",
     modelMotionTitle:"AI Motion Copy", modelMotionDesc:"Create motion video from a character image and a driving video. Supports TikTok/Reels 9:16 and YouTube 16:9.",
-    createNow:"Create now", modelOutfitVideoTitle:"AI Video Outfit Change",
-    modelOutfitVideoDesc:"Change a character's outfit in video while aiming to preserve motion, body shape and lighting.",
+    createNow:"Create now",
     modelSkinTitle:"AI Plastic-Skin Fix", modelSkinDesc:"Make images feel more realistic by reducing plastic skin and restoring natural texture.",
     modelBgTitle:"AI Background Change", modelBgDesc:"Keep the subject, replace the background and balance lighting for social commerce images.",
     modelOutfitImageTitle:"AI Image Outfit Change", modelOutfitImageDesc:"Replace clothing from a reference image while preserving the subject's face and composition.",
@@ -48,15 +45,14 @@ const TVC_I18N = {
     creditsKicker:"TVC SYSTEM", creditsTitle:"Sell AI services per job.",
     creditsDesc:"The backend already supports accounts, TVC, job queue, automatic refunds on failure and admin-approved top-ups.",
     dashboardCta:"Open dashboard →", createVideoNav:"✨ Create Video", myJobsNav:"▤ My Jobs",
-    walletNav:"◈ TVC Wallet", earnNav:"💸 Earn", accountNav:"⚙ Account",
+    walletNav:"◈ TVC Wallet", earnNav:"🔗 Referral", accountNav:"⚙ Account",
     login:"Log in", register:"Sign up", welcomeBack:"Welcome back", createAccount:"Create account",
     createVideoTitle:"Create a new video", characterImage:"Character image", motionVideo:"Motion video", model:"Model",
     aspect:"Aspect ratio", quality:"Quality", prompt:"Prompt", cost:"Estimated cost", createVideo:"Create video",
     tips:"TIPS", betterVideo:"For better results", myJobs:"My jobs", topupRequest:"Create a top-up request",
-    topupHistory:"Top-up history", creditLedger:"TVC activity", affiliateTitle:"Earn From Referrals",
-    affiliateSubtitle:"Share your link • Earn commission by tier • Request a payout when your balance is ready",
+    topupHistory:"Top-up history", creditLedger:"TVC activity", affiliateTitle:"Refer Friends",
+    affiliateSubtitle:"Share your referral link or code",
     shareReward:"Share & Earn", enterReferral:"Enter Referral Code",
-    withdrawRequest:"Request Payout", commissionHistory:"Commission history", withdrawHistory:"Payout history"
   }
 };
 
@@ -202,7 +198,7 @@ const meta={
   create:['Tạo video mới','Ảnh nhân vật + video chuyển động'],
   jobs:['Job của tôi','Theo dõi hàng đợi và tải kết quả'],
   wallet:['Ví TVC','Nạp VIP và lịch sử giao dịch'],
-  affiliate:['Kiếm tiền Affiliate','Giới thiệu khách hàng và nhận hoa hồng'],
+  affiliate:['Giới Thiệu','Chia sẻ link và theo dõi người được giới thiệu'],
   account:['Tài khoản','Thông tin tài khoản']
 };
 let currentTab='create';
@@ -360,7 +356,7 @@ async function loadJobs(){
     const jobs=await api('/api/jobs');
     $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
       <div class="thumb">🎬</div>
-      <div><b>#${j.id} • ${j.model}</b><small>${j.quality}p • ${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
+      <div><b>#${j.id} • Véo 3 né ra tí 🤏</b><small>${j.quality}p • ${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
       <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
@@ -378,60 +374,44 @@ $('#requestTopup').onclick=async()=>{
     say('Đã gửi yêu cầu nạp #'+j.topup_id);loadWallet()
   }catch(e){say(e.message)}
 }
+function packageName(key){return {starter:'Trải nghiệm',creator:'Phổ biến',studio:'Tiết kiệm'}[key]||key}
 async function loadWallet(){
   try{
     me=await api('/api/me');showDashboard();
+    const normalTurns=Math.max(0,Number(me.credits||0));
+    const qualityTurns=Math.floor(normalTurns/2);
+    if($('#walletVideoNormal')) $('#walletVideoNormal').textContent=normalTurns;
+    if($('#walletVideoQuality')) $('#walletVideoQuality').textContent=qualityTurns;
     const [tops,led]=await Promise.all([api('/api/topups'),api('/api/ledger')]);
-    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${x.package} • ${x.credits} TVC</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
-    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta}</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
+    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} lượt</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
+    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} TVC</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
   }catch(e){say(e.message)}
 }
 
-function formatTVC(n){return Number(n||0).toLocaleString('vi-VN',{minimumFractionDigits:0,maximumFractionDigits:2})}
-function formatVnd(n){return Number(n||0).toLocaleString('vi-VN')+' VND'}
-function affRewardType(t){return t==='tier_override'?'Thưởng cấp dưới':'Hoa hồng trực tiếp'}
-function withdrawalState(s){return {pending:'Đang chờ duyệt',paid:'Đã thanh toán',rejected:'Từ chối'}[s]||s}
+function referralDate(value){
+  try{return new Date(value).toLocaleString('vi-VN')}catch(_){return value||'—'}
+}
 
 async function loadAffiliate(){
   try{
-    const [s,rewards,withdrawals]=await Promise.all([
-      api('/api/affiliate/summary'),api('/api/affiliate/rewards'),api('/api/affiliate/withdrawals')
-    ]);
-    $('#affTier').textContent=s.tier.name;
-    $('#affRate').textContent=`Phần thưởng: ${s.tier.rate_percent}%`;
-    $('#affAvailable').textContent=formatTVC(s.available);
-    $('#affAvailableVnd').textContent='≈ '+formatVnd(s.available_vnd);
-    $('#affTotal').textContent=formatTVC(s.total_rewards);
-    $('#affRefs').textContent=s.direct_referrals;
-    $('#affPayingRefs').textContent=`${s.paying_referrals} khách đã nạp`;
-    $('#affLink').textContent=s.referral_link;
-    $('#affCode').textContent=s.referral_code;
-    $('#affRankBar').style.width=s.progress_percent+'%';
-    if(s.tier.key==='gold'){
-      $('#affNextTier').textContent='Đã đạt Vàng';
-      $('#affRankText').textContent=`${formatTVC(s.tier.sales_credits)} TVC doanh số`;
-    }else{
-      $('#affNextTier').textContent='Tiếp theo: Vàng';
-      $('#affRankText').textContent=`${formatTVC(s.tier.sales_credits)} / 1.000 TVC`;
-    }
-    if(s.referrer){
-      $('#referrerState').innerHTML=`<span class="linked-ref">✓ Đã liên kết với <b>${s.referrer.name}</b> • ${s.referrer.referral_code}</span>`;
+    const [summary,refs]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals')]);
+    if($('#refDirectCount')) $('#refDirectCount').textContent=summary.direct_referrals||0;
+    $('#affLink').textContent=summary.referral_link||'—';
+    $('#affCode').textContent=summary.referral_code||'—';
+
+    if(summary.referrer){
+      $('#referrerState').innerHTML=`<span class="linked-ref">✓ Đã liên kết với <b>${summary.referrer.name}</b> • ${summary.referrer.referral_code}</span>`;
       $('#applyReferralCode').disabled=true;$('#applyReferralBtn').disabled=true;
     }else{
-      $('#referrerState').innerHTML=`<span class="muted">Chưa nhập mã giới thiệu. Khách có mã được +${s.buyer_bonus_percent}% TVC mỗi lần nạp được duyệt.</span>`;
+      $('#referrerState').innerHTML='<span class="muted">Chưa gắn người giới thiệu.</span>';
       $('#applyReferralCode').disabled=false;$('#applyReferralBtn').disabled=false;
       const ref=referralFromUrl();if(ref&&!$('#applyReferralCode').value)$('#applyReferralCode').value=ref;
     }
 
-    $('#affiliateRewardList').innerHTML=rewards.length?rewards.map(r=>`<div class="simple-row affiliate-row">
-      <div><b>${affRewardType(r.reward_type)}</b><span>Từ ${r.source_name} • ${new Date(r.created_at).toLocaleString('vi-VN')}</span></div>
-      <strong class="money">+${formatTVC(r.amount_credits)}</strong>
-    </div>`).join(''):'<div class="simple-row">Chưa có hoa hồng.</div>';
-
-    $('#affiliateWithdrawalList').innerHTML=withdrawals.length?withdrawals.map(w=>`<div class="simple-row affiliate-row">
-      <div><b>#${w.id} • ${withdrawalState(w.status)}</b><span>${formatTVC(w.amount_credits)} TVC • ${formatVnd(w.amount_vnd)} • ${w.method}</span></div>
-      <strong class="${w.status==='paid'?'money':w.status==='rejected'?'bad':'pending-text'}">${w.status}</strong>
-    </div>`).join(''):'<div class="simple-row">Chưa có yêu cầu rút.</div>';
+    $('#referralUserList').innerHTML=refs.length?refs.map(r=>`<div class="simple-row referral-user-row">
+      <div><b>${r.name||'Người dùng TVC'}</b><span>${r.email_masked||'—'}</span></div>
+      <span>${referralDate(r.created_at)}</span>
+    </div>`).join(''):'<div class="simple-row">Chưa có người được giới thiệu.</div>';
   }catch(e){say(e.message)}
 }
 $('#refreshAffiliate').onclick=loadAffiliate;
@@ -442,18 +422,6 @@ $('#applyReferralBtn').onclick=async()=>{
     const j=await api('/api/affiliate/apply-code',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({code:$('#applyReferralCode').value})});
     say('Đã liên kết với '+j.referrer_name);loadAffiliate()
-  }catch(e){say(e.message)}
-}
-$('#withdrawBtn').onclick=async()=>{
-  try{
-    const j=await api('/api/affiliate/withdrawals',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        amount_credits:$('#withdrawAmount').value,
-        method:$('#withdrawMethod').value,
-        account:$('#withdrawAccount').value,
-        note:$('#withdrawNote').value
-      })});
-    say('Đã gửi yêu cầu rút #'+j.withdrawal_id);$('#withdrawAmount').value='';loadAffiliate()
   }catch(e){say(e.message)}
 }
 

@@ -585,3 +585,18 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Request trùng/retry trả lại job đã nhận thay vì tạo/trừ TVC lần nữa.
 - Backend giữ khóa trong lúc upload; sau khi tạo xong còn cooldown 8 giây chống double tap từ client cũ.
 - Trừ TVC bằng câu lệnh atomic, không cho số dư âm nếu có request đồng thời.
+
+
+## V3.3.39 — Business polish / Footer / Pricing / Referral
+- Nền tảng phát triển từ V3.3.38, giữ Google Login và duplicate-job guard.
+- Lịch Sử ẩn tên model kỹ thuật, thay bằng “Véo 3 né ra tí 🤏”.
+- Xóa hoàn toàn card “AI Thay Đổi Trang Phục Video”.
+- Đổi “Kiếm Tiền” thành “Giới Thiệu”; bỏ UI hạng Bạc/Vàng, hoa hồng và rút tiền.
+- Giai đoạn test chỉ ghi nhận link/mã referral; cơ chế +5 lượt / +1 lượt được mô tả nhưng chưa tự động cộng.
+- Tắt phát sinh thưởng affiliate % cũ khi admin duyệt top-up.
+- Tài khoản mới bắt đầu 0 TVC; tài khoản cũ không bị thay đổi số dư.
+- Gói Nạp VIP: 10K/3 lượt, 60K/25 lượt, 99K/50 lượt.
+- Thêm bộ đếm Video Thường và Video Chất Lượng từ số dư TVC.
+- Thêm footer và các trang: Bảng Giá, Về Chúng Tôi, Liên Hệ, Điều Khoản, Bảo Mật, Hoàn Tiền, Chính Sách Nội Dung AI.
+- Thông tin liên hệ: Mr Cường / cuongtv.bx92@gmail.com / Zalo 0917764222.
+- Job lỗi do hệ thống: hoàn TVC tự động; nội dung 18+ bị cấm.

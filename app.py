@@ -36,7 +36,7 @@ DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.g
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 
-app = FastAPI(title="TVC Studio AI Business V3.3.38")
+app = FastAPI(title="TVC Studio AI Business V3.3.39")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
@@ -73,7 +73,7 @@ def init_db():
         email TEXT UNIQUE NOT NULL,
         name TEXT NOT NULL,
         password_hash TEXT NOT NULL,
-        credits INTEGER NOT NULL DEFAULT 30,
+        credits INTEGER NOT NULL DEFAULT 0,
         role TEXT NOT NULL DEFAULT 'user',
         created_at TEXT NOT NULL
     );
@@ -247,6 +247,7 @@ def require_admin(request: Request):
 AFFILIATE_VND_PER_CREDIT = 2500
 AFFILIATE_GOLD_SALES_CREDITS = 1000
 REFERRAL_BUYER_BONUS_RATE = 0.10
+LEGACY_AFFILIATE_REWARDS_ENABLED = False
 
 def affiliate_sales_credits(con, user_id: int):
     row = con.execute("""
@@ -343,6 +344,34 @@ def app_page():
 def admin_page():
     return FileResponse(BASE / "static" / "admin.html")
 
+@app.get("/pricing")
+def pricing_page():
+    return FileResponse(BASE / "static" / "pricing.html")
+
+@app.get("/about")
+def about_page():
+    return FileResponse(BASE / "static" / "about.html")
+
+@app.get("/contact")
+def contact_page():
+    return FileResponse(BASE / "static" / "contact.html")
+
+@app.get("/terms")
+def terms_page():
+    return FileResponse(BASE / "static" / "terms.html")
+
+@app.get("/privacy")
+def privacy_page():
+    return FileResponse(BASE / "static" / "privacy.html")
+
+@app.get("/refund")
+def refund_page():
+    return FileResponse(BASE / "static" / "refund.html")
+
+@app.get("/ai-content-policy")
+def ai_content_policy_page():
+    return FileResponse(BASE / "static" / "ai-content-policy.html")
+
 def create_session(con, user_id: int, response: Response):
     token = secrets.token_urlsafe(32)
     expires = (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()
@@ -426,17 +455,13 @@ async def google_login(request: Request, response: Response):
                     email,name,password_hash,credits,role,created_at,referred_by_user_id,referred_at,google_sub,avatar_url
                 ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
                 (
-                    email, name, hash_password(random_password), 30, "user", now_iso(),
+                    email, name, hash_password(random_password), 0, "user", now_iso(),
                     referrer["id"] if referrer else None,
                     now_iso() if referrer else None, google_sub, avatar_url
                 )
             )
             user_id = cur.lastrowid
             ensure_user_referral_code(con, user_id)
-            con.execute(
-                "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
-                (user_id, 30, "Tặng TVC đăng ký Google", now_iso())
-            )
 
         create_session(con, user_id, response)
         con.commit()
@@ -472,17 +497,13 @@ async def register(request: Request):
         cur = con.execute(
             "INSERT INTO users(email,name,password_hash,credits,role,created_at,referred_by_user_id,referred_at) VALUES(?,?,?,?,?,?,?,?)",
             (
-                email, name, hash_password(password), 30, "user", now_iso(),
+                email, name, hash_password(password), 0, "user", now_iso(),
                 referrer["id"] if referrer else None,
                 now_iso() if referrer else None
             )
         )
         uid = cur.lastrowid
         ensure_user_referral_code(con, uid)
-        con.execute(
-            "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
-            (uid, 30, "Tặng TVC đăng ký", now_iso())
-        )
         con.commit()
     except sqlite3.IntegrityError:
         con.close()
@@ -735,9 +756,9 @@ def ledger(request: Request):
     return [dict(r) for r in rows]
 
 PACKAGES = {
-    "starter": (49_000, 50),
-    "creator": (199_000, 250),
-    "studio": (699_000, 1000),
+    "starter": (10_000, 3),
+    "creator": (60_000, 25),
+    "studio": (99_000, 50),
 }
 
 @app.post("/api/topups")
@@ -820,8 +841,40 @@ def affiliate_summary(request: Request):
         "credits_to_gold": remaining,
         "referrer": dict(referrer) if referrer else None,
         "can_apply_code": not bool(user_row["referred_by_user_id"]),
-        "buyer_bonus_percent": int(REFERRAL_BUYER_BONUS_RATE * 100),
+        "buyer_bonus_percent": int(REFERRAL_BUYER_BONUS_RATE * 100) if LEGACY_AFFILIATE_REWARDS_ENABLED else 0,
+        "reward_program_active": False,
     }
+
+@app.get("/api/referrals")
+def my_referrals(request: Request):
+    u = current_user(request)
+    con = db()
+    rows = con.execute(
+        "SELECT id,name,email,created_at FROM users WHERE referred_by_user_id=? ORDER BY id DESC LIMIT 100",
+        (u["id"],)
+    ).fetchall()
+    con.close()
+
+    def masked_email(value: str):
+        value = (value or "").strip()
+        if "@" not in value:
+            return "—"
+        local, domain = value.split("@", 1)
+        if len(local) <= 2:
+            shown = local[:1] + "***"
+        else:
+            shown = local[:2] + "***" + local[-1:]
+        return f"{shown}@{domain}"
+
+    return [
+        {
+            "id": r["id"],
+            "name": r["name"],
+            "email_masked": masked_email(r["email"]),
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]
 
 @app.post("/api/affiliate/apply-code")
 async def affiliate_apply_code(request: Request):
@@ -975,7 +1028,7 @@ def approve_topup(topup_id: int, request: Request):
     buyer = con.execute(
         "SELECT id,referred_by_user_id FROM users WHERE id=?", (t["user_id"],)
     ).fetchone()
-    buyer_bonus = int(round(t["credits"] * REFERRAL_BUYER_BONUS_RATE)) if buyer["referred_by_user_id"] else 0
+    buyer_bonus = int(round(t["credits"] * REFERRAL_BUYER_BONUS_RATE)) if (LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]) else 0
 
     # Mark approved first so tier calculations include this transaction.
     con.execute("UPDATE topups SET status='approved',reviewed_at=? WHERE id=?", (now_iso(), topup_id))
@@ -1000,7 +1053,7 @@ def approve_topup(topup_id: int, request: Request):
 
     direct_commission = 0.0
     override_commission = 0.0
-    if buyer["referred_by_user_id"]:
+    if LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]:
         referrer_id = buyer["referred_by_user_id"]
         tier = affiliate_tier(con, referrer_id)
         direct_commission = round(t["credits"] * tier["rate"], 2)
