@@ -300,28 +300,59 @@ form.image.onchange=()=>{$('#imgName').textContent=form.image.files[0]?.name||'C
 form.motion.onchange=()=>{$('#vidName').textContent=form.motion.files[0]?.name||'Chưa chọn video'};
 
 $$('.simple-aspect').forEach(btn=>btn.onclick=()=>{
+  if(form.classList.contains('is-submitting')) return;
   $$('.simple-aspect').forEach(x=>x.classList.remove('active'));
   btn.classList.add('active');
   $('#aspectRatio').value=btn.dataset.aspect;
 });
 
-$$('.simple-render-btn').forEach(btn=>btn.addEventListener('click',()=>{
+const renderBtns=$$('.simple-render-btn');
+const renderBtnHTML=new Map(renderBtns.map(btn=>[btn,btn.innerHTML]));
+let jobSubmitLocked=false;
+function jobRequestKey(){
+  if(window.crypto?.randomUUID) return window.crypto.randomUUID();
+  return 'job-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+}
+function setJobSubmitLocked(locked,activeBtn=null){
+  jobSubmitLocked=locked;
+  form.classList.toggle('is-submitting',locked);
+  form.setAttribute('aria-busy',locked?'true':'false');
+  renderBtns.forEach(btn=>{
+    btn.disabled=locked;
+    btn.setAttribute('aria-disabled',locked?'true':'false');
+    if(locked && btn===activeBtn){
+      btn.innerHTML='<span><b>⏳ Đang tạo video...</b><small>Không cần bấm lại</small></span><em>…</em>';
+    }else if(!locked){
+      btn.innerHTML=renderBtnHTML.get(btn);
+    }
+  });
+}
+
+renderBtns.forEach(btn=>btn.addEventListener('click',()=>{
+  if(jobSubmitLocked) return;
   $('#quality').value=btn.dataset.quality;
   $('#cost').textContent=(btn.dataset.quality==='720'?2:1)+' TVC';
 }));
 
 form.onsubmit=async e=>{
   e.preventDefault();
+  if(jobSubmitLocked) return;
   const submitter=e.submitter;
+  setJobSubmitLocked(true,submitter);
   if(submitter?.dataset?.quality){
     $('#quality').value=submitter.dataset.quality;
   }
   const fd=new FormData(form);
+  fd.set('request_key',jobRequestKey());
   try{
     const j=await api('/api/jobs',{method:'POST',body:fd});
-    say('Đã tạo job #'+j.job_id);
-    me=await api('/api/me');showDashboard();goto('jobs')
-  }catch(err){say(err.message)}
+    say(j.duplicate?('Job #'+j.job_id+' đã được nhận, không tạo trùng.'):('Đã tạo job #'+j.job_id));
+    me=await api('/api/me');showDashboard();goto('jobs');
+  }catch(err){
+    say(err.message);
+  }finally{
+    setJobSubmitLocked(false);
+  }
 }
 function stateText(s){return {waiting:'Đang chờ',running:'Đang render',done:'Hoàn thành',failed:'Lỗi',uploading:'Đang tải'}[s]||s}
 async function loadJobs(){

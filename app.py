@@ -23,6 +23,8 @@ OUTPUTS.mkdir(parents=True, exist_ok=True)
 SESSION_DAYS = 30
 MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
+JOB_SUBMIT_INFLIGHT_SECONDS = 600
+JOB_SUBMIT_COOLDOWN_SECONDS = 8
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
@@ -34,15 +36,16 @@ DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.g
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 
-app = FastAPI(title="TVC Studio AI Business V3.3.37")
+app = FastAPI(title="TVC Studio AI Business V3.3.38")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
 
 def db():
-    con = sqlite3.connect(DB_PATH)
+    con = sqlite3.connect(DB_PATH, timeout=30)
     con.row_factory = sqlite3.Row
+    con.execute("PRAGMA busy_timeout=30000")
     con.execute("PRAGMA foreign_keys=ON")
     return con
 
@@ -97,6 +100,11 @@ def init_db():
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS job_submit_guards(
+        user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        job_id INTEGER,
+        locked_until REAL NOT NULL DEFAULT 0
+    );
     CREATE TABLE IF NOT EXISTS topups(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -144,6 +152,12 @@ def init_db():
     """)
 
     # Safe schema migration for databases created by older versions.
+    job_cols = {r["name"] for r in con.execute("PRAGMA table_info(jobs)").fetchall()}
+    if "request_key" not in job_cols:
+        con.execute("ALTER TABLE jobs ADD COLUMN request_key TEXT")
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_user_request_key ON jobs(user_id, request_key) WHERE request_key IS NOT NULL AND request_key!=''")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_guards_until ON job_submit_guards(locked_until)")
+
     cols = {r["name"] for r in con.execute("PRAGMA table_info(users)").fetchall()}
     if "referral_code" not in cols:
         con.execute("ALTER TABLE users ADD COLUMN referral_code TEXT")
@@ -527,7 +541,8 @@ async def create_job(
     model: str = Form("Wan Animate 2 • Distill INT8"),
     aspect_ratio: str = Form("9:16"),
     quality: str = Form("720"),
-    prompt: str = Form("")
+    prompt: str = Form(""),
+    request_key: str = Form("")
 ):
     u = current_user(request)
     if aspect_ratio not in {"9:16","16:9","1:1"}:
@@ -535,44 +550,164 @@ async def create_job(
     if quality not in {"480","720"}:
         raise HTTPException(400, "Chất lượng không hợp lệ")
     cost = 1 if quality == "480" else 2
+    request_key = (request_key or "").strip()[:128]
+    now_ts = time.time()
 
+    # Layer 1 (backend): atomic per-user guard + idempotency key.
+    # This protects against double taps, duplicated browser requests and retries.
     con = db()
-    fresh = con.execute("SELECT credits FROM users WHERE id=?", (u["id"],)).fetchone()
-    if fresh["credits"] < cost:
-        con.close()
-        raise HTTPException(402, "Không đủ TVC")
+    try:
+        con.execute("BEGIN IMMEDIATE")
 
-    cur = con.execute("""
-        INSERT INTO jobs(user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,created_at,updated_at)
-        VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
-    """, (u["id"], model[:120], aspect_ratio, quality, prompt[:2000], cost, "", "", "uploading", 0, now_iso(), now_iso()))
-    job_id = cur.lastrowid
+        if request_key:
+            existing = con.execute(
+                "SELECT id,cost,status FROM jobs WHERE user_id=? AND request_key=? LIMIT 1",
+                (u["id"], request_key)
+            ).fetchone()
+            if existing:
+                con.commit(); con.close()
+                return {
+                    "ok": True, "job_id": existing["id"], "cost": existing["cost"],
+                    "duplicate": True, "status": existing["status"]
+                }
+
+        guard = con.execute(
+            "SELECT job_id,locked_until FROM job_submit_guards WHERE user_id=?",
+            (u["id"],)
+        ).fetchone()
+        if guard and float(guard["locked_until"] or 0) > now_ts:
+            existing = None
+            if guard["job_id"]:
+                existing = con.execute(
+                    "SELECT id,cost,status FROM jobs WHERE id=? AND user_id=?",
+                    (guard["job_id"], u["id"])
+                ).fetchone()
+            con.commit(); con.close()
+            if existing:
+                return {
+                    "ok": True, "job_id": existing["id"], "cost": existing["cost"],
+                    "duplicate": True, "status": existing["status"]
+                }
+            raise HTTPException(409, "Yêu cầu tạo video đang được xử lý, vui lòng chờ vài giây")
+
+        fresh = con.execute("SELECT credits FROM users WHERE id=?", (u["id"],)).fetchone()
+        if not fresh or fresh["credits"] < cost:
+            con.rollback(); con.close()
+            raise HTTPException(402, "Không đủ TVC")
+
+        cur = con.execute("""
+            INSERT INTO jobs(user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,created_at,updated_at,request_key)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            u["id"], model[:120], aspect_ratio, quality, prompt[:2000], cost,
+            "", "", "uploading", 0, now_iso(), now_iso(), request_key or None
+        ))
+        job_id = cur.lastrowid
+        con.execute("""
+            INSERT INTO job_submit_guards(user_id,job_id,locked_until)
+            VALUES(?,?,?)
+            ON CONFLICT(user_id) DO UPDATE SET job_id=excluded.job_id,locked_until=excluded.locked_until
+        """, (u["id"], job_id, now_ts + JOB_SUBMIT_INFLIGHT_SECONDS))
+        con.commit(); con.close()
+    except HTTPException:
+        try:
+            con.rollback(); con.close()
+        except Exception:
+            pass
+        raise
+    except sqlite3.IntegrityError:
+        # A simultaneous request with the same idempotency key won the race.
+        try:
+            con.rollback()
+            if request_key:
+                existing = con.execute(
+                    "SELECT id,cost,status FROM jobs WHERE user_id=? AND request_key=? LIMIT 1",
+                    (u["id"], request_key)
+                ).fetchone()
+                con.close()
+                if existing:
+                    return {
+                        "ok": True, "job_id": existing["id"], "cost": existing["cost"],
+                        "duplicate": True, "status": existing["status"]
+                    }
+            con.close()
+        except Exception:
+            pass
+        raise HTTPException(409, "Yêu cầu tạo video đã được nhận")
+    except Exception:
+        try:
+            con.rollback(); con.close()
+        except Exception:
+            pass
+        raise
+
     job_dir = UPLOADS / str(job_id)
     job_dir.mkdir(parents=True, exist_ok=True)
-
     image_dest = job_dir / ("character" + Path(image.filename or ".png").suffix.lower())
     video_dest = job_dir / ("motion" + Path(motion.filename or ".mp4").suffix.lower())
+
     try:
         await save_upload(image, image_dest, {".png",".jpg",".jpeg",".webp"}, MAX_IMAGE_MB)
         await save_upload(motion, video_dest, {".mp4",".mov",".webm",".mkv"}, MAX_VIDEO_MB)
     except Exception:
         shutil.rmtree(job_dir, ignore_errors=True)
-        con.execute("DELETE FROM jobs WHERE id=?", (job_id,))
-        con.commit()
-        con.close()
+        cleanup = db()
+        try:
+            cleanup.execute("BEGIN IMMEDIATE")
+            cleanup.execute("DELETE FROM jobs WHERE id=? AND user_id=? AND status='uploading'", (job_id, u["id"]))
+            cleanup.execute("DELETE FROM job_submit_guards WHERE user_id=? AND job_id=?", (u["id"], job_id))
+            cleanup.commit()
+        finally:
+            cleanup.close()
         raise
 
-    con.execute("UPDATE users SET credits=credits-? WHERE id=?", (cost, u["id"]))
-    con.execute(
-        "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
-        (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso())
-    )
-    con.execute("""
-        UPDATE jobs SET image_path=?,video_path=?,status='waiting',updated_at=? WHERE id=?
-    """, (str(image_dest.relative_to(BASE)), str(video_dest.relative_to(BASE)), now_iso(), job_id))
-    con.commit()
-    con.close()
-    return {"ok": True, "job_id": job_id, "cost": cost}
+    # Charge TVC and publish to the worker queue atomically.
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        charged = con.execute(
+            "UPDATE users SET credits=credits-? WHERE id=? AND credits>=?",
+            (cost, u["id"], cost)
+        )
+        if charged.rowcount != 1:
+            con.execute("DELETE FROM jobs WHERE id=? AND user_id=? AND status='uploading'", (job_id, u["id"]))
+            con.execute("DELETE FROM job_submit_guards WHERE user_id=? AND job_id=?", (u["id"], job_id))
+            con.commit(); con.close()
+            shutil.rmtree(job_dir, ignore_errors=True)
+            raise HTTPException(402, "Không đủ TVC")
+
+        con.execute(
+            "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
+            (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso())
+        )
+        con.execute("""
+            UPDATE jobs SET image_path=?,video_path=?,status='waiting',updated_at=? WHERE id=?
+        """, (str(image_dest.relative_to(BASE)), str(video_dest.relative_to(BASE)), now_iso(), job_id))
+        con.execute(
+            "UPDATE job_submit_guards SET locked_until=? WHERE user_id=? AND job_id=?",
+            (time.time() + JOB_SUBMIT_COOLDOWN_SECONDS, u["id"], job_id)
+        )
+        con.commit(); con.close()
+    except HTTPException:
+        raise
+    except Exception:
+        try:
+            con.rollback(); con.close()
+        except Exception:
+            pass
+        # No charge survives a rollback. Remove the unfinished job and release the guard.
+        cleanup = db()
+        try:
+            cleanup.execute("BEGIN IMMEDIATE")
+            cleanup.execute("DELETE FROM jobs WHERE id=? AND user_id=? AND status='uploading'", (job_id, u["id"]))
+            cleanup.execute("DELETE FROM job_submit_guards WHERE user_id=? AND job_id=?", (u["id"], job_id))
+            cleanup.commit()
+        finally:
+            cleanup.close()
+        shutil.rmtree(job_dir, ignore_errors=True)
+        raise
+
+    return {"ok": True, "job_id": job_id, "cost": cost, "duplicate": False}
 
 @app.get("/api/jobs/{job_id}/output")
 def job_output(job_id: int, request: Request):

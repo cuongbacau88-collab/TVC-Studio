@@ -575,3 +575,13 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Có fallback bằng chính OAuth Client ID public của TVC Studio AI nếu Railway chưa nạp biến.
 - `/api/auth/google-config` trả thêm `source` để kiểm tra đang đọc từ Railway hay fallback.
 - Không dùng/không nhúng Google Client Secret.
+
+
+## V3.3.38 — Chống tạo video trùng
+- Frontend khóa cả hai nút render ngay từ lần bấm đầu tiên và hiện “Đang tạo video...”.
+- Không cho đổi tỷ lệ/tệp trong lúc request đang gửi.
+- Mỗi request có `request_key` idempotency riêng.
+- Backend có unique idempotency key theo user và khóa tạo job theo user.
+- Request trùng/retry trả lại job đã nhận thay vì tạo/trừ TVC lần nữa.
+- Backend giữ khóa trong lúc upload; sau khi tạo xong còn cooldown 8 giây chống double tap từ client cũ.
+- Trừ TVC bằng câu lệnh atomic, không cho số dư âm nếu có request đồng thời.

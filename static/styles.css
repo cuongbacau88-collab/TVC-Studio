@@ -8327,3 +8327,24 @@ textarea::placeholder{
   .account-native-menu[data-auth-state="signed-out"]>.account-popover-v3{width:min(286px,calc(100vw - 24px))!important}
   .account-login-mini-head{padding-bottom:8px}
 }
+
+
+/* =====================================================================
+   V3.3.38 — DOUBLE SUBMIT / DUPLICATE JOB GUARD
+   Khóa nút ngay khi gửi job để không tạo 2–3 video khi chạm liên tục.
+   ===================================================================== */
+.simple-render-btn:disabled,
+.simple-render-btn[aria-disabled="true"]{
+  cursor:wait !important;
+  pointer-events:none !important;
+  opacity:.74 !important;
+  transform:none !important;
+  filter:saturate(.78) !important;
+}
+.simple-create-form.is-submitting .simple-aspect,
+.simple-create-form.is-submitting .simple-upload-row{
+  pointer-events:none !important;
+}
+.simple-create-form.is-submitting .simple-aspect{
+  opacity:.78 !important;
+}
