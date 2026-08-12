@@ -263,3 +263,29 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Căn lại khung preview của card Copy Chuyển Động để khớp với video hơn.
 - Bỏ khoảng trống thừa phía trên và phía dưới.
 - Đổi preview sang fill khung đẹp hơn bằng `object-fit: cover`.
+
+
+## V3.2.2 — Video bo góc sát khung hơn + preview mirror glass rõ hơn
+- Giảm padding của khung preview để video sát viền hơn.
+- Tăng độ bo góc đồng bộ giữa video và khung.
+- Thêm lớp highlight phản chiếu ở mép trên để khung mang cảm giác kính gương rõ hơn.
+- Tăng shadow / border / glow nhẹ cho vùng preview để nổi khối hơn nhưng vẫn đồng bộ giao diện.
+
+
+## V3.2.3 — Sửa viền phải preview video
+- Thu hẹp padding của khung preview.
+- Kéo media preview sát mép phải hơn để viền phải khớp khung.
+- Tinh chỉnh lại bo góc phải/trái cho preview video.
+
+
+## V3.2.4 — Bật/tắt âm thanh cho video preview
+- Video vẫn autoplay ở chế độ muted để Chrome/Safari/iPhone cho phép tự chạy.
+- Thêm nút `Bật âm` nổi trên video.
+- Khi người dùng bấm, video được unmute và phát âm thanh nếu file MP4 có audio track.
+- Bấm lần nữa để tắt âm.
+
+
+## V3.3 — Bright Pastel Glass Theme
+- Đổi toàn bộ giao diện sang tông sáng hơn theo ảnh mẫu: xanh pastel / lavender / hồng nhạt.
+- Toolbar, card, popup, preview frame và button đều sáng hơn, mềm hơn.
+- Giữ hiệu ứng glass / mirror nhưng chuyển sang cảm giác tươi sáng, trong trẻo hơn.

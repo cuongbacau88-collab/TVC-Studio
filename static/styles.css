@@ -2678,3 +2678,511 @@ body > .account-popover{
     border-radius:14px !important;
   }
 }
+
+
+/* =====================================================================
+   V3.2.2 — Preview frame refine
+   - Video bo góc sát khung hơn
+   - Khung preview mirror glass rõ hơn, nổi hơn
+   ===================================================================== */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  position:relative !important;
+  padding:6px !important;
+  border-radius:24px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06)) !important;
+  border:1px solid rgba(255,255,255,.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    inset 0 -1px 0 rgba(255,255,255,.06),
+    0 18px 44px rgba(0,8,20,.28),
+    0 0 0 1px rgba(255,255,255,.04) !important;
+  backdrop-filter:blur(26px) saturate(155%) !important;
+  -webkit-backdrop-filter:blur(26px) saturate(155%) !important;
+  overflow:hidden !important;
+}
+
+/* ánh kính gương rõ hơn */
+.motion-featured .model-visual.motion::before,
+.motion-video-shell::before{
+  display:block !important;
+  content:"" !important;
+  position:absolute !important;
+  left:4%;
+  right:4%;
+  top:2px;
+  height:34%;
+  border-radius:18px;
+  background:linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.08) 42%, transparent 100%) !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+}
+
+.motion-featured .model-visual.motion::after,
+.motion-video-shell::after{
+  display:block !important;
+  content:"" !important;
+  position:absolute !important;
+  width:180px;
+  height:180px;
+  right:-70px;
+  bottom:-86px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(115,228,239,.18) 0%,
+      rgba(118,191,255,.12) 38%,
+      rgba(255,181,216,.10) 62%,
+      transparent 76%) !important;
+  filter:blur(8px);
+  pointer-events:none !important;
+  z-index:1 !important;
+}
+
+.motion-preview-video,
+.motion-video-fallback,
+.motion-featured .model-preview-image{
+  position:relative !important;
+  z-index:3 !important;
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border-radius:18px !important;
+  background:#0b1320 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 6px 18px rgba(0,8,20,.18) !important;
+}
+
+/* viền video sát khung hơn */
+.motion-preview-video,
+.motion-video-fallback{
+  outline:1px solid rgba(255,255,255,.10);
+  outline-offset:-1px;
+}
+
+@media(max-width:760px){
+  .motion-featured .model-visual.motion,
+  .motion-video-shell{
+    padding:5px !important;
+    border-radius:20px !important;
+  }
+
+  .motion-preview-video,
+  .motion-video-fallback,
+  .motion-featured .model-preview-image{
+    border-radius:15px !important;
+  }
+
+  .motion-featured .model-visual.motion::before,
+  .motion-video-shell::before{
+    left:5%;
+    right:5%;
+    border-radius:14px;
+  }
+}
+
+
+/* =====================================================================
+   V3.2.3 — Fix viền bên phải preview video
+   ===================================================================== */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  padding:4px !important;
+  overflow:hidden !important;
+}
+
+.motion-video-shell .motion-preview-video,
+.motion-video-shell .motion-video-fallback,
+.motion-featured .model-preview-image{
+  width:calc(100% + 3px) !important;
+  height:100% !important;
+  margin-right:-3px !important;
+  margin-left:0 !important;
+  border-top-right-radius:20px !important;
+  border-bottom-right-radius:20px !important;
+  border-top-left-radius:18px !important;
+  border-bottom-left-radius:18px !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  clip-path:inset(0 round 18px) !important;
+}
+
+.motion-video-shell::before,
+.motion-featured .model-visual.motion::before{
+  left:3.2% !important;
+  right:3.2% !important;
+}
+
+@media(max-width:760px){
+  .motion-featured .model-visual.motion,
+  .motion-video-shell{
+    padding:3px !important;
+  }
+
+  .motion-video-shell .motion-preview-video,
+  .motion-video-shell .motion-video-fallback,
+  .motion-featured .model-preview-image{
+    width:calc(100% + 2px) !important;
+    margin-right:-2px !important;
+    border-top-right-radius:16px !important;
+    border-bottom-right-radius:16px !important;
+    border-top-left-radius:15px !important;
+    border-bottom-left-radius:15px !important;
+    clip-path:inset(0 round 15px) !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.2.4 — Video sound toggle
+   Autoplay stays muted for browser compatibility; user can tap to enable audio.
+   ===================================================================== */
+.motion-video-shell{
+  position:relative !important;
+}
+
+.motion-sound-toggle{
+  position:absolute;
+  right:12px;
+  bottom:12px;
+  z-index:8;
+  display:none;
+  align-items:center;
+  gap:6px;
+  height:34px;
+  padding:0 11px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff;
+  background:linear-gradient(180deg,rgba(17,30,43,.78),rgba(8,17,27,.68));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 8px 20px rgba(0,5,15,.28);
+  backdrop-filter:blur(18px) saturate(150%);
+  -webkit-backdrop-filter:blur(18px) saturate(150%);
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.motion-sound-toggle:hover{
+  background:linear-gradient(180deg,rgba(26,43,58,.86),rgba(11,23,35,.76));
+  border-color:rgba(115,228,239,.34);
+}
+
+.motion-sound-toggle.sound-on{
+  border-color:rgba(105,232,174,.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 0 14px rgba(87,221,173,.18),
+    0 8px 20px rgba(0,5,15,.24);
+}
+
+.sound-icon{
+  font-size:14px;
+  line-height:1;
+}
+
+@media(max-width:760px){
+  .motion-sound-toggle{
+    right:9px;
+    bottom:9px;
+    height:32px;
+    padding:0 9px;
+    font-size:9px;
+  }
+  .sound-icon{font-size:13px}
+}
+
+
+/* =====================================================================
+   V3.3 — BRIGHT PASTEL GLASS THEME
+   Inspired by soft bright blue / lavender / pink reference
+   ===================================================================== */
+:root{
+  --bp-bg-1:#e8efff;
+  --bp-bg-2:#d8e4ff;
+  --bp-bg-3:#eadbff;
+  --bp-bg-4:#ffd8ef;
+  --bp-card:rgba(255,255,255,.34);
+  --bp-card-strong:rgba(255,255,255,.46);
+  --bp-line:rgba(255,255,255,.52);
+  --bp-line-soft:rgba(173,196,255,.38);
+  --bp-text:#f8fbff;
+  --bp-text-soft:#edf3ff;
+  --bp-text-dark:#34476c;
+  --bp-accent-1:#6faeff;
+  --bp-accent-2:#97a7ff;
+  --bp-accent-3:#df96ff;
+  --bp-accent-4:#ff9fcf;
+  --bp-glow:0 18px 40px rgba(133,153,255,.20);
+}
+
+/* overall brighter canvas */
+body,
+body.v3-liquid-theme{
+  background:
+    radial-gradient(900px 500px at 8% 0%, rgba(139,197,255,.55), transparent 62%),
+    radial-gradient(900px 520px at 95% 8%, rgba(245,176,233,.34), transparent 60%),
+    radial-gradient(1000px 580px at 50% 100%, rgba(173,176,255,.30), transparent 68%),
+    linear-gradient(135deg, #d7e6ff 0%, #d9e2ff 28%, #d7ccff 62%, #f1c7e8 100%) !important;
+  color: var(--bp-text) !important;
+}
+
+/* top toolbar bright glass */
+.global-toolbar,
+.global-toolbar.liquid-toolbar{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.12)) !important;
+  border-bottom:1px solid rgba(255,255,255,.32) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.55),
+    0 8px 28px rgba(126,150,255,.16) !important;
+  backdrop-filter: blur(26px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(155%) !important;
+}
+
+.brand-title,
+.liquid-brand-title,
+.hero-copy h1,
+.section-title,
+h1,h2,h3,h4{
+  color: #ffffff !important;
+  text-shadow: 0 3px 12px rgba(122,136,255,.18);
+}
+
+.muted,
+.subtle,
+.hero-copy p,
+.section-subtitle,
+.model-body p,
+.faq details p,
+.home-credit-section p,
+.tip-card p{
+  color: rgba(245,249,255,.92) !important;
+}
+
+/* pills / nav / language / account */
+.global-toolbar .liquid-pill,
+.global-toolbar .tool-pill,
+.global-toolbar .credit-tool,
+.lang-switch,
+.account-pill,
+.toolbar-chip{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.38), rgba(255,255,255,.16)) !important;
+  border:1px solid rgba(255,255,255,.40) !important;
+  color:#ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.62),
+    0 8px 18px rgba(131,149,255,.16) !important;
+  backdrop-filter: blur(18px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(155%) !important;
+}
+
+.global-toolbar .tool-pill.active,
+.global-toolbar .tool-pill:hover,
+.global-toolbar .liquid-pill.active,
+.global-toolbar .credit-tool:hover{
+  background:
+    linear-gradient(135deg, rgba(116,177,255,.55), rgba(184,166,255,.46), rgba(255,173,214,.42)) !important;
+  border-color: rgba(255,255,255,.58) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.66),
+    0 0 0 1px rgba(255,255,255,.16),
+    0 10px 24px rgba(139,153,255,.22) !important;
+}
+
+/* cards brighter */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue,.dashboard-card,.task-card
+){
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.16)) !important;
+  border:1px solid rgba(255,255,255,.40) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.58),
+    inset 0 -1px 0 rgba(255,255,255,.08),
+    0 18px 36px rgba(122,141,255,.14) !important;
+  backdrop-filter: blur(22px) saturate(155%) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(155%) !important;
+}
+
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue,.dashboard-card,.task-card
+)::before{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.10) 40%, transparent 100%) !important;
+}
+
+.v3-liquid-theme :is(.model-card,.panel-card,.affiliate-card,.balance)::after{
+  background:
+    radial-gradient(circle,
+      rgba(120,176,255,.18) 0%,
+      rgba(171,168,255,.12) 38%,
+      rgba(255,170,220,.10) 60%,
+      transparent 76%) !important;
+}
+
+/* model cards */
+.model-card{
+  border-radius:24px !important;
+}
+.model-card .model-body{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+}
+.model-card h2,
+.model-card h3{
+  color:#ffffff !important;
+}
+.model-card p{
+  color: rgba(247,250,255,.92) !important;
+}
+.credit-price b,
+.stat strong,
+.balance strong{
+  color:#8ff7d0 !important;
+}
+.credit-price span{
+  color:rgba(244,248,255,.86) !important;
+}
+
+/* preview frame brighter */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,.12)) !important;
+  border:1px solid rgba(255,255,255,.44) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.66),
+    0 14px 30px rgba(132,149,255,.18) !important;
+}
+.motion-featured .model-visual.motion::before,
+.motion-video-shell::before{
+  background: linear-gradient(180deg, rgba(255,255,255,.50), rgba(255,255,255,.12) 45%, transparent 100%) !important;
+}
+.motion-featured .model-visual.motion::after,
+.motion-video-shell::after{
+  background:
+    radial-gradient(circle, rgba(121,189,255,.22) 0%, rgba(193,165,255,.15) 40%, rgba(255,182,219,.10) 68%, transparent 80%) !important;
+}
+
+/* buttons bright pastel */
+.model-button,
+.primary,
+.motion-cta-button,
+button.primary-btn,
+button.cta,
+a.cta{
+  color:#ffffff !important;
+  background:
+    linear-gradient(135deg, rgba(103,181,255,.82) 0%, rgba(158,165,255,.78) 45%, rgba(255,177,219,.78) 100%) !important;
+  border:1px solid rgba(255,255,255,.52) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.68),
+    inset 0 -1px 0 rgba(255,255,255,.12),
+    0 10px 24px rgba(137,151,255,.20),
+    0 0 22px rgba(188,171,255,.12) !important;
+}
+.model-button:hover,
+.primary:hover,
+.motion-cta-button:hover{
+  transform: translateY(-1px) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.72),
+    0 14px 28px rgba(141,155,255,.24),
+    0 0 26px rgba(194,172,255,.15) !important;
+}
+.motion-cta-button::before{
+  background:
+    linear-gradient(115deg,
+      transparent 12%,
+      rgba(255,255,255,.16) 34%,
+      rgba(255,255,255,.50) 48%,
+      rgba(255,255,255,.20) 60%,
+      transparent 84%) !important;
+}
+
+/* badges */
+.badge,
+.model-badges .badge{
+  color:#ffffff !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.10)) !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+}
+.badge.green{
+  background: linear-gradient(180deg, rgba(126,248,188,.32), rgba(126,248,188,.12)) !important;
+  color:#dbfff0 !important;
+}
+
+/* inputs / forms */
+input, select, textarea,
+.panel-card input,.panel-card select,.panel-card textarea,
+.auth-card input,.ref-code-row input,.withdraw-form input,
+.withdraw-form select,.withdraw-form textarea{
+  color:#ffffff !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,.12)) !important;
+  border:1px solid rgba(255,255,255,.36) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.40),
+    0 4px 12px rgba(132,150,255,.08) !important;
+}
+input::placeholder, textarea::placeholder{
+  color: rgba(243,247,255,.72) !important;
+}
+
+/* account popup / side panels */
+.account-popover,
+body > .account-popover{
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,.20)) !important;
+  border:1px solid rgba(255,255,255,.42) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.70),
+    0 24px 60px rgba(127,147,255,.18) !important;
+}
+
+/* icons / small stats */
+.kpi, .stat, .balance, .home-process>div{
+  color:#ffffff !important;
+}
+
+footer, .footer, .footer-note, .copyright{
+  color: rgba(248,250,255,.88) !important;
+}
+
+@media(max-width:760px){
+  body,
+  body.v3-liquid-theme{
+    background:
+      radial-gradient(620px 320px at 10% 0%, rgba(140,196,255,.48), transparent 64%),
+      radial-gradient(620px 320px at 92% 8%, rgba(245,178,234,.28), transparent 62%),
+      linear-gradient(160deg, #d9e8ff 0%, #d7defd 42%, #e0d3ff 72%, #efcfe4 100%) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.15)) !important;
+  }
+
+  .v3-liquid-theme :is(
+    .panel-card,.balance,.affiliate-card,.model-card,.stat,.job,.auth-card
+  ){
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.54),
+      0 12px 28px rgba(131,149,255,.14) !important;
+  }
+}
