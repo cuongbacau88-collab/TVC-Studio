@@ -4312,3 +4312,335 @@ body > .account-popover{
     padding:12px;
   }
 }
+
+
+/* =====================================================================
+   V3.3.10 — Intro Soft Glass
+   Glass nhẹ, bỏ dải bóng ngang ở đầu khung Giới thiệu
+   ===================================================================== */
+
+.platform-intro{
+  background:
+    linear-gradient(145deg,rgba(44,61,105,.76),rgba(35,49,88,.68)) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.05),
+    0 8px 22px rgba(0,7,24,.12) !important;
+  backdrop-filter:blur(14px) saturate(125%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(125%) !important;
+}
+
+/* bỏ hẳn dải phản chiếu/bóng sáng ngang ở mép trên */
+.platform-intro::before{
+  display:none !important;
+  content:none !important;
+}
+
+/* không để pseudo/overlay khác tạo vệt sáng */
+.platform-intro::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* icon vẫn có glass nhẹ nhưng không phát sáng mạnh */
+.platform-intro-icon{
+  background:
+    linear-gradient(145deg,rgba(102,145,223,.38),rgba(133,101,210,.30)) !important;
+  border:1px solid rgba(255,255,255,.15) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 5px 14px rgba(56,73,133,.12) !important;
+}
+
+/* chữ rõ, không bóng */
+.platform-intro-copy span,
+.platform-intro-copy p,
+.platform-intro-copy strong{
+  text-shadow:none !important;
+}
+
+.platform-intro-copy span{
+  color:#cdd8ed !important;
+}
+
+.platform-intro-copy p{
+  color:#ffffff !important;
+}
+
+.platform-intro-copy strong{
+  color:#ffd98c !important;
+}
+
+/* mobile: glass nhẹ hơn nữa */
+@media(max-width:760px){
+  .platform-intro{
+    background:
+      linear-gradient(145deg,rgba(44,61,105,.82),rgba(35,49,88,.74)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.04),
+      0 6px 16px rgba(0,7,24,.10) !important;
+    backdrop-filter:blur(12px) saturate(120%) !important;
+    -webkit-backdrop-filter:blur(12px) saturate(120%) !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.11 — Simple Create Video UI
+   ===================================================================== */
+.simple-create-wrap{
+  width:min(720px,100%);
+  margin:0 auto;
+  padding:24px 16px 50px;
+}
+
+.simple-create-card{
+  overflow:hidden;
+  padding:20px;
+  border-radius:24px;
+  color:#fff;
+  background:linear-gradient(155deg,rgba(35,49,86,.94),rgba(25,36,67,.92));
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 22px 48px rgba(0,8,24,.24);
+}
+
+.simple-create-head{
+  text-align:center;
+  margin-bottom:14px;
+}
+.simple-create-head h2{
+  margin:0;
+  font-size:28px;
+  line-height:1.15;
+  color:#fff !important;
+}
+.simple-create-head p{
+  margin:8px auto 0;
+  max-width:560px;
+  color:#cbd7e9 !important;
+  font-size:13px;
+  line-height:1.5;
+}
+
+.simple-create-preview{
+  overflow:hidden;
+  width:100%;
+  margin-top:16px;
+  border-radius:18px;
+  border:1px solid rgba(255,255,255,.14);
+  background:#0d1628;
+}
+.simple-create-preview img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:330px;
+  object-fit:cover;
+  object-position:center;
+}
+
+.simple-create-note{
+  margin:14px 4px 20px !important;
+  text-align:center;
+  color:#bfcce0 !important;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.simple-create-form{
+  display:grid;
+  gap:18px;
+}
+.simple-field{
+  display:grid;
+  gap:8px;
+}
+.simple-field>label:first-child{
+  color:#eef3fb !important;
+  font-size:12px;
+  font-weight:750;
+  text-align:center;
+}
+
+.simple-upload-row{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px dashed rgba(255,255,255,.18);
+  background:rgba(10,19,37,.56);
+  cursor:pointer;
+}
+.simple-upload-row input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.simple-upload-button{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  background:linear-gradient(135deg,#6657ee,#9a5bf2);
+  color:#fff;
+  font-size:11px;
+  font-weight:850;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+.simple-file-name{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#b8c4d8;
+  font-size:11px;
+}
+
+.simple-aspect-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.simple-aspect{
+  min-height:98px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  border-radius:14px;
+  color:#dce5f2;
+  background:rgba(29,41,73,.72);
+  border:1px solid rgba(255,255,255,.13);
+  cursor:pointer;
+  transition:.16s ease;
+}
+.simple-aspect.active{
+  color:#fff;
+  border-color:#865cff;
+  background:linear-gradient(145deg,rgba(95,67,194,.28),rgba(41,53,90,.72));
+  box-shadow:0 0 0 1px rgba(134,92,255,.16),0 0 16px rgba(111,78,220,.14);
+}
+.aspect-icon{
+  color:#fff;
+  font-size:25px;
+  line-height:1;
+}
+.simple-aspect b{
+  margin-top:3px;
+  color:inherit !important;
+  font-size:12px;
+}
+.simple-aspect small{
+  color:#9faec5 !important;
+  font-size:9px;
+}
+
+.simple-render-actions{
+  display:grid;
+  gap:10px;
+  margin-top:4px;
+}
+.simple-render-btn{
+  width:100%;
+  min-height:64px;
+  padding:9px 12px 9px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  cursor:pointer;
+  text-align:left;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 10px 22px rgba(0,5,20,.18);
+}
+.simple-render-btn.quick{
+  background:linear-gradient(135deg,#6a9cff,#8b62f2 56%,#ba69de);
+}
+.simple-render-btn.quality{
+  background:linear-gradient(135deg,#52738f,#44677d 55%,#385a70);
+}
+.simple-render-btn>span{
+  display:flex;
+  flex-direction:column;
+}
+.simple-render-btn b{
+  color:#fff !important;
+  font-size:14px;
+  line-height:1.25;
+}
+.simple-render-btn small{
+  margin-top:2px;
+  color:rgba(255,255,255,.72) !important;
+  font-size:10px;
+}
+.simple-render-btn em{
+  flex:0 0 auto;
+  min-width:55px;
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(26,36,66,.36);
+  border:1px solid rgba(255,255,255,.15);
+  color:#fff;
+  font-size:11px;
+  font-style:normal;
+  font-weight:850;
+  text-align:center;
+}
+.simple-hidden-cost{
+  display:none;
+}
+
+/* Hide old create-grid/tips styling from influencing this simplified view */
+#tab-create .create-grid,
+#tab-create .tip-card{
+  display:none !important;
+}
+
+@media(max-width:760px){
+  .simple-create-wrap{
+    padding:14px 10px 34px;
+  }
+  .simple-create-card{
+    padding:14px;
+    border-radius:20px;
+  }
+  .simple-create-head h2{
+    font-size:22px;
+  }
+  .simple-create-head p{
+    font-size:12px;
+  }
+  .simple-create-preview{
+    border-radius:15px;
+  }
+  .simple-create-preview img{
+    max-height:280px;
+  }
+  .simple-upload-row{
+    min-height:54px;
+  }
+  .simple-upload-button{
+    font-size:10px;
+    padding:0 10px;
+  }
+  .simple-aspect{
+    min-height:88px;
+    padding:10px 6px;
+  }
+  .simple-render-btn{
+    min-height:60px;
+    padding-left:14px;
+  }
+  .simple-render-btn b{
+    font-size:13px;
+  }
+}

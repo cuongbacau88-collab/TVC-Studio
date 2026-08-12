@@ -212,13 +212,30 @@ $$('.side').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
 
 const form=$('#jobForm');
-form.image.onchange=()=>{$('#imgName').textContent=form.image.files[0]?.name||'Chọn ảnh'};
-form.motion.onchange=()=>{$('#vidName').textContent=form.motion.files[0]?.name||'Chọn video'};
-$('#quality').onchange=()=>$('#cost').textContent=($('#quality').value==='720'?20:10)+' credits';
+form.image.onchange=()=>{$('#imgName').textContent=form.image.files[0]?.name||'Chưa chọn ảnh'};
+form.motion.onchange=()=>{$('#vidName').textContent=form.motion.files[0]?.name||'Chưa chọn video'};
+
+$$('.simple-aspect').forEach(btn=>btn.onclick=()=>{
+  $$('.simple-aspect').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  $('#aspectRatio').value=btn.dataset.aspect;
+});
+
+$$('.simple-render-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  $('#quality').value=btn.dataset.quality;
+  $('#cost').textContent=(btn.dataset.quality==='720'?20:10)+' credits';
+}));
+
 form.onsubmit=async e=>{
-  e.preventDefault();const fd=new FormData(form);
+  e.preventDefault();
+  const submitter=e.submitter;
+  if(submitter?.dataset?.quality){
+    $('#quality').value=submitter.dataset.quality;
+  }
+  const fd=new FormData(form);
   try{
-    const j=await api('/api/jobs',{method:'POST',body:fd});say('Đã tạo job #'+j.job_id);
+    const j=await api('/api/jobs',{method:'POST',body:fd});
+    say('Đã tạo job #'+j.job_id);
     me=await api('/api/me');showDashboard();goto('jobs')
   }catch(err){say(err.message)}
 }

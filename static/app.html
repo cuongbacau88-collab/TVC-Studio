@@ -123,22 +123,83 @@
 </div>
 
 <main id="dashboard" class="dash">
+
 <section class="tab active" id="tab-create">
-<div class="create-grid">
- <article class="panel-card">
-  <form id="jobForm">
-   <div class="two">
-    <label class="drop"><input name="image" type="file" accept="image/*" required><b>🖼️ Ảnh nhân vật</b><span id="imgName">PNG/JPG/WEBP • ≤ 25MB</span></label>
-    <label class="drop"><input name="motion" type="file" accept="video/*" required><b>🎬 Video chuyển động</b><span id="vidName">MP4/MOV/WEBM • ≤ 300MB</span></label>
-   </div>
-   <label>Model<select name="model"><option>Wan Animate 2 • Distill INT8</option><option>Wan Animate 2 • Base INT8</option></select></label>
-   <div class="two"><label>Tỷ lệ<select name="aspect_ratio"><option>9:16</option><option>16:9</option><option>1:1</option></select></label><label>Chất lượng<select name="quality" id="quality"><option value="480">480p • 10 credits</option><option value="720" selected>720p • 20 credits</option></select></label></div>
-   <label>Prompt<textarea name="prompt" rows="4" placeholder="Camera cố định, chuyển động tự nhiên, giữ nhân vật ổn định..."></textarea></label>
-   <div class="submit-row"><div><small data-i18n="cost">Chi phí</small><b id="cost">20 credits</b></div><button class="primary big" type="submit" data-i18n="createVideoNav">✨ Tạo video</button></div>
-  </form>
- </article>
- <aside class="tip-card"><small data-i18n="tips">MẸO</small><h3 data-i18n="betterVideo">Để video ổn hơn</h3><ul><li>Ảnh rõ mặt, ít vật che.</li><li>Motion thấy đủ cơ thể.</li><li>Test 480p trước khi chạy batch 720p.</li><li>Worker có thể bật sau, job vẫn giữ nguyên.</li></ul></aside>
-</div>
+  <div class="simple-create-wrap">
+    <article class="simple-create-card">
+      <div class="simple-create-head">
+        <h2>AI Copy Chuyển Động</h2>
+        <p>Tải ảnh nhân vật và video mẫu, chọn tỷ lệ khung hình rồi tạo video.</p>
+      </div>
+
+      <div class="simple-create-preview">
+        <img src="/static/images/card_motion.png" alt="AI Copy Chuyển Động">
+      </div>
+
+      <p class="simple-create-note">Ưu tiên giữ nhận diện nhân vật từ ảnh gốc và chuyển động theo video mẫu.</p>
+
+      <form id="jobForm" class="simple-create-form">
+        <input type="hidden" name="model" value="Wan Animate 2 • Distill INT8">
+        <input type="hidden" name="aspect_ratio" id="aspectRatio" value="9:16">
+        <input type="hidden" name="quality" id="quality" value="480">
+        <input type="hidden" name="prompt" value="Giữ nhân vật ổn định, chuyển động tự nhiên theo video mẫu.">
+
+        <div class="simple-field">
+          <label>Ảnh nhân vật</label>
+          <label class="simple-upload-row">
+            <input name="image" type="file" accept="image/*" required>
+            <span class="simple-upload-button">♙ Tải ảnh nhân vật</span>
+            <span class="simple-file-name" id="imgName">Chưa chọn ảnh</span>
+          </label>
+        </div>
+
+        <div class="simple-field">
+          <label>Video mẫu</label>
+          <label class="simple-upload-row">
+            <input name="motion" type="file" accept="video/*" required>
+            <span class="simple-upload-button">▣ Tải video mẫu</span>
+            <span class="simple-file-name" id="vidName">Chưa chọn video</span>
+          </label>
+        </div>
+
+        <div class="simple-field">
+          <label>Chọn tỷ lệ khung hình</label>
+          <div class="simple-aspect-grid">
+            <button class="simple-aspect active" type="button" data-aspect="9:16">
+              <span class="aspect-icon portrait">▯</span>
+              <b>9:16 (Dọc)</b>
+              <small>TikTok / Reels</small>
+            </button>
+            <button class="simple-aspect" type="button" data-aspect="16:9">
+              <span class="aspect-icon landscape">▭</span>
+              <b>16:9 (Ngang)</b>
+              <small>YouTube</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="simple-render-actions">
+          <button class="simple-render-btn quick" type="submit" data-quality="480">
+            <span>
+              <b>⚡ Tạo Video Nhanh</b>
+              <small>Nhanh hơn · 480p</small>
+            </span>
+            <em>10 ◈</em>
+          </button>
+
+          <button class="simple-render-btn quality" type="submit" data-quality="720">
+            <span>
+              <b>✨ Tạo Video Chất Lượng</b>
+              <small>Độ phân giải cao · 720p</small>
+            </span>
+            <em>20 ◈</em>
+          </button>
+        </div>
+
+        <span id="cost" class="simple-hidden-cost">10 credits</span>
+      </form>
+    </article>
+  </div>
 </section>
 
 <section class="tab" id="tab-jobs"><div class="sectionbar"><div><button class="dark" id="refreshJobs">↻ Làm mới</button></div><button class="primary" data-goto="create">+ Tạo job</button></div><div id="jobsList" class="jobs"></div></section>

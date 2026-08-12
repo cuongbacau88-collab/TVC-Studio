@@ -354,3 +354,17 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Menu gồm: Lịch Sử, Nạp Credits, Hồ Sơ Của Tôi, Kiếm Tiền Affiliate, Đăng Xuất.
 - Các mục trong Dashboard chuyển tab trực tiếp, không bị bấm mà không phản hồi.
 - Cập nhật email admin mặc định sang cấu hình mới và tự migrate admin mặc định cũ nếu có.
+
+
+## V3.3.10 — Giới thiệu glass nhẹ
+- Giữ hiệu ứng kính nhẹ ở block Giới thiệu.
+- Xóa dải bóng sáng nằm ngang ở mép trên.
+- Giảm shadow/glow để block phẳng và đồng bộ hơn.
+- Giữ chữ rõ và icon nhẹ nhàng.
+
+
+## V3.3.11 — Đơn giản hóa phần Tạo Video
+- Bỏ Model, Prompt, dropdown Chất lượng và khung Mẹo khỏi giao diện tạo video.
+- Chỉ giữ: ảnh minh họa, tải ảnh nhân vật, tải video mẫu, chọn 9:16/16:9.
+- Có 2 nút tạo trực tiếp: Nhanh 480p / 10 credits và Chất lượng 720p / 20 credits.
+- Backend/job queue không thay đổi; các giá trị model, prompt, quality được gửi ẩn.
