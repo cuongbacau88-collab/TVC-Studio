@@ -391,3 +391,22 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Giữ độ tương phản cao để chữ dễ đọc.
 - Phần Giới thiệu vẫn giữ glass nhẹ và không còn dải bóng ngang.
 - Giữ bản sửa icon 9:16 và hiệu ứng CTA từ V3.3.13.
+
+
+## V3.3.15 — Toolbar Mirror Glass Restore
+- Khôi phục hiệu ứng kính gương cho thanh công cụ trên cùng.
+- Tăng lại phản chiếu, viền sáng, blur và chiều sâu cho:
+  - nút Chọn Model / Lịch Sử / Kiếm Tiền
+  - Nạp Credits
+  - Tài Khoản
+  - công tắc ngôn ngữ VN / EN
+  - vùng logo / brand
+- Giữ nguyên Global Mirror Glass ở các trang khác từ V3.3.14.
+
+
+## V3.3.16 — Khôi phục toolbar cũ
+- Khôi phục thanh công cụ desktop navy/glass theo mẫu cũ người dùng chọn.
+- Bỏ hiệu ứng sweep quá mạnh, giữ kính nhẹ và chiều sâu vừa phải.
+- Desktop trở lại một hàng: Logo → VN/EN → Chọn Model / Lịch Sử / Kiếm Tiền → Credits → Tài Khoản.
+- Sửa dứt điểm lỗi Nạp Credits và Tài Khoản bị hiển thị lặp trên desktop.
+- Các phần còn lại của website vẫn giữ Global Mirror Glass mới.

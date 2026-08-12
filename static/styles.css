@@ -5535,3 +5535,625 @@ textarea::placeholder{
     animation:none !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.15 — TOOLBAR MIRROR GLASS RESTORE
+   Khôi phục hiệu ứng kính gương nổi rõ cho thanh trên cùng
+   ===================================================================== */
+.global-toolbar,
+.global-toolbar.liquid-toolbar{
+  position:fixed !important;
+  overflow:visible !important;
+  background:
+    radial-gradient(900px 220px at 0% 0%, rgba(88,137,235,.10), transparent 55%),
+    radial-gradient(900px 220px at 100% 0%, rgba(192,122,217,.10), transparent 55%),
+    linear-gradient(180deg, rgba(28,40,69,.96), rgba(18,28,49,.93)) !important;
+  border-bottom:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 12px 30px rgba(0,8,24,.22) !important;
+  backdrop-filter:blur(24px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(150%) !important;
+}
+
+.global-toolbar::before{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height:58%;
+  background:linear-gradient(180deg, rgba(255,255,255,.10), transparent);
+  pointer-events:none;
+}
+
+.global-toolbar::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:0;
+  height:1px;
+  background:linear-gradient(90deg, transparent, rgba(146,164,255,.26), transparent);
+  pointer-events:none;
+}
+
+.global-toolbar-inner{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+/* brand */
+.centered-brand,
+.global-brand-wrap{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:2px 4px !important;
+}
+
+.brand-glass-orb,
+.global-brand img{
+  position:relative !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 6px 18px rgba(0,7,24,.18) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.06)) !important;
+  backdrop-filter:blur(12px) !important;
+  -webkit-backdrop-filter:blur(12px) !important;
+}
+
+.centered-brand strong,
+.global-brand strong{
+  color:#ffffff !important;
+  text-shadow:0 1px 0 rgba(0,0,0,.12);
+}
+
+/* language switch */
+.lang-switch{
+  position:relative !important;
+  overflow:hidden !important;
+  padding:4px !important;
+  border-radius:14px !important;
+  background:
+    linear-gradient(155deg, rgba(76,92,138,.40), rgba(40,53,86,.36)) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 8px 18px rgba(0,7,24,.12) !important;
+  backdrop-filter:blur(14px) saturate(130%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(130%) !important;
+}
+
+.lang-switch::before{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  top:1px;
+  height:42%;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(255,255,255,.16), transparent);
+  pointer-events:none;
+}
+
+.lang-switch button{
+  min-width:38px !important;
+  height:24px !important;
+  border-radius:10px !important;
+  border:1px solid transparent !important;
+  color:#aeb8ca !important;
+  transition:.2s ease !important;
+}
+
+.lang-switch button.active{
+  background:
+    linear-gradient(135deg, #7d62f1, #6d5cf0) !important;
+  color:#fff !important;
+  border-color:rgba(255,255,255,.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 6px 14px rgba(110,89,232,.28) !important;
+}
+
+.lang-switch span{
+  color:#7f8aa4 !important;
+}
+
+/* pill buttons on toolbar */
+.global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill){
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:12px !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.05)) !important;
+  color:#f4f7fb !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -10px 20px rgba(255,255,255,.015),
+    0 8px 20px rgba(0,7,24,.16) !important;
+  backdrop-filter:blur(18px) saturate(145%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(145%) !important;
+}
+
+.global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill)::before{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  top:1px;
+  height:42%;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(255,255,255,.16), transparent);
+  pointer-events:none;
+}
+
+.global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill)::after{
+  content:"";
+  position:absolute;
+  top:-24%;
+  bottom:-24%;
+  left:-34%;
+  width:24%;
+  transform:skewX(-20deg);
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,.05),
+    rgba(255,255,255,.20),
+    rgba(255,255,255,.05),
+    transparent
+  );
+  opacity:.85;
+  pointer-events:none;
+  animation:tvcToolbarGlassSweep 5.4s ease-in-out infinite;
+}
+
+@keyframes tvcToolbarGlassSweep{
+  0%, 14% { left:-34%; opacity:0; }
+  18% { opacity:.65; }
+  40% { opacity:.85; }
+  48%, 100% { left:122%; opacity:0; }
+}
+
+.global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill):hover{
+  transform:translateY(-1px) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.07)) !important;
+  border-color:rgba(151,172,255,.34) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 0 0 1px rgba(124,146,244,.10),
+    0 10px 24px rgba(0,7,24,.20) !important;
+}
+
+.global-toolbar .tool-pill.active,
+.global-toolbar [data-tool="models"],
+.global-toolbar .affiliate-pill{
+  border-color:rgba(133,96,255,.55) !important;
+  background:
+    linear-gradient(180deg, rgba(103,90,210,.28), rgba(255,255,255,.07)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 0 0 1px rgba(133,96,255,.12),
+    0 0 18px rgba(121,93,234,.22) !important;
+}
+
+.global-toolbar .credit-tool b{
+  color:#66e1a4 !important;
+}
+
+.global-toolbar .account-dot{
+  background:linear-gradient(135deg,#58a9ff,#6a6ae8) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.26),
+    0 4px 12px rgba(44,77,180,.20) !important;
+}
+
+/* restore compact, nice spacing desktop */
+@media(min-width:761px){
+  .toolbar-right{
+    gap:12px !important;
+  }
+
+  .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill){
+    min-height:40px !important;
+    padding:0 16px !important;
+  }
+}
+
+/* mobile keep effect visible */
+@media(max-width:760px){
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      0 10px 24px rgba(0,8,24,.22) !important;
+  }
+
+  .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill){
+    border-radius:11px !important;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06)) !important;
+  }
+
+  .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill)::after{
+    animation-duration:6.2s !important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill)::after{
+    animation:none !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.16 — OLD NAVY TOOLBAR RESTORE
+   Khôi phục toolbar cũ theo mẫu người dùng chọn.
+   Giữ một hàng trên desktop và loại bỏ Credits/Tài Khoản bị lặp.
+   ===================================================================== */
+
+@media(min-width:761px){
+  :root{
+    --desktop-toolbar-h:70px;
+  }
+
+  .has-global-toolbar{
+    padding-top:var(--desktop-toolbar-h) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    height:var(--desktop-toolbar-h) !important;
+    padding-top:0 !important;
+    overflow:visible !important;
+    background:
+      linear-gradient(180deg,#263b74 0%,#213566 58%,#1c2c55 100%) !important;
+    border-bottom:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.13),
+      0 8px 22px rgba(5,12,34,.20) !important;
+    backdrop-filter:blur(18px) saturate(135%) !important;
+    -webkit-backdrop-filter:blur(18px) saturate(135%) !important;
+  }
+
+  /* bỏ sweep/highlight động của V3.3.15 */
+  .global-toolbar::before,
+  .global-toolbar::after{
+    display:none !important;
+    content:none !important;
+  }
+
+  .global-toolbar-inner{
+    max-width:1440px !important;
+    width:100% !important;
+    height:var(--desktop-toolbar-h) !important;
+    min-height:var(--desktop-toolbar-h) !important;
+    margin:0 auto !important;
+    padding:0 26px !important;
+
+    display:grid !important;
+    grid-template-columns:auto auto minmax(0,1fr) auto !important;
+    grid-template-rows:1fr !important;
+    align-items:center !important;
+    gap:18px !important;
+  }
+
+  /* LOGO / BRAND */
+  .centered-brand{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    position:static !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    padding:0 !important;
+  }
+
+  .centered-brand .brand-glass-orb{
+    width:34px !important;
+    height:34px !important;
+    border-radius:10px !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.15),rgba(255,255,255,.055)) !important;
+    border:1px solid rgba(255,255,255,.19) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.20),
+      0 5px 14px rgba(5,12,34,.15) !important;
+    backdrop-filter:blur(10px) !important;
+    -webkit-backdrop-filter:blur(10px) !important;
+  }
+
+  .centered-brand .brand-glass-orb::after{
+    display:none !important;
+  }
+
+  .centered-brand .brand-glass-orb img{
+    width:31px !important;
+    height:31px !important;
+  }
+
+  .centered-brand strong{
+    display:inline-flex !important;
+    align-items:center !important;
+    font-size:18px !important;
+    font-weight:800 !important;
+    color:#fff !important;
+    white-space:nowrap !important;
+    text-shadow:none !important;
+  }
+
+  .centered-brand strong b{
+    color:#77e2ea !important;
+    background:none !important;
+    -webkit-text-fill-color:initial !important;
+  }
+
+  /* LANGUAGE */
+  .toolbar-left{
+    grid-column:2 !important;
+    grid-row:1 !important;
+    justify-self:start !important;
+    align-self:center !important;
+    width:auto !important;
+  }
+
+  .lang-switch,
+  .lang-switch.liquid-pill{
+    height:34px !important;
+    padding:3px !important;
+    border-radius:12px !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.055)) !important;
+    border:1px solid rgba(255,255,255,.16) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 5px 13px rgba(8,15,42,.12) !important;
+    backdrop-filter:blur(10px) !important;
+    -webkit-backdrop-filter:blur(10px) !important;
+  }
+
+  .lang-switch::before,
+  .lang-switch.liquid-pill::before{
+    display:none !important;
+  }
+
+  .lang-switch button{
+    min-width:31px !important;
+    height:26px !important;
+    padding:0 8px !important;
+    border-radius:8px !important;
+    font-size:10px !important;
+    font-weight:850 !important;
+    color:#9da9c4 !important;
+  }
+
+  .lang-switch button.active{
+    color:#fff !important;
+    background:linear-gradient(180deg,#8262ef,#6952dd) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      0 4px 10px rgba(61,47,160,.22) !important;
+  }
+
+  .lang-switch span{
+    color:#7b88a6 !important;
+    font-size:9px !important;
+  }
+
+  /* MAIN NAV */
+  .liquid-nav{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:12px !important;
+    width:auto !important;
+    height:auto !important;
+    padding:0 !important;
+    overflow:visible !important;
+    background:transparent !important;
+    border-radius:0 !important;
+  }
+
+  .liquid-nav .tool-pill{
+    height:38px !important;
+    min-width:auto !important;
+    padding:0 15px !important;
+    display:inline-flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:7px !important;
+    border-radius:10px !important;
+    color:#fff !important;
+    font-size:12px !important;
+    font-weight:650 !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.045)) !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 5px 13px rgba(7,15,42,.12) !important;
+    backdrop-filter:blur(10px) !important;
+    -webkit-backdrop-filter:blur(10px) !important;
+  }
+
+  .liquid-nav .tool-pill::before,
+  .liquid-nav .tool-pill::after{
+    display:none !important;
+    content:none !important;
+    animation:none !important;
+  }
+
+  .liquid-nav .mobile-tool-icon{
+    min-height:0 !important;
+    display:inline !important;
+    font-size:14px !important;
+    color:#fff !important;
+  }
+
+  .liquid-nav .mobile-tool-label{
+    display:inline !important;
+    font-size:12px !important;
+    line-height:1 !important;
+    color:#fff !important;
+    white-space:nowrap !important;
+    overflow:visible !important;
+  }
+
+  .liquid-nav [data-tool="models"]{
+    background:
+      linear-gradient(180deg,rgba(77,121,192,.30),rgba(255,255,255,.05)) !important;
+    border-color:rgba(100,192,255,.54) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.20),
+      0 0 0 1px rgba(83,169,235,.10),
+      0 0 14px rgba(70,160,235,.16) !important;
+  }
+
+  .liquid-nav .affiliate-pill{
+    border-color:rgba(255,255,255,.18) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 5px 13px rgba(7,15,42,.12) !important;
+  }
+
+  .liquid-nav .tool-pill:hover{
+    transform:translateY(-1px) !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.065)) !important;
+    border-color:rgba(130,185,255,.36) !important;
+  }
+
+  /* QUAN TRỌNG: ẩn bản mobile để Credits/Tài Khoản không bị lặp */
+  .mobile-wallet-link,
+  .mobile-account-link{
+    display:none !important;
+  }
+
+  /* RIGHT SIDE: only one Credits + one Account */
+  .toolbar-right{
+    grid-column:4 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:12px !important;
+  }
+
+  .toolbar-right .credit-tool,
+  .toolbar-right .account-pill{
+    height:38px !important;
+    min-width:auto !important;
+    padding:0 14px !important;
+    border-radius:10px !important;
+    color:#fff !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.045)) !important;
+    border:1px solid rgba(255,255,255,.18) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 5px 13px rgba(7,15,42,.12) !important;
+    backdrop-filter:blur(10px) !important;
+    -webkit-backdrop-filter:blur(10px) !important;
+  }
+
+  .toolbar-right .credit-tool::before,
+  .toolbar-right .credit-tool::after,
+  .toolbar-right .account-pill::before,
+  .toolbar-right .account-pill::after{
+    display:none !important;
+    content:none !important;
+    animation:none !important;
+  }
+
+  .toolbar-right .credit-tool b{
+    color:#68e6a9 !important;
+    font-size:12px !important;
+  }
+
+  .toolbar-right .account-pill{
+    padding-left:9px !important;
+    gap:8px !important;
+  }
+
+  .toolbar-right .account-dot{
+    width:23px !important;
+    height:23px !important;
+    border-radius:50% !important;
+    font-size:9px !important;
+    background:linear-gradient(135deg,#5aa9ff,#6a6be9) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.22),
+      0 3px 9px rgba(31,61,156,.18) !important;
+  }
+
+  .toolbar-right #toolbarAccount{
+    max-width:120px !important;
+    font-size:12px !important;
+    color:#fff !important;
+  }
+
+  .toolbar-right .account-chevron{
+    font-size:10px !important;
+    opacity:.60 !important;
+  }
+
+  .account-popover{
+    top:46px !important;
+  }
+
+  .has-global-toolbar.app-body .app-shell{
+    height:calc(100vh - var(--desktop-toolbar-h)) !important;
+  }
+
+  .has-global-toolbar .sidebar{
+    top:var(--desktop-toolbar-h) !important;
+  }
+}
+
+/* laptop nhỏ vẫn một hàng, chỉ thu gọn */
+@media(min-width:761px) and (max-width:1120px){
+  .global-toolbar-inner{
+    padding:0 14px !important;
+    gap:10px !important;
+  }
+
+  .centered-brand strong{
+    font-size:15px !important;
+  }
+
+  .liquid-nav{
+    gap:7px !important;
+  }
+
+  .liquid-nav .tool-pill,
+  .toolbar-right .credit-tool,
+  .toolbar-right .account-pill{
+    padding-left:10px !important;
+    padding-right:10px !important;
+    font-size:10.5px !important;
+  }
+
+  .liquid-nav .mobile-tool-label,
+  .toolbar-right #toolbarAccount{
+    font-size:10.5px !important;
+  }
+}
+
+/* Tắt hẳn sweep animation của toolbar cũ trên desktop */
+@media(min-width:761px){
+  .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill)::after{
+    animation:none !important;
+  }
+}
