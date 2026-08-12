@@ -7370,3 +7370,27 @@ textarea::placeholder{
 .topright #logout{
   display:none !important;
 }
+
+
+/* =====================================================================
+   V3.3.30 — Account menu click hotfix
+   ===================================================================== */
+#accountPopover{
+  pointer-events:none;
+  opacity:0;
+  visibility:hidden;
+}
+
+#accountPopover.open{
+  display:block !important;
+  pointer-events:auto !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+#accountMenuBtn{
+  cursor:pointer !important;
+  pointer-events:auto !important;
+  touch-action:manipulation !important;
+  -webkit-tap-highlight-color:transparent;
+}

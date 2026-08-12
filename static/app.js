@@ -74,35 +74,72 @@ function tvcApplyLanguage(lang){
 function tvcInitToolbar(){
   const lang=localStorage.getItem('tvc_lang')||'vi';
   tvcApplyLanguage(lang);
-  document.querySelectorAll('.lang-switch button').forEach(b=>b.addEventListener('click',()=>tvcApplyLanguage(b.dataset.lang)));
-
-  const wrap=document.querySelector('.toolbar-account-wrap');
-  const pop=document.getElementById('accountPopover');
-  if(pop && window.matchMedia('(max-width:760px)').matches && pop.parentElement!==document.body){
-    document.body.appendChild(pop);
-  }
-  const desktopBtn=document.getElementById('toolbarAccountBtn');
-  const accountBtn=document.getElementById('accountMenuBtn');
-  const toggle=()=>pop?.classList.toggle('open');
-  desktopBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
-  accountBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
-  document.addEventListener('click',e=>{
-    if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
+  document.querySelectorAll('.lang-switch button').forEach(b=>{
+    b.addEventListener('click',()=>tvcApplyLanguage(b.dataset.lang));
   });
 
+  const pop=document.getElementById('accountPopover');
+  const accountBtn=document.getElementById('accountMenuBtn');
+
+  // Put the popup directly under <body> so it cannot be clipped by the fixed toolbar.
+  if(pop && pop.parentElement!==document.body){
+    document.body.appendChild(pop);
+  }
+
+  const closeAccountMenu=()=>{
+    if(!pop) return;
+    pop.classList.remove('open');
+    accountBtn?.classList.remove('account-menu-open','mobile-active');
+    accountBtn?.setAttribute('aria-expanded','false');
+  };
+
+  const openAccountMenu=()=>{
+    if(!pop) return;
+    pop.classList.add('open');
+    accountBtn?.classList.add('account-menu-open','mobile-active');
+    accountBtn?.setAttribute('aria-expanded','true');
+  };
+
+  const toggleAccountMenu=(e)=>{
+    e?.preventDefault();
+    e?.stopPropagation();
+    if(!pop) return;
+    pop.classList.contains('open') ? closeAccountMenu() : openAccountMenu();
+  };
+
+  if(accountBtn){
+    accountBtn.setAttribute('aria-haspopup','menu');
+    accountBtn.setAttribute('aria-controls','accountPopover');
+    accountBtn.setAttribute('aria-expanded','false');
+    accountBtn.addEventListener('click',toggleAccountMenu);
+  }
+
+  // Click outside closes the popup. No references to deleted/duplicate account buttons.
+  document.addEventListener('click',e=>{
+    if(!pop?.classList.contains('open')) return;
+    if(pop.contains(e.target) || accountBtn?.contains(e.target)) return;
+    closeAccountMenu();
+  });
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape') closeAccountMenu();
+  });
 
   document.querySelectorAll('#accountPopover [data-account-action]').forEach(link=>{
     link.addEventListener('click',e=>{
       const tab=link.dataset.accountAction;
+      closeAccountMenu();
+
+      // Inside the dashboard, switch tab without reloading.
       if(typeof goto==='function' && ['jobs','wallet','account','affiliate'].includes(tab)){
         e.preventDefault();
-        pop?.classList.remove('open');
         goto(tab);
       }
     });
   });
 
   document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
+    closeAccountMenu();
     await fetch('/api/logout',{method:'POST'});
     location.href='/';
   });

@@ -507,3 +507,12 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Bấm `Tài Khoản` trên PC hoặc điện thoại chỉ mở menu nổi.
 - Không tự chuyển sang trang thông tin tài khoản nữa.
 - Chỉ bấm `Hồ Sơ Của Tôi` bên trong menu mới mở trang thông tin chi tiết.
+
+
+## V3.3.30 — Sửa dứt điểm nút Tài Khoản không mở menu
+- Sửa handler Tài Khoản còn sót từ bản cũ.
+- Xóa tham chiếu tới các nút Tài Khoản đã bị xóa.
+- Bấm đúng một nút `Tài Khoản` sẽ toggle popup `accountPopover`.
+- Popup được chuyển trực tiếp xuống `body`, tránh bị toolbar cắt/che.
+- Bấm ngoài hoặc phím Esc sẽ đóng menu.
+- `Hồ Sơ Của Tôi` mới mở tab thông tin tài khoản; nút Tài Khoản chính không mở trang hồ sơ.
