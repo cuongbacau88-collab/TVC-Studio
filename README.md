@@ -337,3 +337,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Nền tổng thể được làm tối hơn một chút.
 - Vẫn giữ phong cách pastel / glass.
 - Sidebar và topbar được làm đậm hơn nhẹ để đồng bộ với nền mới.
+
+
+## V3.3.8 — High Contrast Glass
+- Nền tối hơn rõ rệt để chữ dễ đọc.
+- Card chuyển sang navy glass đậm hơn.
+- Tăng contrast cho heading, body text, label và placeholder.
+- Input / select / textarea tối hơn, chữ trắng rõ.
+- Sidebar và topbar đậm hơn nhưng vẫn giữ phong cách glass.

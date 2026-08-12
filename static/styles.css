@@ -3846,3 +3846,249 @@ main.app-main{
       linear-gradient(150deg,#bccbe8 0%,#b9c5e3 48%,#c3bce3 76%,#d6c2d3 100%) !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.8 — HIGH CONTRAST GLASS
+   Tăng tương phản mạnh để chữ dễ đọc hơn
+   ===================================================================== */
+
+:root{
+  --hc-bg:#10182b;
+  --hc-bg2:#18223a;
+  --hc-card:rgba(29,42,77,.88);
+  --hc-card2:rgba(39,53,91,.82);
+  --hc-line:rgba(255,255,255,.18);
+  --hc-text:#ffffff;
+  --hc-text-soft:#d9e2f3;
+  --hc-text-muted:#b7c4dc;
+  --hc-label:#c9d4e8;
+}
+
+/* Nền tối rõ ràng hơn */
+body,
+body.v3-liquid-theme{
+  background:
+    radial-gradient(900px 500px at 8% 0%, rgba(78,137,226,.22), transparent 62%),
+    radial-gradient(760px 480px at 92% 8%, rgba(190,120,214,.16), transparent 64%),
+    linear-gradient(145deg,#111827 0%,#172038 48%,#1b2340 76%,#221f3b 100%) !important;
+  color:var(--hc-text) !important;
+}
+
+/* Khu app / dashboard */
+.app-shell,
+.app-page,
+.dashboard-shell,
+.create-layout,
+.render-layout,
+main.app-main,
+.workspace{
+  background:
+    linear-gradient(145deg,rgba(16,24,43,.96),rgba(22,32,58,.96)) !important;
+}
+
+/* Card đậm hơn, kính vẫn còn */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue,.dashboard-card,.task-card
+){
+  background:
+    linear-gradient(155deg,rgba(35,49,86,.92),rgba(26,38,70,.88)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 18px 42px rgba(0,8,24,.26) !important;
+  backdrop-filter:blur(18px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(135%) !important;
+}
+
+/* Giảm lớp phủ sáng làm mờ chữ */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .stat,.job,.auth-card,.modal,.home-process>div,.home-credit-section
+)::before{
+  opacity:.18 !important;
+  height:16% !important;
+}
+
+.v3-liquid-theme :is(.model-card,.panel-card,.affiliate-card,.balance)::after{
+  opacity:.20 !important;
+}
+
+/* Text chính */
+h1,h2,h3,h4,h5,h6,
+.model-title-row h1,
+.model-body h2,
+.model-body h3,
+.panel-card h2,
+.panel-card h3,
+.affiliate-card h2,
+.affiliate-card h3,
+.topbar h1,
+.topbar h2{
+  color:#ffffff !important;
+  text-shadow:none !important;
+}
+
+/* Text mô tả */
+p,
+.model-body p,
+.panel-card p,
+.affiliate-card p,
+.home-process p,
+.home-credit-section p,
+.muted,
+.subtle,
+.simple-row span,
+.job small,
+.tip-card p{
+  color:#d8e2f2 !important;
+}
+
+/* Label / small text */
+label,
+.form-label,
+.panel-card label,
+small,
+.help-text,
+.credit-price span,
+.model-body small,
+.section-subtitle{
+  color:#b9c7df !important;
+}
+
+/* Inputs */
+input,
+select,
+textarea,
+.panel-card input,
+.panel-card select,
+.panel-card textarea,
+.auth-card input,
+.ref-code-row input,
+.withdraw-form input,
+.withdraw-form select,
+.withdraw-form textarea{
+  background:rgba(13,22,43,.72) !important;
+  color:#ffffff !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.04) !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#92a0bb !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  border-color:rgba(124,167,255,.56) !important;
+  box-shadow:0 0 0 3px rgba(89,128,220,.16) !important;
+}
+
+/* Sidebar */
+.app-sidebar,
+.sidebar,
+.left-sidebar{
+  background:
+    linear-gradient(180deg,rgba(19,29,50,.98),rgba(25,36,59,.98)) !important;
+  border-right:1px solid rgba(255,255,255,.08) !important;
+}
+
+.side,
+.sidebar a,
+.sidebar button{
+  color:#c9d5e8 !important;
+}
+
+.side.active,
+.side:hover,
+.sidebar a.active,
+.sidebar a:hover{
+  color:#ffffff !important;
+  background:rgba(89,126,198,.22) !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
+/* Topbar */
+.app-topbar,
+.topbar,
+.page-topbar{
+  background:
+    linear-gradient(180deg,rgba(35,47,74,.96),rgba(30,42,69,.92)) !important;
+  border-bottom:1px solid rgba(255,255,255,.08) !important;
+}
+
+/* Nút */
+.model-button,
+.primary,
+.motion-cta-button,
+button.primary-btn,
+button.cta,
+a.cta{
+  background:
+    linear-gradient(135deg,#5aa8ff 0%,#7c83f2 48%,#cf86ce 100%) !important;
+  color:#ffffff !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 10px 22px rgba(50,75,155,.22) !important;
+}
+
+.model-button.secondary,
+.dark,
+button.secondary{
+  background:rgba(55,69,107,.74) !important;
+  color:#f2f5fb !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+}
+
+/* Credit / status */
+.credit-price b,
+.money,
+.balance strong{
+  color:#6ce8ad !important;
+}
+
+/* Preview không bị phủ */
+.model-preview-image,
+.motion-preview-video,
+.motion-video-fallback,
+.model-thumb img{
+  filter:none !important;
+  opacity:1 !important;
+}
+
+/* Account popup */
+.account-popover,
+body > .account-popover{
+  background:
+    linear-gradient(180deg,rgba(34,47,81,.98),rgba(24,35,65,.98)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+}
+
+/* Mobile */
+@media(max-width:760px){
+  body,
+  body.v3-liquid-theme{
+    background:
+      linear-gradient(150deg,#121a2c 0%,#17223a 52%,#1e2341 78%,#241f3b 100%) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    background:
+      linear-gradient(180deg,rgba(26,39,68,.98),rgba(22,32,57,.94)) !important;
+  }
+
+  .v3-liquid-theme :is(
+    .panel-card,.balance,.affiliate-card,.model-card,.stat,.job,.auth-card
+  ){
+    background:
+      linear-gradient(155deg,rgba(36,50,88,.94),rgba(27,39,72,.92)) !important;
+  }
+}
