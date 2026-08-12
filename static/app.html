@@ -23,19 +23,17 @@
       <strong>TVC Studio <b>AI</b></strong>
     </a>
 
-    <div class="toolbar-right">
-      <a href="/app#wallet" class="credit-tool liquid-pill">
-        <b id="toolbarCredits">0</b> <span data-i18n="topup">Nạp VIP</span>
-      </a>
+    
 
-      <div class="toolbar-account-wrap">
-        <button class="tool-pill account-pill liquid-pill" id="toolbarAccountBtn" type="button">
-          <span class="account-dot" id="toolbarAccountDot">T</span>
-          <span id="toolbarAccount" data-i18n="account">Tài Khoản</span>
-          <span class="account-chevron">⌄</span>
-        </button>
+    <nav class="global-actions liquid-nav">
+      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
+      <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
+      <button class="tool-pill liquid-pill mobile-account-link" id="accountMenuBtn" type="button"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></button>
+    </nav>
 
-        <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
+    <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
           <div class="account-v3-head">
             <div class="account-v3-avatar" id="toolbarAccountAvatar">T</div>
             <div class="account-v3-identity">
@@ -83,16 +81,6 @@
             <span data-i18n="logout">Đăng xuất</span>
           </button>
         </div>
-      </div>
-    </div>
-
-    <nav class="global-actions liquid-nav">
-      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
-      <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
-      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
-      <button class="tool-pill liquid-pill mobile-account-link" id="mobileAccountBtn" type="button"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></button>
-    </nav>
   </div>
 </div>
 
@@ -103,11 +91,10 @@
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
  <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví TVC</button>
  <button data-tab="affiliate" class="side" data-i18n="earnNav">💸 Kiếm tiền</button>
- <button type="button" class="side account-menu-trigger" id="sidebarAccountBtn" data-i18n="accountNav">⚙ Tài khoản</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">
-<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> TVC</span><button class="avatar" id="avatar">?</button><button class="icon" id="logout">↪</button></div></header>
+<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> TVC</span></div></header>
 
 <div id="authGate" class="auth-gate hidden">
  <div class="auth-card">

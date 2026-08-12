@@ -82,39 +82,12 @@ function tvcInitToolbar(){
     document.body.appendChild(pop);
   }
   const desktopBtn=document.getElementById('toolbarAccountBtn');
-  const mobileBtn=document.getElementById('mobileAccountBtn');
-  const sidebarBtn=document.getElementById('sidebarAccountBtn');
-  const dashboardAvatar=document.getElementById('avatar');
-
-  const setAccountMenuOpen=(open)=>{
-    if(!pop) return;
-    pop.classList.toggle('open',open);
-    mobileBtn?.classList.toggle('mobile-active',open);
-    desktopBtn?.classList.toggle('account-menu-open',open);
-    sidebarBtn?.classList.toggle('active',open);
-    dashboardAvatar?.classList.toggle('account-menu-open',open);
-  };
-
-  const toggleAccountMenu=(e)=>{
-    e?.preventDefault();
-    e?.stopPropagation();
-    setAccountMenuOpen(!pop?.classList.contains('open'));
-  };
-
-  desktopBtn?.addEventListener('click',toggleAccountMenu);
-  mobileBtn?.addEventListener('click',toggleAccountMenu);
-  sidebarBtn?.addEventListener('click',toggleAccountMenu);
-  dashboardAvatar?.addEventListener('click',toggleAccountMenu);
-
+  const accountBtn=document.getElementById('accountMenuBtn');
+  const toggle=()=>pop?.classList.toggle('open');
+  desktopBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  accountBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
   document.addEventListener('click',e=>{
-    if(!pop?.classList.contains('open')) return;
-    const clickedTrigger =
-      desktopBtn?.contains(e.target) ||
-      mobileBtn?.contains(e.target) ||
-      sidebarBtn?.contains(e.target) ||
-      dashboardAvatar?.contains(e.target);
-    const clickedPanel = pop.contains(e.target);
-    if(!clickedTrigger && !clickedPanel) setAccountMenuOpen(false);
+    if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
   });
 
 
@@ -123,14 +96,13 @@ function tvcInitToolbar(){
       const tab=link.dataset.accountAction;
       if(typeof goto==='function' && ['jobs','wallet','account','affiliate'].includes(tab)){
         e.preventDefault();
-        setAccountMenuOpen(false);
+        pop?.classList.remove('open');
         goto(tab);
       }
     });
   });
 
   document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
-    setAccountMenuOpen(false);
     await fetch('/api/logout',{method:'POST'});
     location.href='/';
   });
@@ -196,7 +168,7 @@ function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').cl
 function showDashboard(){
   $('#authGate').classList.add('hidden');$('#dashboard').classList.remove('hidden');
   $('#TVC').textContent=me.credits;$('#walletTVC').textContent=me.credits;
-  $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
+  if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
 }
 $$('[data-auth]').forEach(b=>b.onclick=()=>{
   $$('[data-auth]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
@@ -221,7 +193,7 @@ $('#doRegister').onclick=async()=>{
   }catch(e){$('#authMsg').textContent=e.message}
 }
 async function logout(){await fetch('/api/logout',{method:'POST'});location.reload()}
-$('#logout').onclick=logout;$('#logout2').onclick=logout;
+if($('#logout')) $('#logout').onclick=logout;if($('#logout2')) $('#logout2').onclick=logout;
 
 const meta={
   create:['Tạo video mới','Ảnh nhân vật + video chuyển động'],
@@ -298,7 +270,7 @@ function goto(tab,opts={}){
   },190);
 }
 
-$$('.side[data-tab]').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
+$$('.side').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
 
 // On the app page, toolbar History / Affiliate / Wallet switch tabs directly.

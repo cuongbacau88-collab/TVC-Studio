@@ -7279,98 +7279,94 @@ textarea::placeholder{
 
 
 /* =====================================================================
-   V3.3.29 — ACCOUNT BUTTON OPENS FLOATING MENU ONLY
-   Tài Khoản = menu nổi; Hồ Sơ Của Tôi = trang thông tin chi tiết.
+   V3.3.29 — ACCOUNT POPUP ONLY
+   Chỉ còn 1 nút Tài Khoản. Bấm nút này mở menu nổi.
    ===================================================================== */
 
-.account-popover-v3{
-  opacity:0 !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-  transform:translateY(-7px) scale(.985) !important;
-  transform-origin:top right !important;
-  transition:
-    opacity .17s ease,
-    transform .20s cubic-bezier(.22,.75,.25,1),
-    visibility .17s ease !important;
+/* Duplicated right-side Account/Credit group was removed from markup. */
+.toolbar-right{
+  display:none !important;
 }
 
-.account-popover-v3.open{
-  opacity:1 !important;
-  visibility:visible !important;
-  pointer-events:auto !important;
-  transform:translateY(0) scale(1) !important;
+/* The Account control in global-actions is the only account trigger. */
+.global-actions .mobile-account-link{
+  display:flex !important;
 }
 
-/* main triggers visibly respond while the menu is open */
-#toolbarAccountBtn.account-menu-open,
-#mobileAccountBtn.mobile-active,
-#sidebarAccountBtn.active,
-#avatar.account-menu-open{
-  border-color:rgba(135,91,255,.72) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.17),
-    0 0 0 1px rgba(135,91,255,.12),
-    0 0 16px rgba(111,76,221,.22) !important;
-}
-
-.account-avatar-trigger{
-  border:0;
-  cursor:pointer;
-  color:#fff;
-  font-family:inherit;
-}
-
-/* Desktop: popover under the account button */
+/* Desktop: five items are all in the same nav row. */
 @media(min-width:761px){
-  .toolbar-account-wrap{
-    position:relative !important;
+  .global-actions.liquid-nav{
+    display:flex !important;
+    align-items:center !important;
+    gap:12px !important;
   }
 
+  .global-actions.liquid-nav .mobile-wallet-link,
+  .global-actions.liquid-nav .mobile-account-link{
+    display:inline-flex !important;
+    width:auto !important;
+    min-width:auto !important;
+    height:38px !important;
+    padding:0 15px !important;
+    flex-direction:row !important;
+    gap:7px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-icon{
+    display:inline-flex !important;
+    width:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    font-size:14px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-label{
+    display:inline !important;
+    width:auto !important;
+    font-size:12px !important;
+    white-space:nowrap !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon b{
+    color:#70e7ae !important;
+    font-size:12px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-account-icon{
+    width:22px !important;
+    height:22px !important;
+    min-height:22px !important;
+    border-radius:50% !important;
+  }
+
+  body > .account-popover-v3,
   .account-popover-v3{
-    position:absolute !important;
-    top:46px !important;
-    right:0 !important;
+    position:fixed !important;
+    top:76px !important;
+    right:24px !important;
     left:auto !important;
     width:318px !important;
-    z-index:22000 !important;
-  }
-
-  #sidebarAccountBtn{
-    cursor:pointer !important;
+    z-index:30000 !important;
   }
 }
 
-/* Mobile: open the same panel under the 5-tab toolbar */
+/* Mobile: popup appears under the five-tab toolbar. */
 @media(max-width:760px){
   body > .account-popover-v3,
   .account-popover-v3{
     position:fixed !important;
-    top:calc(env(safe-area-inset-top,0px) + 126px) !important;
-    left:10px !important;
-    right:10px !important;
+    top:calc(env(safe-area-inset-top,0px) + 128px) !important;
+    left:12px !important;
+    right:12px !important;
     width:auto !important;
     max-width:none !important;
-    max-height:calc(100dvh - 150px) !important;
-    overflow:auto !important;
     z-index:30000 !important;
-    transform-origin:top center !important;
-  }
-
-  .account-popover-v3.open{
-    transform:translateY(0) scale(1) !important;
-  }
-
-  #mobileAccountBtn{
-    cursor:pointer !important;
-    touch-action:manipulation !important;
-    -webkit-tap-highlight-color:transparent !important;
   }
 }
 
-@media(prefers-reduced-motion:reduce){
-  .account-popover-v3{
-    transition:none !important;
-    transform:none !important;
-  }
+/* Dashboard has no second sidebar/topbar Account control anymore. */
+#sidebarAccountBtn,
+.topright .avatar,
+.topright #logout{
+  display:none !important;
 }

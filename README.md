@@ -500,9 +500,10 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Không tạo thêm nút/menu Tài Khoản thứ hai.
 
 
-## V3.3.29 — Tài Khoản mở menu nổi
-- Bấm `Tài Khoản` trên mobile: mở menu nổi, không chuyển sang trang thông tin tài khoản.
-- Bấm `Tài Khoản` trên desktop toolbar: mở cùng menu nổi.
-- Bấm `Tài khoản` ở sidebar PC hoặc avatar dashboard: cũng mở cùng menu.
-- Chỉ mục `Hồ Sơ Của Tôi` bên trong menu mới mở trang thông tin tài khoản chi tiết.
-- Menu giữ: avatar, tên/email, số dư TVC, Nạp thêm, Lịch Sử, Nạp VIP, Hồ Sơ Của Tôi, Kiếm Tiền Affiliate, Đăng xuất.
+## V3.3.29 — Tài Khoản chỉ mở menu nổi
+- Chỉ giữ đúng 1 nút `Tài Khoản` trên thanh công cụ.
+- Xóa nhóm avatar/Tài Khoản bị lặp ở góc phải desktop.
+- Xóa nút Tài Khoản phụ ở sidebar và avatar/đăng xuất phụ trong topbar Dashboard.
+- Bấm `Tài Khoản` trên PC hoặc điện thoại chỉ mở menu nổi.
+- Không tự chuyển sang trang thông tin tài khoản nữa.
+- Chỉ bấm `Hồ Sơ Của Tôi` bên trong menu mới mở trang thông tin chi tiết.
