@@ -23,7 +23,7 @@ MAX_VIDEO_MB = 300
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@motionhub.local").lower()
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "ChangeMe123!")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Cuong123@")
 
 app = FastAPI(title="TVC Studio AI Business V2.4")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
@@ -157,6 +157,12 @@ def init_db():
         con.execute(
             "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
             (admin_id, 10000, "Khởi tạo tài khoản admin", now_iso())
+        )
+    else:
+        # Keep the admin login synchronized with ADMIN_PASSWORD.
+        con.execute(
+            "UPDATE users SET password_hash=? WHERE id=?",
+            (hash_password(ADMIN_PASSWORD), row["id"])
         )
 
     # Give every old/new account a unique referral code.

@@ -54,7 +54,7 @@ uvicorn app:app --host 0.0.0.0 --port 8000
 
 ## Admin mặc định khi test local
 Email: `admin@motionhub.local`
-Password mặc định: `ChangeMe123!`
+Password mặc định: `Cuong123@`
 
 **Phải đổi mật khẩu qua biến môi trường trước khi public website.**
 
@@ -237,3 +237,23 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Căn lại bố cục card theo hướng giống mẫu hơn: ảnh lớn phía trên, phần chữ căn giữa.
 - Nút `Tạo Video` đổi sang kiểu full-width, to hơn, sáng hơn và có hiệu ứng sweep + pulse.
 - Mobile và desktop đều áp dụng.
+
+## V3.1.3 — Dọn lại card Copy Chuyển Động
+- Xóa phần dư bị khoanh đỏ trong ảnh card Copy Chuyển Động bằng cách crop lại ảnh preview.
+- Bỏ badge `ĐANG HOẠT ĐỘNG / WAN ANIMATE 2` trên card này theo yêu cầu.
+- Căn lại chiều cao vùng ảnh để card gọn hơn.
+
+
+## V3.1.4 — Card Copy Chuyển Động hiển thị video
+- Phần preview của card `Copy Chuyển Động` đổi từ ảnh sang video.
+- Web sẽ tự load video tại: `static/videos/card_motion.mp4`
+- Nếu chưa có file video, web tự fallback về ảnh `static/images/card_motion.png`
+- Chỉ cần upload file mp4 preview vào đúng đường dẫn là chạy.
+
+
+## V3.2 — Mirror Glass
+- Đổi giao diện sang kính gương trong kiểu liquid/mirror glass.
+- Viền phản chiếu trắng, blur trong, ánh cyan/xanh/hồng rất nhẹ.
+- Giảm màu tím và giảm neon đặc.
+- Đồng bộ card, toolbar, nút, input, account popup và mobile.
+- Admin password mặc định được cập nhật theo cấu hình mới.

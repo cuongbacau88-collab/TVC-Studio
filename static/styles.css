@@ -2330,3 +2330,297 @@ body > .account-popover{
     font-size:21px;
   }
 }
+
+
+/* =====================================================================
+   V3.1.3 — Motion card cleanup
+   - Xóa phần dư trong ảnh card Copy Chuyển Động
+   - Bỏ badge "ĐANG HOẠT ĐỘNG / WAN ANIMATE 2" ở card này
+   ===================================================================== */
+.motion-featured .model-visual.motion{
+  height:280px !important;
+  padding:18px 18px 0 !important;
+}
+.motion-featured .model-preview-image{
+  object-fit:contain !important;
+  object-position:center top !important;
+}
+.motion-featured .model-badges{
+  display:none !important;
+}
+.motion-card-body h2{
+  margin-top:6px !important;
+}
+@media(max-width:760px){
+  .motion-featured .model-visual.motion{
+    height:240px !important;
+    padding:14px 14px 0 !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.1.4 — Motion card uses video preview
+   ===================================================================== */
+.motion-video-shell{
+  position:relative !important;
+  overflow:hidden !important;
+}
+.motion-preview-video,
+.motion-video-fallback{
+  width:100% !important;
+  height:100% !important;
+  border-radius:18px !important;
+  object-fit:contain !important;
+  object-position:center top !important;
+}
+.motion-preview-video{
+  display:block;
+  opacity:0;
+  transition:opacity .28s ease;
+  background:#0b1320;
+}
+.motion-preview-video.ready{
+  opacity:1;
+}
+.motion-video-fallback{
+  display:block;
+}
+.motion-video-shell .motion-preview-video.ready + .motion-video-fallback{
+  display:none !important;
+}
+
+
+/* =====================================================================
+   TVC STUDIO AI V3.2 — MIRROR GLASS
+   Kính gương trong, ánh phản chiếu trắng/cyan/hồng nhẹ, không tím nặng
+   ===================================================================== */
+
+:root{
+  --mg-bg:#08121b;
+  --mg-glass:rgba(255,255,255,.075);
+  --mg-glass-strong:rgba(255,255,255,.12);
+  --mg-line:rgba(255,255,255,.25);
+  --mg-line-soft:rgba(255,255,255,.14);
+  --mg-highlight:rgba(255,255,255,.38);
+  --mg-shadow:0 22px 55px rgba(0,8,20,.34);
+  --mg-cyan:#73e4ef;
+  --mg-blue:#76bfff;
+  --mg-pink:#ffb5d8;
+}
+
+/* nền tối sạch để kính nổi */
+body.v3-liquid-theme{
+  background:
+    radial-gradient(900px 480px at 8% 0%,rgba(93,186,255,.18),transparent 66%),
+    radial-gradient(720px 460px at 92% 8%,rgba(103,228,239,.10),transparent 68%),
+    radial-gradient(720px 520px at 74% 92%,rgba(255,181,216,.08),transparent 72%),
+    linear-gradient(150deg,#061019 0%,#091521 48%,#0b1722 100%) !important;
+}
+
+/* card / panel: mirror glass */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue
+){
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.115),rgba(255,255,255,.045)) !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    inset 0 -1px 0 rgba(255,255,255,.05),
+    0 20px 50px rgba(0,7,18,.28) !important;
+  backdrop-filter:blur(28px) saturate(155%) contrast(105%) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(155%) contrast(105%) !important;
+}
+
+/* vệt phản chiếu gương ở mép trên */
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .stat,.job,.auth-card,.modal,.home-process>div,.home-credit-section
+)::before{
+  content:"";
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:1px;
+  height:34%;
+  border-radius:inherit;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.04) 42%,transparent 100%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ánh màu gương rất nhẹ */
+.v3-liquid-theme :is(.model-card,.panel-card,.affiliate-card,.balance)::after{
+  content:"";
+  position:absolute;
+  width:240px;
+  height:240px;
+  right:-110px;
+  bottom:-130px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle,
+      rgba(115,228,239,.12) 0%,
+      rgba(118,191,255,.08) 38%,
+      rgba(255,181,216,.06) 62%,
+      transparent 76%);
+  filter:blur(6px);
+  pointer-events:none;
+  z-index:0;
+}
+
+.v3-liquid-theme :is(
+  .panel-card,.tip-card,.balance,.affiliate-card,.model-card,.product-card,
+  .features article,.pricing article,.faq details,.stat,.job,.simple-row,
+  .auth-card,.modal,.render-box,.account-popover,.home-process>div,
+  .home-credit-section,.credit-note,.queue
+) > *{
+  position:relative;
+  z-index:1;
+}
+
+/* toolbar kính gương */
+.global-toolbar.liquid-toolbar{
+  background:
+    linear-gradient(180deg,rgba(17,28,41,.72),rgba(8,15,24,.58)) !important;
+  border-bottom:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 9px 30px rgba(0,5,15,.25) !important;
+  backdrop-filter:blur(32px) saturate(160%) !important;
+  -webkit-backdrop-filter:blur(32px) saturate(160%) !important;
+}
+
+.global-toolbar .liquid-pill,
+.global-toolbar .tool-pill,
+.global-toolbar .credit-tool{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.045)) !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 7px 16px rgba(0,0,0,.14) !important;
+  backdrop-filter:blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(150%) !important;
+}
+
+.global-toolbar .liquid-pill::after,
+.global-toolbar .tool-pill::after,
+.global-toolbar .credit-tool::after{
+  content:"";
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:1px;
+  height:43%;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.21),transparent);
+  pointer-events:none;
+}
+
+.global-toolbar .tool-pill:hover,
+.global-toolbar .credit-tool:hover{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.06)) !important;
+  border-color:rgba(115,228,239,.32) !important;
+}
+
+/* nút chính: glass thay vì neon đặc */
+.model-button,.primary,.motion-cta-button{
+  background:
+    linear-gradient(135deg,
+      rgba(105,188,255,.78) 0%,
+      rgba(111,225,233,.72) 52%,
+      rgba(255,181,216,.68) 100%) !important;
+  border:1px solid rgba(255,255,255,.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(255,255,255,.08),
+    0 12px 28px rgba(48,146,177,.18) !important;
+  backdrop-filter:blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(150%) !important;
+}
+
+/* hiệu ứng ánh sáng lướt */
+.motion-cta-button::before{
+  background:
+    linear-gradient(115deg,
+      transparent 10%,
+      rgba(255,255,255,.10) 32%,
+      rgba(255,255,255,.45) 49%,
+      rgba(255,255,255,.12) 63%,
+      transparent 88%) !important;
+}
+
+/* model card rõ kính hơn */
+.model-card{
+  border-radius:24px !important;
+}
+.model-card:hover{
+  transform:translateY(-4px) !important;
+  border-color:rgba(255,255,255,.28) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.34),
+    0 26px 64px rgba(0,8,22,.35) !important;
+}
+
+.model-body{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015)) !important;
+}
+
+/* input glass */
+.panel-card input,.panel-card select,.panel-card textarea,
+.auth-card input,.ref-code-row input,.withdraw-form input,
+.withdraw-form select,.withdraw-form textarea{
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035)) !important;
+  border:1px solid rgba(255,255,255,.15) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+/* popup account kính gương */
+.account-popover,
+body > .account-popover{
+  background:
+    linear-gradient(180deg,rgba(30,42,56,.88),rgba(12,22,32,.88)) !important;
+  border:1px solid rgba(255,255,255,.21) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.24),
+    0 28px 75px rgba(0,6,17,.48) !important;
+  backdrop-filter:blur(34px) saturate(165%) !important;
+  -webkit-backdrop-filter:blur(34px) saturate(165%) !important;
+}
+
+/* mobile giữ hiệu ứng kính nhưng nhẹ hơn */
+@media(max-width:760px){
+  .v3-liquid-theme :is(
+    .panel-card,.balance,.affiliate-card,.model-card,.stat,.job,.auth-card
+  ){
+    backdrop-filter:blur(22px) saturate(145%) !important;
+    -webkit-backdrop-filter:blur(22px) saturate(145%) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      0 14px 34px rgba(0,6,16,.24) !important;
+  }
+
+  .global-toolbar.liquid-toolbar{
+    background:
+      linear-gradient(180deg,rgba(16,27,39,.84),rgba(8,16,24,.74)) !important;
+  }
+
+  .liquid-nav .tool-pill{
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.03)) !important;
+    border-color:rgba(255,255,255,.13) !important;
+  }
+}

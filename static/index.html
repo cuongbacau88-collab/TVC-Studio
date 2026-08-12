@@ -91,11 +91,13 @@
 
     <div class="model-grid">
       <article class="model-card live motion-featured">
-        <div class="model-visual motion">
-          <img class="model-preview-image" src="/static/images/card_motion.png" alt="AI Copy Chuyển Động">
+        <div class="model-visual motion motion-video-shell">
+          <video class="model-preview-video motion-preview-video" autoplay muted loop playsinline preload="metadata" poster="/static/images/card_motion.png">
+            <source src="/static/videos/card_motion.mp4" type="video/mp4">
+          </video>
+          <img class="model-preview-image motion-video-fallback" src="/static/images/card_motion.png" alt="AI Copy Chuyển Động">
         </div>
         <div class="model-body motion-card-body">
-          <div class="model-badges"><span class="badge green">ĐANG HOẠT ĐỘNG</span><span class="badge">WAN ANIMATE 2</span></div>
           <h2 data-i18n="modelMotionTitle">AI Copy Chuyển Động</h2>
           <p data-i18n="modelMotionDesc">Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.</p>
           <div class="model-footer motion-card-footer">
@@ -387,5 +389,33 @@ async function tvcSyncToolbarAccount(){
 
 document.addEventListener("DOMContentLoaded",()=>{tvcInitToolbar();tvcSyncToolbarAccount();});
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.motion-preview-video').forEach(function (video) {
+    var fallback = video.parentElement.querySelector('.motion-video-fallback');
+    var source = video.querySelector('source');
+    if (!source || !source.getAttribute('src')) {
+      video.style.display = 'none';
+      if (fallback) fallback.style.display = 'block';
+      return;
+    }
+    video.addEventListener('loadeddata', function () {
+      video.classList.add('ready');
+      if (fallback) fallback.style.display = 'none';
+    });
+    video.addEventListener('canplay', function () {
+      video.classList.add('ready');
+      if (fallback) fallback.style.display = 'none';
+      video.play().catch(function(){});
+    });
+    video.addEventListener('error', function () {
+      video.style.display = 'none';
+      if (fallback) fallback.style.display = 'block';
+    });
+  });
+});
+</script>
+
 </body>
 </html>
