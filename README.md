@@ -310,3 +310,10 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Desktop mở modal lớn; điện thoại mở gần toàn màn hình.
 - Đóng bằng nút X, bấm nền ngoài hoặc phím Esc.
 - Khi đóng player, preview nhỏ tiếp tục chạy muted.
+
+
+## V3.3.4 — Thêm phần giới thiệu
+- Thêm khối giới thiệu trên trang chủ ngay trước danh sách model.
+- Nội dung giới thiệu dịch vụ AI Copy Chuyển Động.
+- Thêm dòng: `Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳`
+- Hỗ trợ cả giao diện VN / EN.

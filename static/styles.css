@@ -3697,3 +3697,96 @@ body.video-player-open{
     padding-bottom:max(14px,env(safe-area-inset-bottom));
   }
 }
+
+
+/* =====================================================================
+   V3.3.4 — Platform introduction
+   ===================================================================== */
+.platform-intro{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:18px 0 22px;
+  padding:15px 18px;
+  border-radius:18px;
+  background:
+    linear-gradient(145deg,rgba(55,79,155,.42),rgba(88,79,155,.26)) !important;
+  border:1px solid rgba(255,255,255,.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.32),
+    0 14px 32px rgba(79,92,166,.13);
+  backdrop-filter:blur(20px) saturate(145%);
+  -webkit-backdrop-filter:blur(20px) saturate(145%);
+}
+.platform-intro::before{
+  content:"";
+  position:absolute;
+  left:5%;
+  right:5%;
+  top:1px;
+  height:38%;
+  border-radius:16px;
+  background:linear-gradient(180deg,rgba(255,255,255,.24),transparent);
+  pointer-events:none;
+}
+.platform-intro-icon{
+  position:relative;
+  z-index:1;
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+  display:grid;
+  place-items:center;
+  border-radius:14px;
+  background:linear-gradient(135deg,rgba(103,181,255,.70),rgba(156,141,247,.64),rgba(233,155,216,.58));
+  border:1px solid rgba(255,255,255,.35);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.40),0 8px 18px rgba(91,105,215,.16);
+  font-size:18px;
+}
+.platform-intro-copy{
+  position:relative;
+  z-index:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.platform-intro-copy span{
+  color:#dce7ff;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.16em;
+}
+.platform-intro-copy p{
+  margin:0;
+  color:#fff !important;
+  font-size:13px;
+  line-height:1.48;
+  font-weight:650;
+}
+.platform-intro-copy strong{
+  color:#ffe8a8 !important;
+  font-size:12px;
+  line-height:1.4;
+  text-shadow:0 2px 8px rgba(84,65,131,.18);
+}
+
+@media(max-width:760px){
+  .platform-intro{
+    align-items:flex-start;
+    margin:14px 0 18px;
+    padding:13px 14px;
+    border-radius:16px;
+  }
+  .platform-intro-icon{
+    width:36px;
+    height:36px;
+    flex-basis:36px;
+    border-radius:12px;
+    font-size:16px;
+  }
+  .platform-intro-copy p{font-size:12px}
+  .platform-intro-copy strong{font-size:11px}
+}
