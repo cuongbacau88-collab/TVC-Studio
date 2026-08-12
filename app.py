@@ -36,7 +36,7 @@ DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.g
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 
-app = FastAPI(title="TVC Studio AI Business V3.3.39")
+app = FastAPI(title="TVC Studio AI Business V3.3.44")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
@@ -537,6 +537,10 @@ def logout(request: Request, response: Response):
     response.delete_cookie("mh_session", path="/")
     return {"ok": True}
 
+@app.get("/api/version")
+def api_version():
+    return {"version": "3.3.44", "single_video_price": True, "quality_user_selectable": False}
+
 @app.get("/api/me")
 def me(request: Request):
     u = current_user(request)
@@ -561,16 +565,18 @@ async def create_job(
     motion: UploadFile = File(...),
     model: str = Form("Wan Animate 2 • Distill INT8"),
     aspect_ratio: str = Form("9:16"),
-    quality: str = Form("720"),
     prompt: str = Form(""),
     request_key: str = Form("")
 ):
     u = current_user(request)
     if aspect_ratio not in {"9:16","16:9","1:1"}:
         raise HTTPException(400, "Tỷ lệ không hợp lệ")
-    if quality not in {"480","720"}:
-        raise HTTPException(400, "Chất lượng không hợp lệ")
-    cost = 1 if quality == "480" else 2
+    # V3.3.44: one public render mode / one price.
+    # The client no longer sends a quality field. Extra legacy form fields are
+    # ignored by FastAPI, while the server always uses one internal profile.
+    # This removes the old "Chất lượng không hợp lệ" path permanently.
+    quality = "720"  # internal worker compatibility only; not a user choice
+    cost = 1
     request_key = (request_key or "").strip()[:128]
     now_ts = time.time()
 

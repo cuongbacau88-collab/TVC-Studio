@@ -1,0 +1,155 @@
+/* =========================================================
+   TVC Studio AI V3.3.44 — Glass toolbar + tap feedback
+   Final override layer; intentionally small and mobile-safe.
+   ========================================================= */
+
+:root{
+  --tvc-glass-border: rgba(255,255,255,.17);
+  --tvc-glass-top: rgba(255,255,255,.105);
+  --tvc-glass-bottom: rgba(20,29,54,.46);
+  --tvc-glow: rgba(124,96,255,.34);
+}
+
+/* Top toolbar: more transparent mirror glass without a large glare strip. */
+.global-toolbar.liquid-toolbar{
+  background:
+    linear-gradient(180deg,rgba(21,32,59,.58),rgba(9,15,30,.48)) !important;
+  border-bottom:1px solid rgba(255,255,255,.11) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.13),
+    0 10px 30px rgba(0,5,20,.18) !important;
+  backdrop-filter:blur(16px) saturate(128%) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(128%) !important;
+}
+
+.global-toolbar .liquid-pill,
+.global-toolbar .tool-pill,
+.global-toolbar .lang-switch,
+.global-toolbar .account-native-menu > summary{
+  border:1px solid var(--tvc-glass-border) !important;
+  background:
+    linear-gradient(180deg,var(--tvc-glass-top),rgba(255,255,255,.035) 42%,var(--tvc-glass-bottom)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    inset 0 -1px 0 rgba(0,0,0,.12),
+    0 5px 15px rgba(0,5,20,.12) !important;
+}
+
+/* Tiny mirror glint only; no big horizontal bloom. */
+.global-toolbar .tool-pill::before,
+.global-toolbar .account-native-menu > summary::before{
+  content:"" !important;
+  position:absolute !important;
+  left:14% !important;
+  right:14% !important;
+  top:2px !important;
+  height:1px !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.34),transparent) !important;
+  opacity:.72 !important;
+  pointer-events:none !important;
+}
+
+/* Restore fast tactile feedback on interactive controls. */
+.tool-pill,
+.lang-switch button,
+.simple-render-btn,
+.simple-aspect,
+.simple-upload-button,
+.primary,
+.dark,
+.mini-btn,
+.packs button,
+.account-v3-topup,
+.account-v3-menu a,
+.account-v3-logout,
+.public-pricing-grid a,
+.contact-cards a,
+.site-footer a{
+  transition:transform 100ms ease, border-color 120ms ease, box-shadow 120ms ease, background-color 120ms ease, filter 120ms ease !important;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.tool-pill:active,
+.lang-switch button:active,
+.simple-render-btn:active,
+.simple-aspect:active,
+.simple-upload-button:active,
+.primary:active,
+.dark:active,
+.mini-btn:active,
+.packs button:active,
+.account-v3-topup:active,
+.account-v3-menu a:active,
+.account-v3-logout:active,
+.public-pricing-grid a:active,
+.contact-cards a:active{
+  transform:translateY(1px) scale(.975) !important;
+  filter:brightness(1.08) !important;
+}
+
+.global-actions .tool-pill.mobile-active,
+.global-actions .tool-pill[aria-current="page"],
+.account-native-menu[open] > summary{
+  border-color:rgba(139,108,255,.64) !important;
+  background:linear-gradient(180deg,rgba(133,106,255,.23),rgba(64,58,120,.16)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 0 0 1px rgba(128,96,255,.12),
+    0 0 15px rgba(112,82,235,.20) !important;
+}
+
+@media (hover:hover) and (pointer:fine){
+  .tool-pill:hover,
+  .simple-render-btn:hover,
+  .simple-aspect:hover,
+  .primary:hover,
+  .packs button:hover,
+  .public-pricing-grid a:hover{
+    transform:translateY(-1px) !important;
+    border-color:rgba(255,255,255,.25) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.20),0 8px 20px rgba(55,42,135,.15) !important;
+  }
+}
+
+.simple-duration-note{
+  display:block;
+  margin:8px 2px 0;
+  color:#9ca8bb;
+  font-size:10px;
+  line-height:1.45;
+}
+
+/* Footer phone and slogan can wrap naturally without making the page wider. */
+.site-footer-brand > p{
+  max-width:420px !important;
+  line-height:1.55 !important;
+}
+
+@media(max-width:760px){
+  .global-toolbar.liquid-toolbar{
+    /* Mobile: keep the glass feel but use lighter blur for performance. */
+    background:linear-gradient(180deg,rgba(20,31,57,.72),rgba(8,14,28,.64)) !important;
+    backdrop-filter:blur(7px) saturate(112%) !important;
+    -webkit-backdrop-filter:blur(7px) saturate(112%) !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.11),0 7px 18px rgba(0,5,20,.13) !important;
+  }
+
+  .global-toolbar .tool-pill::before,
+  .global-toolbar .account-native-menu > summary::before{
+    opacity:.48 !important;
+  }
+
+  .simple-duration-note{
+    margin-top:7px;
+    font-size:9.5px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .tool-pill,.lang-switch button,.simple-render-btn,.simple-aspect,.simple-upload-button,
+  .primary,.dark,.mini-btn,.packs button,.account-v3-topup,.account-v3-menu a,
+  .account-v3-logout,.public-pricing-grid a,.contact-cards a,.site-footer a{
+    transition:none !important;
+  }
+}

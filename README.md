@@ -621,3 +621,14 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Footer được làm lại bằng CSS sạch riêng: không dính chữ, logo nhỏ đúng tỷ lệ, copyright không bay sang góc.
 - Xóa khối “3 bước để khách tạo video” trên Trang Chủ.
 - Patch đóng gói trực tiếp từ V3.3.40.
+
+
+## V3.3.44 — Home label / glass toolbar / single-quality fix
+- Đổi tab “Chọn Model” thành “Trang Chủ” trên toàn bộ toolbar.
+- SĐT/Zalo hiển thị dạng 0917.764.222, liên kết tel vẫn dùng số nguyên.
+- Slogan mới: “AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.”
+- Khôi phục hiệu ứng nhấn/lún/glow nhẹ cho nút và tab; mobile dùng animation rất ngắn.
+- Toolbar trong suốt hơn với mirror glass navy, blur nhẹ và không có glare lớn.
+- Xóa hoàn toàn trường quality khỏi form tạo video; backend bỏ tham số quality từ user và luôn dùng profile nội bộ.
+- Thêm /api/version để kiểm tra Railway đã chạy V3.3.44.
+- Thêm ghi chú “Video chuyển động nên có thời lượng từ 10s đến 20s.” gần ô tải video mẫu.

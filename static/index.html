@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b0715">
-<title>TVC Studio AI — Chọn model</title>
+<title>TVC Studio AI — Trang Chủ</title>
 <meta name="description" content="TVC Studio AI - chọn công cụ AI video và hình ảnh.">
 <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css">
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
+<link rel="stylesheet" href="/static/ui-v3344.css?v=3344">
 </head>
 <body class="model-home has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -35,7 +36,7 @@
     
 
     <nav class="global-actions liquid-nav">
-      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
+      <a href="/" class="tool-pill liquid-pill" data-tool="models" aria-current="page"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Trang Chủ</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
       <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Giới Thiệu</span></a>
       <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
@@ -102,7 +103,7 @@
     <div class="model-title-row">
       <div>
         <h1>TVC Studio <em>AI</em></h1>
-        <p data-i18n="chooseToolSubtitle">TVC Studio AI – Khi hình ảnh bắt đầu chuyển động.</p>
+        <p data-i18n="chooseToolSubtitle">AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.</p>
       </div>
 </div>
     </div>
@@ -223,11 +224,11 @@
   <div class="site-footer-inner">
     <div class="site-footer-brand">
       <a class="site-footer-logo" href="/"><img src="/static/images/logo-tvc.png" alt="TVC Studio AI"><span>TVC Studio <b>AI</b></span></a>
-      <p>Khi hình ảnh bắt đầu chuyển động.</p>
+      <p>AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.</p>
       <div class="site-footer-contact">
         <span>Mr Cường</span>
         <a href="mailto:cuongtv.bx92@gmail.com">cuongtv.bx92@gmail.com</a>
-        <a href="tel:0917764222">Zalo: 0917764222</a>
+        <a href="tel:0917764222">Zalo: 0917.764.222</a>
       </div>
     </div>
     <nav class="site-footer-links" aria-label="Liên kết cuối trang">
@@ -275,8 +276,8 @@ document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
 const TVC_I18N = {
   vi:{
     topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
-    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
-    chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"TVC Studio AI – Khi hình ảnh bắt đầu chuyển động.", introKicker:"GIỚI THIỆU", introText:"Nền tảng cung cấp dịch vụ AI Copy Chuyển Động, giúp biến ảnh nhân vật thành video.", introVietnam:"Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳",
+    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
+    chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.", introKicker:"GIỚI THIỆU", introText:"Nền tảng cung cấp dịch vụ AI Copy Chuyển Động, giúp biến ảnh nhân vật thành video.", introVietnam:"Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳",
     creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
     createNow:"Tạo ngay",

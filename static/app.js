@@ -2,7 +2,7 @@
 const TVC_I18N = {
   vi:{
     topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
-    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
+    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
@@ -324,20 +324,13 @@ function setJobSubmitLocked(locked,activeBtn=null){
   });
 }
 
-renderBtns.forEach(btn=>btn.addEventListener('click',()=>{
-  if(jobSubmitLocked) return;
-  $('#quality').value=btn.dataset.quality;
-  $('#cost').textContent=(btn.dataset.quality==='720'?2:1)+' TVC';
-}));
-
 form.onsubmit=async e=>{
   e.preventDefault();
   if(jobSubmitLocked) return;
-  const submitter=e.submitter;
+  const submitter=e.submitter || renderBtns[0];
   setJobSubmitLocked(true,submitter);
-  if(submitter?.dataset?.quality){
-    $('#quality').value=submitter.dataset.quality;
-  }
+  // One public render mode: backend also enforces one TVC per job.
+  if($('#cost')) $('#cost').textContent='1 lượt';
   const fd=new FormData(form);
   fd.set('request_key',jobRequestKey());
   try{
@@ -356,7 +349,7 @@ async function loadJobs(){
     const jobs=await api('/api/jobs');
     $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
       <div class="thumb">🎬</div>
-      <div><b>#${j.id} • Véo 3 né ra tí 🤏</b><small>${j.quality}p • ${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
+      <div><b>#${j.id} • Véo 3 né ra tí 🤏</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
       <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
@@ -378,10 +371,8 @@ function packageName(key){return {starter:'Trải nghiệm',creator:'Phổ biế
 async function loadWallet(){
   try{
     me=await api('/api/me');showDashboard();
-    const normalTurns=Math.max(0,Number(me.credits||0));
-    const qualityTurns=Math.floor(normalTurns/2);
-    if($('#walletVideoNormal')) $('#walletVideoNormal').textContent=normalTurns;
-    if($('#walletVideoQuality')) $('#walletVideoQuality').textContent=qualityTurns;
+    const videoTurns=Math.max(0,Number(me.credits||0));
+    if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent=videoTurns;
     const [tops,led]=await Promise.all([api('/api/topups'),api('/api/ledger')]);
     $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} lượt</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
     $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} TVC</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
