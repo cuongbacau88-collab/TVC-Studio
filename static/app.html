@@ -25,7 +25,7 @@
 
     <div class="toolbar-right">
       <a href="/app#wallet" class="credit-tool liquid-pill">
-        <b id="toolbarCredits">0.0</b> ◊ <span data-i18n="topup">Nạp Credits</span>
+        <b id="toolbarCredits">0</b> <span data-i18n="topup">Nạp VIP</span>
       </a>
 
       <div class="toolbar-account-wrap">
@@ -48,9 +48,9 @@
           <div class="account-v2-balance">
             <div>
               <small data-i18n="balance">Số dư</small>
-              <strong><span id="toolbarAccountCredits">0</span> <em>credits</em></strong>
+              <strong><span id="toolbarAccountCredits">0</span> <em>TVC</em></strong>
             </div>
-            <a href="/app#wallet" data-account-action="wallet" class="account-v2-topup" data-i18n="addCredits">Nạp thêm</a>
+            <a href="/app#wallet" data-account-action="wallet" class="account-v2-topup" data-i18n="addTVC">Nạp thêm</a>
           </div>
 
           <nav class="account-v2-menu">
@@ -61,7 +61,7 @@
             </a>
             <a href="/app#wallet" data-account-action="wallet">
               <span class="account-menu-icon">◇</span>
-              <span data-i18n="topup">Nạp Credits</span>
+              <span data-i18n="topup">Nạp VIP</span>
               <i>›</i>
             </a>
             <a href="/app#account" data-account-action="account">
@@ -90,8 +90,8 @@
       <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-i18n="models">Chọn Model</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
       <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
-      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0.0</b><i>🔥</i></span><span class="mobile-tool-label" data-i18n="topup">Nạp Credits</span></a>
-      <a href="/app#account" class="tool-pill liquid-pill mobile-account-link" data-tool="account"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
+      <button class="tool-pill liquid-pill mobile-account-link" id="mobileAccountBtn" type="button"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></button>
     </nav>
   </div>
 </div>
@@ -101,13 +101,13 @@
  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
  <button data-tab="create" class="side active" data-i18n="createVideoNav">✨ Tạo video</button>
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
- <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví credits</button>
+ <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví TVC</button>
  <button data-tab="affiliate" class="side" data-i18n="earnNav">💸 Kiếm tiền</button>
  <button data-tab="account" class="side" data-i18n="accountNav">⚙ Tài khoản</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">
-<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="credits">—</b> credits</span><button class="avatar" id="avatar">?</button><button class="icon" id="logout">↪</button></div></header>
+<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> TVC</span><button class="avatar" id="avatar">?</button><button class="icon" id="logout">↪</button></div></header>
 
 <div id="authGate" class="auth-gate hidden">
  <div class="auth-card">
@@ -183,8 +183,8 @@
         <div class="simple-render-actions">
           <button class="simple-render-btn quick" type="submit" data-quality="480">
             <span>
-              <b>⚡ Tạo Video Nhanh</b>
-              <small>Nhanh hơn · 480p</small>
+              <b>⚡ Tạo Video Thường</b>
+              <small>1 TVC</small>
             </span>
             <em>10 ◈</em>
           </button>
@@ -192,13 +192,13 @@
           <button class="simple-render-btn quality" type="submit" data-quality="720">
             <span>
               <b>✨ Tạo Video Chất Lượng</b>
-              <small>Độ phân giải cao · 720p</small>
+              <small>2 TVC</small>
             </span>
             <em>20 ◈</em>
           </button>
         </div>
 
-        <span id="cost" class="simple-hidden-cost">10 credits</span>
+        <span id="cost" class="simple-hidden-cost">1 TVC</span>
       </form>
     </article>
   </div>
@@ -208,11 +208,11 @@
 
 <section class="tab" id="tab-wallet">
 <div class="wallet-grid">
- <article class="balance"><span>Số dư</span><strong><b id="walletCredits">0</b> credits</strong><small>30 credits miễn phí khi đăng ký.</small></article>
- <article class="panel-card"><h3 data-i18n="topupRequest">Tạo yêu cầu nạp điểm</h3><div class="packs"><button data-pack="starter"><b>50</b><span>49K</span></button><button class="active" data-pack="creator"><b>250</b><span>199K</span></button><button data-pack="studio"><b>1000</b><span>699K</span></button></div><textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea><button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button><p class="muted">Admin duyệt thì credits được cộng tự động.</p></article>
+ <article class="balance"><span>Số dư</span><strong><b id="walletTVC">0</b> TVC</strong><small>30 TVC miễn phí khi đăng ký.</small></article>
+ <article class="panel-card"><h3 data-i18n="topupRequest">Tạo yêu cầu nạp điểm</h3><div class="packs"><button data-pack="starter"><b>50</b><span>49K</span></button><button class="active" data-pack="creator"><b>250</b><span>199K</span></button><button data-pack="studio"><b>1000</b><span>699K</span></button></div><textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea><button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button><p class="muted">Admin duyệt thì TVC được cộng tự động.</p></article>
 </div>
 <h3 class="subhead" data-i18n="topupHistory">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
-<h3 class="subhead" data-i18n="creditLedger">Biến động credits</h3><div id="ledgerList" class="simple-list"></div>
+<h3 class="subhead" data-i18n="creditLedger">Biến động TVC</h3><div id="ledgerList" class="simple-list"></div>
 </section>
 
 
@@ -230,9 +230,9 @@
     <div class="affiliate-stats">
       <article><small>HẠNG HIỆN TẠI</small><strong id="affTier">—</strong><span id="affRate">—</span></article>
       <article><small>CÓ THỂ RÚT</small><strong class="money" id="affAvailable">0.00</strong><span id="affAvailableVnd">≈ 0 VND</span></article>
-      <article><small>TỔNG THƯỞNG</small><strong class="money" id="affTotal">0.00</strong><span>Affiliate credits tích lũy</span></article>
+      <article><small>TỔNG THƯỞNG</small><strong class="money" id="affTotal">0.00</strong><span>Affiliate TVC tích lũy</span></article>
       <article><small>ĐÃ GIỚI THIỆU</small><strong class="blue" id="affRefs">0</strong><span id="affPayingRefs">0 khách đã nạp</span></article>
-      <article><small>TIẾN ĐỘ THĂNG HẠNG</small><strong id="affNextTier">Vàng</strong><div class="rank-progress"><i id="affRankBar"></i></div><span id="affRankText">0 / 1,000 credits</span></article>
+      <article><small>TIẾN ĐỘ THĂNG HẠNG</small><strong id="affNextTier">Vàng</strong><div class="rank-progress"><i id="affRankBar"></i></div><span id="affRankText">0 / 1,000 TVC</span></article>
     </div>
 
     <div class="affiliate-columns">
@@ -249,9 +249,9 @@
 
         <div class="affiliate-rules">
           <b>ℹ Cách tính phần thưởng</b>
-          <p><strong>Đối tác Tiêu chuẩn (Bạc):</strong> nhận <em>10%</em> số credits khách được giới thiệu mua.</p>
+          <p><strong>Đối tác Tiêu chuẩn (Bạc):</strong> nhận <em>10%</em> số TVC khách được giới thiệu mua.</p>
           <p><strong>Đối tác Cao cấp (Vàng):</strong> nhận <em>15%</em> và thêm <em>50%</em> hoa hồng trực tiếp do affiliate cấp dưới kiếm được.</p>
-          <p>Khách đã nhập mã giới thiệu được cộng thêm <em>10%</em> credits khi admin duyệt giao dịch nạp.</p>
+          <p>Khách đã nhập mã giới thiệu được cộng thêm <em>10%</em> TVC khi admin duyệt giao dịch nạp.</p>
         </div>
       </article>
 
@@ -266,14 +266,14 @@
 
         <div class="rank-panel">
           <div class="rank-row"><span><b>●</b> Bạc<br><small>10%</small></span><span class="line"></span><span><b>●</b> Vàng<br><small>15% + override</small></span></div>
-          <p>Tỷ giá rút: <strong>10 credits = 25.000 VND</strong></p>
-          <p>Điều kiện Vàng: tổng doanh số khách trực tiếp đạt <strong>1.000 credits</strong>.</p>
+          <p>Tỷ giá rút: <strong>1 TVC = 25.000 VND</strong></p>
+          <p>Điều kiện Vàng: tổng doanh số khách trực tiếp đạt <strong>1.000 TVC</strong>.</p>
         </div>
 
         <h3 class="withdraw-title">💳 Yêu Cầu Rút Thưởng</h3>
         <div class="withdraw-form">
           <div class="two">
-            <label>Số credits<input id="withdrawAmount" type="number" min="10" step="0.01" placeholder="Tối thiểu 10"></label>
+            <label>Số TVC<input id="withdrawAmount" type="number" min="10" step="0.01" placeholder="Tối thiểu 10"></label>
             <label>Phương thức<select id="withdrawMethod"><option value="bank">Ngân hàng</option><option value="momo">MoMo</option><option value="other">Khác</option></select></label>
           </div>
           <label>Thông tin nhận tiền<input id="withdrawAccount" placeholder="STK + ngân hàng / SĐT MoMo"></label>

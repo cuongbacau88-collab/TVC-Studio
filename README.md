@@ -448,3 +448,46 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Xóa nút Tài Khoản riêng ở hàng logo để không bị lặp.
 - Tài Khoản trên trang app chuyển tab trực tiếp và mượt như các tab khác.
 - Trang chủ/Admin bấm Tài Khoản sẽ mở `/app#account`.
+
+
+## V3.3.22 — Sửa đúng bố cục 5 tab mobile
+- Sửa lỗi Nạp Credits / Tài Khoản bị hiển thị thành nút dài ngang.
+- Ép 5 tab nằm cùng một hàng dưới logo.
+- Mỗi tab hiển thị icon phía trên + tên phía dưới.
+- Ẩn hoàn toàn toolbar-right desktop trên mobile để không bị lặp.
+
+
+## V3.3.23 — Một Tài Khoản menu + Nạp VIP
+- Mobile giữ đúng 1 tab `Tài Khoản`; bấm tab này chỉ mở menu Tài Khoản.
+- Không dùng tab Tài Khoản dưới để điều hướng sang trang Tài Khoản riêng nữa.
+- `Nạp Credits` đổi thành `Nạp VIP`.
+- Ô Nạp VIP chỉ hiển thị số dư hiện tại ở phần icon, bỏ biểu tượng lửa/kim cương.
+- Desktop cũng đổi nhãn nạp thành `Nạp VIP` và bỏ ký hiệu kim cương cạnh số dư.
+
+
+## V3.3.24 — Đổi tên Ví Credits thành Ví TVC
+- Đổi nhãn `Ví credits` / `Ví Credits` thành `Ví TVC`.
+- Trang Ví trong dashboard cũng hiển thị tiêu đề `Ví TVC`.
+- Mô tả đổi thành `Nạp VIP và lịch sử giao dịch`.
+- Không đổi biến/backend `credits` để tránh ảnh hưởng số dư, job queue và thanh toán.
+
+
+## V3.3.27 — Đồng bộ toàn bộ nhãn Credits → TVC
+- Đổi toàn bộ phần hiển thị cho người dùng từ `Credits/credits` thành `TVC`.
+- Bao gồm: Trang chủ, Tạo Video, chi phí job, Ví TVC, Tài Khoản, Affiliate, Admin và thông báo lỗi.
+- Ví dụ: `10 credits` → `1 TVC`, `credits dự kiến` → `TVC dự kiến`, `Không đủ credits` → `Không đủ TVC`.
+- Không đổi tên cột database, API field hoặc biến backend `credits` để tránh phá dữ liệu và logic hiện tại.
+
+
+## V3.3.27 — Cập nhật gói tạo video
+- Đổi `Tạo Video Nhanh` thành `Tạo Video Thường`.
+- Gói thường: `1 TVC`.
+- Gói chất lượng cao: `2 TVC`.
+- Bỏ chữ `480` và `720` trong phần nút/gói tạo video.
+
+
+## V3.3.27 — Giá tạo video mới
+- Gói `Tạo Video Thường`: `1 TVC`.
+- Gói `Tạo Video Chất Lượng`: `2 TVC`.
+- Bỏ toàn bộ chữ `480/720` ở phần hiển thị nút tạo video.
+- Đồng bộ cả frontend và backend tính phí.

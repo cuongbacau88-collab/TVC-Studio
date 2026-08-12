@@ -345,7 +345,7 @@ async def register(request: Request):
         ensure_user_referral_code(con, uid)
         con.execute(
             "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
-            (uid, 30, "Tặng credits đăng ký", now_iso())
+            (uid, 30, "Tặng TVC đăng ký", now_iso())
         )
         con.commit()
     except sqlite3.IntegrityError:
@@ -415,13 +415,13 @@ async def create_job(
         raise HTTPException(400, "Tỷ lệ không hợp lệ")
     if quality not in {"480","720"}:
         raise HTTPException(400, "Chất lượng không hợp lệ")
-    cost = 10 if quality == "480" else 20
+    cost = 1 if quality == "480" else 2
 
     con = db()
     fresh = con.execute("SELECT credits FROM users WHERE id=?", (u["id"],)).fetchone()
     if fresh["credits"] < cost:
         con.close()
-        raise HTTPException(402, "Không đủ credits")
+        raise HTTPException(402, "Không đủ TVC")
 
     cur = con.execute("""
         INSERT INTO jobs(user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,created_at,updated_at)
@@ -632,13 +632,13 @@ async def affiliate_request_withdrawal(request: Request):
     try:
         amount = round(float(body.get("amount_credits", 0)), 2)
     except Exception:
-        raise HTTPException(400, "Số credits không hợp lệ")
+        raise HTTPException(400, "Số TVC không hợp lệ")
     method = (body.get("method") or "").strip()[:50]
     account = (body.get("account") or "").strip()[:200]
     note = (body.get("note") or "").strip()[:300]
 
     if amount < 10:
-        raise HTTPException(400, "Tối thiểu 10 credits cho mỗi lần rút")
+        raise HTTPException(400, "Tối thiểu 1 TVC cho mỗi lần rút")
     if not method or not account:
         raise HTTPException(400, "Hãy nhập phương thức và thông tin nhận tiền")
 
@@ -802,7 +802,7 @@ async def admin_add_credits(user_id: int, request: Request):
     delta = int(body.get("delta", 0))
     reason = (body.get("reason") or "Admin điều chỉnh")[:200]
     if delta == 0 or abs(delta) > 1_000_000:
-        raise HTTPException(400, "Số credits không hợp lệ")
+        raise HTTPException(400, "Số TVC không hợp lệ")
     con = db()
     con.execute("UPDATE users SET credits=MAX(0,credits+?) WHERE id=?", (delta, user_id))
     con.execute(
@@ -977,7 +977,7 @@ async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[st
         con.execute("""
             INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
             VALUES(?,?,?,?,?,?)
-        """, (job["user_id"], job["cost"], f"Hoàn credits job lỗi #{job_id}", "job_refund", job_id, now_iso()))
+        """, (job["user_id"], job["cost"], f"Hoàn TVC job lỗi #{job_id}", "job_refund", job_id, now_iso()))
     con.execute("UPDATE jobs SET status='failed',error=?,updated_at=? WHERE id=?", (error, now_iso(), job_id))
     con.commit(); con.close()
     return {"ok": True}
