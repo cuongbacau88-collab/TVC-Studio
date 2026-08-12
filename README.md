@@ -226,3 +226,14 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Glass trong hơn, ánh cyan/blue là chính, hồng chỉ làm điểm nhấn.
 - Button và trạng thái active bỏ glow tím nặng.
 - Desktop và mobile cùng theme.
+
+## V3.1.1 — Thay ảnh Copy Chuyển Động
+- Đã thay ảnh mới cho mục / card `Copy Chuyển Động`.
+- Ảnh được resize/crop đúng kích thước asset cũ để gắn vào web ngay.
+- Không đổi backend hay logic, chỉ cập nhật hình hiển thị.
+
+## V3.1.2 — Nút Tạo Video nổi hơn + card Copy Chuyển Động căn lại
+- Thay ảnh card `Copy Chuyển Động` bằng ảnh người dùng gửi.
+- Căn lại bố cục card theo hướng giống mẫu hơn: ảnh lớn phía trên, phần chữ căn giữa.
+- Nút `Tạo Video` đổi sang kiểu full-width, to hơn, sáng hơn và có hiệu ứng sweep + pulse.
+- Mobile và desktop đều áp dụng.
