@@ -418,3 +418,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Sửa preview video luôn phủ kín khung 16:9.
 - Bỏ `max-height` cũ làm xuất hiện dải đen phía dưới video.
 - Căn video chính giữa trên desktop và mobile.
+
+
+## V3.3.18 — Mobile Smooth Tabs
+- Chuyển tab trên điện thoại có fade + slide nhẹ thay vì đổi `display` đột ngột.
+- Nút toolbar/sidebar có phản hồi bấm nhanh hơn.
+- Lịch Sử / Kiếm Tiền / Nạp Credits trên toolbar app chuyển tab trực tiếp, không điều hướng lại trang.
+- Đồng bộ trạng thái selected của toolbar với tab đang mở.
+- Dữ liệu Job / Wallet / Affiliate được tải sau khi UI đã phản hồi để thao tác cảm giác nhanh hơn.

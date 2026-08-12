@@ -159,7 +159,9 @@ async function boot(){
     me=await api('/api/me');showDashboard();await refreshAll();
     const initialHash=location.hash;
     const hashMap={'#affiliate':'affiliate','#jobs':'jobs','#wallet':'wallet','#account':'account','#create':'create'};
-    if(hashMap[initialHash]) goto(hashMap[initialHash]);
+    currentTab=hashMap[initialHash]||'create';
+    if(hashMap[initialHash]) goto(hashMap[initialHash],{source:'boot'});
+    else updateMobileToolState('create');
   }catch{showAuth()}
 }
 function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').classList.add('hidden')}
@@ -200,16 +202,96 @@ const meta={
   affiliate:['Kiếm tiền Affiliate','Giới thiệu khách hàng và nhận hoa hồng'],
   account:['Tài khoản','Thông tin tài khoản']
 };
-function goto(tab){
-  $$('.side').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
-  $$('.tab').forEach(x=>x.classList.remove('active'));
-  $('#tab-'+tab).classList.add('active');
-  $('#pageTitle').textContent=meta[tab][0];$('#pageSub').textContent=meta[tab][1];
-  history.replaceState(null,'',tab==='affiliate'?'#affiliate':location.pathname+location.search);
-  if(tab==='jobs')loadJobs();if(tab==='wallet')loadWallet();if(tab==='affiliate')loadAffiliate()
+let currentTab='create';
+let tabSwitchToken=0;
+
+function updateMobileToolState(tab){
+  const map={create:'models',jobs:'history',affiliate:'affiliate',wallet:'wallet'};
+  document.querySelectorAll('.global-actions [data-tool]').forEach(el=>{
+    el.classList.toggle('mobile-active',map[tab]===el.dataset.tool);
+  });
+  document.getElementById('mobileAccountBtn')?.classList.toggle('mobile-active',tab==='account');
 }
+
+function goto(tab,opts={}){
+  if(!meta[tab]) return;
+
+  const target=$('#tab-'+tab);
+  const old=$('.tab.active');
+  const same=old===target;
+  currentTab=tab;
+  const token=++tabSwitchToken;
+
+  $$('.side').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
+  updateMobileToolState(tab);
+
+  $('#pageTitle').textContent=meta[tab][0];
+  $('#pageSub').textContent=meta[tab][1];
+
+  const hash=tab==='create'?'#create':'#'+tab;
+  history.replaceState(null,'',location.pathname+location.search+hash);
+
+  // Start data loading after the UI has already reacted to the tap.
+  requestAnimationFrame(()=>{
+    if(tab==='jobs') loadJobs();
+    if(tab==='wallet') loadWallet();
+    if(tab==='affiliate') loadAffiliate();
+  });
+
+  if(same){
+    target?.classList.remove('tab-refresh');
+    requestAnimationFrame(()=>target?.classList.add('tab-refresh'));
+    setTimeout(()=>target?.classList.remove('tab-refresh'),220);
+    return;
+  }
+
+  // Fast fade/slide on mobile, softer fade on desktop.
+  if(old){
+    old.classList.add('tab-leaving');
+  }
+
+  target.classList.add('active','tab-entering');
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      if(token!==tabSwitchToken) return;
+      target.classList.add('tab-entered');
+      target.classList.remove('tab-entering');
+    });
+  });
+
+  setTimeout(()=>{
+    if(token!==tabSwitchToken) return;
+    $$('.tab').forEach(x=>{
+      if(x!==target){
+        x.classList.remove('active','tab-leaving','tab-entering','tab-entered','tab-refresh');
+      }
+    });
+    target.classList.add('active','tab-entered');
+  },190);
+}
+
 $$('.side').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
+
+// On the app page, toolbar History / Affiliate / Wallet switch tabs directly.
+// This avoids a document navigation/reload on mobile and makes taps feel instant.
+const toolbarTabMap={history:'jobs',affiliate:'affiliate',wallet:'wallet'};
+document.querySelectorAll('.global-actions [data-tool]').forEach(link=>{
+  const tab=toolbarTabMap[link.dataset.tool];
+  if(!tab) return;
+  link.addEventListener('click',e=>{
+    e.preventDefault();
+    goto(tab,{source:'toolbar'});
+  });
+});
+
+window.addEventListener('hashchange',()=>{
+  const map={'#create':'create','#jobs':'jobs','#wallet':'wallet','#affiliate':'affiliate','#account':'account'};
+  if(map[location.hash] && map[location.hash]!==currentTab){
+    goto(map[location.hash],{source:'hash'});
+  }
+});
 
 const form=$('#jobForm');
 form.image.onchange=()=>{$('#imgName').textContent=form.image.files[0]?.name||'Chưa chọn ảnh'};

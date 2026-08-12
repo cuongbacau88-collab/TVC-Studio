@@ -6256,3 +6256,137 @@ textarea::placeholder{
     padding-bottom:12px !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.18 — MOBILE SMOOTH TABS
+   ===================================================================== */
+
+/* Keep inactive tabs out of layout; animate the newly active content. */
+.tab{
+  display:none;
+}
+
+.tab.active{
+  display:block;
+  opacity:1;
+  transform:none;
+  will-change:opacity,transform;
+}
+
+.tab.tab-entering{
+  opacity:0;
+  transform:translate3d(0,10px,0) scale(.995);
+}
+
+.tab.tab-entered{
+  opacity:1;
+  transform:translate3d(0,0,0) scale(1);
+  transition:
+    opacity .20s ease,
+    transform .24s cubic-bezier(.22,.75,.25,1);
+}
+
+.tab.tab-leaving{
+  opacity:0;
+  transform:translate3d(0,-5px,0) scale(.997);
+  transition:
+    opacity .12s ease,
+    transform .15s ease;
+  pointer-events:none;
+}
+
+.tab.tab-refresh{
+  animation:tvcTabRefresh .18s ease both;
+}
+
+@keyframes tvcTabRefresh{
+  0%{opacity:.78;transform:translateY(3px)}
+  100%{opacity:1;transform:translateY(0)}
+}
+
+/* Top page title also responds smoothly. */
+#pageTitle,
+#pageSub{
+  transition:opacity .16s ease,color .16s ease;
+}
+
+/* Make toolbar/sidebar tap response immediate and tactile. */
+.side,
+.global-actions .tool-pill,
+.mobile-account-link{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:
+    transform .14s ease,
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease,
+    color .18s ease !important;
+}
+
+.side:active,
+.global-actions .tool-pill:active,
+.mobile-account-link:active{
+  transform:scale(.96) !important;
+}
+
+/* JS-controlled active state avoids relying only on :has(). */
+.global-actions .tool-pill.mobile-active,
+.global-actions #mobileAccountBtn.mobile-active{
+  border-color:#8758ff !important;
+  background:
+    linear-gradient(180deg,rgba(103,67,181,.20),rgba(48,30,78,.12)) !important;
+  box-shadow:
+    0 0 0 1px rgba(125,76,255,.20),
+    0 0 13px rgba(126,72,255,.38),
+    inset 0 0 12px rgba(119,71,229,.12) !important;
+}
+
+/* Mobile: quicker motion, no heavy blur animation. */
+@media(max-width:760px){
+  .tab.tab-entering{
+    opacity:0;
+    transform:translate3d(12px,0,0);
+  }
+
+  .tab.tab-entered{
+    opacity:1;
+    transform:translate3d(0,0,0);
+    transition:
+      opacity .17s ease,
+      transform .22s cubic-bezier(.22,.78,.25,1);
+  }
+
+  .tab.tab-leaving{
+    opacity:0;
+    transform:translate3d(-7px,0,0);
+    transition:
+      opacity .11s ease,
+      transform .14s ease;
+  }
+
+  .dash{
+    contain:layout paint;
+  }
+
+  /* Keep tap transitions cheap on iPhone: don't animate backdrop-filter. */
+  .global-actions .tool-pill,
+  .side{
+    transition-property:transform,background,border-color,box-shadow,color !important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .tab,
+  .tab.tab-entering,
+  .tab.tab-entered,
+  .tab.tab-leaving,
+  .tab.tab-refresh,
+  .side,
+  .global-actions .tool-pill{
+    animation:none !important;
+    transition:none !important;
+    transform:none !important;
+  }
+}
