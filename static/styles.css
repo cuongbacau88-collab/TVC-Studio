@@ -3790,3 +3790,59 @@ body.video-player-open{
   .platform-intro-copy p{font-size:12px}
   .platform-intro-copy strong{font-size:11px}
 }
+
+
+/* =====================================================================
+   V3.3.7 — Darker background tune
+   Nền chuyển tối hơn một chút, vẫn giữ pastel glass
+   ===================================================================== */
+
+body,
+body.v3-liquid-theme{
+  background:
+    radial-gradient(980px 540px at 6% 0%, rgba(86,158,245,.34), transparent 62%),
+    radial-gradient(920px 560px at 96% 8%, rgba(214,144,220,.22), transparent 64%),
+    radial-gradient(940px 540px at 52% 100%, rgba(136,146,235,.18), transparent 68%),
+    linear-gradient(135deg,#b8c9e7 0%,#b5c2e5 32%,#bbb8e4 65%,#d3bdd0 100%) !important;
+}
+
+/* khu app tạo video / dashboard */
+.app-shell,
+.app-page,
+.dashboard-shell,
+.create-layout,
+.render-layout,
+main.app-main{
+  background:
+    radial-gradient(900px 480px at 10% 0%, rgba(90,156,242,.20), transparent 62%),
+    radial-gradient(780px 420px at 100% 12%, rgba(221,152,227,.14), transparent 64%),
+    linear-gradient(135deg, rgba(183,197,226,.92), rgba(180,188,222,.94) 42%, rgba(192,183,224,.94) 74%, rgba(214,190,212,.94)) !important;
+}
+
+/* top bar và sidebar đậm hơn nhẹ để khớp nền */
+.app-sidebar,
+.sidebar,
+.left-sidebar{
+  background:
+    linear-gradient(180deg, rgba(39,54,88,.92), rgba(52,67,99,.90)) !important;
+  border-right: 1px solid rgba(255,255,255,.10) !important;
+}
+
+.app-topbar,
+.topbar,
+.page-topbar{
+  background:
+    linear-gradient(180deg, rgba(77,91,122,.84), rgba(92,99,129,.74)) !important;
+  border-bottom: 1px solid rgba(255,255,255,.12) !important;
+}
+
+/* mobile dịu hơn nhưng vẫn tối hơn bản cũ */
+@media(max-width:760px){
+  body,
+  body.v3-liquid-theme{
+    background:
+      radial-gradient(680px 340px at 6% 0%, rgba(88,160,245,.28), transparent 62%),
+      radial-gradient(640px 340px at 96% 8%, rgba(214,146,220,.18), transparent 64%),
+      linear-gradient(150deg,#bccbe8 0%,#b9c5e3 48%,#c3bce3 76%,#d6c2d3 100%) !important;
+  }
+}

@@ -331,3 +331,9 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Đồng thời cập nhật luôn bản EN:
   `TVC Studio AI – When images begin to move.`
 - Giữ nguyên bản đã xóa phần thừa từ V3.3.5.
+
+
+## V3.3.7 — Chuyển nền tối hơn nhẹ
+- Nền tổng thể được làm tối hơn một chút.
+- Vẫn giữ phong cách pastel / glass.
+- Sidebar và topbar được làm đậm hơn nhẹ để đồng bộ với nền mới.
