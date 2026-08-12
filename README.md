@@ -375,3 +375,19 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Video dùng file `static/videos/card_motion.mp4`.
 - Autoplay muted + loop + playsinline để chạy ổn trên desktop và mobile.
 - Nếu trình duyệt chưa tải video, poster vẫn dùng `static/images/card_motion.png`.
+
+
+## V3.3.13 — Khôi phục hiệu ứng gương
+- Nút `Tạo Video` trang chủ có phản chiếu kính rõ, vệt sáng chạy và glow pulse.
+- Khi bấm nút có hiệu ứng lõm nhẹ.
+- Khôi phục glass nhẹ cho upload, tab 9:16/16:9 và nút tạo video trong trang Create.
+- Sửa lỗi icon `9:16 (Dọc)` bị render thành thanh ngang màu be.
+
+
+## V3.3.14 — Global Mirror Glass
+- Đồng bộ hiệu ứng kính gương cho toàn bộ website, không chỉ nút Tạo Video.
+- Áp dụng cho: Trang chủ, toolbar, Login/Đăng ký, Tạo Video, Job, Ví Credits, Affiliate, Tài Khoản và Admin.
+- Card, input, tab, upload, button, sidebar, topbar và popup đều dùng cùng hệ glass.
+- Giữ độ tương phản cao để chữ dễ đọc.
+- Phần Giới thiệu vẫn giữ glass nhẹ và không còn dải bóng ngang.
+- Giữ bản sửa icon 9:16 và hiệu ứng CTA từ V3.3.13.

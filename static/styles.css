@@ -4670,3 +4670,868 @@ body > .account-popover{
     max-height:280px;
   }
 }
+
+
+/* =====================================================================
+   V3.3.13 — Glass effect restore + 9:16 icon fix
+   ===================================================================== */
+
+/* ---------- Homepage "Tạo Video" button: mirror glass clearly visible ---------- */
+.motion-cta-button{
+  position:relative !important;
+  overflow:hidden !important;
+  isolation:isolate !important;
+  background:
+    linear-gradient(135deg,
+      rgba(89,168,255,.88) 0%,
+      rgba(124,131,242,.88) 48%,
+      rgba(207,134,206,.88) 100%) !important;
+  border:1px solid rgba(255,255,255,.38) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.58),
+    inset 0 -1px 0 rgba(255,255,255,.08),
+    0 10px 24px rgba(67,86,176,.26),
+    0 0 20px rgba(126,112,238,.18) !important;
+  backdrop-filter:blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter:blur(14px) saturate(150%) !important;
+  animation:tvcGlassPulse 2.4s ease-in-out infinite !important;
+}
+
+.motion-cta-button > *{
+  position:relative !important;
+  z-index:3 !important;
+}
+
+/* lớp phản chiếu cố định ở mép trên */
+.motion-cta-button::after{
+  display:block !important;
+  content:"" !important;
+  position:absolute !important;
+  left:8px !important;
+  right:8px !important;
+  top:3px !important;
+  height:44% !important;
+  border-radius:14px !important;
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,.42) 0%,
+      rgba(255,255,255,.15) 48%,
+      transparent 100%) !important;
+  opacity:.72 !important;
+  pointer-events:none !important;
+  z-index:1 !important;
+}
+
+/* vệt sáng chạy qua nút */
+.motion-cta-button::before{
+  display:block !important;
+  content:"" !important;
+  position:absolute !important;
+  top:-20% !important;
+  bottom:-20% !important;
+  left:-46% !important;
+  width:32% !important;
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(255,255,255,.10) 20%,
+      rgba(255,255,255,.62) 50%,
+      rgba(255,255,255,.12) 80%,
+      transparent 100%) !important;
+  transform:skewX(-18deg) !important;
+  z-index:2 !important;
+  animation:tvcGlassSweep 2.8s ease-in-out infinite !important;
+  pointer-events:none !important;
+}
+
+.motion-cta-button:hover{
+  transform:translateY(-2px) scale(1.012) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.66),
+    inset 0 -1px 0 rgba(255,255,255,.10),
+    0 14px 30px rgba(67,86,176,.34),
+    0 0 28px rgba(130,113,238,.28) !important;
+}
+
+.motion-cta-button:active{
+  transform:translateY(1px) scale(.992) !important;
+  box-shadow:
+    inset 0 3px 8px rgba(41,49,119,.28),
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 5px 12px rgba(52,67,146,.18) !important;
+}
+
+@keyframes tvcGlassSweep{
+  0%,18%{left:-46%;opacity:0}
+  28%{opacity:1}
+  68%{opacity:1}
+  82%,100%{left:118%;opacity:0}
+}
+
+@keyframes tvcGlassPulse{
+  0%,100%{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.58),
+      inset 0 -1px 0 rgba(255,255,255,.08),
+      0 10px 24px rgba(67,86,176,.24),
+      0 0 16px rgba(126,112,238,.14);
+  }
+  50%{
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.64),
+      inset 0 -1px 0 rgba(255,255,255,.10),
+      0 14px 30px rgba(67,86,176,.30),
+      0 0 28px rgba(126,112,238,.24);
+  }
+}
+
+/* ---------- Create page controls: restore light mirror-glass ---------- */
+.simple-upload-row,
+.simple-aspect,
+.simple-render-btn{
+  position:relative !important;
+  overflow:hidden !important;
+  background:
+    linear-gradient(155deg,
+      rgba(54,72,119,.76),
+      rgba(34,48,84,.72)) !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 8px 20px rgba(0,8,28,.16) !important;
+  backdrop-filter:blur(12px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(12px) saturate(135%) !important;
+}
+
+.simple-upload-row::before,
+.simple-aspect::before,
+.simple-render-btn::before{
+  content:"";
+  position:absolute;
+  left:7%;
+  right:7%;
+  top:2px;
+  height:30%;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.20),transparent);
+  pointer-events:none;
+}
+
+.simple-aspect.active{
+  background:
+    linear-gradient(145deg,
+      rgba(95,86,201,.48),
+      rgba(45,58,100,.78)) !important;
+  border-color:rgba(144,109,255,.72) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 0 0 1px rgba(135,94,255,.12),
+    0 0 18px rgba(112,80,224,.22) !important;
+}
+
+.simple-render-btn.quick{
+  background:
+    linear-gradient(135deg,#669eff 0%,#835ff0 56%,#b969de 100%) !important;
+}
+.simple-render-btn.quality{
+  background:
+    linear-gradient(135deg,rgba(82,115,143,.94),rgba(68,103,125,.94) 55%,rgba(56,90,112,.94)) !important;
+}
+
+/* ---------- FIX: 9:16 icon must not inherit old .portrait artwork styles ---------- */
+.simple-aspect .aspect-icon.portrait{
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  min-height:0 !important;
+  display:block !important;
+  position:static !important;
+  background:none !important;
+  border:0 !important;
+  border-radius:0 !important;
+  filter:none !important;
+  font-size:28px !important;
+  line-height:1 !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+.simple-aspect .aspect-icon.landscape{
+  width:auto !important;
+  height:auto !important;
+  display:block !important;
+  position:static !important;
+  background:none !important;
+  border:0 !important;
+  font-size:28px !important;
+  line-height:1 !important;
+  color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+@media(max-width:760px){
+  .motion-cta-button::after{
+    left:6px !important;
+    right:6px !important;
+    border-radius:12px !important;
+  }
+
+  .motion-cta-button::before{
+    width:38% !important;
+  }
+
+  .simple-aspect .aspect-icon.portrait,
+  .simple-aspect .aspect-icon.landscape{
+    font-size:25px !important;
+  }
+}
+
+/* Respect accessibility setting */
+@media(prefers-reduced-motion:reduce){
+  .motion-cta-button,
+  .motion-cta-button::before{
+    animation:none !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.14 — GLOBAL MIRROR GLASS
+   Đồng bộ hiệu ứng kính gương cho TOÀN BỘ website
+   ===================================================================== */
+:root{
+  --gg-bg:#101827;
+  --gg-bg-2:#171f35;
+  --gg-card:rgba(38,52,88,.78);
+  --gg-card-strong:rgba(45,61,101,.88);
+  --gg-card-soft:rgba(31,44,77,.66);
+  --gg-line:rgba(255,255,255,.18);
+  --gg-line-soft:rgba(255,255,255,.10);
+  --gg-highlight:rgba(255,255,255,.22);
+  --gg-text:#ffffff;
+  --gg-text-soft:#d6e0f0;
+  --gg-text-muted:#9eabc2;
+  --gg-blue:#68a9ff;
+  --gg-violet:#8e6df3;
+  --gg-pink:#d885ce;
+  --gg-green:#68e6ad;
+  --gg-shadow:0 18px 44px rgba(0,7,24,.26);
+}
+
+/* ---------------------------------------------------------------------
+   PAGE BACKGROUND
+   --------------------------------------------------------------------- */
+html{
+  background:#0d1422 !important;
+}
+
+body,
+body.v3-liquid-theme,
+.model-home,
+.app-body,
+.admin-wrap{
+  color:var(--gg-text) !important;
+}
+
+body,
+body.v3-liquid-theme{
+  background:
+    radial-gradient(880px 500px at 4% 0%,rgba(74,137,224,.22),transparent 64%),
+    radial-gradient(760px 500px at 96% 8%,rgba(164,105,204,.15),transparent 66%),
+    radial-gradient(900px 560px at 50% 110%,rgba(83,101,188,.12),transparent 70%),
+    linear-gradient(150deg,#0d1524 0%,#141d31 48%,#1b2038 76%,#201d35 100%) !important;
+  background-attachment:fixed !important;
+}
+
+/* ---------------------------------------------------------------------
+   SHARED MIRROR GLASS CARD
+   --------------------------------------------------------------------- */
+.v3-liquid-theme :is(
+  .model-card,
+  .platform-intro,
+  .home-process > div,
+  .home-credit-section,
+  .modal,
+  .motion-player-panel,
+  .auth-card,
+  .simple-create-card,
+  .panel-card,
+  .balance,
+  .affiliate-card,
+  .affiliate-stats article,
+  .stat,
+  .job,
+  .simple-row,
+  .render-box,
+  .queue,
+  .tip-card,
+  .credit-note,
+  .account-popover,
+  .account-popover-v2,
+  .admin-grid > *,
+  .stats > *,
+  .table-wrap
+){
+  position:relative !important;
+  overflow:hidden;
+  background:
+    linear-gradient(155deg,rgba(48,64,104,.82),rgba(28,41,73,.76)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -1px 0 rgba(255,255,255,.025),
+    0 18px 44px rgba(0,7,24,.24) !important;
+  backdrop-filter:blur(18px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(135%) !important;
+}
+
+/* phản chiếu kính nhẹ – KHÔNG tạo dải bóng lớn */
+.v3-liquid-theme :is(
+  .model-card,
+  .home-process > div,
+  .home-credit-section,
+  .modal,
+  .motion-player-panel,
+  .auth-card,
+  .simple-create-card,
+  .panel-card,
+  .balance,
+  .affiliate-card,
+  .affiliate-stats article,
+  .stat,
+  .job,
+  .render-box,
+  .queue,
+  .tip-card
+)::before{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  left:8% !important;
+  right:8% !important;
+  top:1px !important;
+  height:13% !important;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),transparent) !important;
+  opacity:.70 !important;
+  pointer-events:none !important;
+  z-index:0 !important;
+}
+
+.v3-liquid-theme :is(
+  .model-card,
+  .home-process > div,
+  .home-credit-section,
+  .modal,
+  .motion-player-panel,
+  .auth-card,
+  .simple-create-card,
+  .panel-card,
+  .balance,
+  .affiliate-card,
+  .affiliate-stats article,
+  .stat,
+  .job,
+  .render-box,
+  .queue,
+  .tip-card
+) > *{
+  position:relative;
+  z-index:1;
+}
+
+/* Intro đã yêu cầu glass nhẹ, không bóng ngang */
+.platform-intro::before,
+.platform-intro::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* ---------------------------------------------------------------------
+   TOOLBAR / NAV
+   --------------------------------------------------------------------- */
+.global-toolbar,
+.global-toolbar.liquid-toolbar{
+  background:
+    linear-gradient(180deg,rgba(28,40,69,.93),rgba(20,29,51,.88)) !important;
+  border-bottom:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 8px 26px rgba(0,7,24,.24) !important;
+  backdrop-filter:blur(22px) saturate(140%) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%) !important;
+}
+
+.global-toolbar :is(
+  .tool-pill,
+  .liquid-pill,
+  .credit-tool,
+  .account-pill
+){
+  position:relative !important;
+  overflow:hidden !important;
+  background:
+    linear-gradient(155deg,rgba(63,81,126,.72),rgba(35,49,83,.68)) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  color:#fff !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 7px 18px rgba(0,7,24,.14) !important;
+  backdrop-filter:blur(12px) saturate(130%) !important;
+  -webkit-backdrop-filter:blur(12px) saturate(130%) !important;
+}
+
+.global-toolbar :is(.tool-pill,.credit-tool,.account-pill)::after{
+  content:"";
+  position:absolute;
+  left:9%;
+  right:9%;
+  top:2px;
+  height:27%;
+  border-radius:999px;
+  background:linear-gradient(180deg,rgba(255,255,255,.16),transparent);
+  pointer-events:none;
+}
+
+.global-toolbar .tool-pill:hover,
+.global-toolbar .credit-tool:hover,
+.global-toolbar .account-pill:hover{
+  border-color:rgba(126,158,255,.30) !important;
+  background:
+    linear-gradient(155deg,rgba(72,93,144,.80),rgba(41,56,95,.74)) !important;
+}
+
+.global-toolbar .tool-pill.active,
+.global-toolbar [data-tool="models"]{
+  border-color:rgba(133,96,255,.62) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 0 0 1px rgba(129,90,244,.12),
+    0 0 16px rgba(113,79,221,.18) !important;
+}
+
+/* ---------------------------------------------------------------------
+   SIDEBAR / TOPBAR
+   --------------------------------------------------------------------- */
+.sidebar,
+.app-sidebar,
+.left-sidebar{
+  background:
+    linear-gradient(180deg,rgba(21,31,52,.97),rgba(28,39,62,.96)) !important;
+  border-right:1px solid rgba(255,255,255,.07) !important;
+  box-shadow:8px 0 28px rgba(0,6,18,.12) !important;
+}
+
+.side,
+.sidebar a,
+.sidebar button{
+  position:relative;
+  color:#bcc8db !important;
+  border:1px solid transparent !important;
+}
+
+.side.active,
+.side:hover,
+.sidebar a.active,
+.sidebar a:hover{
+  color:#fff !important;
+  background:
+    linear-gradient(155deg,rgba(66,85,130,.62),rgba(45,58,93,.58)) !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08) !important;
+}
+
+.topbar,
+.app-topbar,
+.page-topbar{
+  background:
+    linear-gradient(180deg,rgba(41,53,83,.94),rgba(31,43,70,.91)) !important;
+  border-bottom:1px solid rgba(255,255,255,.08) !important;
+  box-shadow:0 8px 24px rgba(0,7,24,.12) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+}
+
+/* ---------------------------------------------------------------------
+   FORM FIELDS / UPLOAD
+   --------------------------------------------------------------------- */
+.v3-liquid-theme :is(
+  input,
+  select,
+  textarea,
+  .simple-upload-row,
+  .ref-code-row,
+  .packs button
+){
+  color:#fff !important;
+  background:
+    linear-gradient(155deg,rgba(23,34,61,.82),rgba(18,28,51,.78)) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.055),
+    0 6px 14px rgba(0,7,22,.10) !important;
+}
+
+.v3-liquid-theme :is(input,select,textarea):focus{
+  border-color:rgba(110,151,255,.50) !important;
+  box-shadow:
+    0 0 0 3px rgba(95,131,226,.12),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+input::placeholder,
+textarea::placeholder{
+  color:#8492ab !important;
+}
+
+/* Upload button */
+.simple-upload-button{
+  background:
+    linear-gradient(135deg,#6058e9,#9257ec) !important;
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 7px 16px rgba(63,50,173,.16) !important;
+}
+
+/* ---------------------------------------------------------------------
+   CREATE PAGE TABS
+   --------------------------------------------------------------------- */
+.simple-aspect{
+  position:relative !important;
+  overflow:hidden !important;
+  background:
+    linear-gradient(155deg,rgba(55,72,116,.72),rgba(31,45,78,.70)) !important;
+  border:1px solid rgba(255,255,255,.13) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.10),
+    0 8px 18px rgba(0,7,24,.12) !important;
+}
+
+.simple-aspect::before{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  top:2px;
+  height:23%;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),transparent);
+  pointer-events:none;
+}
+
+.simple-aspect.active{
+  background:
+    linear-gradient(145deg,rgba(84,77,188,.46),rgba(43,56,95,.74)) !important;
+  border-color:rgba(133,96,255,.66) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 0 0 1px rgba(133,96,255,.10),
+    0 0 18px rgba(102,75,218,.16) !important;
+}
+
+/* ---------------------------------------------------------------------
+   CTA / BUTTONS
+   --------------------------------------------------------------------- */
+.v3-liquid-theme :is(
+  .model-button,
+  .primary,
+  .motion-cta-button,
+  .simple-render-btn,
+  .motion-player-create,
+  .account-v2-topup
+){
+  position:relative !important;
+  overflow:hidden !important;
+  color:#fff !important;
+  border:1px solid rgba(255,255,255,.24) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 10px 22px rgba(48,67,157,.20) !important;
+}
+
+.model-button,
+.primary,
+.motion-cta-button,
+.motion-player-create,
+.account-v2-topup{
+  background:
+    linear-gradient(135deg,#5aa8ff 0%,#7e76ee 48%,#c982cf 100%) !important;
+}
+
+.simple-render-btn.quick{
+  background:
+    linear-gradient(135deg,#659dff 0%,#8164ed 54%,#b868d9 100%) !important;
+}
+
+.simple-render-btn.quality{
+  background:
+    linear-gradient(135deg,#4e6f8c,#42637c 56%,#37566d) !important;
+}
+
+/* moving mirror highlight on major CTA */
+.motion-cta-button::before,
+.simple-render-btn.quick::after{
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  top:-20% !important;
+  bottom:-20% !important;
+  left:-46% !important;
+  width:31% !important;
+  background:
+    linear-gradient(90deg,
+      transparent,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.46),
+      rgba(255,255,255,.10),
+      transparent) !important;
+  transform:skewX(-18deg) !important;
+  animation:tvcGlobalGlassSweep 3.4s ease-in-out infinite !important;
+  pointer-events:none !important;
+  z-index:2 !important;
+}
+
+@keyframes tvcGlobalGlassSweep{
+  0%,20%{left:-46%;opacity:0}
+  30%{opacity:1}
+  70%{opacity:1}
+  82%,100%{left:118%;opacity:0}
+}
+
+/* ---------------------------------------------------------------------
+   WALLET / AFFILIATE
+   --------------------------------------------------------------------- */
+.wallet-grid,
+.affiliate-columns,
+.affiliate-history-grid{
+  gap:16px !important;
+}
+
+.packs button.active{
+  border-color:rgba(112,151,255,.36) !important;
+  background:
+    linear-gradient(145deg,rgba(73,91,142,.76),rgba(42,56,94,.74)) !important;
+}
+
+.affiliate-stats article{
+  border-radius:16px !important;
+}
+
+.share-box,
+.affiliate-rules,
+.rank-panel{
+  background:rgba(17,28,51,.42) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+
+/* ---------------------------------------------------------------------
+   JOB LIST / HISTORY
+   --------------------------------------------------------------------- */
+.job,
+.simple-row{
+  border-radius:14px !important;
+}
+
+.job progress,
+.render-box progress{
+  accent-color:#866cf1 !important;
+}
+
+.simple-list{
+  gap:8px !important;
+}
+
+/* ---------------------------------------------------------------------
+   AUTH / LOGIN
+   --------------------------------------------------------------------- */
+.auth-gate{
+  background:rgba(4,9,18,.62) !important;
+  backdrop-filter:blur(12px) !important;
+  -webkit-backdrop-filter:blur(12px) !important;
+}
+
+.auth-card{
+  border-radius:20px !important;
+}
+
+.auth-tabs{
+  background:rgba(12,20,38,.58) !important;
+  border:1px solid rgba(255,255,255,.08) !important;
+}
+
+.auth-tabs button.active{
+  background:
+    linear-gradient(145deg,rgba(91,68,175,.44),rgba(56,44,110,.38)) !important;
+  color:#fff !important;
+}
+
+/* ---------------------------------------------------------------------
+   ACCOUNT DROPDOWN
+   --------------------------------------------------------------------- */
+.account-popover-v2{
+  background:
+    linear-gradient(155deg,rgba(40,55,94,.98),rgba(24,36,67,.98)) !important;
+  border:1px solid rgba(255,255,255,.15) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 26px 70px rgba(0,7,24,.44) !important;
+}
+
+.account-v2-balance{
+  background:
+    linear-gradient(145deg,rgba(67,91,150,.32),rgba(73,60,141,.22)) !important;
+  border-color:rgba(255,255,255,.10) !important;
+}
+
+.account-v2-menu a:hover{
+  background:
+    linear-gradient(145deg,rgba(67,84,131,.42),rgba(43,57,94,.38)) !important;
+}
+
+/* ---------------------------------------------------------------------
+   ADMIN PAGE
+   --------------------------------------------------------------------- */
+.admin-wrap{
+  background:transparent !important;
+}
+
+.admin-head{
+  background:
+    linear-gradient(155deg,rgba(43,58,96,.80),rgba(27,40,72,.74)) !important;
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 12px 28px rgba(0,7,24,.16) !important;
+}
+
+.table{
+  color:#e6edf8 !important;
+}
+
+.table th{
+  color:#aebbd0 !important;
+  background:rgba(17,27,49,.38) !important;
+}
+
+.table td{
+  border-bottom-color:rgba(255,255,255,.06) !important;
+}
+
+.table tr:hover td{
+  background:rgba(72,91,139,.12) !important;
+}
+
+.mini-btn{
+  background:
+    linear-gradient(145deg,rgba(59,76,119,.72),rgba(35,48,81,.68)) !important;
+  border:1px solid rgba(255,255,255,.11) !important;
+}
+
+/* ---------------------------------------------------------------------
+   TYPOGRAPHY / CONTRAST
+   --------------------------------------------------------------------- */
+.v3-liquid-theme :is(
+  h1,h2,h3,h4,h5,h6,
+  .model-body h2,
+  .model-body h3,
+  .sectionbar h2,
+  .sectionbar h3
+){
+  color:#fff !important;
+  text-shadow:none !important;
+}
+
+.v3-liquid-theme :is(
+  p,
+  .model-body p,
+  .simple-create-note,
+  .muted,
+  .subtle,
+  .simple-row span,
+  .job small
+){
+  color:#c9d5e7 !important;
+}
+
+.v3-liquid-theme :is(
+  label,
+  small,
+  .help-text,
+  .credit-price span
+){
+  color:#9fadc4 !important;
+}
+
+.credit-price b,
+.money,
+.balance strong,
+.account-v2-balance strong{
+  color:#69e5ad !important;
+}
+
+/* ---------------------------------------------------------------------
+   VIDEO / MEDIA FRAMES
+   --------------------------------------------------------------------- */
+.motion-video-shell,
+.simple-create-preview,
+.model-thumb,
+.model-visual{
+  border-color:rgba(255,255,255,.14) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.08),
+    0 12px 28px rgba(0,7,24,.16) !important;
+}
+
+.motion-video-shell video,
+.simple-create-preview video,
+.model-thumb img{
+  filter:none !important;
+}
+
+/* ---------------------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------------------- */
+@media(max-width:760px){
+  body,
+  body.v3-liquid-theme{
+    background:
+      radial-gradient(640px 330px at 4% 0%,rgba(73,137,224,.18),transparent 64%),
+      linear-gradient(155deg,#0e1626 0%,#151e33 55%,#1d213a 80%,#211d35 100%) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    background:
+      linear-gradient(180deg,rgba(28,40,69,.97),rgba(20,29,51,.94)) !important;
+  }
+
+  .v3-liquid-theme :is(
+    .model-card,
+    .platform-intro,
+    .auth-card,
+    .simple-create-card,
+    .panel-card,
+    .balance,
+    .affiliate-card,
+    .stat,
+    .job,
+    .account-popover-v2
+  ){
+    background:
+      linear-gradient(155deg,rgba(45,61,101,.91),rgba(26,39,71,.88)) !important;
+  }
+
+  .simple-create-wrap{
+    padding-left:9px !important;
+    padding-right:9px !important;
+  }
+}
+
+/* Accessibility */
+@media(prefers-reduced-motion:reduce){
+  .motion-cta-button::before,
+  .simple-render-btn.quick::after{
+    animation:none !important;
+  }
+}
