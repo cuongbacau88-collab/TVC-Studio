@@ -2624,3 +2624,57 @@ body > .account-popover{
     border-color:rgba(255,255,255,.13) !important;
   }
 }
+
+
+/* =====================================================================
+   V3.2.1 — Motion video frame fit fix
+   - Khung preview khớp video hơn, bỏ khoảng trống trên/dưới
+   ===================================================================== */
+.motion-featured .model-visual.motion,
+.motion-video-shell{
+  height:auto !important;
+  min-height:0 !important;
+  aspect-ratio:16 / 9 !important;
+  padding:10px !important;
+  display:block !important;
+  overflow:hidden !important;
+  border-radius:22px !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)) !important;
+}
+
+.motion-preview-video,
+.motion-video-fallback,
+.motion-featured .model-preview-image{
+  width:100% !important;
+  height:100% !important;
+  display:block !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  border-radius:16px !important;
+  background:#0b1320 !important;
+}
+
+.motion-featured .model-visual.motion::before,
+.motion-featured .model-visual.motion::after,
+.motion-video-shell::before,
+.motion-video-shell::after{
+  display:none !important;
+}
+
+.motion-card-body{
+  padding-top:18px !important;
+}
+
+@media(max-width:760px){
+  .motion-featured .model-visual.motion,
+  .motion-video-shell{
+    padding:8px !important;
+    border-radius:18px !important;
+  }
+  .motion-preview-video,
+  .motion-video-fallback,
+  .motion-featured .model-preview-image{
+    border-radius:14px !important;
+  }
+}

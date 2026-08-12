@@ -257,3 +257,9 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Giảm màu tím và giảm neon đặc.
 - Đồng bộ card, toolbar, nút, input, account popup và mobile.
 - Admin password mặc định được cập nhật theo cấu hình mới.
+
+
+## V3.2.1 — Sửa khung preview video
+- Căn lại khung preview của card Copy Chuyển Động để khớp với video hơn.
+- Bỏ khoảng trống thừa phía trên và phía dưới.
+- Đổi preview sang fill khung đẹp hơn bằng `object-fit: cover`.
