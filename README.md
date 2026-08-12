@@ -538,3 +538,21 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Ép thứ tự và grid-column cố định để không bị nhảy hàng khi mở menu.
 - Popup dùng `position: fixed`, không tham gia layout của toolbar.
 - Màn hình ngang vẫn cuộn được menu riêng.
+
+
+## V3.3.34 — Sửa toolbar PC về đúng một hàng
+- PC: Logo + VN/EN + Chọn Model + Lịch Sử + Kiếm Tiền + Nạp VIP + Tài Khoản nằm cùng một hàng.
+- Không còn nút Tài Khoản nằm riêng phía trên.
+- Không còn 4 tab bị rơi xuống phần nội dung.
+- Menu Tài Khoản vẫn là popup overlay, mở menu không đẩy hoặc thay đổi vị trí các tab.
+- Mobile giữ nguyên bố cục 5 tab của V3.3.33.
+
+
+## V3.3.35 — Popup Tài Khoản nhỏ kiểu Aidancing
+- Bấm Tài Khoản chỉ mở một popup nhỏ, neo ngay dưới nút.
+- Không mở panel lớn, không đẩy 5 tab, không đổi bố cục toolbar.
+- Giữ mirror glass nhẹ: nền navy trong, blur nhẹ, viền sáng mảnh, shadow vừa.
+- Không có dải bóng ngang lớn.
+- Mobile dọc: popup nhỏ ở bên phải, không tràn màn hình.
+- Mobile ngang: popup vẫn nhỏ và cuộn bên trong nếu thiếu chiều cao.
+- Desktop: popup nhỏ neo ngay dưới nút Tài Khoản.

@@ -7765,3 +7765,533 @@ textarea::placeholder{
     -webkit-overflow-scrolling:touch !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.34 — DESKTOP TOOLBAR ONE ROW FIX
+   Giữ 5 tab cùng hàng trên PC; mở Tài Khoản chỉ hiện popup overlay.
+   ===================================================================== */
+
+@media(min-width:761px){
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    height:70px !important;
+    min-height:70px !important;
+  }
+
+  .global-toolbar-inner{
+    width:100% !important;
+    max-width:1440px !important;
+    height:70px !important;
+    min-height:70px !important;
+    margin:0 auto !important;
+    padding:0 24px !important;
+
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+  }
+
+  /* Logo đứng đầu */
+  .centered-brand{
+    order:1 !important;
+    position:static !important;
+    inset:auto !important;
+    transform:none !important;
+    flex:0 0 auto !important;
+    justify-self:auto !important;
+    align-self:center !important;
+    margin:0 !important;
+  }
+
+  /* VN / EN đứng ngay sau logo */
+  .toolbar-left{
+    order:2 !important;
+    position:static !important;
+    inset:auto !important;
+    transform:none !important;
+    flex:0 0 auto !important;
+    justify-self:auto !important;
+    align-self:center !important;
+    margin-left:14px !important;
+  }
+
+  /* Toàn bộ 5 tab nằm cùng một hàng bên phải */
+  .global-actions.liquid-nav{
+    order:3 !important;
+    position:static !important;
+    inset:auto !important;
+    transform:none !important;
+
+    margin-left:auto !important;
+    padding:0 !important;
+
+    width:auto !important;
+    height:40px !important;
+    min-height:40px !important;
+
+    display:flex !important;
+    flex-direction:row !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    justify-content:flex-end !important;
+    gap:12px !important;
+
+    overflow:visible !important;
+    background:transparent !important;
+  }
+
+  .global-actions.liquid-nav > a,
+  .global-actions.liquid-nav > .account-native-menu{
+    flex:0 0 auto !important;
+    width:auto !important;
+    min-width:auto !important;
+    height:38px !important;
+    max-height:38px !important;
+    margin:0 !important;
+    padding:0 !important;
+    position:relative !important;
+  }
+
+  .global-actions.liquid-nav > a.tool-pill,
+  .account-native-menu > summary{
+    width:auto !important;
+    min-width:auto !important;
+    height:38px !important;
+    max-height:38px !important;
+    padding:0 15px !important;
+
+    display:inline-flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:7px !important;
+
+    box-sizing:border-box !important;
+    white-space:nowrap !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-icon{
+    width:auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    margin:0 !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    font-size:14px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-label{
+    width:auto !important;
+    max-width:none !important;
+    margin:0 !important;
+    display:inline !important;
+    overflow:visible !important;
+    white-space:nowrap !important;
+    font-size:12px !important;
+    line-height:1 !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon{
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon b{
+    font-size:12px !important;
+    line-height:1 !important;
+  }
+
+  .global-actions.liquid-nav .mobile-account-icon{
+    width:22px !important;
+    height:22px !important;
+    min-height:22px !important;
+    border-radius:50% !important;
+  }
+
+  /* Mở menu không làm details tăng chiều cao / đẩy toolbar */
+  .account-native-menu,
+  .account-native-menu[open]{
+    display:inline-flex !important;
+    flex:0 0 auto !important;
+    width:auto !important;
+    height:38px !important;
+    max-height:38px !important;
+    overflow:visible !important;
+    contain:layout !important;
+  }
+
+  .account-native-menu[open] > summary{
+    height:38px !important;
+    max-height:38px !important;
+  }
+
+  /* Popup là overlay, hoàn toàn tách khỏi layout toolbar */
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    position:fixed !important;
+    top:76px !important;
+    right:24px !important;
+    left:auto !important;
+    bottom:auto !important;
+
+    width:318px !important;
+    max-width:calc(100vw - 48px) !important;
+    height:auto !important;
+    max-height:calc(100vh - 96px) !important;
+
+    margin:0 !important;
+    z-index:80000 !important;
+
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+  }
+
+  /* Không còn nhóm toolbar-right cũ */
+  .toolbar-right{
+    display:none !important;
+  }
+
+  .has-global-toolbar{
+    padding-top:70px !important;
+  }
+}
+
+/* Laptop nhỏ: thu khoảng cách nhưng vẫn giữ 1 hàng */
+@media(min-width:761px) and (max-width:1180px){
+  .global-toolbar-inner{
+    padding:0 14px !important;
+  }
+
+  .centered-brand strong{
+    font-size:15px !important;
+  }
+
+  .toolbar-left{
+    margin-left:9px !important;
+  }
+
+  .global-actions.liquid-nav{
+    gap:7px !important;
+  }
+
+  .global-actions.liquid-nav > a.tool-pill,
+  .account-native-menu > summary{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-label{
+    font-size:10.5px !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.35 — COMPACT GLASS ACCOUNT MENU
+   Popup nhỏ kiểu Aidancing, không đẩy layout, giữ mirror glass.
+   ===================================================================== */
+
+/* Nút Tài Khoản luôn chỉ là trigger, không làm details nở layout */
+.account-native-menu,
+.account-native-menu[open]{
+  position:relative !important;
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+  height:38px !important;
+  max-height:38px !important;
+  margin:0 !important;
+  padding:0 !important;
+  overflow:visible !important;
+  contain:layout !important;
+}
+
+.account-native-menu > summary{
+  position:relative !important;
+  z-index:2 !important;
+}
+
+/* Popup glass nhỏ, gọn */
+.account-native-menu > .account-popover-v3,
+#accountPopover{
+  box-sizing:border-box !important;
+  width:286px !important;
+  min-width:260px !important;
+  max-width:calc(100vw - 24px) !important;
+
+  padding:10px !important;
+  margin:0 !important;
+
+  border-radius:18px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+
+  background:
+    radial-gradient(180px 90px at 12% 0%,rgba(95,135,235,.16),transparent 68%),
+    linear-gradient(155deg,rgba(32,43,72,.96),rgba(18,27,48,.96)) !important;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 18px 44px rgba(0,6,20,.36) !important;
+
+  backdrop-filter:blur(18px) saturate(135%) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(135%) !important;
+
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+
+  transform:none !important;
+  z-index:90000 !important;
+}
+
+/* Không có dải bóng ngang lớn */
+.account-native-menu > .account-popover-v3::before,
+.account-native-menu > .account-popover-v3::after,
+#accountPopover::before,
+#accountPopover::after{
+  display:none !important;
+  content:none !important;
+}
+
+/* Header nhỏ gọn */
+.account-v3-head{
+  gap:9px !important;
+  padding:2px 2px 8px !important;
+}
+
+.account-v3-avatar{
+  width:38px !important;
+  height:38px !important;
+  flex-basis:38px !important;
+  font-size:13px !important;
+}
+
+.account-v3-identity small{
+  font-size:8px !important;
+}
+
+.account-v3-identity strong{
+  font-size:12px !important;
+}
+
+.account-v3-identity span{
+  font-size:8.5px !important;
+}
+
+/* Balance nhỏ như popup mẫu */
+.account-v3-balance{
+  padding:8px 9px !important;
+  margin:0 0 7px !important;
+  border-radius:12px !important;
+}
+
+.account-v3-balance small{
+  font-size:8px !important;
+}
+
+.account-v3-balance strong{
+  font-size:15px !important;
+}
+
+.account-v3-balance strong em{
+  font-size:8px !important;
+}
+
+.account-v3-topup{
+  min-height:28px !important;
+  padding:0 10px !important;
+  border-radius:9px !important;
+  font-size:8px !important;
+}
+
+/* Menu item compact */
+.account-v3-menu{
+  gap:2px !important;
+}
+
+.account-v3-menu a,
+.account-v3-logout{
+  min-height:38px !important;
+  padding:0 8px !important;
+  grid-template-columns:26px 1fr 14px !important;
+  gap:4px !important;
+  border-radius:10px !important;
+  font-size:10px !important;
+}
+
+.account-v3-icon{
+  width:24px !important;
+  height:24px !important;
+  border-radius:7px !important;
+  font-size:12px !important;
+}
+
+.account-v3-menu a i{
+  font-size:16px !important;
+}
+
+.account-v3-divider{
+  margin:6px 3px !important;
+}
+
+/* Desktop: popup neo ngay dưới nút Tài Khoản, không chạy ra góc màn hình */
+@media(min-width:761px){
+  .account-native-menu{
+    position:relative !important;
+  }
+
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    position:absolute !important;
+    top:calc(100% + 8px) !important;
+    right:0 !important;
+    left:auto !important;
+    bottom:auto !important;
+
+    width:286px !important;
+    max-height:min(520px,calc(100vh - 96px)) !important;
+  }
+
+  .account-native-menu[open]{
+    height:38px !important;
+    max-height:38px !important;
+  }
+}
+
+/* Mobile dọc: popup nhỏ, neo ngay dưới tab Tài Khoản bên phải */
+@media(max-width:760px) and (orientation:portrait){
+
+  .global-actions.liquid-nav .account-native-menu{
+    position:relative !important;
+    display:block !important;
+    width:100% !important;
+    height:58px !important;
+    max-height:58px !important;
+    overflow:visible !important;
+  }
+
+  .global-actions.liquid-nav .account-native-menu > summary{
+    width:100% !important;
+    height:58px !important;
+    max-height:58px !important;
+  }
+
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    position:fixed !important;
+
+    top:calc(env(safe-area-inset-top,0px) + 128px) !important;
+    right:12px !important;
+    left:auto !important;
+    bottom:auto !important;
+
+    width:min(286px,calc(100vw - 24px)) !important;
+    min-width:0 !important;
+    max-width:calc(100vw - 24px) !important;
+
+    max-height:calc(100dvh - env(safe-area-inset-top,0px) - 148px) !important;
+  }
+}
+
+/* Mobile ngang: popup vẫn nhỏ, nếu thiếu chiều cao thì cuộn bên trong */
+@media(max-width:980px) and (orientation:landscape){
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    position:fixed !important;
+
+    top:8px !important;
+    right:10px !important;
+    left:auto !important;
+    bottom:8px !important;
+
+    width:min(286px,calc(100vw - 20px)) !important;
+    min-width:0 !important;
+    max-width:calc(100vw - 20px) !important;
+
+    height:auto !important;
+    max-height:none !important;
+
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+
+  .account-v3-head{
+    padding-bottom:6px !important;
+  }
+
+  .account-v3-balance{
+    padding:7px 8px !important;
+    margin-bottom:5px !important;
+  }
+
+  .account-v3-menu a,
+  .account-v3-logout{
+    min-height:34px !important;
+  }
+
+  .account-v3-divider{
+    margin:4px 3px !important;
+  }
+}
+
+/* Giữ 5 tab nguyên hàng, không bị đẩy khi mở menu */
+@media(max-width:760px){
+  .global-actions.liquid-nav{
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    grid-template-rows:58px !important;
+    gap:5px !important;
+    height:60px !important;
+    min-height:60px !important;
+    overflow:visible !important;
+  }
+
+  .global-actions.liquid-nav > *{
+    min-width:0 !important;
+    width:100% !important;
+    height:58px !important;
+    max-height:58px !important;
+  }
+
+  .account-native-menu[open],
+  .account-native-menu[open] > summary{
+    height:58px !important;
+    max-height:58px !important;
+  }
+
+  /* vẫn giữ hiệu ứng gương cho nút */
+  .global-actions.liquid-nav .tool-pill,
+  .global-actions.liquid-nav .account-native-menu > summary{
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.045)) !important;
+    border:1px solid rgba(255,255,255,.16) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 5px 12px rgba(0,7,24,.12) !important;
+  }
+
+  .account-native-menu[open] > summary{
+    border-color:rgba(129,93,255,.72) !important;
+    background:
+      linear-gradient(180deg,rgba(94,76,188,.28),rgba(255,255,255,.055)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 0 0 1px rgba(129,93,255,.11),
+      0 0 12px rgba(110,77,220,.18) !important;
+  }
+}
+
+/* Mobile vẫn tối ưu nhẹ để tránh lag */
+@media(max-width:760px){
+  .account-popover-v3{
+    backdrop-filter:blur(10px) saturate(120%) !important;
+    -webkit-backdrop-filter:blur(10px) saturate(120%) !important;
+  }
+}
