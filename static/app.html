@@ -30,10 +30,9 @@
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-i18n="history">Lịch Sử</span></a>
       <a href="/app#affiliate" class="tool-pill affiliate-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-i18n="earn">Kiếm Tiền</span></a>
       <a href="/app#wallet" class="tool-pill liquid-pill mobile-wallet-link" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-i18n="topup">Nạp VIP</span></a>
-      <button class="tool-pill liquid-pill mobile-account-link" id="accountMenuBtn" type="button"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></button>
-    </nav>
-
-    <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
+      <details class="account-native-menu" id="accountMenuDetails">
+        <summary class="tool-pill liquid-pill mobile-account-link" id="accountMenuSummary"><span class="mobile-tool-icon mobile-account-icon">◉</span><span class="mobile-tool-label" data-i18n="account">Tài Khoản</span></summary>
+        <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
           <div class="account-v3-head">
             <div class="account-v3-avatar" id="toolbarAccountAvatar">T</div>
             <div class="account-v3-identity">
@@ -81,6 +80,10 @@
             <span data-i18n="logout">Đăng xuất</span>
           </button>
         </div>
+      </details>
+    </nav>
+
+    
   </div>
 </div>
 

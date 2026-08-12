@@ -516,3 +516,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Popup được chuyển trực tiếp xuống `body`, tránh bị toolbar cắt/che.
 - Bấm ngoài hoặc phím Esc sẽ đóng menu.
 - `Hồ Sơ Của Tôi` mới mở tab thông tin tài khoản; nút Tài Khoản chính không mở trang hồ sơ.
+
+
+## V3.3.31 — Native Account Menu + Fast Mobile
+- Thay nút Tài Khoản dùng JavaScript toggle bằng `details/summary` native của trình duyệt.
+- Bấm Tài Khoản mở menu trực tiếp, không phụ thuộc JS nên ổn định hơn trên Safari iPhone.
+- Chỉ `Hồ Sơ Của Tôi` mới mở trang thông tin tài khoản.
+- Giảm lag mobile bằng cách tắt live backdrop-blur trên các card/nút và tắt animation trang trí.
+- Chuyển tab mobile rút gọn còn fade rất ngắn, không slide/scale.

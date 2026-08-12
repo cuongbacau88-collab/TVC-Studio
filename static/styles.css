@@ -7394,3 +7394,169 @@ textarea::placeholder{
   touch-action:manipulation !important;
   -webkit-tap-highlight-color:transparent;
 }
+
+
+/* =====================================================================
+   V3.3.31 — NATIVE ACCOUNT MENU + FAST MOBILE
+   ===================================================================== */
+
+/* Account trigger is now a native <details>/<summary>, no JS toggle needed. */
+.account-native-menu{
+  position:relative !important;
+  display:inline-flex !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+.account-native-menu > summary{
+  list-style:none !important;
+  cursor:pointer !important;
+  user-select:none !important;
+  -webkit-user-select:none !important;
+  -webkit-tap-highlight-color:transparent !important;
+  touch-action:manipulation !important;
+}
+
+.account-native-menu > summary::-webkit-details-marker{
+  display:none !important;
+}
+
+.account-native-menu > .account-popover-v3{
+  display:none !important;
+  pointer-events:none !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+}
+
+.account-native-menu[open] > .account-popover-v3{
+  display:block !important;
+  pointer-events:auto !important;
+  opacity:1 !important;
+  visibility:visible !important;
+}
+
+/* Old JS hotfix no longer controls this menu. */
+#accountPopover.open{
+  display:block !important;
+}
+
+/* Desktop popup */
+@media(min-width:761px){
+  .account-native-menu{
+    align-self:center !important;
+  }
+
+  .account-native-menu > summary{
+    display:inline-flex !important;
+    width:auto !important;
+    min-width:auto !important;
+    height:38px !important;
+    padding:0 15px !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:7px !important;
+  }
+
+  .account-native-menu > .account-popover-v3{
+    position:fixed !important;
+    top:76px !important;
+    right:24px !important;
+    left:auto !important;
+    width:318px !important;
+    z-index:50000 !important;
+  }
+}
+
+/* Mobile popup + performance tuning */
+@media(max-width:760px){
+
+  .account-native-menu{
+    width:100% !important;
+    min-width:0 !important;
+    height:58px !important;
+    display:block !important;
+  }
+
+  .account-native-menu > summary{
+    width:100% !important;
+    min-width:0 !important;
+    height:58px !important;
+    padding:5px 2px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+    border-radius:12px !important;
+  }
+
+  .account-native-menu > .account-popover-v3{
+    position:fixed !important;
+    top:calc(env(safe-area-inset-top,0px) + 128px) !important;
+    left:12px !important;
+    right:12px !important;
+    width:auto !important;
+    max-width:none !important;
+    z-index:50000 !important;
+  }
+
+  /*
+     iPhone performance:
+     Backdrop blur on many elements at once is the main source of stutter.
+     Keep the glass look with gradients, but stop live blur compositing.
+  */
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar,
+  .tool-pill,
+  .liquid-pill,
+  .model-card,
+  .platform-intro,
+  .simple-create-card,
+  .simple-upload-row,
+  .simple-aspect,
+  .simple-render-btn,
+  .account-popover-v3,
+  .auth-card,
+  .panel-card,
+  .balance,
+  .affiliate-card,
+  .stat,
+  .job{
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+
+  /* Disable decorative moving highlights/pulse on mobile. */
+  .motion-cta-button,
+  .motion-cta-button::before,
+  .simple-render-btn::after,
+  .global-toolbar .tool-pill::after,
+  .global-toolbar .liquid-pill::after{
+    animation:none !important;
+  }
+
+  /* Faster tab switching: short fade only, no GPU-heavy slide/scale. */
+  .tab.tab-entering{
+    opacity:0 !important;
+    transform:none !important;
+  }
+
+  .tab.tab-entered{
+    opacity:1 !important;
+    transform:none !important;
+    transition:opacity .10s linear !important;
+  }
+
+  .tab.tab-leaving{
+    opacity:0 !important;
+    transform:none !important;
+    transition:opacity .07s linear !important;
+  }
+
+  .side,
+  .global-actions .tool-pill,
+  .account-native-menu > summary{
+    transition:transform .08s ease, background .10s ease, border-color .10s ease !important;
+  }
+}

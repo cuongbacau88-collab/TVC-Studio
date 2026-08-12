@@ -74,72 +74,33 @@ function tvcApplyLanguage(lang){
 function tvcInitToolbar(){
   const lang=localStorage.getItem('tvc_lang')||'vi';
   tvcApplyLanguage(lang);
+
   document.querySelectorAll('.lang-switch button').forEach(b=>{
     b.addEventListener('click',()=>tvcApplyLanguage(b.dataset.lang));
   });
 
-  const pop=document.getElementById('accountPopover');
-  const accountBtn=document.getElementById('accountMenuBtn');
+  const details=document.getElementById('accountMenuDetails');
 
-  // Put the popup directly under <body> so it cannot be clipped by the fixed toolbar.
-  if(pop && pop.parentElement!==document.body){
-    document.body.appendChild(pop);
-  }
-
-  const closeAccountMenu=()=>{
-    if(!pop) return;
-    pop.classList.remove('open');
-    accountBtn?.classList.remove('account-menu-open','mobile-active');
-    accountBtn?.setAttribute('aria-expanded','false');
-  };
-
-  const openAccountMenu=()=>{
-    if(!pop) return;
-    pop.classList.add('open');
-    accountBtn?.classList.add('account-menu-open','mobile-active');
-    accountBtn?.setAttribute('aria-expanded','true');
-  };
-
-  const toggleAccountMenu=(e)=>{
-    e?.preventDefault();
-    e?.stopPropagation();
-    if(!pop) return;
-    pop.classList.contains('open') ? closeAccountMenu() : openAccountMenu();
-  };
-
-  if(accountBtn){
-    accountBtn.setAttribute('aria-haspopup','menu');
-    accountBtn.setAttribute('aria-controls','accountPopover');
-    accountBtn.setAttribute('aria-expanded','false');
-    accountBtn.addEventListener('click',toggleAccountMenu);
-  }
-
-  // Click outside closes the popup. No references to deleted/duplicate account buttons.
+  // Native <details> handles open/close, so the Account button works
+  // even if other JS on the page is busy.
   document.addEventListener('click',e=>{
-    if(!pop?.classList.contains('open')) return;
-    if(pop.contains(e.target) || accountBtn?.contains(e.target)) return;
-    closeAccountMenu();
+    if(details?.open && !details.contains(e.target)){
+      details.open=false;
+    }
   });
 
   document.addEventListener('keydown',e=>{
-    if(e.key==='Escape') closeAccountMenu();
+    if(e.key==='Escape' && details) details.open=false;
   });
 
   document.querySelectorAll('#accountPopover [data-account-action]').forEach(link=>{
-    link.addEventListener('click',e=>{
-      const tab=link.dataset.accountAction;
-      closeAccountMenu();
-
-      // Inside the dashboard, switch tab without reloading.
-      if(typeof goto==='function' && ['jobs','wallet','account','affiliate'].includes(tab)){
-        e.preventDefault();
-        goto(tab);
-      }
+    link.addEventListener('click',()=>{
+      if(details) details.open=false;
     });
   });
 
   document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
-    closeAccountMenu();
+    if(details) details.open=false;
     await fetch('/api/logout',{method:'POST'});
     location.href='/';
   });
