@@ -317,3 +317,17 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Nội dung giới thiệu dịch vụ AI Copy Chuyển Động.
 - Thêm dòng: `Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳`
 - Hỗ trợ cả giao diện VN / EN.
+
+
+## V3.3.5 — Xóa phần note credits thừa
+- Xóa khối `Thanh toán bằng credits`.
+- Xóa dòng `Job lỗi được hoàn credits tự động`.
+- Giữ lại phần Giới thiệu và các card model bên dưới.
+
+
+## V3.3.6 — Cập nhật slogan trang chủ
+- Thay dòng phụ bên dưới tiêu đề bằng slogan:
+  `TVC Studio AI – Khi hình ảnh bắt đầu chuyển động.`
+- Đồng thời cập nhật luôn bản EN:
+  `TVC Studio AI – When images begin to move.`
+- Giữ nguyên bản đã xóa phần thừa từ V3.3.5.
