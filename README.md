@@ -524,3 +524,17 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Chỉ `Hồ Sơ Của Tôi` mới mở trang thông tin tài khoản.
 - Giảm lag mobile bằng cách tắt live backdrop-blur trên các card/nút và tắt animation trang trí.
 - Chuyển tab mobile rút gọn còn fade rất ngắn, không slide/scale.
+
+
+## V3.3.32 — Account Popup Viewport Fix
+- Sửa menu Tài Khoản mobile không bị lệch/tràn mép màn hình.
+- Khi xoay ngang, popup tự fit theo chiều cao màn hình và có thể cuộn bên trong.
+- Bỏ tình trạng mở menu nhưng phần dưới không xem được trên landscape.
+
+
+## V3.3.33 — Menu Tài Khoản nổi, không đẩy 5 tab
+- Bấm Tài Khoản chỉ mở menu overlay.
+- 5 tab Chọn Model / Lịch Sử / Kiếm Tiền / Nạp VIP / Tài Khoản giữ nguyên một hàng.
+- Ép thứ tự và grid-column cố định để không bị nhảy hàng khi mở menu.
+- Popup dùng `position: fixed`, không tham gia layout của toolbar.
+- Màn hình ngang vẫn cuộn được menu riêng.

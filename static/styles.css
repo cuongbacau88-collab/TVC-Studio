@@ -7560,3 +7560,208 @@ textarea::placeholder{
     transition:transform .08s ease, background .10s ease, border-color .10s ease !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.32 — ACCOUNT POPUP VIEWPORT FIX
+   - Popup không bị tràn mép phải trên mobile portrait
+   - Popup luôn nằm gọn trong màn hình khi xoay ngang
+   - Nếu nội dung cao hơn màn hình thì popup tự cuộn bên trong
+   ===================================================================== */
+@media (hover:none), (pointer:coarse){
+  .global-toolbar,
+  .global-toolbar-inner,
+  .global-actions,
+  .account-native-menu{
+    overflow:visible !important;
+  }
+
+  .account-native-menu{
+    position:relative !important;
+    z-index:60000 !important;
+  }
+
+  body > .account-popover-v3,
+  .account-native-menu > .account-popover-v3,
+  .account-popover-v3{
+    position:fixed !important;
+    left:calc(env(safe-area-inset-left,0px) + 10px) !important;
+    right:calc(env(safe-area-inset-right,0px) + 10px) !important;
+    width:auto !important;
+    max-width:none !important;
+    box-sizing:border-box !important;
+    top:calc(env(safe-area-inset-top,0px) + clamp(86px, 18dvh, 132px)) !important;
+    max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - clamp(98px, 20dvh, 144px)) !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior:contain !important;
+    -webkit-overflow-scrolling:touch !important;
+    z-index:65000 !important;
+  }
+}
+
+@media (hover:none) and (orientation:landscape), (pointer:coarse) and (orientation:landscape){
+  body > .account-popover-v3,
+  .account-native-menu > .account-popover-v3,
+  .account-popover-v3{
+    top:calc(env(safe-area-inset-top,0px) + 74px) !important;
+    max-height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 84px) !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.33 — ACCOUNT OVERLAY, NO TOOLBAR SHIFT
+   Bấm Tài Khoản chỉ mở menu nổi; 5 tab vẫn đứng nguyên một hàng.
+   ===================================================================== */
+
+@media(max-width:760px){
+
+  /* Giữ thanh 5 tab cố định, không để details mở làm thay đổi layout */
+  .global-actions.liquid-nav{
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    grid-template-rows:58px !important;
+    align-items:stretch !important;
+    gap:5px !important;
+    height:60px !important;
+    min-height:60px !important;
+    overflow:visible !important;
+  }
+
+  .global-actions.liquid-nav > *{
+    min-width:0 !important;
+    width:100% !important;
+    height:58px !important;
+    max-height:58px !important;
+    margin:0 !important;
+    align-self:stretch !important;
+  }
+
+  /* Ép đúng thứ tự 5 tab */
+  .global-actions.liquid-nav [data-tool="models"]{
+    grid-column:1 !important;
+    grid-row:1 !important;
+  }
+  .global-actions.liquid-nav [data-tool="history"]{
+    grid-column:2 !important;
+    grid-row:1 !important;
+  }
+  .global-actions.liquid-nav [data-tool="affiliate"]{
+    grid-column:3 !important;
+    grid-row:1 !important;
+  }
+  .global-actions.liquid-nav [data-tool="wallet"]{
+    grid-column:4 !important;
+    grid-row:1 !important;
+  }
+
+  .global-actions.liquid-nav .account-native-menu{
+    grid-column:5 !important;
+    grid-row:1 !important;
+
+    position:relative !important;
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:58px !important;
+    max-height:58px !important;
+    margin:0 !important;
+    padding:0 !important;
+
+    overflow:visible !important;
+    contain:layout !important;
+  }
+
+  .global-actions.liquid-nav .account-native-menu > summary{
+    position:relative !important;
+    z-index:2 !important;
+    width:100% !important;
+    min-width:0 !important;
+    height:58px !important;
+    max-height:58px !important;
+    margin:0 !important;
+    padding:5px 2px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+
+  /*
+    Menu Tài Khoản luôn là overlay fixed.
+    Nó không tham gia chiều cao của details nên các tab không nhảy.
+  */
+  .global-actions.liquid-nav .account-native-menu > .account-popover-v3,
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    position:fixed !important;
+
+    top:calc(env(safe-area-inset-top,0px) + 128px) !important;
+    left:12px !important;
+    right:12px !important;
+    bottom:auto !important;
+
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:auto !important;
+    max-height:calc(100dvh - env(safe-area-inset-top,0px) - 148px) !important;
+
+    margin:0 !important;
+    z-index:70000 !important;
+
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior:contain !important;
+
+    transform:none !important;
+  }
+
+  /* Khi mở details không được đổi kích thước grid item */
+  .account-native-menu[open]{
+    height:58px !important;
+    max-height:58px !important;
+  }
+
+  .account-native-menu[open] > summary{
+    height:58px !important;
+    max-height:58px !important;
+  }
+
+  /* Chỉ highlight tab Tài Khoản, không kéo/đẩy tab khác */
+  .account-native-menu[open] > summary{
+    border-color:rgba(130,93,255,.72) !important;
+    background:
+      linear-gradient(180deg,rgba(92,74,185,.28),rgba(255,255,255,.055)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.17),
+      0 0 0 1px rgba(130,93,255,.12),
+      0 0 13px rgba(111,76,221,.18) !important;
+  }
+}
+
+/* Landscape: vẫn overlay, không thay bố cục 5 tab */
+@media(max-width:980px) and (orientation:landscape){
+  .global-actions.liquid-nav .account-native-menu > .account-popover-v3,
+  .account-native-menu > .account-popover-v3,
+  #accountPopover{
+    top:8px !important;
+    right:10px !important;
+    left:auto !important;
+    bottom:8px !important;
+
+    width:min(340px,calc(100vw - 20px)) !important;
+    max-width:calc(100vw - 20px) !important;
+    max-height:none !important;
+
+    overflow-y:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+}
