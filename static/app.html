@@ -35,24 +35,53 @@
           <span class="account-chevron">⌄</span>
         </button>
 
-        <div class="account-popover liquid-popover" id="accountPopover">
-          <div class="account-popover-head">
+        <div class="account-popover account-popover-v2 liquid-popover" id="accountPopover">
+          <div class="account-v2-head">
             <span class="account-avatar-lg" id="toolbarAccountAvatar">T</span>
-            <div>
+            <div class="account-v2-identity">
+              <small data-i18n="hello">Xin chào</small>
               <b id="toolbarAccountName">Tài Khoản</b>
-              <small id="toolbarAccountEmail">Chưa đăng nhập</small>
+              <span id="toolbarAccountEmail">Chưa đăng nhập</span>
             </div>
           </div>
-          <div class="account-popover-credit">
-            <span data-i18n="balance">Số dư</span>
-            <b><span id="toolbarAccountCredits">0</span> credits</b>
+
+          <div class="account-v2-balance">
+            <div>
+              <small data-i18n="balance">Số dư</small>
+              <strong><span id="toolbarAccountCredits">0</span> <em>credits</em></strong>
+            </div>
+            <a href="/app#wallet" data-account-action="wallet" class="account-v2-topup" data-i18n="addCredits">Nạp thêm</a>
           </div>
-          <div class="account-popover-actions">
-            <a href="/app#account" data-account-action="account"><span>👤</span><span data-i18n="accountSettings" data-i18n="account">Tài khoản</span></a>
-            <a href="/app#wallet" data-account-action="wallet"><span>◈</span><span data-i18n="wallet" data-i18n="wallet">Ví credits</span></a>
-            <a href="/app#affiliate" data-account-action="affiliate"><span>💸</span><span data-i18n="earn">Kiếm tiền</span></a>
-            <button type="button" id="toolbarLogout"><span>↪</span><span data-i18n="logout">Đăng xuất</span></button>
-          </div>
+
+          <nav class="account-v2-menu">
+            <a href="/app#jobs" data-account-action="jobs">
+              <span class="account-menu-icon">◷</span>
+              <span data-i18n="history">Lịch Sử</span>
+              <i>›</i>
+            </a>
+            <a href="/app#wallet" data-account-action="wallet">
+              <span class="account-menu-icon">◇</span>
+              <span data-i18n="topup">Nạp Credits</span>
+              <i>›</i>
+            </a>
+            <a href="/app#account" data-account-action="account">
+              <span class="account-menu-icon">◎</span>
+              <span data-i18n="profile">Hồ Sơ Của Tôi</span>
+              <i>›</i>
+            </a>
+            <a href="/app#affiliate" data-account-action="affiliate">
+              <span class="account-menu-icon">◉</span>
+              <span data-i18n="affiliateMenu">Kiếm Tiền Affiliate</span>
+              <i>›</i>
+            </a>
+          </nav>
+
+          <div class="account-v2-divider"></div>
+
+          <button type="button" id="toolbarLogout" class="account-v2-logout">
+            <span class="account-menu-icon">↪</span>
+            <span data-i18n="logout">Đăng xuất</span>
+          </button>
         </div>
       </div>
     </div>

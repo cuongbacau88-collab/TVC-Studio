@@ -53,7 +53,7 @@ uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
 ## Admin mặc định khi test local
-Email: `admin@motionhub.local`
+Email: `cuongtv.bx92@gmail.com`
 Password mặc định: `Cuong123@`
 
 **Phải đổi mật khẩu qua biến môi trường trước khi public website.**
@@ -345,3 +345,12 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Tăng contrast cho heading, body text, label và placeholder.
 - Input / select / textarea tối hơn, chữ trắng rõ.
 - Sidebar và topbar đậm hơn nhưng vẫn giữ phong cách glass.
+
+
+## V3.3.9 — Làm lại menu Tài Khoản
+- Thiết kế lại popup Tài Khoản gọn, rõ và đồng bộ giao diện High Contrast.
+- Header hiển thị avatar, tên và email.
+- Có thẻ số dư Credits + nút Nạp thêm.
+- Menu gồm: Lịch Sử, Nạp Credits, Hồ Sơ Của Tôi, Kiếm Tiền Affiliate, Đăng Xuất.
+- Các mục trong Dashboard chuyển tab trực tiếp, không bị bấm mà không phản hồi.
+- Cập nhật email admin mặc định sang cấu hình mới và tự migrate admin mặc định cũ nếu có.

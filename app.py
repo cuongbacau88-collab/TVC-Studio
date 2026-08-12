@@ -22,7 +22,7 @@ MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@motionhub.local").lower()
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Cuong123@")
 
 app = FastAPI(title="TVC Studio AI Business V2.4")
@@ -149,21 +149,34 @@ def init_db():
 
     row = con.execute("SELECT id FROM users WHERE email=?", (ADMIN_EMAIL,)).fetchone()
     if not row:
-        cur = con.execute(
-            "INSERT INTO users(email,name,password_hash,credits,role,created_at) VALUES(?,?,?,?,?,?)",
-            (ADMIN_EMAIL, "Administrator", hash_password(ADMIN_PASSWORD), 10000, "admin", now_iso())
-        )
-        admin_id = cur.lastrowid
-        con.execute(
-            "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
-            (admin_id, 10000, "Khởi tạo tài khoản admin", now_iso())
-        )
-    else:
-        # Keep the admin login synchronized with ADMIN_PASSWORD.
-        con.execute(
-            "UPDATE users SET password_hash=? WHERE id=?",
-            (hash_password(ADMIN_PASSWORD), row["id"])
-        )
+        # Migrate the old default admin account instead of creating a duplicate.
+        legacy_admin = con.execute(
+            "SELECT id FROM users WHERE email=? AND role='admin'",
+            ("admin@motionhub.local",)
+        ).fetchone()
+        if legacy_admin:
+            con.execute(
+                "UPDATE users SET email=?, name=?, password_hash=?, role='admin' WHERE id=?",
+                (ADMIN_EMAIL, "Administrator", hash_password(ADMIN_PASSWORD), legacy_admin["id"])
+            )
+            row = {"id": legacy_admin["id"]}
+        else:
+            cur = con.execute(
+                "INSERT INTO users(email,name,password_hash,credits,role,created_at) VALUES(?,?,?,?,?,?)",
+                (ADMIN_EMAIL, "Administrator", hash_password(ADMIN_PASSWORD), 10000, "admin", now_iso())
+            )
+            admin_id = cur.lastrowid
+            con.execute(
+                "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
+                (admin_id, 10000, "Khởi tạo tài khoản admin", now_iso())
+            )
+            row = {"id": admin_id}
+
+    # Keep admin password/role synchronized with the configured values.
+    con.execute(
+        "UPDATE users SET password_hash=?, role='admin' WHERE id=?",
+        (hash_password(ADMIN_PASSWORD), row["id"])
+    )
 
     # Give every old/new account a unique referral code.
     missing = con.execute("SELECT id,email FROM users WHERE referral_code IS NULL OR referral_code=''").fetchall()

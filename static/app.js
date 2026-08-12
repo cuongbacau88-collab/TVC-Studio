@@ -1,7 +1,7 @@
 
 const TVC_I18N = {
   vi:{
-    topup:"Nạp Credits", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản",
+    topup:"Nạp Credits", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Kiếm Tiền Affiliate", addCredits:"Nạp thêm",
     wallet:"Ví credits", earn:"Kiếm Tiền", logout:"Đăng xuất", models:"Chọn Model", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng credits", refundNote:"Job lỗi được hoàn credits tự động",
@@ -30,7 +30,7 @@ const TVC_I18N = {
     withdrawRequest:"Yêu Cầu Rút Thưởng", commissionHistory:"Lịch sử hoa hồng", withdrawHistory:"Lịch sử rút thưởng"
   },
   en:{
-    topup:"Buy Credits", account:"Account", balance:"Balance", accountSettings:"Account settings",
+    topup:"Buy Credits", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Affiliate Earnings", addCredits:"Add credits",
     wallet:"Credits Wallet", earn:"Earn", logout:"Log out", models:"Choose Model", history:"History",
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
     creditPayment:"Pay with credits", refundNote:"Credits are automatically refunded if a job fails",
@@ -90,6 +90,18 @@ function tvcInitToolbar(){
     if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
   });
 
+
+  document.querySelectorAll('#accountPopover [data-account-action]').forEach(link=>{
+    link.addEventListener('click',e=>{
+      const tab=link.dataset.accountAction;
+      if(typeof goto==='function' && ['jobs','wallet','account','affiliate'].includes(tab)){
+        e.preventDefault();
+        pop?.classList.remove('open');
+        goto(tab);
+      }
+    });
+  });
+
   document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
     await fetch('/api/logout',{method:'POST'});
     location.href='/';
@@ -109,7 +121,7 @@ async function tvcSyncToolbarAccount(){
     const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
     set('toolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));set('mobileToolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
     set('toolbarAccountCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
-    set('toolbarAccount',me.name||'Tài Khoản');
+    set('toolbarAccount',document.documentElement.lang==='en'?'Account':'Tài Khoản');
     set('toolbarAccountName',me.name||'Tài Khoản');
     set('toolbarAccountEmail',me.email||'');
     set('toolbarAccountDot',initial);

@@ -4092,3 +4092,223 @@ body > .account-popover{
       linear-gradient(155deg,rgba(36,50,88,.94),rgba(27,39,72,.92)) !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.9 — Account dropdown redesign
+   ===================================================================== */
+.account-popover-v2{
+  width:320px !important;
+  padding:12px !important;
+  border-radius:20px !important;
+  background:
+    radial-gradient(240px 120px at 12% 0%,rgba(94,145,255,.16),transparent 65%),
+    linear-gradient(180deg,rgba(31,43,76,.98),rgba(22,32,59,.98)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.15),
+    0 26px 70px rgba(0,6,24,.42) !important;
+}
+
+.account-v2-head{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:5px 5px 12px;
+}
+
+.account-v2-head .account-avatar-lg{
+  width:44px !important;
+  height:44px !important;
+  flex:0 0 44px;
+  border-radius:50% !important;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(145deg,#50b7df,#6659e5) !important;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:15px !important;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(70,102,211,.22);
+}
+
+.account-v2-identity{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.account-v2-identity small{
+  color:#9eabc5 !important;
+  font-size:9px !important;
+  margin-bottom:1px;
+}
+
+.account-v2-identity b{
+  color:#fff !important;
+  font-size:13px !important;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.account-v2-identity span{
+  margin-top:2px;
+  color:#b8c4db !important;
+  font-size:10px !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.account-v2-balance{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:0 0 10px;
+  padding:11px 12px;
+  border-radius:14px;
+  background:
+    linear-gradient(135deg,rgba(91,142,239,.18),rgba(125,99,224,.13));
+  border:1px solid rgba(142,168,255,.18);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.account-v2-balance>div{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.account-v2-balance small{
+  color:#a7b4cd !important;
+  font-size:9px !important;
+}
+
+.account-v2-balance strong{
+  margin-top:2px;
+  color:#70efb5 !important;
+  font-size:16px !important;
+  line-height:1;
+}
+
+.account-v2-balance strong em{
+  color:#aebbd2;
+  font-size:9px;
+  font-style:normal;
+  font-weight:650;
+}
+
+.account-v2-topup{
+  min-height:30px;
+  padding:0 10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:9px;
+  background:linear-gradient(135deg,#5c9cff,#8b72ed);
+  border:1px solid rgba(255,255,255,.16);
+  color:#fff !important;
+  font-size:9px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.account-v2-menu{
+  display:grid;
+  gap:4px;
+}
+
+.account-v2-menu a,
+.account-v2-logout{
+  width:100%;
+  min-height:42px;
+  padding:0 10px;
+  display:grid;
+  grid-template-columns:28px 1fr 16px;
+  align-items:center;
+  gap:5px;
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:#dce4f3 !important;
+  font-size:11px;
+  font-weight:650;
+  text-align:left;
+  cursor:pointer;
+  transition:background .16s ease,color .16s ease,transform .16s ease;
+}
+
+.account-v2-menu a:hover{
+  background:rgba(255,255,255,.07);
+  color:#fff !important;
+}
+
+.account-v2-menu a i{
+  justify-self:end;
+  color:#66738f;
+  font-style:normal;
+  font-size:18px;
+  line-height:1;
+}
+
+.account-menu-icon{
+  width:26px;
+  height:26px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:rgba(255,255,255,.055);
+  color:#cbd6e9;
+  font-size:13px;
+}
+
+.account-v2-menu a:hover .account-menu-icon{
+  background:rgba(93,142,235,.16);
+  color:#fff;
+}
+
+.account-v2-divider{
+  height:1px;
+  margin:8px 4px;
+  background:rgba(255,255,255,.08);
+}
+
+.account-v2-logout{
+  grid-template-columns:28px 1fr !important;
+  color:#ff9099 !important;
+}
+
+.account-v2-logout:hover{
+  background:rgba(255,93,111,.08);
+  color:#ffa4ac !important;
+}
+
+.account-v2-logout .account-menu-icon{
+  color:#ff8b96;
+  background:rgba(255,85,105,.07);
+}
+
+@media(max-width:760px){
+  body > .account-popover-v2{
+    top:calc(env(safe-area-inset-top, 0px) + 112px) !important;
+    left:12px !important;
+    right:12px !important;
+    width:auto !important;
+    max-width:none !important;
+    border-radius:20px !important;
+    padding:12px !important;
+  }
+
+  .account-v2-menu a,
+  .account-v2-logout{
+    min-height:46px;
+    font-size:12px;
+  }
+
+  .account-v2-balance{
+    padding:12px;
+  }
+}
