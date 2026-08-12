@@ -600,3 +600,28 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Thêm footer và các trang: Bảng Giá, Về Chúng Tôi, Liên Hệ, Điều Khoản, Bảo Mật, Hoàn Tiền, Chính Sách Nội Dung AI.
 - Thông tin liên hệ: Mr Cường / cuongtv.bx92@gmail.com / Zalo 0917764222.
 - Job lỗi do hệ thống: hoàn TVC tự động; nội dung 18+ bị cấm.
+
+
+## V3.3.40 — Một mức giá / Một nút Tạo Video
+- Xóa lựa chọn Video Thường / Video Chất Lượng khỏi giao diện.
+- Trang tạo video chỉ còn một nút **Tạo Video**.
+- Mỗi job luôn trừ đúng **1 TVC = 1 lượt video**, backend tự ép mức giá này dù client cũ gửi quality 480/720.
+- Giữ nguyên duplicate-job guard / request_key để chống bấm nhiều lần tạo nhiều video.
+- Ví chỉ còn một bộ đếm **Lượt video còn lại**; bỏ bộ đếm Chất Lượng.
+- Lịch sử job không còn hiện 480p/720p để tránh tạo cảm giác có hai gói chất lượng.
+- Bảng Giá, Điều Khoản và Về Chúng Tôi được cập nhật theo cơ chế đồng giá.
+- Worker/Wan vẫn nhận profile nội bộ mặc định; người dùng không phải chọn chất lượng.
+
+
+## V3.3.41 — Remove homepage process guide
+- Xóa hoàn toàn khối “QUY TRÌNH / 3 bước để khách tạo video”.
+- Trang chủ chuyển thẳng từ danh sách dịch vụ xuống phần bảng giá.
+- Không để khoảng trống sau khi xóa.
+
+
+## V3.3.42 — Fix logo footer trên mobile
+- Thu logo footer xuống 24px trên mobile, 22px trên màn hình rất nhỏ.
+- Khóa cả width/min-width/max-width để CSS cũ không làm logo phóng to.
+- Footer không được tạo overflow ngang.
+- Thu khoảng cách, font và link footer để không phá bố cục mobile.
+- Desktop vẫn giữ footer gọn với logo 28px.
