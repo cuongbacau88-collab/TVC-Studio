@@ -8,6 +8,9 @@ from fastapi import FastAPI, Request, Response, UploadFile, File, Form, HTTPExce
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from google.oauth2 import id_token as google_id_token
+from google.auth.transport import requests as google_requests
+
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
 UPLOADS = DATA / "uploads"
@@ -24,6 +27,8 @@ MAX_VIDEO_MB = 300
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Cuong123@")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 
 app = FastAPI(title="TVC Studio AI Business V2.4")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
@@ -142,8 +147,13 @@ def init_db():
         con.execute("ALTER TABLE users ADD COLUMN referred_by_user_id INTEGER")
     if "referred_at" not in cols:
         con.execute("ALTER TABLE users ADD COLUMN referred_at TEXT")
+    if "google_sub" not in cols:
+        con.execute("ALTER TABLE users ADD COLUMN google_sub TEXT")
+    if "avatar_url" not in cols:
+        con.execute("ALTER TABLE users ADD COLUMN avatar_url TEXT")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by_user_id)")
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_rewards_user ON affiliate_rewards(user_id)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_withdrawals_user ON affiliate_withdrawals(user_id)")
 
@@ -315,6 +325,109 @@ def app_page():
 def admin_page():
     return FileResponse(BASE / "static" / "admin.html")
 
+def create_session(con, user_id: int, response: Response):
+    token = secrets.token_urlsafe(32)
+    expires = (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()
+    con.execute("INSERT INTO sessions(token,user_id,expires_at) VALUES(?,?,?)", (token, user_id, expires))
+    response.set_cookie(
+        "mh_session", token, httponly=True, samesite="lax", secure=COOKIE_SECURE,
+        max_age=SESSION_DAYS * 86400, path="/"
+    )
+    return token
+
+@app.get("/api/auth/google-config")
+def google_auth_config():
+    # Client ID is public by design and is safe to expose to the browser.
+    return {"enabled": bool(GOOGLE_CLIENT_ID), "client_id": GOOGLE_CLIENT_ID}
+
+@app.post("/api/auth/google")
+async def google_login(request: Request, response: Response):
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(503, "Google Login chưa được cấu hình")
+
+    body = await request.json()
+    credential = (body.get("credential") or "").strip()
+    referral_code = (body.get("referral_code") or "").strip().lower()
+    if not credential:
+        raise HTTPException(400, "Thiếu Google credential")
+
+    try:
+        info = google_id_token.verify_oauth2_token(
+            credential, google_requests.Request(), GOOGLE_CLIENT_ID
+        )
+    except Exception:
+        raise HTTPException(401, "Google credential không hợp lệ hoặc đã hết hạn")
+
+    # verify_oauth2_token validates signature, exp, issuer and audience.
+    if info.get("iss") not in {"accounts.google.com", "https://accounts.google.com"}:
+        raise HTTPException(401, "Google issuer không hợp lệ")
+    if info.get("aud") != GOOGLE_CLIENT_ID:
+        raise HTTPException(401, "Google audience không hợp lệ")
+    if info.get("email_verified") is not True:
+        raise HTTPException(401, "Email Google chưa được xác minh")
+
+    google_sub = (info.get("sub") or "").strip()
+    email = (info.get("email") or "").strip().lower()
+    name = (info.get("name") or email.split("@", 1)[0] or "Google User").strip()[:80]
+    avatar_url = (info.get("picture") or "").strip()[:500]
+    if not google_sub or "@" not in email:
+        raise HTTPException(401, "Google không trả về thông tin tài khoản hợp lệ")
+
+    con = db()
+    try:
+        by_sub = con.execute("SELECT * FROM users WHERE google_sub=?", (google_sub,)).fetchone()
+        by_email = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+
+        if by_sub and by_email and by_sub["id"] != by_email["id"]:
+            raise HTTPException(409, "Google ID và email đang thuộc hai tài khoản khác nhau")
+
+        user = by_sub or by_email
+        if user:
+            existing_sub = user["google_sub"] if "google_sub" in user.keys() else None
+            if existing_sub and existing_sub != google_sub:
+                raise HTTPException(409, "Email này đã liên kết với một tài khoản Google khác")
+            con.execute(
+                "UPDATE users SET google_sub=?, avatar_url=COALESCE(NULLIF(?,''),avatar_url) WHERE id=?",
+                (google_sub, avatar_url, user["id"])
+            )
+            user_id = user["id"]
+        else:
+            referrer = find_referrer_by_code(con, referral_code) if referral_code else None
+            if referral_code and not referrer:
+                raise HTTPException(400, "Mã giới thiệu không tồn tại")
+
+            # Google-only accounts receive a random unusable local password hash.
+            random_password = secrets.token_urlsafe(48)
+            cur = con.execute(
+                """INSERT INTO users(
+                    email,name,password_hash,credits,role,created_at,referred_by_user_id,referred_at,google_sub,avatar_url
+                ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    email, name, hash_password(random_password), 30, "user", now_iso(),
+                    referrer["id"] if referrer else None,
+                    now_iso() if referrer else None, google_sub, avatar_url
+                )
+            )
+            user_id = cur.lastrowid
+            ensure_user_referral_code(con, user_id)
+            con.execute(
+                "INSERT INTO credit_ledger(user_id,delta,reason,created_at) VALUES(?,?,?,?)",
+                (user_id, 30, "Tặng TVC đăng ký Google", now_iso())
+            )
+
+        create_session(con, user_id, response)
+        con.commit()
+        user = con.execute("SELECT role FROM users WHERE id=?", (user_id,)).fetchone()
+        return {"ok": True, "role": user["role"], "new_user": by_sub is None and by_email is None}
+    except HTTPException:
+        con.rollback()
+        raise
+    except sqlite3.IntegrityError:
+        con.rollback()
+        raise HTTPException(409, "Tài khoản Google đã được liên kết")
+    finally:
+        con.close()
+
 @app.post("/api/register")
 async def register(request: Request):
     body = await request.json()
@@ -364,12 +477,9 @@ async def login(request: Request, response: Response):
     if not u or not verify_password(password, u["password_hash"]):
         con.close()
         raise HTTPException(401, "Sai email hoặc mật khẩu")
-    token = secrets.token_urlsafe(32)
-    expires = (datetime.now(timezone.utc) + timedelta(days=SESSION_DAYS)).isoformat()
-    con.execute("INSERT INTO sessions(token,user_id,expires_at) VALUES(?,?,?)", (token, u["id"], expires))
+    create_session(con, u["id"], response)
     con.commit()
     con.close()
-    response.set_cookie("mh_session", token, httponly=True, samesite="lax", secure=False, max_age=SESSION_DAYS*86400)
     return {"ok": True, "role": u["role"]}
 
 @app.post("/api/logout")
@@ -380,13 +490,13 @@ def logout(request: Request, response: Response):
         con.execute("DELETE FROM sessions WHERE token=?", (token,))
         con.commit()
         con.close()
-    response.delete_cookie("mh_session")
+    response.delete_cookie("mh_session", path="/")
     return {"ok": True}
 
 @app.get("/api/me")
 def me(request: Request):
     u = current_user(request)
-    return {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id")}
+    return {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id","avatar_url","google_sub")}
 
 @app.get("/api/jobs")
 def my_jobs(request: Request):

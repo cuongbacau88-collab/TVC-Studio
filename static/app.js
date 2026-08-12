@@ -160,7 +160,12 @@ async function boot(){
     currentTab=hashMap[initialHash]||'create';
     if(hashMap[initialHash]) goto(hashMap[initialHash],{source:'boot'});
     else updateMobileToolState('create');
-  }catch{showAuth()}
+  }catch{
+    showAuth();
+    const authHash=location.hash;
+    if(authHash==='#register') document.querySelector('[data-auth="register"]')?.click();
+    else if(authHash==='#login') document.querySelector('[data-auth="login"]')?.click();
+  }
 }
 function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').classList.add('hidden')}
 function showDashboard(){

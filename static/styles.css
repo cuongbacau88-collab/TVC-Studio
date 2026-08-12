@@ -8295,3 +8295,35 @@ textarea::placeholder{
     -webkit-backdrop-filter:blur(10px) saturate(120%) !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.36 — GOOGLE LOGIN + SIGNED-OUT TOOLBAR
+   Chưa đăng nhập: tab cuối đổi thành Đăng nhập + popup glass nhỏ.
+   ===================================================================== */
+.account-login-mini{padding:2px!important}
+.account-login-mini-head{display:flex;align-items:center;gap:10px;padding:3px 3px 10px}
+.account-login-lock{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;font-size:17px;background:linear-gradient(145deg,rgba(90,167,255,.42),rgba(105,80,255,.52));border:1px solid rgba(255,255,255,.2);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 16px rgba(0,0,0,.18)}
+.account-login-mini-head div{min-width:0;display:flex;flex-direction:column;gap:2px}
+.account-login-mini-head strong{font-size:13px;color:#fff}
+.account-login-mini-head small{font-size:9px;color:rgba(235,241,255,.7)}
+.google-signin-shell,.google-auth-gate{display:flex;flex-direction:column;align-items:center;width:100%}
+.google-signin-button{min-height:40px;display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden}
+.google-signin-button>div{margin-inline:auto!important}
+.account-login-or{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:8px 0;color:rgba(230,236,250,.5);font-size:8px}
+.account-login-or span{height:1px;background:rgba(255,255,255,.1)}
+.account-login-or b{font-weight:600}
+.account-email-login{display:flex!important;align-items:center!important;justify-content:center!important;min-height:36px!important;width:100%!important;border-radius:10px!important;color:#eef3ff!important;text-decoration:none!important;font-size:10px!important;border:1px solid rgba(255,255,255,.14)!important;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)!important}
+.account-register-link{display:block!important;text-align:center!important;padding:9px 4px 3px!important;color:rgba(226,233,250,.68)!important;text-decoration:none!important;font-size:9px!important}
+.account-register-link b{color:#b6c9ff}
+.account-google-error{width:100%;box-sizing:border-box;margin-top:7px;padding:7px 8px;border-radius:9px;background:rgba(255,78,103,.1);border:1px solid rgba(255,103,126,.18);color:#ffb8c3;font-size:8.5px;line-height:1.35}
+.account-google-error[hidden]{display:none!important}
+.account-native-menu[data-auth-state="signed-out"]>.account-popover-v3{width:286px!important;min-width:260px!important}
+.account-native-menu[data-auth-state="signed-out"]>summary .mobile-account-icon{font-size:14px!important}
+.google-auth-gate{margin:10px 0 12px}
+.google-auth-gate .account-login-or{max-width:280px}
+#authGate .google-signin-button{max-width:280px}
+@media(max-width:760px){
+  .account-native-menu[data-auth-state="signed-out"]>.account-popover-v3{width:min(286px,calc(100vw - 24px))!important}
+  .account-login-mini-head{padding-bottom:8px}
+}

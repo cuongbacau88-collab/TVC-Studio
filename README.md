@@ -556,3 +556,14 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Mobile dọc: popup nhỏ ở bên phải, không tràn màn hình.
 - Mobile ngang: popup vẫn nhỏ và cuộn bên trong nếu thiếu chiều cao.
 - Desktop: popup nhỏ neo ngay dưới nút Tài Khoản.
+
+
+## V3.3.36 — Google Login
+- Chưa đăng nhập: tab cuối hiển thị **Đăng nhập** thay vì Tài Khoản.
+- Bấm Đăng nhập mở popup glass nhỏ, không đẩy 5 tab.
+- Popup có nút **Đăng nhập bằng Google**, đăng nhập Email và Đăng ký.
+- Google credential được gửi về FastAPI và xác minh server-side bằng `verify_oauth2_token`.
+- Tài khoản Google mới tự tạo user + 30 TVC; email đã tồn tại sẽ được liên kết sau khi token Google được xác minh.
+- Đăng nhập thành công: tab đổi lại thành **Tài Khoản** và giữ popup tài khoản V3.3.35.
+- Railway cần `GOOGLE_CLIENT_ID`. Không cần Client Secret cho luồng GIS popup này.
+- Cookie session mặc định Secure trên HTTPS; local HTTP có thể đặt `COOKIE_SECURE=false`.
