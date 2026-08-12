@@ -338,3 +338,205 @@ body:has(#tab-account.active) .global-actions [data-tool="account"]{
   .admin-global-toolbar .global-actions{margin-left:0}
   .has-global-toolbar.app-body .app-shell{height:calc(100vh - 54px)}
 }
+
+
+/* ===== V2.5.1 Mobile toolbar always visible ===== */
+@media(max-width:760px){
+  .has-global-toolbar{
+    padding-top:104px !important;
+  }
+
+  .global-toolbar{
+    height:104px !important;
+    overflow:visible !important;
+  }
+
+  .global-toolbar-inner{
+    max-width:none !important;
+    height:104px !important;
+    padding:8px 10px 7px !important;
+    display:grid !important;
+    grid-template-columns:auto 1fr auto !important;
+    grid-template-rows:40px 42px !important;
+    gap:6px 8px !important;
+    align-items:center !important;
+  }
+
+  .global-brand{
+    grid-column:1 !important;
+    grid-row:1 !important;
+    min-width:0 !important;
+  }
+
+  .global-brand img{
+    width:36px !important;
+    height:36px !important;
+  }
+
+  .global-brand strong{
+    display:block !important;
+    font-size:13px !important;
+    max-width:125px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+
+  .lang-switch{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    margin-left:0 !important;
+    justify-self:end !important;
+  }
+
+  .toolbar-menu{
+    display:none !important;
+  }
+
+  .global-actions{
+    grid-column:1 / -1 !important;
+    grid-row:2 !important;
+    position:static !important;
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:7px !important;
+    width:100% !important;
+    padding:0 0 2px !important;
+    border:0 !important;
+    background:transparent !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    overflow-x:auto !important;
+    overflow-y:hidden !important;
+    white-space:nowrap !important;
+    scrollbar-width:none !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+
+  .global-actions::-webkit-scrollbar{
+    display:none !important;
+  }
+
+  .tool-pill,.credit-tool{
+    width:auto !important;
+    min-width:max-content !important;
+    height:34px !important;
+    padding:0 11px !important;
+    justify-content:center !important;
+    border-radius:9px !important;
+    flex:0 0 auto !important;
+    font-size:10px !important;
+  }
+
+  .account-pill{
+    padding-right:12px !important;
+  }
+
+  .account-dot{
+    width:18px !important;
+    height:18px !important;
+    font-size:8px !important;
+  }
+
+  .has-global-toolbar.app-body .app-shell{
+    height:calc(100vh - 104px) !important;
+  }
+
+  .has-global-toolbar .sidebar{
+    top:104px !important;
+  }
+
+  .model-hero{
+    padding-top:35px !important;
+  }
+}
+
+@media(max-width:390px){
+  .global-brand strong{
+    max-width:105px !important;
+    font-size:12px !important;
+  }
+  .tool-pill,.credit-tool{
+    padding:0 9px !important;
+    font-size:9.5px !important;
+  }
+}
+
+
+/* ===== V2.5.2 Sticky / floating toolbar on scroll ===== */
+:root{
+  --toolbar-safe-top: env(safe-area-inset-top, 0px);
+  --toolbar-height-desktop: 58px;
+  --toolbar-height-mobile: 104px;
+}
+
+html,body{
+  overflow-x:hidden;
+}
+
+.global-toolbar{
+  position:fixed !important;
+  top:0 !important;
+  left:0 !important;
+  right:0 !important;
+  z-index:9999 !important;
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
+  will-change:transform;
+  padding-top:var(--toolbar-safe-top);
+  background:rgba(4,5,8,.92) !important;
+  box-shadow:0 8px 30px rgba(0,0,0,.24);
+}
+
+.global-toolbar-inner{
+  min-height:var(--toolbar-height-desktop);
+}
+
+.has-global-toolbar{
+  padding-top:calc(var(--toolbar-height-desktop) + var(--toolbar-safe-top)) !important;
+}
+
+.has-global-toolbar .topbar,
+.has-global-toolbar .app-shell,
+.has-global-toolbar .main,
+.has-global-toolbar main{
+  scroll-margin-top:calc(var(--toolbar-height-desktop) + var(--toolbar-safe-top) + 12px);
+}
+
+.has-global-toolbar .sidebar{
+  top:calc(var(--toolbar-height-desktop) + var(--toolbar-safe-top)) !important;
+}
+
+.has-global-toolbar.app-body .app-shell{
+  height:calc(100vh - (var(--toolbar-height-desktop) + var(--toolbar-safe-top))) !important;
+}
+
+@media(max-width:760px){
+  .global-toolbar{
+    height:calc(var(--toolbar-height-mobile) + var(--toolbar-safe-top)) !important;
+  }
+
+  .global-toolbar-inner{
+    min-height:var(--toolbar-height-mobile) !important;
+    padding-top:max(0px, var(--toolbar-safe-top)) !important;
+  }
+
+  .has-global-toolbar{
+    padding-top:calc(var(--toolbar-height-mobile) + var(--toolbar-safe-top)) !important;
+  }
+
+  .has-global-toolbar .sidebar{
+    top:calc(var(--toolbar-height-mobile) + var(--toolbar-safe-top)) !important;
+  }
+
+  .has-global-toolbar.app-body .app-shell{
+    height:calc(100vh - (var(--toolbar-height-mobile) + var(--toolbar-safe-top))) !important;
+  }
+
+  .model-hero,
+  .main-content,
+  .content{
+    scroll-margin-top:calc(var(--toolbar-height-mobile) + var(--toolbar-safe-top) + 12px);
+  }
+}
