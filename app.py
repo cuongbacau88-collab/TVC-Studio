@@ -27,10 +27,14 @@ MAX_VIDEO_MB = 300
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Cuong123@")
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.googleusercontent.com"
+# Google OAuth Client ID is public by design. Railway env still takes priority;
+# the fallback prevents the login button from disappearing if the service has
+# not picked up the variable yet.
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 
-app = FastAPI(title="TVC Studio AI Business V2.4")
+app = FastAPI(title="TVC Studio AI Business V3.3.37")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
@@ -338,7 +342,12 @@ def create_session(con, user_id: int, response: Response):
 @app.get("/api/auth/google-config")
 def google_auth_config():
     # Client ID is public by design and is safe to expose to the browser.
-    return {"enabled": bool(GOOGLE_CLIENT_ID), "client_id": GOOGLE_CLIENT_ID}
+    env_value = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+    return {
+        "enabled": bool(GOOGLE_CLIENT_ID),
+        "client_id": GOOGLE_CLIENT_ID,
+        "source": "railway_env" if env_value else "built_in_fallback",
+    }
 
 @app.post("/api/auth/google")
 async def google_login(request: Request, response: Response):

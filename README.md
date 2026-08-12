@@ -567,3 +567,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Đăng nhập thành công: tab đổi lại thành **Tài Khoản** và giữ popup tài khoản V3.3.35.
 - Railway cần `GOOGLE_CLIENT_ID`. Không cần Client Secret cho luồng GIS popup này.
 - Cookie session mặc định Secure trên HTTPS; local HTTP có thể đặt `COOKIE_SECURE=false`.
+
+
+## V3.3.37 — Google Login config fix
+- Sửa lỗi popup báo “Google Login chưa được cấu hình” dù đã tạo OAuth Client.
+- Railway `GOOGLE_CLIENT_ID` vẫn được ưu tiên.
+- Có fallback bằng chính OAuth Client ID public của TVC Studio AI nếu Railway chưa nạp biến.
+- `/api/auth/google-config` trả thêm `source` để kiểm tra đang đọc từ Railway hay fallback.
+- Không dùng/không nhúng Google Client Secret.
