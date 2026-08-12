@@ -8377,145 +8377,127 @@ textarea::placeholder{
 
 
 /* =====================================================================
-   V3.3.42 — FOOTER MOBILE LOGO / RESPONSIVE FIX
-   Khóa kích thước logo footer để không phá giao diện mobile.
+   V3.3.45 — TOP TOOLBAR GLASS PALETTE
+   70% navy + 20% blue + 10% purple.
+   Giữ cùng một màu ở default / active / sticky / public pages.
    ===================================================================== */
 
-.site-footer-logo{
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:9px !important;
-  width:auto !important;
-  max-width:100% !important;
-  min-width:0 !important;
+:root{
+  --tvc-toolbar-navy: rgba(12, 29, 66, .72);
+  --tvc-toolbar-blue: rgba(39, 111, 209, .22);
+  --tvc-toolbar-purple: rgba(121, 78, 214, .15);
+  --tvc-toolbar-line: rgba(177, 205, 255, .18);
+  --tvc-toolbar-highlight: rgba(255,255,255,.10);
 }
 
-.site-footer-logo img{
-  display:block !important;
-  flex:0 0 28px !important;
-  width:28px !important;
-  height:28px !important;
-  min-width:28px !important;
-  min-height:28px !important;
-  max-width:28px !important;
-  max-height:28px !important;
-  object-fit:contain !important;
+/* Một palette duy nhất cho mọi trạng thái của thanh trên */
+.global-toolbar,
+.global-toolbar.liquid-toolbar,
+.global-toolbar.is-scrolled,
+.global-toolbar.scrolled,
+.global-toolbar.sticky,
+body.public-page-v3343 .global-toolbar,
+body.public-page-v3343 .global-toolbar.liquid-toolbar{
+  background:
+    radial-gradient(520px 120px at 78% 0%,
+      var(--tvc-toolbar-purple),
+      transparent 68%),
+    radial-gradient(720px 150px at 24% -15%,
+      var(--tvc-toolbar-blue),
+      transparent 70%),
+    linear-gradient(108deg,
+      rgba(11,27,61,.78) 0%,
+      rgba(13,34,76,.74) 70%,
+      rgba(31,55,103,.70) 90%,
+      rgba(53,43,101,.68) 100%) !important;
+
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--tvc-toolbar-line) !important;
+
+  box-shadow:
+    inset 0 1px 0 var(--tvc-toolbar-highlight),
+    0 10px 28px rgba(1,8,24,.16) !important;
+
+  backdrop-filter: blur(16px) saturate(145%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(145%) !important;
+
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    box-shadow .18s ease !important;
 }
 
-.site-footer-logo span{
-  display:inline-block !important;
-  width:auto !important;
-  max-width:calc(100% - 38px) !important;
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  font-size:15px !important;
-  line-height:1.15 !important;
+/* Không cho rule cũ phủ lớp đen khi chuyển trang hoặc scroll */
+.global-toolbar::before,
+.global-toolbar.liquid-toolbar::before{
+  background: transparent !important;
+  opacity: 0 !important;
 }
 
-/* Footer không được làm rộng trang */
-.site-footer,
-.site-footer-inner,
-.site-footer-brand,
-.site-footer-links,
-.site-footer-bottom{
-  box-sizing:border-box !important;
-  min-width:0 !important;
-  max-width:100% !important;
+/* Thanh bên trong phải luôn trong suốt */
+.global-toolbar-inner,
+body.public-page-v3343 .global-toolbar-inner{
+  background: transparent !important;
 }
 
-.site-footer{
-  overflow-x:hidden !important;
+/* Tab giữ mirror glass, active sáng hơn một chút */
+.global-actions.liquid-nav .tool-pill,
+.account-native-menu > summary{
+  background:
+    linear-gradient(180deg,
+      rgba(255,255,255,.095),
+      rgba(255,255,255,.035)) !important;
+  border-color: rgba(190,210,255,.17) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    0 5px 14px rgba(1,9,28,.10) !important;
 }
 
+.global-actions.liquid-nav .tool-pill.active,
+.global-actions.liquid-nav .tool-pill[aria-current="page"],
+.account-native-menu[open] > summary{
+  background:
+    radial-gradient(100px 54px at 50% 0%,
+      rgba(107,154,255,.18),
+      transparent 72%),
+    linear-gradient(160deg,
+      rgba(76,93,190,.30),
+      rgba(105,69,185,.22)) !important;
+
+  border-color: rgba(137,112,255,.60) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.16),
+    0 0 0 1px rgba(113,94,224,.10),
+    0 0 14px rgba(98,79,218,.18) !important;
+}
+
+/* Mobile: vẫn đúng palette nhưng blur nhẹ hơn để tránh lag */
 @media(max-width:760px){
-  .site-footer{
-    margin-top:34px !important;
-  }
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar,
+  .global-toolbar.is-scrolled,
+  .global-toolbar.scrolled,
+  .global-toolbar.sticky,
+  body.public-page-v3343 .global-toolbar,
+  body.public-page-v3343 .global-toolbar.liquid-toolbar{
+    background:
+      radial-gradient(340px 90px at 84% 0%,
+        rgba(121,78,214,.13),
+        transparent 70%),
+      radial-gradient(440px 105px at 20% -12%,
+        rgba(39,111,209,.19),
+        transparent 72%),
+      linear-gradient(108deg,
+        rgba(11,27,61,.82) 0%,
+        rgba(13,34,76,.79) 70%,
+        rgba(31,55,103,.75) 90%,
+        rgba(53,43,101,.72) 100%) !important;
 
-  .site-footer-inner{
-    grid-template-columns:1fr !important;
-    gap:20px !important;
-    padding:24px 16px 18px !important;
-  }
+    backdrop-filter: blur(10px) saturate(128%) !important;
+    -webkit-backdrop-filter: blur(10px) saturate(128%) !important;
 
-  .site-footer-brand{
-    min-width:0 !important;
-  }
-
-  .site-footer-logo{
-    gap:8px !important;
-  }
-
-  .site-footer-logo img{
-    flex-basis:24px !important;
-    width:24px !important;
-    height:24px !important;
-    min-width:24px !important;
-    min-height:24px !important;
-    max-width:24px !important;
-    max-height:24px !important;
-  }
-
-  .site-footer-logo span{
-    max-width:calc(100% - 32px) !important;
-    font-size:14px !important;
-  }
-
-  .site-footer-brand p{
-    margin:8px 0 14px !important;
-    font-size:10px !important;
-    line-height:1.45 !important;
-  }
-
-  .site-footer-contact{
-    gap:6px !important;
-    font-size:10px !important;
-    overflow-wrap:anywhere !important;
-  }
-
-  .site-footer-links{
-    grid-template-columns:1fr 1fr !important;
-    gap:18px 12px !important;
-    min-width:0 !important;
-  }
-
-  .site-footer-links > div{
-    min-width:0 !important;
-  }
-
-  .site-footer-links a{
-    font-size:10px !important;
-    line-height:1.35 !important;
-    overflow-wrap:anywhere !important;
-  }
-
-  .site-footer-bottom{
-    padding:13px 16px 22px !important;
-    flex-direction:column !important;
-    gap:5px !important;
-    font-size:9px !important;
-    line-height:1.4 !important;
-  }
-}
-
-@media(max-width:420px){
-  .site-footer-links{
-    grid-template-columns:1fr !important;
-  }
-
-  .site-footer-logo img{
-    flex-basis:22px !important;
-    width:22px !important;
-    height:22px !important;
-    min-width:22px !important;
-    min-height:22px !important;
-    max-width:22px !important;
-    max-height:22px !important;
-  }
-
-  .site-footer-logo span{
-    max-width:calc(100% - 30px) !important;
-    font-size:13px !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.08),
+      0 8px 22px rgba(1,8,24,.12) !important;
   }
 }

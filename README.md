@@ -632,3 +632,11 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Xóa hoàn toàn trường quality khỏi form tạo video; backend bỏ tham số quality từ user và luôn dùng profile nội bộ.
 - Thêm /api/version để kiểm tra Railway đã chạy V3.3.44.
 - Thêm ghi chú “Video chuyển động nên có thời lượng từ 10s đến 20s.” gần ô tải video mẫu.
+
+
+## V3.3.45 — Toolbar glass 70/20/10
+- Thanh trên cùng đổi sang palette 70% navy + 20% xanh lam + 10% tím.
+- Giữ hiệu ứng gương trong suốt, không chuyển sang nền đen đặc khi đổi trang hoặc scroll.
+- Áp dụng đồng nhất cho Trang Chủ và toàn bộ trang public/chính sách.
+- Active tab sáng hơn nhẹ, vẫn giữ phong cách mirror glass.
+- Mobile dùng blur nhẹ hơn để hạn chế lag.
