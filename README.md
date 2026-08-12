@@ -189,3 +189,40 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Tài khoản dùng avatar tròn + nhãn Tài Khoản.
 - Thanh luôn fixed khi vuốt xuống.
 - Desktop giữ bố cục V2.6.
+
+## V2.6.2 — Sửa Tài Khoản trên điện thoại
+- Sửa lỗi bấm `Tài Khoản` trên mobile nhưng menu không hiện.
+- Account popover được đưa ra ngoài vùng toolbar bị ẩn trên mobile.
+- Popup hiển thị dạng glass sheet, luôn nằm trên nội dung.
+- Giữ đủ: tên, email, credits, Tài khoản, Ví credits, Affiliate, Đăng xuất.
+
+## V2.6.3 — Desktop account restyle
+- Làm lại riêng phần `Tài Khoản` trên PC cho gọn và đẹp hơn.
+- Thu nhỏ pill tài khoản, avatar tròn cân đối hơn, tên không bị thô.
+- Đồng bộ phong cách với ô Credits.
+- Tinh chỉnh popup tài khoản trên desktop để nhìn sang và dễ đọc hơn.
+- Mobile giữ nguyên bản V2.6.2.
+
+## V2.6.4 — Desktop toolbar giống mẫu
+- Desktop chuyển về một hàng duy nhất.
+- Thứ tự: Logo + TVC Studio AI → VN/EN → Chọn Model → Lịch Sử → Kiếm Tiền → Credits → Tài Khoản.
+- Bỏ bố cục 2 tầng trên PC.
+- Nút Chọn Model có viền tím glow như ảnh mẫu.
+- Credits và Tài Khoản đồng bộ cùng chiều cao / bo góc.
+- Mobile vẫn giữ nguyên giao diện V2.6.2.
+
+
+## V3.0 — Full Liquid Glass Theme
+- Đổi toàn bộ giao diện sang chủ đề liquid glass xanh / tím / hồng.
+- Giảm glow khoảng 15–20% so với bản concept để chữ dễ đọc hơn.
+- Đồng bộ trang chủ, dashboard, wallet, affiliate, account, admin.
+- Giữ nguyên backend, job queue, credits, affiliate và worker API.
+- Desktop toolbar giữ một hàng; mobile giữ toolbar 2 hàng cố định.
+- Không thay logic dữ liệu / database.
+
+## V3.1 — Clear Glass
+- Giảm mạnh màu tím.
+- Nền chuyển sang xanh đen trung tính.
+- Glass trong hơn, ánh cyan/blue là chính, hồng chỉ làm điểm nhấn.
+- Button và trạng thái active bỏ glow tím nặng.
+- Desktop và mobile cùng theme.

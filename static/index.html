@@ -9,7 +9,9 @@
 <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css">
 </head>
-<body class="model-home has-global-toolbar">
+<body class="model-home has-global-toolbar v3-liquid-theme">
+<div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
+
 
 
 <div class="global-toolbar liquid-toolbar">
@@ -337,6 +339,9 @@ function tvcInitToolbar(){
 
   const wrap=document.querySelector('.toolbar-account-wrap');
   const pop=document.getElementById('accountPopover');
+  if(pop && window.matchMedia('(max-width:760px)').matches && pop.parentElement!==document.body){
+    document.body.appendChild(pop);
+  }
   const desktopBtn=document.getElementById('toolbarAccountBtn');
   const mobileBtn=document.getElementById('mobileAccountBtn');
   const toggle=()=>pop?.classList.toggle('open');

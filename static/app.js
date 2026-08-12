@@ -78,6 +78,9 @@ function tvcInitToolbar(){
 
   const wrap=document.querySelector('.toolbar-account-wrap');
   const pop=document.getElementById('accountPopover');
+  if(pop && window.matchMedia('(max-width:760px)').matches && pop.parentElement!==document.body){
+    document.body.appendChild(pop);
+  }
   const desktopBtn=document.getElementById('toolbarAccountBtn');
   const mobileBtn=document.getElementById('mobileAccountBtn');
   const toggle=()=>pop?.classList.toggle('open');
