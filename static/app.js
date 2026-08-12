@@ -210,7 +210,7 @@ function updateMobileToolState(tab){
   document.querySelectorAll('.global-actions [data-tool]').forEach(el=>{
     el.classList.toggle('mobile-active',map[tab]===el.dataset.tool);
   });
-  document.getElementById('mobileAccountBtn')?.classList.toggle('mobile-active',tab==='account');
+  document.querySelector('.global-actions [data-tool="account"]')?.classList.toggle('mobile-active',tab==='account');
 }
 
 function goto(tab,opts={}){
@@ -276,7 +276,7 @@ $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
 
 // On the app page, toolbar History / Affiliate / Wallet switch tabs directly.
 // This avoids a document navigation/reload on mobile and makes taps feel instant.
-const toolbarTabMap={history:'jobs',affiliate:'affiliate',wallet:'wallet'};
+const toolbarTabMap={history:'jobs',affiliate:'affiliate',wallet:'wallet',account:'account'};
 document.querySelectorAll('.global-actions [data-tool]').forEach(link=>{
   const tab=toolbarTabMap[link.dataset.tool];
   if(!tab) return;

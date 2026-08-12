@@ -433,3 +433,18 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Thanh nav mobile còn 4 mục nên nhẹ và gọn hơn.
 - Giữ lại đúng một nút tài khoản thật ở góc phải để mở popup tài khoản.
 - Không còn 2 phần Tài Khoản chạy đồng thời.
+
+
+## V3.3.20 — Hiện lại Tài Khoản trên mobile
+- Sửa lỗi sau khi xóa nút Tài Khoản bị lặp khiến mobile không còn thấy nút tài khoản.
+- Giữ thanh tab dưới chỉ 4 mục.
+- Giữ VN/EN ở bên phải và logo ở giữa.
+- Thêm đúng một nút avatar Tài Khoản ở góc trái hàng trên.
+- Bấm avatar vẫn mở popup Tài Khoản đầy đủ.
+
+
+## V3.3.21 — 5 tab dưới trên mobile
+- Thanh mobile có đúng 5 tab: Chọn Model, Lịch Sử, Kiếm Tiền, Nạp Credits, Tài Khoản.
+- Xóa nút Tài Khoản riêng ở hàng logo để không bị lặp.
+- Tài Khoản trên trang app chuyển tab trực tiếp và mượt như các tab khác.
+- Trang chủ/Admin bấm Tài Khoản sẽ mở `/app#account`.

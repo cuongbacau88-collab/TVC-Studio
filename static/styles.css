@@ -6463,3 +6463,250 @@ textarea::placeholder{
     max-width:none !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.20 — Mobile account visible
+   Giữ 4 tab bên dưới, hiện đúng 1 nút Tài Khoản ở hàng trên.
+   ===================================================================== */
+@media(max-width:760px){
+
+  /* Giữ logo ở giữa và VN/EN bên phải như giao diện hiện tại */
+  .centered-brand{
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+    justify-self:center !important;
+    z-index:2 !important;
+  }
+
+  .toolbar-left{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    z-index:5 !important;
+  }
+
+  /* Account thật: nút tròn nhỏ ở góc trái hàng trên */
+  .toolbar-right{
+    position:absolute !important;
+    left:12px !important;
+    top:8px !important;
+    right:auto !important;
+    bottom:auto !important;
+    width:auto !important;
+    height:auto !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:0 !important;
+    z-index:8 !important;
+    transform:none !important;
+  }
+
+  .toolbar-right .credit-tool{
+    display:none !important;
+  }
+
+  .toolbar-right .toolbar-account-wrap{
+    position:relative !important;
+    display:block !important;
+  }
+
+  .toolbar-right .account-pill{
+    display:inline-flex !important;
+    width:38px !important;
+    min-width:38px !important;
+    max-width:38px !important;
+    height:38px !important;
+    min-height:38px !important;
+    padding:0 !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:0 !important;
+    border-radius:13px !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.055)) !important;
+    border:1px solid rgba(255,255,255,.17) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.20),
+      0 6px 16px rgba(0,7,24,.17) !important;
+    backdrop-filter:blur(14px) saturate(135%) !important;
+    -webkit-backdrop-filter:blur(14px) saturate(135%) !important;
+    overflow:hidden !important;
+    visibility:visible !important;
+    opacity:1 !important;
+  }
+
+  .toolbar-right .account-pill::before{
+    content:"" !important;
+    display:block !important;
+    position:absolute !important;
+    left:6px !important;
+    right:6px !important;
+    top:2px !important;
+    height:38% !important;
+    border-radius:999px !important;
+    background:linear-gradient(180deg,rgba(255,255,255,.18),transparent) !important;
+    pointer-events:none !important;
+  }
+
+  .toolbar-right .account-pill::after{
+    display:none !important;
+    content:none !important;
+  }
+
+  .toolbar-right .account-dot{
+    position:relative !important;
+    z-index:2 !important;
+    display:grid !important;
+    place-items:center !important;
+    width:27px !important;
+    height:27px !important;
+    border-radius:50% !important;
+    color:#fff !important;
+    font-size:10px !important;
+    font-weight:850 !important;
+    background:linear-gradient(135deg,#5eb6ff,#7166eb) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.24),
+      0 3px 9px rgba(36,68,166,.20) !important;
+  }
+
+  .toolbar-right #toolbarAccount,
+  .toolbar-right .account-chevron{
+    display:none !important;
+  }
+
+  /* 4 tab dưới giữ nguyên, không đưa Tài Khoản xuống lần nữa */
+  .mobile-account-link,
+  #mobileAccountBtn{
+    display:none !important;
+  }
+
+  .liquid-nav{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  }
+
+  /* Popup tài khoản nằm dưới top row, không bị che */
+  .account-popover,
+  body > .account-popover-v2{
+    position:fixed !important;
+    top:calc(env(safe-area-inset-top,0px) + 62px) !important;
+    left:12px !important;
+    right:12px !important;
+    width:auto !important;
+    max-width:none !important;
+    z-index:20000 !important;
+  }
+}
+
+/* màn rất nhỏ: thu logo một chút để không chạm 2 nút hai bên */
+@media(max-width:390px){
+  .centered-brand{
+    gap:6px !important;
+  }
+  .centered-brand strong{
+    font-size:14px !important;
+  }
+  .centered-brand .brand-glass-orb{
+    width:29px !important;
+    height:29px !important;
+  }
+  .centered-brand .brand-glass-orb img{
+    width:26px !important;
+    height:26px !important;
+  }
+  .toolbar-right{
+    left:9px !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.21 — Five mobile tabs
+   Chọn Model | Lịch Sử | Kiếm Tiền | Nạp Credits | Tài Khoản
+   ===================================================================== */
+@media(max-width:760px){
+
+  /* Tài Khoản trở lại thanh 5 tab bên dưới */
+  .liquid-nav{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  }
+
+  .mobile-account-link{
+    display:flex !important;
+  }
+
+  .mobile-account-icon{
+    display:grid !important;
+    place-items:center !important;
+    width:26px !important;
+    height:26px !important;
+    margin:0 auto !important;
+    border-radius:50% !important;
+    color:#fff !important;
+    background:linear-gradient(135deg,#57b0ff,#7065e9) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.22),
+      0 3px 9px rgba(37,67,163,.18) !important;
+    font-size:12px !important;
+  }
+
+  /* Không còn nút Tài Khoản riêng ở hàng logo để tránh lặp */
+  .toolbar-right{
+    display:none !important;
+  }
+
+  /* Logo giữa, VN/EN bên phải như trước */
+  .centered-brand{
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+    justify-self:center !important;
+  }
+
+  .toolbar-left{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    z-index:5 !important;
+  }
+
+  /* 5 tab vẫn vừa màn hình nhỏ */
+  .liquid-nav .tool-pill{
+    min-width:0 !important;
+    padding-left:4px !important;
+    padding-right:4px !important;
+  }
+
+  .liquid-nav .mobile-tool-label{
+    font-size:9.5px !important;
+    white-space:nowrap !important;
+  }
+
+  .liquid-nav .mobile-tool-icon{
+    min-height:26px !important;
+  }
+
+  /* Active Account cùng hiệu ứng với 4 tab còn lại */
+  .liquid-nav .mobile-account-link.mobile-active{
+    border-color:#8758ff !important;
+    background:
+      linear-gradient(180deg,rgba(103,67,181,.20),rgba(48,30,78,.12)) !important;
+    box-shadow:
+      0 0 0 1px rgba(125,76,255,.20),
+      0 0 13px rgba(126,72,255,.38),
+      inset 0 0 12px rgba(119,71,229,.12) !important;
+  }
+}
+
+@media(max-width:390px){
+  .liquid-nav .mobile-tool-label{
+    font-size:8.7px !important;
+  }
+
+  .mobile-account-icon{
+    width:24px !important;
+    height:24px !important;
+    font-size:11px !important;
+  }
+}
