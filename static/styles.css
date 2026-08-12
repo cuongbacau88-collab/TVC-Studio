@@ -6710,3 +6710,667 @@ textarea::placeholder{
     font-size:11px !important;
   }
 }
+
+
+/* =====================================================================
+   V3.3.22 — MOBILE 5 TABS LAYOUT FIX
+   Ép đúng bố cục 5 tab dọc dưới logo, không còn nút dài ngang.
+   ===================================================================== */
+@media(max-width:760px){
+
+  :root{
+    --mobile-toolbar-h:124px;
+  }
+
+  .has-global-toolbar{
+    padding-top:calc(var(--mobile-toolbar-h) + env(safe-area-inset-top,0px)) !important;
+  }
+
+  .global-toolbar,
+  .global-toolbar.liquid-toolbar{
+    height:calc(var(--mobile-toolbar-h) + env(safe-area-inset-top,0px)) !important;
+    min-height:calc(var(--mobile-toolbar-h) + env(safe-area-inset-top,0px)) !important;
+    overflow:visible !important;
+  }
+
+  .global-toolbar-inner{
+    position:relative !important;
+    width:100% !important;
+    max-width:none !important;
+    height:var(--mobile-toolbar-h) !important;
+    min-height:var(--mobile-toolbar-h) !important;
+    padding:6px 10px 7px !important;
+
+    display:grid !important;
+    grid-template-columns:64px 1fr 64px !important;
+    grid-template-rows:48px 62px !important;
+    align-items:center !important;
+    gap:0 !important;
+  }
+
+  /* top row */
+  .centered-brand{
+    grid-column:1 / -1 !important;
+    grid-row:1 !important;
+    justify-self:center !important;
+    align-self:center !important;
+    z-index:2 !important;
+  }
+
+  .toolbar-left{
+    grid-column:3 !important;
+    grid-row:1 !important;
+    justify-self:end !important;
+    align-self:center !important;
+    z-index:4 !important;
+  }
+
+  /* Không có credits/account desktop ở hàng trên */
+  .toolbar-right{
+    display:none !important;
+  }
+
+  /* 5 tabs dưới */
+  .global-actions.liquid-nav{
+    grid-column:1 / -1 !important;
+    grid-row:2 !important;
+    position:static !important;
+    width:100% !important;
+    height:60px !important;
+    margin:0 !important;
+    padding:2px 0 0 !important;
+
+    display:grid !important;
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+    gap:5px !important;
+
+    overflow:visible !important;
+    background:transparent !important;
+    justify-self:stretch !important;
+    align-self:end !important;
+  }
+
+  .global-actions.liquid-nav .tool-pill{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:58px !important;
+    min-height:58px !important;
+    margin:0 !important;
+    padding:5px 2px !important;
+
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+
+    border-radius:12px !important;
+    border:1px solid rgba(255,255,255,.16) !important;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.045)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.16),
+      0 5px 12px rgba(0,7,24,.12) !important;
+
+    color:#fff !important;
+    font-size:9px !important;
+    line-height:1 !important;
+    white-space:normal !important;
+    overflow:hidden !important;
+  }
+
+  .global-actions.liquid-nav .tool-pill::before,
+  .global-actions.liquid-nav .tool-pill::after{
+    display:none !important;
+    content:none !important;
+    animation:none !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-icon{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    min-width:0 !important;
+    height:24px !important;
+    min-height:24px !important;
+    margin:0 !important;
+    padding:0 !important;
+    font-size:18px !important;
+    line-height:24px !important;
+    color:#f4f6fb !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-label{
+    display:block !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    padding:0 1px !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    text-align:center !important;
+    font-size:8.9px !important;
+    line-height:1.05 !important;
+    font-weight:650 !important;
+    color:#e1e7f1 !important;
+  }
+
+  /* Credits icon is also vertical */
+  .global-actions.liquid-nav .mobile-credit-icon{
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:3px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon b{
+    font-size:10px !important;
+    color:#6de5ad !important;
+    line-height:1 !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon i{
+    font-style:normal !important;
+    font-size:12px !important;
+    line-height:1 !important;
+  }
+
+  /* Account tab same size as the others */
+  .global-actions.liquid-nav .mobile-account-link{
+    display:flex !important;
+  }
+
+  .global-actions.liquid-nav .mobile-account-icon{
+    display:grid !important;
+    place-items:center !important;
+    width:24px !important;
+    height:24px !important;
+    min-height:24px !important;
+    border-radius:50% !important;
+    background:linear-gradient(135deg,#57b0ff,#7065e9) !important;
+    font-size:11px !important;
+    color:#fff !important;
+  }
+
+  /* active state */
+  .global-actions.liquid-nav .tool-pill.mobile-active,
+  body:not(:has(.tab.active)) .global-actions.liquid-nav [data-tool="models"],
+  body:has(#tab-create.active) .global-actions.liquid-nav [data-tool="models"],
+  body:has(#tab-jobs.active) .global-actions.liquid-nav [data-tool="history"],
+  body:has(#tab-affiliate.active) .global-actions.liquid-nav [data-tool="affiliate"],
+  body:has(#tab-wallet.active) .global-actions.liquid-nav [data-tool="wallet"],
+  body:has(#tab-account.active) .global-actions.liquid-nav [data-tool="account"]{
+    border-color:rgba(130,93,255,.72) !important;
+    background:
+      linear-gradient(180deg,rgba(92,74,185,.28),rgba(255,255,255,.055)) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.17),
+      0 0 0 1px rgba(130,93,255,.12),
+      0 0 13px rgba(111,76,221,.18) !important;
+  }
+
+  .has-global-toolbar.app-body .app-shell{
+    height:calc(100vh - (var(--mobile-toolbar-h) + env(safe-area-inset-top,0px))) !important;
+  }
+
+  .has-global-toolbar .sidebar{
+    top:calc(var(--mobile-toolbar-h) + env(safe-area-inset-top,0px)) !important;
+  }
+}
+
+@media(max-width:390px){
+  .global-actions.liquid-nav{
+    gap:3px !important;
+  }
+
+  .global-actions.liquid-nav .tool-pill{
+    border-radius:10px !important;
+  }
+
+  .global-actions.liquid-nav .mobile-tool-label{
+    font-size:8.2px !important;
+  }
+
+  .centered-brand strong{
+    font-size:14px !important;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.23 — ONE ACCOUNT MENU + NẠP VIP
+   ===================================================================== */
+@media(max-width:760px){
+
+  /* Keep exactly five controls in the lower mobile row. */
+  .global-actions.liquid-nav{
+    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  }
+
+  /* Account is one menu trigger only, not a second Account page shortcut. */
+  .global-actions.liquid-nav .mobile-account-link{
+    display:flex !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:none !important;
+    height:58px !important;
+    min-height:58px !important;
+    margin:0 !important;
+    padding:5px 2px !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:4px !important;
+    appearance:none !important;
+    -webkit-appearance:none !important;
+    font-family:inherit !important;
+    cursor:pointer !important;
+  }
+
+  /* Nạp VIP: show the current balance number only in the icon area. */
+  .global-actions.liquid-nav .mobile-credit-icon{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:auto !important;
+    height:24px !important;
+    min-height:24px !important;
+    margin:0 !important;
+    padding:0 !important;
+    background:transparent !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon b{
+    display:block !important;
+    margin:0 !important;
+    padding:0 !important;
+    color:#70e9b0 !important;
+    font-size:12px !important;
+    font-weight:900 !important;
+    line-height:24px !important;
+    white-space:nowrap !important;
+    background:transparent !important;
+    box-shadow:none !important;
+  }
+
+  .global-actions.liquid-nav .mobile-credit-icon i{
+    display:none !important;
+  }
+
+  /* Popup opened by the single Account tab. */
+  body > .account-popover-v2,
+  .account-popover-v2{
+    z-index:22000 !important;
+  }
+}
+
+/* Desktop credit pill: simple amount + Nạp VIP, no decorative currency symbol. */
+.toolbar-right .credit-tool{
+  gap:7px !important;
+}
+
+.toolbar-right .credit-tool b{
+  color:#69e4a9 !important;
+}
+
+
+/* =====================================================================
+   V3.3.28 — UNIFIED ACCOUNT PANEL
+   Mobile + Desktop use the same account menu style.
+   ===================================================================== */
+
+.account-popover-v3{
+  width:318px !important;
+  padding:12px !important;
+  border-radius:20px !important;
+  overflow:hidden !important;
+  background:
+    linear-gradient(155deg,rgba(48,64,105,.98),rgba(28,40,72,.98)) !important;
+  border:1px solid rgba(255,255,255,.16) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.14),
+    0 26px 70px rgba(0,7,24,.42) !important;
+  backdrop-filter:blur(20px) saturate(140%) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(140%) !important;
+}
+
+.account-popover-v3::before,
+.account-popover-v3::after{
+  display:none !important;
+  content:none !important;
+}
+
+.account-v3-head{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:3px 4px 12px;
+}
+
+.account-v3-avatar{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:#fff;
+  font-size:15px;
+  font-weight:900;
+  background:linear-gradient(145deg,#4fa9ef,#6f60e8);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 7px 18px rgba(31,64,164,.20);
+}
+
+.account-v3-identity{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.account-v3-identity small{
+  color:#aeb9ce !important;
+  font-size:9px !important;
+  line-height:1.2;
+}
+
+.account-v3-identity strong{
+  margin-top:1px;
+  color:#fff !important;
+  font-size:13px !important;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.account-v3-identity span{
+  margin-top:2px;
+  color:#c0cada !important;
+  font-size:10px !important;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.account-v3-balance{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 11px;
+  margin:0 0 10px;
+  border-radius:14px;
+  background:
+    linear-gradient(145deg,rgba(74,98,159,.40),rgba(64,69,139,.28));
+  border:1px solid rgba(255,255,255,.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+.account-v3-balance>div{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+}
+
+.account-v3-balance small{
+  color:#a9b5cb !important;
+  font-size:9px !important;
+}
+
+.account-v3-balance strong{
+  margin-top:2px;
+  color:#67e4aa !important;
+  font-size:17px !important;
+  line-height:1;
+}
+
+.account-v3-balance strong em{
+  color:#b7c2d5 !important;
+  font-size:9px !important;
+  font-style:normal;
+  font-weight:700;
+}
+
+.account-v3-topup{
+  min-height:32px;
+  padding:0 12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:10px;
+  color:#fff !important;
+  font-size:9px;
+  font-weight:850;
+  background:linear-gradient(135deg,#679dff,#8f71ee 55%,#c477d3);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.20),
+    0 7px 16px rgba(59,73,177,.18);
+  white-space:nowrap;
+}
+
+.account-v3-menu{
+  display:grid;
+  gap:4px;
+}
+
+.account-v3-menu a,
+.account-v3-logout{
+  width:100%;
+  min-height:42px;
+  padding:0 9px;
+  display:grid;
+  grid-template-columns:28px 1fr 16px;
+  align-items:center;
+  gap:5px;
+  border-radius:11px;
+  border:0;
+  background:transparent;
+  color:#dde5f2 !important;
+  font-size:11px;
+  font-weight:650;
+  text-align:left;
+  cursor:pointer;
+  transition:
+    transform .14s ease,
+    background .16s ease,
+    color .16s ease;
+}
+
+.account-v3-menu a:hover{
+  background:rgba(255,255,255,.065);
+  color:#fff !important;
+}
+
+.account-v3-menu a:active,
+.account-v3-logout:active{
+  transform:scale(.985);
+}
+
+.account-v3-menu a i{
+  justify-self:end;
+  color:#71809b;
+  font-style:normal;
+  font-size:18px;
+}
+
+.account-v3-icon{
+  width:26px;
+  height:26px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:rgba(255,255,255,.055);
+  color:#d0daea;
+  font-size:13px;
+}
+
+.account-v3-divider{
+  height:1px;
+  margin:8px 4px;
+  background:rgba(255,255,255,.08);
+}
+
+.account-v3-logout{
+  grid-template-columns:28px 1fr;
+  color:#ff8d97 !important;
+}
+
+.account-v3-logout .account-v3-icon{
+  color:#ff8d97;
+  background:rgba(255,82,103,.08);
+}
+
+.account-v3-logout:hover{
+  background:rgba(255,82,103,.07);
+  color:#ffa2aa !important;
+}
+
+/* Desktop account trigger stays simple; panel handles the detail */
+@media(min-width:761px){
+  .toolbar-right .account-pill{
+    min-width:118px !important;
+    justify-content:flex-start !important;
+  }
+
+  .account-popover-v3{
+    top:46px !important;
+    right:0 !important;
+    left:auto !important;
+  }
+}
+
+/* Mobile: same panel style, full-width-ish */
+@media(max-width:760px){
+  body > .account-popover-v3,
+  .account-popover-v3{
+    position:fixed !important;
+    top:calc(env(safe-area-inset-top,0px) + 126px) !important;
+    left:12px !important;
+    right:12px !important;
+    width:auto !important;
+    max-width:none !important;
+    z-index:22000 !important;
+    border-radius:20px !important;
+    padding:12px !important;
+  }
+
+  .account-v3-head{
+    padding-bottom:11px;
+  }
+
+  .account-v3-menu a,
+  .account-v3-logout{
+    min-height:46px;
+    font-size:12px;
+  }
+
+  .account-v3-balance{
+    padding:11px 12px;
+  }
+}
+
+
+/* =====================================================================
+   V3.3.29 — ACCOUNT BUTTON OPENS FLOATING MENU ONLY
+   Tài Khoản = menu nổi; Hồ Sơ Của Tôi = trang thông tin chi tiết.
+   ===================================================================== */
+
+.account-popover-v3{
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  transform:translateY(-7px) scale(.985) !important;
+  transform-origin:top right !important;
+  transition:
+    opacity .17s ease,
+    transform .20s cubic-bezier(.22,.75,.25,1),
+    visibility .17s ease !important;
+}
+
+.account-popover-v3.open{
+  opacity:1 !important;
+  visibility:visible !important;
+  pointer-events:auto !important;
+  transform:translateY(0) scale(1) !important;
+}
+
+/* main triggers visibly respond while the menu is open */
+#toolbarAccountBtn.account-menu-open,
+#mobileAccountBtn.mobile-active,
+#sidebarAccountBtn.active,
+#avatar.account-menu-open{
+  border-color:rgba(135,91,255,.72) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.17),
+    0 0 0 1px rgba(135,91,255,.12),
+    0 0 16px rgba(111,76,221,.22) !important;
+}
+
+.account-avatar-trigger{
+  border:0;
+  cursor:pointer;
+  color:#fff;
+  font-family:inherit;
+}
+
+/* Desktop: popover under the account button */
+@media(min-width:761px){
+  .toolbar-account-wrap{
+    position:relative !important;
+  }
+
+  .account-popover-v3{
+    position:absolute !important;
+    top:46px !important;
+    right:0 !important;
+    left:auto !important;
+    width:318px !important;
+    z-index:22000 !important;
+  }
+
+  #sidebarAccountBtn{
+    cursor:pointer !important;
+  }
+}
+
+/* Mobile: open the same panel under the 5-tab toolbar */
+@media(max-width:760px){
+  body > .account-popover-v3,
+  .account-popover-v3{
+    position:fixed !important;
+    top:calc(env(safe-area-inset-top,0px) + 126px) !important;
+    left:10px !important;
+    right:10px !important;
+    width:auto !important;
+    max-width:none !important;
+    max-height:calc(100dvh - 150px) !important;
+    overflow:auto !important;
+    z-index:30000 !important;
+    transform-origin:top center !important;
+  }
+
+  .account-popover-v3.open{
+    transform:translateY(0) scale(1) !important;
+  }
+
+  #mobileAccountBtn{
+    cursor:pointer !important;
+    touch-action:manipulation !important;
+    -webkit-tap-highlight-color:transparent !important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .account-popover-v3{
+    transition:none !important;
+    transform:none !important;
+  }
+}

@@ -83,11 +83,38 @@ function tvcInitToolbar(){
   }
   const desktopBtn=document.getElementById('toolbarAccountBtn');
   const mobileBtn=document.getElementById('mobileAccountBtn');
-  const toggle=()=>pop?.classList.toggle('open');
-  desktopBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
-  mobileBtn?.addEventListener('click',e=>{e.stopPropagation();toggle()});
+  const sidebarBtn=document.getElementById('sidebarAccountBtn');
+  const dashboardAvatar=document.getElementById('avatar');
+
+  const setAccountMenuOpen=(open)=>{
+    if(!pop) return;
+    pop.classList.toggle('open',open);
+    mobileBtn?.classList.toggle('mobile-active',open);
+    desktopBtn?.classList.toggle('account-menu-open',open);
+    sidebarBtn?.classList.toggle('active',open);
+    dashboardAvatar?.classList.toggle('account-menu-open',open);
+  };
+
+  const toggleAccountMenu=(e)=>{
+    e?.preventDefault();
+    e?.stopPropagation();
+    setAccountMenuOpen(!pop?.classList.contains('open'));
+  };
+
+  desktopBtn?.addEventListener('click',toggleAccountMenu);
+  mobileBtn?.addEventListener('click',toggleAccountMenu);
+  sidebarBtn?.addEventListener('click',toggleAccountMenu);
+  dashboardAvatar?.addEventListener('click',toggleAccountMenu);
+
   document.addEventListener('click',e=>{
-    if(wrap && !wrap.contains(e.target) && !mobileBtn?.contains(e.target)) pop?.classList.remove('open');
+    if(!pop?.classList.contains('open')) return;
+    const clickedTrigger =
+      desktopBtn?.contains(e.target) ||
+      mobileBtn?.contains(e.target) ||
+      sidebarBtn?.contains(e.target) ||
+      dashboardAvatar?.contains(e.target);
+    const clickedPanel = pop.contains(e.target);
+    if(!clickedTrigger && !clickedPanel) setAccountMenuOpen(false);
   });
 
 
@@ -96,13 +123,14 @@ function tvcInitToolbar(){
       const tab=link.dataset.accountAction;
       if(typeof goto==='function' && ['jobs','wallet','account','affiliate'].includes(tab)){
         e.preventDefault();
-        pop?.classList.remove('open');
+        setAccountMenuOpen(false);
         goto(tab);
       }
     });
   });
 
   document.getElementById('toolbarLogout')?.addEventListener('click',async()=>{
+    setAccountMenuOpen(false);
     await fetch('/api/logout',{method:'POST'});
     location.href='/';
   });
@@ -270,7 +298,7 @@ function goto(tab,opts={}){
   },190);
 }
 
-$$('.side').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
+$$('.side[data-tab]').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
 
 // On the app page, toolbar History / Affiliate / Wallet switch tabs directly.

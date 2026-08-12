@@ -35,51 +35,51 @@
           <span class="account-chevron">⌄</span>
         </button>
 
-        <div class="account-popover account-popover-v2 liquid-popover" id="accountPopover">
-          <div class="account-v2-head">
-            <span class="account-avatar-lg" id="toolbarAccountAvatar">T</span>
-            <div class="account-v2-identity">
+        <div class="account-popover account-popover-v3 liquid-popover" id="accountPopover">
+          <div class="account-v3-head">
+            <div class="account-v3-avatar" id="toolbarAccountAvatar">T</div>
+            <div class="account-v3-identity">
               <small data-i18n="hello">Xin chào</small>
-              <b id="toolbarAccountName">Tài Khoản</b>
+              <strong id="toolbarAccountName">Tài Khoản</strong>
               <span id="toolbarAccountEmail">Chưa đăng nhập</span>
             </div>
           </div>
 
-          <div class="account-v2-balance">
+          <div class="account-v3-balance">
             <div>
               <small data-i18n="balance">Số dư</small>
               <strong><span id="toolbarAccountCredits">0</span> <em>TVC</em></strong>
             </div>
-            <a href="/app#wallet" data-account-action="wallet" class="account-v2-topup" data-i18n="addTVC">Nạp thêm</a>
+            <a href="/app#wallet" data-account-action="wallet" class="account-v3-topup" data-i18n="addCredits">Nạp thêm</a>
           </div>
 
-          <nav class="account-v2-menu">
+          <nav class="account-v3-menu">
             <a href="/app#jobs" data-account-action="jobs">
-              <span class="account-menu-icon">◷</span>
+              <span class="account-v3-icon">◷</span>
               <span data-i18n="history">Lịch Sử</span>
               <i>›</i>
             </a>
             <a href="/app#wallet" data-account-action="wallet">
-              <span class="account-menu-icon">◇</span>
+              <span class="account-v3-icon">◇</span>
               <span data-i18n="topup">Nạp VIP</span>
               <i>›</i>
             </a>
             <a href="/app#account" data-account-action="account">
-              <span class="account-menu-icon">◎</span>
+              <span class="account-v3-icon">◎</span>
               <span data-i18n="profile">Hồ Sơ Của Tôi</span>
               <i>›</i>
             </a>
             <a href="/app#affiliate" data-account-action="affiliate">
-              <span class="account-menu-icon">◉</span>
+              <span class="account-v3-icon">◉</span>
               <span data-i18n="affiliateMenu">Kiếm Tiền Affiliate</span>
               <i>›</i>
             </a>
           </nav>
 
-          <div class="account-v2-divider"></div>
+          <div class="account-v3-divider"></div>
 
-          <button type="button" id="toolbarLogout" class="account-v2-logout">
-            <span class="account-menu-icon">↪</span>
+          <button type="button" id="toolbarLogout" class="account-v3-logout">
+            <span class="account-v3-icon">↪</span>
             <span data-i18n="logout">Đăng xuất</span>
           </button>
         </div>
@@ -103,7 +103,7 @@
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
  <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví TVC</button>
  <button data-tab="affiliate" class="side" data-i18n="earnNav">💸 Kiếm tiền</button>
- <button data-tab="account" class="side" data-i18n="accountNav">⚙ Tài khoản</button>
+ <button type="button" class="side account-menu-trigger" id="sidebarAccountBtn" data-i18n="accountNav">⚙ Tài khoản</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">

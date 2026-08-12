@@ -491,3 +491,18 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Gói `Tạo Video Chất Lượng`: `2 TVC`.
 - Bỏ toàn bộ chữ `480/720` ở phần hiển thị nút tạo video.
 - Đồng bộ cả frontend và backend tính phí.
+
+
+## V3.3.28 — Đồng bộ menu Tài Khoản mobile + PC
+- Giữ đúng mẫu menu Tài Khoản: avatar, Xin chào, tên, trạng thái, số dư TVC, Nạp thêm.
+- Menu gồm: Lịch Sử, Nạp VIP, Hồ Sơ Của Tôi, Kiếm Tiền Affiliate, Đăng xuất.
+- Mobile và desktop dùng cùng một kiểu panel.
+- Không tạo thêm nút/menu Tài Khoản thứ hai.
+
+
+## V3.3.29 — Tài Khoản mở menu nổi
+- Bấm `Tài Khoản` trên mobile: mở menu nổi, không chuyển sang trang thông tin tài khoản.
+- Bấm `Tài Khoản` trên desktop toolbar: mở cùng menu nổi.
+- Bấm `Tài khoản` ở sidebar PC hoặc avatar dashboard: cũng mở cùng menu.
+- Chỉ mục `Hồ Sơ Của Tôi` bên trong menu mới mở trang thông tin tài khoản chi tiết.
+- Menu giữ: avatar, tên/email, số dư TVC, Nạp thêm, Lịch Sử, Nạp VIP, Hồ Sơ Của Tôi, Kiếm Tiền Affiliate, Đăng xuất.
