@@ -4,6 +4,8 @@
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
   if(!host)return;
 
+  document.body.classList.add('tvc-fixed-toolbar');
+
   const labels={
     vi:{models:'Trang Chủ',history:'Lịch Sử',affiliate:'Giới Thiệu',wallet:'Nạp VIP',account:'Tài Khoản',login:'Đăng Nhập',greeting:'Chào bạn,',topup:'Nạp Thêm Lượt',support:'Hỗ Trợ',profile:'Hồ Sơ Của Tôi',commission:'Giới Thiệu Nhận Hoa Hồng',logout:'Đăng Xuất'},
     en:{models:'Home',history:'History',affiliate:'Referral',wallet:'Top Up',account:'Account',login:'Log In',greeting:'Hello,',topup:'Add Usage',support:'Support',profile:'My Profile',commission:'Referral Commission',logout:'Log Out'}
@@ -162,6 +164,7 @@
   document.addEventListener('tvc-auth-change',()=>syncAccount());
 
   function updateToolbarHeight(){
+    document.documentElement.style.setProperty('--header-height',Math.ceil(host.getBoundingClientRect().height)+'px');
     document.documentElement.style.setProperty('--tvc-toolbar-height',`${Math.ceil(host.getBoundingClientRect().height)}px`);
   }
   if('ResizeObserver' in window){

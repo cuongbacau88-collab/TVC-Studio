@@ -278,6 +278,20 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn("transition:background-color .22s ease", final)
         self.assertIn("transform:none!important", final)
 
+    def test_blue_fixed_header_and_compact_account_menu_contract(self):
+        final = self.responsive_css[self.responsive_css.index("/* Blue liquid-glass toolbar"):]
+        self.assertIn("position:fixed!important", final)
+        self.assertIn("padding-top:var(--header-height)", final)
+        self.assertIn("z-index:9000!important", final)
+        self.assertIn("repeat(5,minmax(0,1fr))", final)
+        self.assertIn("width:min(78vw,300px)", final)
+        self.assertIn("right:max(10px,env(safe-area-inset-right,0px))", final)
+        self.assertIn("rgba(16,42,92,.96)", final)
+        self.assertIn("blur(18px) saturate(145%)", final)
+        self.assertIn("rgba(143,99,255,.92)", final)
+        self.assertIn("classList.add('tvc-fixed-toolbar')", self.toolbar_js)
+        self.assertIn("--header-height", self.toolbar_js)
+
 
 if __name__ == "__main__":
     unittest.main()
