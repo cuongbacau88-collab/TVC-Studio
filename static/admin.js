@@ -1,6 +1,7 @@
 const $=s=>document.querySelector(s);const toast=$('#toast');
 function say(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)}
 async function api(url,opt={}){const r=await fetch(url,opt);let j={};try{j=await r.json()}catch{};if(!r.ok)throw new Error(j.detail||'Lỗi');return j}
+function jobDisplayName(job){return job.service==='video_generation'?'AI Video Creator':!job.service?'AI Motion Studio':job.model}
 async function boot(){try{const me=await api('/api/me');if(me.role!=='admin')throw new Error('Không có quyền admin');await load()}catch(e){alert(e.message);location.href='/'}}
 async function load(){
  const [s,t,u,j,aw,au]=await Promise.all([
@@ -19,7 +20,7 @@ async function load(){
    x.id,x.email,x.name,x.credits,x.role,`<button class="mini-btn" onclick="addCredits(${x.id},'${x.email}')">± Lượt</button>`
  ]));
  $('#jobs').innerHTML=table(['ID','Khách','Model','Quality','Cost','Status','Progress','Error'],j.map(x=>[
-   x.id,x.email,x.model,x.quality+'p',x.cost,x.status,x.progress+'%',x.error||''
+   x.id,x.email,jobDisplayName(x),x.quality+'p',x.cost,x.status,x.progress+'%',x.error||''
  ]));
  $('#affiliateWithdrawals').innerHTML=table(['ID','Khách','Lượt','VND','Method','Account','Status',''],aw.map(x=>[
    x.id,x.email,x.amount_credits,Number(x.amount_vnd).toLocaleString('vi-VN')+'đ',x.method,x.account,x.status,

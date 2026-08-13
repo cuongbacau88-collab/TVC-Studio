@@ -5,7 +5,7 @@ const TVC_I18N = {
     wallet:"Ví lượt", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng lượt", refundNote:"Job lỗi được hoàn lượt tự động",
-    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Biến ảnh nhân vật thành video theo chuyển động từ video mẫu.",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Sao chép chuyển động chân thực từ video mẫu, giữ trọn thần thái nhân vật.",
     createNow:"Tạo ngay",
     modelBgTitle:"AI Đổi Bối Cảnh", modelBgDesc:"Thay bối cảnh phía sau nhưng giữ nguyên nhân vật.",
     modelOutfitImageTitle:"AI Đổi Trang Phục", modelOutfitImageDesc:"Thay trang phục cho nhân vật, ưu tiên giữ nguyên khuôn mặt và danh tính.",
@@ -31,7 +31,7 @@ const TVC_I18N = {
     wallet:"Usage wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
     creditPayment:"Pay per use", refundNote:"Uses are automatically refunded if a job fails",
-    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Turn a character image into video using motion from a reference video.",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Realistically copy motion from a reference video while preserving the character’s presence.",
     createNow:"Create now",
     modelBgTitle:"AI Đổi Bối Cảnh", modelBgDesc:"Replace the background while preserving the character.",
     modelOutfitImageTitle:"AI Đổi Trang Phục", modelOutfitImageDesc:"Change clothing while prioritizing face and identity preservation.",
@@ -342,14 +342,17 @@ form.onsubmit=async e=>{
   }
 }
 function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Lỗi',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
+function jobResultUrl(j){return j.service?`/api/services/${encodeURIComponent(j.service)}/jobs/${j.id}/result`:`/api/jobs/${j.id}/output`}
+function jobOpenUrl(j){return j.service?`/services/${encodeURIComponent(j.service)}?job=${j.id}`:null}
+function jobDisplayName(j){return j.service==='video_generation'?'AI Video Creator':!j.service?'AI Motion Studio':j.model}
 async function loadJobs(){
   try{
     const jobs=await api('/api/jobs');
     $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
       <div class="thumb">🎬</div>
-      <div><b>#${j.id} • AI Motion Studio</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
+      <div><b>#${j.id} • ${jobDisplayName(j)}</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}${jobOpenUrl(j)?`<small><a class="mini-btn" href="${jobOpenUrl(j)}">Mở lại job</a></small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
-      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}${j.can_cancel?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
+      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="${jobResultUrl(j)}">Tải kết quả</a>`:''}${j.can_cancel&&!j.service?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
   }catch(e){say(e.message)}
 }

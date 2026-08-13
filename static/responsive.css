@@ -1,0 +1,35 @@
+html,body{max-width:100%;overflow-x:hidden}
+img,video,canvas,svg{max-width:100%}
+input,select,textarea,button{max-width:100%;font:inherit}
+.global-toolbar{position:sticky;top:0;z-index:80;width:100%;padding-top:env(safe-area-inset-top)}
+.global-toolbar-inner{max-width:1240px;min-width:0;margin:auto}
+.global-actions{min-width:0}
+.global-actions [aria-current="page"]{border-color:rgba(166,135,255,.62)!important;background:rgba(123,92,225,.18)!important}
+.service-page .global-toolbar{background:rgba(9,13,25,.86);backdrop-filter:blur(18px)}
+.service-page .global-toolbar-inner{padding-inline:clamp(10px,3vw,24px)}
+.service-page .prompt-help{margin:0 0 18px;padding:12px 14px;border-radius:12px;background:rgba(137,111,255,.08);color:#b9c4da;font-size:12px;line-height:1.6}
+@media(max-width:760px){
+  .global-toolbar-inner{display:grid!important;grid-template-columns:auto 1fr!important;gap:8px!important;padding:8px 10px!important}
+  .global-brand{position:static!important;transform:none!important;min-width:0!important;justify-self:end}
+  .global-brand strong{white-space:nowrap}
+  .global-actions{grid-column:1/-1;width:100%;display:flex!important;overflow-x:auto!important;overscroll-behavior-inline:contain;scroll-snap-type:x proximity;scrollbar-width:none;padding:2px 0 max(4px,env(safe-area-inset-bottom))!important}
+  .global-actions::-webkit-scrollbar{display:none}
+  .global-actions>.tool-pill,.global-actions>a{flex:0 0 auto!important;min-width:88px!important;scroll-snap-align:center}
+  .service-shell,.model-main,.legal-main,.workspace,.dash{min-width:0!important;width:100%!important}
+  .service-grid,.upload-pair,.wallet-grid,.referral-columns,.contact-cards,.public-pricing-grid{grid-template-columns:minmax(0,1fr)!important}
+  .service-panel,.model-card,.panel-card,.job,.simple-create-card{min-width:0!important;max-width:100%!important}
+  .service-page .service-shell{padding:28px 14px max(60px,env(safe-area-inset-bottom))}
+  .service-page .service-grid{grid-template-columns:minmax(0,1fr)}
+  .service-page .service-panel{padding:18px}
+  .service-page .field-row,.service-page .comparison{grid-template-columns:minmax(0,1fr)}
+  .service-page .file-preview img{height:auto;max-height:280px;object-fit:contain}
+  .service-page .service-submit{width:100%}
+}
+@media(max-width:420px){
+  .global-brand strong{font-size:12px!important}
+  .global-actions>.tool-pill,.global-actions>a{min-width:82px!important}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .global-toolbar{position:sticky}
+  .service-page .service-shell{padding-top:20px}
+}

@@ -795,8 +795,14 @@ def my_jobs(request: Request):
     u = current_user(request)
     refresh_gpu_jobs(u["id"])
     con = db()
+    service_rows = con.execute("SELECT id FROM jobs WHERE user_id=? AND service IS NOT NULL AND status IN ('waiting','running','upscaling') ORDER BY id DESC LIMIT 20", (u["id"],)).fetchall()
+    con.close()
+    from service_routes import refresh_job as refresh_service_job
+    for service_row in service_rows:
+        refresh_service_job(u["id"], service_row["id"])
+    con = db()
     rows = con.execute("""
-        SELECT id,model,aspect_ratio,quality,prompt,cost,status,progress,error,created_at,updated_at,
+        SELECT id,model,service,aspect_ratio,quality,prompt,cost,status,progress,error,created_at,updated_at,
                CASE WHEN output_path IS NOT NULL OR (gpu_job_id IS NOT NULL AND status='done') THEN 1 ELSE 0 END AS has_output,
                CASE WHEN gpu_job_id IS NOT NULL AND status='waiting' THEN 1 ELSE 0 END AS can_cancel
         FROM jobs WHERE user_id=? ORDER BY id DESC LIMIT 100

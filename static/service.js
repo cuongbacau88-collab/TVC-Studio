@@ -2,11 +2,16 @@ const key=location.pathname.split('/').filter(Boolean).pop();
 const $=id=>document.getElementById(id);
 let config=null,currentJob=null,pollTimer=null,submitting=false;
 const definitions={
- video_generation:{title:'AI Tạo Video',desc:'Tạo video từ prompt và ảnh tham chiếu tùy chọn.',button:'Tạo video'},
+ video_generation:{title:'AI Video Creator',desc:'Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.',button:'Tạo video'},
  outfit_change:{title:'AI Đổi Trang Phục',desc:'Thay trang phục, ưu tiên giữ khuôn mặt và danh tính.',button:'Đổi trang phục'},
  background_change:{title:'AI Đổi Bối Cảnh',desc:'Thay bối cảnh bằng ảnh tham chiếu hoặc mô tả.',button:'Đổi bối cảnh'},
  image_upscale:{title:'AI Nâng Cấp Ảnh',desc:'Tăng độ phân giải và so sánh ảnh trước/sau.',button:'Nâng cấp ảnh'}
 };
+const prompts={
+ vi:{outfit:'Chỉ thay trang phục của nhân vật trong ảnh gốc theo ảnh trang phục tham chiếu. Giữ nguyên khuôn mặt, danh tính, kiểu tóc, tông da, tỷ lệ cơ thể, tư thế, góc máy, ánh sáng và bối cảnh. Không lấy khuôn mặt, cơ thể hoặc tư thế từ ảnh trang phục.',background:'Chỉ thay bối cảnh của ảnh gốc theo ảnh tham chiếu hoặc mô tả. Giữ nguyên tuyệt đối khuôn mặt, danh tính, kiểu tóc, trang phục, cơ thể, tư thế, góc máy và bố cục nhân vật. Ghép cảnh tự nhiên, giữ viền tóc sạch và không làm da bị ám màu theo nền.'},
+ en:{outfit:'Only replace the original character’s clothing using the outfit reference. Preserve the face, identity, hairstyle, skin tone, body proportions, pose, camera angle, lighting, and background. Do not copy the face, body, or pose from the outfit image.',background:'Only replace the original image background using the reference image or description. Strictly preserve the face, identity, hairstyle, clothing, body, pose, camera angle, and character composition. Blend naturally, keep clean hair edges, and prevent background color spill on skin.'}
+};
+function language(){return localStorage.getItem('tvc_lang')==='en'?'en':'vi'}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function api(url,options={}){
  const response=await fetch(url,options),type=response.headers.get('content-type')||'';
@@ -21,16 +26,16 @@ function fileField(name,label,required=false){
 function renderFields(){
  let html='';
  if(key==='video_generation'){
-  html=`<label class="service-field"><span>Prompt *</span><textarea name="prompt" maxlength="2000" required placeholder="Mô tả video bạn muốn tạo"></textarea></label>
+  html=`<p class="prompt-help">Nhân vật đang làm gì? • Bối cảnh ở đâu? • Camera chuyển động thế nào? • Ánh sáng và phong cách mong muốn?</p><label class="service-field"><span>Prompt *</span><textarea name="prompt" maxlength="2000" required placeholder="Ví dụ: Một cô gái mặc váy trắng bước chậm trên bãi biển lúc hoàng hôn, tóc bay nhẹ trong gió, camera tiến gần, ánh sáng điện ảnh, chuyển động tự nhiên."></textarea></label>
   ${fileField('reference_image','Ảnh tham chiếu (tùy chọn)')}
   <div class="field-row"><label class="service-field"><span>Tỷ lệ</span><select name="aspect_ratio">${config.aspect_ratios.map(v=>`<option>${v}</option>`).join('')}</select></label>
   <label class="service-field"><span>Thời lượng</span><select name="duration" ${config.durations.length?'':'disabled'}>${config.durations.length?config.durations.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join(''):'<option>Chưa cấu hình model</option>'}</select></label></div>`;
  }else if(key==='outfit_change'){
-  html=fileField('character_image','Ảnh nhân vật',true)+fileField('outfit_image','Ảnh trang phục tham chiếu',true)+`<label class="service-field"><span>Prompt bổ sung</span><textarea name="prompt" maxlength="2000" placeholder="Yêu cầu thêm (tùy chọn)"></textarea></label>`;
+  html=fileField('character_image','Ảnh nhân vật',true)+fileField('outfit_image','Ảnh trang phục tham chiếu',true)+`<label class="service-field"><span>Prompt bổ sung</span><textarea name="prompt" maxlength="2000">${escapeHtml(prompts[language()].outfit)}</textarea></label>`;
  }else if(key==='background_change'){
-  html=fileField('source_image','Ảnh gốc',true)+fileField('background_image','Ảnh bối cảnh tham chiếu')+`<label class="service-field"><span>Mô tả bối cảnh</span><textarea name="prompt" maxlength="2000" placeholder="Nhập mô tả nếu không tải ảnh bối cảnh"></textarea></label>`;
+  html=fileField('source_image','Ảnh gốc',true)+fileField('background_image','Ảnh bối cảnh tham chiếu')+`<label class="service-field"><span>Mô tả bối cảnh</span><textarea name="prompt" maxlength="2000">${escapeHtml(prompts[language()].background)}</textarea></label>`;
  }else if(key==='image_upscale'){
-  html=fileField('source_image','Ảnh cần nâng cấp',true)+`<div class="field-row"><label class="service-field"><span>Mức phóng đại</span><select name="scale">${config.scales.map(v=>`<option value="${v}">${v}x</option>`).join('')}</select></label>
+  html=`<p class="prompt-help">Hệ thống tăng độ nét và độ phân giải nhưng cố gắng giữ nguyên khuôn mặt và nội dung ảnh.</p>`+fileField('source_image','Ảnh cần nâng cấp',true)+`<div class="field-row"><label class="service-field"><span>Mức phóng đại</span><select name="scale">${config.scales.map(v=>`<option value="${v}">${v}x</option>`).join('')}</select></label>
   <label class="check-field"><input type="checkbox" name="restore_face" value="true" ${config.face_restore_supported?'':'disabled'}><span>Phục hồi khuôn mặt${config.face_restore_supported?'':' (worker chưa hỗ trợ)'}</span></label></div>`;
  }
  $('dynamicFields').innerHTML=html;
@@ -73,10 +78,12 @@ async function init(){
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));
  if(unavailable){$('configNotice').textContent=!config.configured?'Dịch vụ chưa kết nối máy chủ xử lý.':'Model chưa được cấu hình thời lượng hoặc mức lượt sử dụng.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}
  renderFields();$('requestKey').value=requestKey();
+ const requestedJob=new URLSearchParams(location.search).get('job');
+ if(requestedJob&&/^\d+$/.test(requestedJob)){try{setStatus(await api(`/api/services/${key}/jobs/${requestedJob}`))}catch(e){setError(e.message)}}
 }
 $('serviceForm').addEventListener('submit',async event=>{
  event.preventDefault();if(submitting)return;submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
- try{const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:new FormData(event.currentTarget)});setStatus(job)}
+ try{const data=new FormData(event.currentTarget);data.set('language',language());const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
  catch(e){setError(e.message)}
  finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key].button}
 });

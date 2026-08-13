@@ -8,6 +8,7 @@
 <meta name="description" content="TVC Studio AI - chọn công cụ AI video và hình ảnh.">
 <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css">
+<link rel="stylesheet" href="/static/responsive.css?v=1">
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344">
 </head>
@@ -113,7 +114,7 @@
       <div class="platform-intro-icon">✨</div>
       <div class="platform-intro-copy">
         <span data-i18n="introKicker">GIỚI THIỆU</span>
-        <p data-i18n="introText">Nền tảng cung cấp AI Copy Chuyển Động, giúp biến ảnh nhân vật thành video theo chuyển động từ video mẫu.</p>
+        <p data-i18n="introText">Nền tảng cung cấp AI Motion Studio, giúp biến ảnh nhân vật thành video theo chuyển động từ video mẫu.</p>
         <strong data-i18n="introVietnam">Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳</strong>
       </div>
     </section>
@@ -124,13 +125,13 @@
           <video class="model-preview-video motion-preview-video" autoplay muted loop playsinline preload="metadata" poster="/static/images/card_motion.png">
             <source src="/static/videos/card_motion.mp4" type="video/mp4">
           </video>
-          <img class="model-preview-image motion-video-fallback" src="/static/images/card_motion.png" alt="AI Copy Chuyển Động">
+          <img class="model-preview-image motion-video-fallback" src="/static/images/card_motion.png" alt="AI Motion Studio">
           <button class="motion-open-player" type="button" aria-label="Mở video có âm thanh" title="Xem video"><span>▶</span></button>
         </div>
         <div class="model-body motion-card-body">
-          <div class="model-badges"><span class="badge purple" data-i18n="mainService">DỊCH VỤ CHÍNH</span><span class="badge" data-i18n="motionSubtitle">COPY CHUYỂN ĐỘNG</span></div>
-          <h2 data-i18n="modelMotionTitle">AI Copy Chuyển Động</h2>
-          <p data-i18n="modelMotionDesc">Biến ảnh nhân vật thành video theo chuyển động từ video mẫu.</p>
+          <div class="model-badges"><span class="badge purple" data-i18n="mainService">DỊCH VỤ CHÍNH</span><span class="badge" data-i18n="motionSubtitle">AI MOTION STUDIO</span></div>
+          <h2 data-i18n="modelMotionTitle">AI Motion Studio</h2>
+          <p data-i18n="modelMotionDesc">Sao chép chuyển động chân thực từ video mẫu, giữ trọn thần thái nhân vật.</p>
           <div class="model-footer motion-card-footer">
             <div class="credit-price"><b>◉ 1</b><span data-i18n="perVideo">lượt / video</span></div>
             <a class="model-button motion-cta-button" href="/app?tool=motion"><span class="motion-cta-icon">🎥</span><span data-i18n="createVideo">Tạo Video</span></a>
@@ -140,12 +141,12 @@
 
       <article class="model-card coming">
         <div class="model-visual service-image-visual">
-          <img class="model-preview-image service-card-image" src="/static/images/services/ai-tao-video.png" alt="AI Tạo Video">
+          <img class="model-preview-image service-card-image" src="/static/images/services/ai-tao-video.png" alt="AI Video Creator">
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple">AI VIDEO</span><span class="badge" data-i18n="promptVideoSubtitle">TẠO VIDEO BẰNG PROMPT</span></div>
-          <h2 data-i18n="videoCreatorTitle">AI Tạo Video</h2>
-          <p data-i18n="videoCreatorDesc">Biến ý tưởng, câu lệnh hoặc ảnh tham chiếu thành video AI.</p>
+          <h2 data-i18n="videoCreatorTitle">AI Video Creator</h2>
+          <p data-i18n="videoCreatorDesc">Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.</p>
           <div class="model-footer">
             <div class="credit-price"><b>CHỜ CẤU HÌNH</b><span>Mức lượt theo model</span></div>
             <a class="model-button" href="/services/video_generation">Mở dịch vụ</a>
@@ -262,10 +263,10 @@ const TVC_I18N = {
   vi:{
     topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
     wallet:"Ví lượt", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
-    chooseModelEyebrow:"AI DỊCH VỤ", chooseToolSubtitle:"AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.", introKicker:"GIỚI THIỆU", introText:"Nền tảng cung cấp AI Copy Chuyển Động, giúp biến ảnh nhân vật thành video theo chuyển động từ video mẫu.", introVietnam:"Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳",
+    chooseModelEyebrow:"AI DỊCH VỤ", chooseToolSubtitle:"AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.", introKicker:"GIỚI THIỆU", introText:"Nền tảng cung cấp AI Motion Studio, giúp biến ảnh nhân vật thành video theo chuyển động từ video mẫu.", introVietnam:"Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳",
     creditPayment:"Thanh toán bằng lượt", refundNote:"Job lỗi được hoàn lượt tự động",
-    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Biến ảnh nhân vật thành video theo chuyển động từ video mẫu.", mainService:"DỊCH VỤ CHÍNH", motionSubtitle:"COPY CHUYỂN ĐỘNG",
-    videoCreatorTitle:"AI Tạo Video", videoCreatorDesc:"Biến ý tưởng, câu lệnh hoặc ảnh tham chiếu thành video AI.", promptVideoSubtitle:"TẠO VIDEO BẰNG PROMPT",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Sao chép chuyển động chân thực từ video mẫu, giữ trọn thần thái nhân vật.", mainService:"DỊCH VỤ CHÍNH", motionSubtitle:"AI MOTION STUDIO",
+    videoCreatorTitle:"AI Video Creator", videoCreatorDesc:"Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.", promptVideoSubtitle:"TẠO VIDEO BẰNG PROMPT",
     outfitTitle:"AI Đổi Trang Phục", outfitDesc:"Thay trang phục cho nhân vật, ưu tiên giữ nguyên khuôn mặt và danh tính.", outfitSubtitle:"THAY TRANG PHỤC",
     sceneTitle:"AI Đổi Bối Cảnh", sceneDesc:"Thay bối cảnh phía sau nhưng giữ nguyên nhân vật.", sceneSubtitle:"THAY CẢNH",
     upscaleTitle:"AI Nâng Cấp Ảnh", upscaleDesc:"Nâng độ phân giải ảnh, ưu tiên giữ khuôn mặt và chi tiết.", upscaleSubtitle:"NÂNG CHẤT LƯỢNG ẢNH",
@@ -289,10 +290,10 @@ const TVC_I18N = {
   en:{
     topup:"VIP Top-up", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Referral", addTVC:"Add TVC",
     wallet:"Usage wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
-    chooseModelEyebrow:"AI SERVICES", chooseToolSubtitle:"TVC Studio AI – When images begin to move.", introKicker:"ABOUT", introText:"AI Copy Chuyển Động turns character images into videos using motion from a reference video.", introVietnam:"Hoàng Sa and Trường Sa are part of Vietnam. 🇻🇳",
+    chooseModelEyebrow:"AI SERVICES", chooseToolSubtitle:"TVC Studio AI – When images begin to move.", introKicker:"ABOUT", introText:"AI Motion Studio turns character images into videos using motion from a reference video.", introVietnam:"Hoàng Sa and Trường Sa are part of Vietnam. 🇻🇳",
     creditPayment:"Pay per use", refundNote:"Uses are automatically refunded if a job fails",
-    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Turn a character image into video using motion from a reference video.", mainService:"MAIN SERVICE", motionSubtitle:"MOTION COPY",
-    videoCreatorTitle:"AI Tạo Video", videoCreatorDesc:"Turn an idea, prompt, or reference image into AI video.", promptVideoSubtitle:"PROMPT TO VIDEO",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Realistically copy motion from a reference video while preserving the character’s presence.", mainService:"MAIN SERVICE", motionSubtitle:"AI MOTION STUDIO",
+    videoCreatorTitle:"AI Video Creator", videoCreatorDesc:"Turn a prompt or reference image into an AI-generated motion video — similar to Veo 3.", promptVideoSubtitle:"PROMPT TO VIDEO",
     outfitTitle:"AI Đổi Trang Phục", outfitDesc:"Change a character's clothing while prioritizing face and identity preservation.", outfitSubtitle:"CHANGE OUTFIT",
     sceneTitle:"AI Đổi Bối Cảnh", sceneDesc:"Replace the background while preserving the character.", sceneSubtitle:"CHANGE SCENE",
     upscaleTitle:"AI Nâng Cấp Ảnh", upscaleDesc:"Increase image resolution while prioritizing facial identity and detail.", upscaleSubtitle:"IMAGE UPSCALE",
@@ -400,10 +401,10 @@ document.addEventListener("DOMContentLoaded",()=>{tvcInitToolbar();tvcSyncToolba
 
 <div class="motion-player-modal" id="motionPlayerModal" aria-hidden="true">
   <div class="motion-player-backdrop" data-player-close></div>
-  <div class="motion-player-panel" role="dialog" aria-modal="true" aria-label="Video Copy Chuyển Động">
+  <div class="motion-player-panel" role="dialog" aria-modal="true" aria-label="Video AI Motion Studio">
     <div class="motion-player-topbar">
       <div>
-        <b>AI Copy Chuyển Động</b>
+        <b>AI Motion Studio</b>
         <small>Video demo</small>
       </div>
       <button class="motion-player-close" type="button" data-player-close aria-label="Đóng">×</button>
@@ -519,6 +520,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+<script src="/static/global-toolbar.js"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="/static/google-login.js?v=3336"></script>
 </body>

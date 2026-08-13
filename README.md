@@ -106,7 +106,7 @@ motionhub_business_v2/
 
 ## V2.1 - Trang chủ chọn model
 Trang `/` giờ là trang chọn model dạng card như dịch vụ AI marketplace.
-Model `AI Copy Chuyển Động` đang dẫn vào dashboard thật.
+Model `AI Motion Studio` đang dẫn vào dashboard thật.
 Các model còn lại hiển thị `Sắp có` để không tạo job mà worker chưa hỗ trợ.
 
 Nếu website V2 đang chạy trên Railway:
@@ -227,25 +227,25 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Button và trạng thái active bỏ glow tím nặng.
 - Desktop và mobile cùng theme.
 
-## V3.1.1 — Thay ảnh Copy Chuyển Động
-- Đã thay ảnh mới cho mục / card `Copy Chuyển Động`.
+## V3.1.1 — Thay ảnh AI Motion Studio
+- Đã thay ảnh mới cho mục / card `AI Motion Studio`.
 - Ảnh được resize/crop đúng kích thước asset cũ để gắn vào web ngay.
 - Không đổi backend hay logic, chỉ cập nhật hình hiển thị.
 
-## V3.1.2 — Nút Tạo Video nổi hơn + card Copy Chuyển Động căn lại
-- Thay ảnh card `Copy Chuyển Động` bằng ảnh người dùng gửi.
+## V3.1.2 — Nút Tạo Video nổi hơn + card AI Motion Studio căn lại
+- Thay ảnh card `AI Motion Studio` bằng ảnh người dùng gửi.
 - Căn lại bố cục card theo hướng giống mẫu hơn: ảnh lớn phía trên, phần chữ căn giữa.
 - Nút `Tạo Video` đổi sang kiểu full-width, to hơn, sáng hơn và có hiệu ứng sweep + pulse.
 - Mobile và desktop đều áp dụng.
 
-## V3.1.3 — Dọn lại card Copy Chuyển Động
-- Xóa phần dư bị khoanh đỏ trong ảnh card Copy Chuyển Động bằng cách crop lại ảnh preview.
+## V3.1.3 — Dọn lại card AI Motion Studio
+- Xóa phần dư bị khoanh đỏ trong ảnh card AI Motion Studio bằng cách crop lại ảnh preview.
 - Bỏ badge `ĐANG HOẠT ĐỘNG / WAN ANIMATE 2` trên card này theo yêu cầu.
 - Căn lại chiều cao vùng ảnh để card gọn hơn.
 
 
-## V3.1.4 — Card Copy Chuyển Động hiển thị video
-- Phần preview của card `Copy Chuyển Động` đổi từ ảnh sang video.
+## V3.1.4 — Card AI Motion Studio hiển thị video
+- Phần preview của card `AI Motion Studio` đổi từ ảnh sang video.
 - Web sẽ tự load video tại: `static/videos/card_motion.mp4`
 - Nếu chưa có file video, web tự fallback về ảnh `static/images/card_motion.png`
 - Chỉ cần upload file mp4 preview vào đúng đường dẫn là chạy.
@@ -260,7 +260,7 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 
 
 ## V3.2.1 — Sửa khung preview video
-- Căn lại khung preview của card Copy Chuyển Động để khớp với video hơn.
+- Căn lại khung preview của card AI Motion Studio để khớp với video hơn.
 - Bỏ khoảng trống thừa phía trên và phía dưới.
 - Đổi preview sang fill khung đẹp hơn bằng `object-fit: cover`.
 
@@ -299,7 +299,7 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 
 
 ## V3.3.2 — Remove black edge on motion preview
-- Xóa nền/padding gây hở viền đen ở preview card Copy Chuyển Động.
+- Xóa nền/padding gây hở viền đen ở preview card AI Motion Studio.
 - Cho media phủ kín khung hơn.
 - Tắt lớp overlay của preview để không lộ mép đen bên phải.
 
@@ -314,7 +314,7 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 
 ## V3.3.4 — Thêm phần giới thiệu
 - Thêm khối giới thiệu trên trang chủ ngay trước danh sách model.
-- Nội dung giới thiệu dịch vụ AI Copy Chuyển Động.
+- Nội dung giới thiệu dịch vụ AI Motion Studio.
 - Thêm dòng: `Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳`
 - Hỗ trợ cả giao diện VN / EN.
 
@@ -413,7 +413,7 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 
 
 ## V3.3.17 — Sửa bóng và lệch video trang Tạo Video
-- Bỏ lớp bóng lớn ở vùng tiêu đề `AI Copy Chuyển Động`.
+- Bỏ lớp bóng lớn ở vùng tiêu đề `AI Motion Studio`.
 - Giữ card glass nhẹ nhưng phần header phẳng, sạch.
 - Sửa preview video luôn phủ kín khung 16:9.
 - Bỏ `max-height` cũ làm xuất hiện dải đen phía dưới video.
@@ -673,7 +673,7 @@ UPSCALE_ALLOWED_SCALES=2,4
 UPSCALE_FACE_RESTORE_SUPPORTED=false
 ```
 
-AI Tạo Video chỉ nhận job khi đã cấu hình worker, `VIDEO_USAGE_COST` và danh
+AI Video Creator chỉ nhận job khi đã cấu hình worker, `VIDEO_USAGE_COST` và danh
 sách thời lượng model hỗ trợ, ví dụ `VIDEO_ALLOWED_DURATIONS=5,10`.
 
 ### Storage
@@ -684,7 +684,7 @@ qua `STORAGE_BACKEND=local` và `STORAGE_LOCAL_ROOT`. Railway production
 ### Model registry và nâng cấp video HD
 
 Model được chọn bằng biến môi trường: Motion Studio dùng danh sách
-`MOTION_STUDIO_MODELS` (Wan-Animate-2/SCAIL-2), AI Tạo Video dùng
+`MOTION_STUDIO_MODELS` (Wan-Animate-2/SCAIL-2), AI Video Creator dùng
 `VIDEO_MODEL`, thay trang phục dùng `OUTFIT_MODEL`, đổi bối cảnh dùng
 `BACKGROUND_MASK_MODEL` + `BACKGROUND_MODEL`, và nâng ảnh dùng
 `UPSCALE_MODEL`.

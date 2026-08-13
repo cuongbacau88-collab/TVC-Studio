@@ -15,6 +15,20 @@ from service_worker_adapters import WorkerAdapterError, normalize_status
 import video_upscale_pipeline
 router = APIRouter()
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+PROTECTED_PROMPTS = {
+    "outfit_change": {
+        "vi": "Chỉ thay trang phục của nhân vật trong ảnh gốc theo ảnh trang phục tham chiếu. Giữ nguyên khuôn mặt, danh tính, kiểu tóc, tông da, tỷ lệ cơ thể, tư thế, góc máy, ánh sáng và bối cảnh. Không lấy khuôn mặt, cơ thể hoặc tư thế từ ảnh trang phục.",
+        "en": "Only replace the original character's clothing using the outfit reference. Preserve the face, identity, hairstyle, skin tone, body proportions, pose, camera angle, lighting, and background. Do not copy the face, body, or pose from the outfit image.",
+    },
+    "background_change": {
+        "vi": "Chỉ thay bối cảnh của ảnh gốc theo ảnh tham chiếu hoặc mô tả. Giữ nguyên tuyệt đối khuôn mặt, danh tính, kiểu tóc, trang phục, cơ thể, tư thế, góc máy và bố cục nhân vật. Ghép cảnh tự nhiên, giữ viền tóc sạch và không làm da bị ám màu theo nền.",
+        "en": "Only replace the original image background using the reference image or description. Strictly preserve the face, identity, hairstyle, clothing, body, pose, camera angle, and character composition. Blend naturally, keep clean hair edges, and prevent background color spill on skin.",
+    },
+}
+
+def protected_prompt(service_key: str, language: str, user_prompt: str):
+    system = PROTECTED_PROMPTS.get(service_key, {}).get(language) or PROTECTED_PROMPTS.get(service_key, {}).get("vi")
+    return system, user_prompt or system or ""
 
 
 def core():
@@ -146,6 +160,7 @@ async def create_job(
     service_key: str, request: Request, prompt: str = Form(""),
     aspect_ratio: str = Form(""), duration: str = Form(""), scale: str = Form(""),
     restore_face: bool = Form(False), request_key: str = Form(""),
+    language: str = Form("vi"),
     reference_image: UploadFile | None = File(None),
     character_image: UploadFile | None = File(None),
     outfit_image: UploadFile | None = File(None),
@@ -168,6 +183,8 @@ async def create_job(
     if service.usage_cost is None:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
     prompt = prompt.strip()[:2000]
+    language = "en" if language == "en" else "vi"
+    system_prompt, prompt = protected_prompt(service_key, language, prompt)
     uploads = {
         "reference_image": reference_image, "character_image": character_image,
         "outfit_image": outfit_image, "source_image": source_image,
@@ -233,6 +250,8 @@ async def create_job(
             "scale": int(scale) if scale else None, "restore_face": restore_face,
             "model": service.model,
             "mask_model": __import__("service_registry").BACKGROUND_MASK_MODEL if service_key == "background_change" else None,
+            "system_prompt": system_prompt,
+            "language": language,
         }
         accepted = adapter.submit(client_job_id, payload, opened)
     except WorkerAdapterError as error:
