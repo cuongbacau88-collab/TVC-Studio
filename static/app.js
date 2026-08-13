@@ -343,7 +343,7 @@ form.onsubmit=async e=>{
     setJobSubmitLocked(false);
   }
 }
-function stateText(s){return {waiting:'Đang chờ',running:'Đang render',done:'Hoàn thành',failed:'Lỗi',uploading:'Đang tải'}[s]||s}
+function stateText(s){return {waiting:'Đang chờ',running:'Đang render',done:'Hoàn thành',failed:'Lỗi',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 async function loadJobs(){
   try{
     const jobs=await api('/api/jobs');
@@ -351,11 +351,20 @@ async function loadJobs(){
       <div class="thumb">🎬</div>
       <div><b>#${j.id} • Véo 3 né ra tí 🤏</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
-      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}</div>
+      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}${j.can_cancel?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
   }catch(e){say(e.message)}
 }
 $('#refreshJobs').onclick=loadJobs;
+$('#jobsList').addEventListener('click',async e=>{
+  const button=e.target.closest?.('.cancel-job-btn');
+  if(!button||button.disabled) return;
+  button.disabled=true;
+  try{
+    await api('/api/jobs/'+encodeURIComponent(button.dataset.jobId),{method:'DELETE'});
+    say('Đã hủy job');await loadJobs();me=await api('/api/me');showDashboard();
+  }catch(error){say(error.message);button.disabled=false}
+});
 
 $$('.packs button').forEach(b=>b.onclick=()=>{
   $$('.packs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectedPack=b.dataset.pack

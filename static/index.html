@@ -255,7 +255,8 @@
 <div class="toast" id="homeToast"></div>
 <script>
 const loginModal=document.getElementById('loginModal');
-document.getElementById('loginOpen').onclick=()=>loginModal.classList.add('open');
+const loginOpen=document.getElementById('loginOpen');
+if(loginOpen) loginOpen.onclick=()=>loginModal.classList.add('open');
 document.getElementById('loginClose').onclick=()=>loginModal.classList.remove('open');
 document.getElementById('loginBtn').onclick=async()=>{
   const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},

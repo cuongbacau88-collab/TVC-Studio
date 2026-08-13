@@ -5,11 +5,12 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form, HTTPException, Header
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
+from gpu_api_client import GPUAPIClient, GPUAPIConfig, GPUAPIError
 
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
@@ -35,8 +36,17 @@ DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.g
 # not picked up the variable yet.
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
+GPU_BACKEND_ENABLED = os.getenv("GPU_BACKEND_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
+GPU_API_BASE_URL = os.getenv("GPU_API_BASE_URL", "").strip()
+GPU_API_SERVICE_TOKEN = os.getenv("GPU_API_SERVICE_TOKEN", "").strip()
+GPU_API_CONNECT_TIMEOUT_SECONDS = float(os.getenv("GPU_API_CONNECT_TIMEOUT_SECONDS", "5") or "5")
+GPU_API_READ_TIMEOUT_SECONDS = float(os.getenv("GPU_API_READ_TIMEOUT_SECONDS", "30") or "30")
+gpu_api = GPUAPIClient(GPUAPIConfig(
+    GPU_BACKEND_ENABLED, GPU_API_BASE_URL, GPU_API_SERVICE_TOKEN,
+    GPU_API_CONNECT_TIMEOUT_SECONDS, GPU_API_READ_TIMEOUT_SECONDS,
+))
 
-app = FastAPI(title="TVC Studio AI Business V3.3.44")
+app = FastAPI(title="TVC Studio AI Business V3.3.45")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
@@ -155,7 +165,19 @@ def init_db():
     job_cols = {r["name"] for r in con.execute("PRAGMA table_info(jobs)").fetchall()}
     if "request_key" not in job_cols:
         con.execute("ALTER TABLE jobs ADD COLUMN request_key TEXT")
+    phase4b_columns = {
+        "client_job_id": "TEXT", "gpu_job_id": "TEXT", "gpu_status": "TEXT",
+        "gpu_error": "TEXT", "gpu_image_upload_id": "TEXT", "gpu_motion_upload_id": "TEXT",
+        "credit_reserved": "INTEGER NOT NULL DEFAULT 0",
+        "credit_charged": "INTEGER NOT NULL DEFAULT 0",
+        "credit_refunded": "INTEGER NOT NULL DEFAULT 0",
+    }
+    for column, definition in phase4b_columns.items():
+        if column not in job_cols:
+            con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {definition}")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_user_request_key ON jobs(user_id, request_key) WHERE request_key IS NOT NULL AND request_key!=''")
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_client_job_id ON jobs(client_job_id) WHERE client_job_id IS NOT NULL AND client_job_id!=''")
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_gpu_job_id ON jobs(gpu_job_id) WHERE gpu_job_id IS NOT NULL AND gpu_job_id!=''")
     con.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_guards_until ON job_submit_guards(locked_until)")
 
     cols = {r["name"] for r in con.execute("PRAGMA table_info(users)").fetchall()}
@@ -537,9 +559,168 @@ def logout(request: Request, response: Response):
     response.delete_cookie("mh_session", path="/")
     return {"ok": True}
 
+GPU_STATUS_MAP = {
+    "queued": ("waiting", 0), "running": ("running", 50),
+    "succeeded": ("done", 100), "failed": ("failed", 100),
+    "cancelled": ("cancelled", 100),
+}
+
+
+def gpu_http_error(error: GPUAPIError):
+    safe_status = error.status if error.status in {400, 401, 403, 404, 409, 413, 415, 422, 502, 503, 504} else 502
+    return HTTPException(safe_status, error.message)
+
+
+def apply_gpu_status(user_id: int, local_job_id: int, payload: dict):
+    gpu_status = str(payload.get("status") or "")
+    if gpu_status not in GPU_STATUS_MAP:
+        return
+    local_status, progress = GPU_STATUS_MAP[gpu_status]
+    error_value = payload.get("error")
+    if isinstance(error_value, dict):
+        error_text = str(error_value.get("message") or error_value.get("code") or "")[:1000]
+    else:
+        error_text = None
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        job = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (local_job_id, user_id)).fetchone()
+        if not job:
+            con.rollback(); return
+        if gpu_status in {"failed", "cancelled"} and job["credit_charged"] and not job["credit_refunded"]:
+            con.execute("UPDATE users SET credits=credits+? WHERE id=?", (job["cost"], user_id))
+            con.execute(
+                "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
+                (user_id, job["cost"], f"Hoàn TVC job #{local_job_id}", "job_refund", local_job_id, now_iso())
+            )
+            con.execute("UPDATE jobs SET credit_refunded=1 WHERE id=?", (local_job_id,))
+        con.execute("""UPDATE jobs SET status=?,progress=?,gpu_status=?,gpu_error=?,error=?,updated_at=?
+                       WHERE id=? AND user_id=?""",
+                    (local_status, progress, gpu_status, error_text, error_text, now_iso(), local_job_id, user_id))
+        con.commit()
+    finally:
+        con.close()
+
+
+def refresh_gpu_jobs(user_id: int):
+    if not GPU_BACKEND_ENABLED:
+        return
+    con = db()
+    rows = con.execute("""SELECT id,gpu_job_id FROM jobs
+                          WHERE user_id=? AND gpu_job_id IS NOT NULL
+                          AND status IN ('waiting','running') ORDER BY id DESC LIMIT 20""", (user_id,)).fetchall()
+    con.close()
+    for row in rows:
+        try:
+            apply_gpu_status(user_id, row["id"], gpu_api.status(str(user_id), row["gpu_job_id"]))
+        except GPUAPIError:
+            continue
+
+
+async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: str,
+                         aspect_ratio: str, prompt: str, request_key: str):
+    owner_id = str(u["id"])
+    request_key = (request_key or secrets.token_urlsafe(24)).strip()[:128]
+    client_job_id = f"tvc-{owner_id}-{request_key}"
+    cost = 1
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        existing = con.execute("SELECT * FROM jobs WHERE user_id=? AND request_key=?",
+                               (u["id"], request_key)).fetchone()
+        if existing and existing["credit_charged"]:
+            con.commit()
+            return {"ok": True, "job_id": existing["id"], "cost": cost,
+                    "duplicate": True, "status": existing["status"]}
+        if existing:
+            job_id = existing["id"]
+        else:
+            available = con.execute("SELECT credits FROM users WHERE id=?", (u["id"],)).fetchone()
+            reserved = con.execute("SELECT COALESCE(SUM(cost),0) total FROM jobs WHERE user_id=? AND credit_reserved=1",
+                                   (u["id"],)).fetchone()["total"]
+            if not available or available["credits"] - reserved < cost:
+                raise HTTPException(402, "Không đủ TVC")
+            cur = con.execute("""INSERT INTO jobs(
+                user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,
+                created_at,updated_at,request_key,client_job_id,credit_reserved
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)""", (
+                u["id"], model[:120], aspect_ratio, "720", prompt[:2000], cost, "", "",
+                "uploading", 0, now_iso(), now_iso(), request_key, client_job_id
+            ))
+            job_id = cur.lastrowid
+        con.commit()
+    except Exception:
+        con.rollback()
+        raise
+    finally:
+        con.close()
+
+    job_dir = UPLOADS / str(job_id)
+    job_dir.mkdir(parents=True, exist_ok=True)
+    image_ext = Path(image.filename or ".png").suffix.lower()
+    motion_ext = Path(motion.filename or ".mp4").suffix.lower()
+    image_dest = job_dir / ("character" + image_ext)
+    motion_dest = job_dir / ("motion" + motion_ext)
+    try:
+        await save_upload(image, image_dest, {".png",".jpg",".jpeg",".webp"}, MAX_IMAGE_MB)
+        await save_upload(motion, motion_dest, {".mp4",".mov",".webm"}, MAX_VIDEO_MB)
+        with image_dest.open("rb") as source:
+            gpu_image = gpu_api.upload(owner_id, image_dest.name, image.content_type or mimetypes.guess_type(image_dest.name)[0] or "application/octet-stream", source)
+        with motion_dest.open("rb") as source:
+            gpu_motion = gpu_api.upload(owner_id, motion_dest.name, motion.content_type or mimetypes.guess_type(motion_dest.name)[0] or "application/octet-stream", source)
+        accepted = gpu_api.submit(owner_id, client_job_id, str(gpu_image["id"]), str(gpu_motion["id"]),
+                                  aspect_ratio, prompt[:2000])
+    except GPUAPIError as error:
+        con = db()
+        con.execute("""UPDATE jobs SET status='submit_retry',gpu_error=?,error=?,image_path=?,video_path=?,updated_at=?
+                       WHERE id=? AND user_id=?""",
+                    (error.code, error.message, str(image_dest.relative_to(BASE)) if image_dest.exists() else "",
+                     str(motion_dest.relative_to(BASE)) if motion_dest.exists() else "", now_iso(), job_id, u["id"]))
+        con.commit(); con.close()
+        raise gpu_http_error(error)
+    except Exception:
+        shutil.rmtree(job_dir, ignore_errors=True)
+        con = db()
+        con.execute("DELETE FROM jobs WHERE id=? AND user_id=? AND credit_charged=0", (job_id, u["id"]))
+        con.commit(); con.close()
+        raise
+
+    gpu_job_id = str(accepted.get("id") or "")
+    if not gpu_job_id:
+        raise HTTPException(502, "Dịch vụ GPU không xác nhận job")
+    local_status, progress = GPU_STATUS_MAP.get(str(accepted.get("status")), ("waiting", 0))
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        job = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, u["id"])).fetchone()
+        if not job:
+            raise HTTPException(409, "Job cục bộ không tồn tại")
+        if not job["credit_charged"]:
+            charged = con.execute("UPDATE users SET credits=credits-? WHERE id=? AND credits>=?",
+                                  (cost, u["id"], cost))
+            if charged.rowcount != 1:
+                raise HTTPException(402, "Không đủ TVC")
+            con.execute("""INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
+                           VALUES(?,?,?,?,?,?)""",
+                        (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso()))
+        con.execute("""UPDATE jobs SET image_path=?,video_path=?,gpu_job_id=?,gpu_status=?,status=?,
+                       progress=?,credit_reserved=0,credit_charged=1,error=NULL,gpu_error=NULL,updated_at=?
+                       WHERE id=? AND user_id=?""",
+                    (str(image_dest.relative_to(BASE)), str(motion_dest.relative_to(BASE)), gpu_job_id,
+                     str(accepted.get("status") or "queued"), local_status, progress, now_iso(), job_id, u["id"]))
+        con.commit()
+    except Exception:
+        con.rollback()
+        raise
+    finally:
+        con.close()
+    return {"ok": True, "job_id": job_id, "cost": cost,
+            "duplicate": bool(accepted.get("duplicate")), "status": local_status}
+
+
 @app.get("/api/version")
 def api_version():
-    return {"version": "3.3.44", "single_video_price": True, "quality_user_selectable": False}
+    return {"version": "3.3.45", "single_video_price": True, "quality_user_selectable": False}
 
 @app.get("/api/me")
 def me(request: Request):
@@ -549,10 +730,12 @@ def me(request: Request):
 @app.get("/api/jobs")
 def my_jobs(request: Request):
     u = current_user(request)
+    refresh_gpu_jobs(u["id"])
     con = db()
     rows = con.execute("""
         SELECT id,model,aspect_ratio,quality,prompt,cost,status,progress,error,created_at,updated_at,
-               CASE WHEN output_path IS NOT NULL THEN 1 ELSE 0 END AS has_output
+               CASE WHEN output_path IS NOT NULL OR (gpu_job_id IS NOT NULL AND status='done') THEN 1 ELSE 0 END AS has_output,
+               CASE WHEN gpu_job_id IS NOT NULL AND status='waiting' THEN 1 ELSE 0 END AS can_cancel
         FROM jobs WHERE user_id=? ORDER BY id DESC LIMIT 100
     """, (u["id"],)).fetchall()
     con.close()
@@ -571,7 +754,9 @@ async def create_job(
     u = current_user(request)
     if aspect_ratio not in {"9:16","16:9","1:1"}:
         raise HTTPException(400, "Tỷ lệ không hợp lệ")
-    # V3.3.44: one public render mode / one price.
+    if GPU_BACKEND_ENABLED:
+        return await create_gpu_job(u, image, motion, model, aspect_ratio, prompt, request_key)
+    # V3.3.45: one public render mode / one price.
     # The client no longer sends a quality field. Extra legacy form fields are
     # ignored by FastAPI, while the server always uses one internal profile.
     # This removes the old "Chất lượng không hợp lệ" path permanently.
@@ -746,12 +931,40 @@ def job_output(job_id: int, request: Request):
         raise HTTPException(404, "Không tìm thấy job")
     if row["user_id"] != u["id"] and u["role"] != "admin":
         raise HTTPException(403, "Không có quyền")
+    if row["gpu_job_id"]:
+        try:
+            upstream = gpu_api.output(str(row["user_id"]), row["gpu_job_id"])
+        except GPUAPIError as error:
+            raise gpu_http_error(error)
+        content_type = upstream.headers.get("content-type", "application/octet-stream")
+        disposition = f'attachment; filename="tvc_job_{job_id}.mp4"'
+        return StreamingResponse(gpu_api.stream(upstream), media_type=content_type,
+                                 headers={"Content-Disposition": disposition})
     if not row["output_path"]:
         raise HTTPException(404, "Job chưa có kết quả")
     path = BASE / row["output_path"]
     if not path.exists():
         raise HTTPException(404, "File kết quả không tồn tại")
     return FileResponse(path, filename=f"motionhub_job_{job_id}{path.suffix}")
+
+
+@app.delete("/api/jobs/{job_id}")
+def cancel_customer_job(job_id: int, request: Request):
+    u = current_user(request)
+    con = db()
+    row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, u["id"])).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(404, "Không tìm thấy job")
+    if not GPU_BACKEND_ENABLED or not row["gpu_job_id"]:
+        raise HTTPException(409, "Job này không hỗ trợ hủy")
+    try:
+        payload = gpu_api.cancel(str(u["id"]), row["gpu_job_id"])
+    except GPUAPIError as error:
+        raise gpu_http_error(error)
+    apply_gpu_status(u["id"], job_id, payload)
+    return {"ok": True, "job_id": job_id, "status": GPU_STATUS_MAP.get(str(payload.get("status")), ("waiting", 0))[0]}
+
 
 @app.get("/api/ledger")
 def ledger(request: Request):
@@ -1219,7 +1432,7 @@ def worker_claim(x_worker_token: Optional[str] = Header(None)):
     check_worker(x_worker_token)
     con = db()
     con.execute("BEGIN IMMEDIATE")
-    row = con.execute("SELECT * FROM jobs WHERE status='waiting' ORDER BY id LIMIT 1").fetchone()
+    row = con.execute("SELECT * FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL ORDER BY id LIMIT 1").fetchone()
     if not row:
         con.commit(); con.close()
         return {"job": None}
