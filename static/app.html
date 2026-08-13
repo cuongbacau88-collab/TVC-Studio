@@ -47,7 +47,7 @@
           <div class="account-v3-balance">
             <div>
               <small data-i18n="balance">Số dư</small>
-              <strong><span id="toolbarAccountCredits">0</span> <em>TVC</em></strong>
+              <strong><span id="toolbarAccountCredits">0</span> <em>lượt</em></strong>
             </div>
             <a href="/app#wallet" data-account-action="wallet" class="account-v3-topup" data-i18n="addCredits">Nạp thêm</a>
           </div>
@@ -94,12 +94,12 @@
  <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI</b></span></a>
  <button data-tab="create" class="side active" data-i18n="createVideoNav">✨ Tạo video</button>
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
- <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví TVC</button>
+ <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví lượt</button>
  <button data-tab="affiliate" class="side" data-i18n="earnNav">🔗 Giới thiệu</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">
-<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> TVC</span></div></header>
+<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> lượt</span></div></header>
 
 <div id="authGate" class="auth-gate hidden">
  <div class="auth-card">
@@ -196,9 +196,9 @@
       <span>LƯỢT VIDEO CÒN LẠI</span>
       <strong><b id="walletVideoRemaining">0</b> <em>lượt video</em></strong>
       <div class="video-balance-meta single-video-balance-meta">
-        <span><b id="walletTVC">0</b> TVC</span>
+        <span><b id="walletTVC">0</b> lượt</span>
       </div>
-      <small>1 TVC = 1 lượt tạo video. Mọi video đều cùng một mức giá.</small>
+      <small>1 lượt = 1 lần tạo video. Mọi video đều cùng một mức giá.</small>
     </article>
 
     <article class="panel-card topup-pack-card">
@@ -213,11 +213,11 @@
       </div>
       <textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea>
       <button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button>
-      <p class="muted">Admin duyệt thì TVC được cộng tự động. Không có lượt miễn phí mặc định cho tài khoản mới.</p>
+      <p class="muted">Admin duyệt thì lượt được cộng tự động. Không có lượt miễn phí mặc định cho tài khoản mới.</p>
     </article>
   </div>
   <h3 class="subhead" data-i18n="topupHistory">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
-  <h3 class="subhead" data-i18n="creditLedger">Biến động TVC</h3><div id="ledgerList" class="simple-list"></div>
+  <h3 class="subhead" data-i18n="creditLedger">Biến động lượt</h3><div id="ledgerList" class="simple-list"></div>
 </section>
 
 

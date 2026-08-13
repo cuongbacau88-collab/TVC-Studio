@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import BinaryIO, Iterator
 from urllib.parse import quote
+import os
 import requests
 
 
@@ -87,11 +88,14 @@ class GPUAPIClient:
                motion_upload_id: str, aspect_ratio: str, prompt: str) -> dict:
         payload = {
             "owner_id": owner_id, "client_job_id": client_job_id,
-            "operation": "motion-transfer-video", "model_id": "wan22-animate",
+            "operation": os.getenv("MOTION_GPU_OPERATION", "motion-transfer-video").strip(),
             "inputs": {"image": {"upload_id": image_upload_id}, "motion": {"upload_id": motion_upload_id}},
             "parameters": {"aspect_ratio": aspect_ratio, "prompt": prompt},
         }
         return self._json(self._request("POST", "/v1/jobs", owner_id, json=payload))
+        model_id = os.getenv("MOTION_GPU_MODEL", "").strip()
+        if model_id:
+            payload["model_id"] = model_id
 
     def status(self, owner_id: str, gpu_job_id: str) -> dict:
         return self._json(self._request("GET", f"/v1/jobs/{quote(gpu_job_id, safe='')}", owner_id))

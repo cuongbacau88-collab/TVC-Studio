@@ -74,6 +74,14 @@
   display:block;
 }
 
+.service-image-visual{
+  background:#101827;
+}
+.service-card-image{
+  object-fit:contain;
+  object-position:center;
+}
+
 
 /* ===== TVC Logo integration V2.3 ===== */
 .brand{

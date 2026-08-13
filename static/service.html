@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Dịch vụ AI — TVC Studio AI</title>
+  <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/service.css">
+</head>
+<body class="service-page v3-liquid-theme">
+  <header class="service-nav">
+    <a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt=""><span>TVC Studio <b>AI</b></span></a>
+    <nav><a href="/">Trang chủ</a><a href="/app#jobs">Lịch sử</a><span class="usage-balance"><b id="balance">—</b> lượt</span></nav>
+  </header>
+  <main class="service-shell">
+    <section class="service-heading">
+      <a href="/" class="back-link">← Tất cả dịch vụ</a>
+      <span id="serviceBadge">DỊCH VỤ AI</span>
+      <h1 id="serviceTitle">Đang tải…</h1>
+      <p id="serviceDescription"></p>
+    </section>
+    <div id="authNotice" class="service-alert hidden">Vui lòng <a href="/app">đăng nhập</a> trước khi tạo job.</div>
+    <div id="configNotice" class="service-alert hidden"></div>
+    <section class="service-grid">
+      <form id="serviceForm" class="service-panel">
+        <div id="dynamicFields"></div>
+        <input type="hidden" name="request_key" id="requestKey">
+        <button class="service-submit" id="submitButton" type="submit">Bắt đầu xử lý</button>
+        <p class="service-cost" id="serviceCost"></p>
+        <div class="service-error hidden" id="formError"></div>
+      </form>
+      <aside class="service-panel result-panel">
+        <div class="result-placeholder" id="resultPlaceholder">
+          <span>✦</span><b>Kết quả sẽ hiển thị tại đây</b>
+          <small>Không có kết quả giả khi worker chưa xử lý.</small>
+        </div>
+        <div id="jobState" class="job-state hidden">
+          <div class="job-state-head"><b id="statusLabel">Đang chờ</b><span id="progressLabel">0%</span></div>
+          <progress id="jobProgress" max="100" value="0"></progress>
+          <p id="jobMessage"></p>
+          <div class="result-preview" id="resultPreview"></div>
+          <div class="job-actions">
+            <button type="button" id="retryButton" class="secondary hidden">Thử lại</button>
+            <button type="button" id="cancelButton" class="secondary hidden">Hủy job</button>
+            <a id="downloadButton" class="service-submit hidden" download>Tải kết quả</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+  <script src="/static/service.js"></script>
+</body>
+</html>

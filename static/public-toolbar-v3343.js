@@ -30,7 +30,7 @@
       const r=await fetch('/api/me',{credentials:'same-origin'});
       if(!r.ok) throw new Error();
       const me=await r.json();
-      const credits=Number(me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
+      const credits=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
       const initial=(me.name||me.email||'T').slice(0,1).toUpperCase();
       setText('mobileToolbarCredits',credits);
       setText('toolbarAccountCredits',credits);

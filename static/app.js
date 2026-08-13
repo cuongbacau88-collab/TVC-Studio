@@ -2,9 +2,9 @@
 const TVC_I18N = {
   vi:{
     topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
-    wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
+    wallet:"Ví lượt", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
-    creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
+    creditPayment:"Thanh toán bằng lượt", refundNote:"Job lỗi được hoàn lượt tự động",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Biến ảnh nhân vật thành video theo chuyển động từ video mẫu.",
     createNow:"Tạo ngay",
     modelBgTitle:"AI Đổi Bối Cảnh", modelBgDesc:"Thay bối cảnh phía sau nhưng giữ nguyên nhân vật.",
@@ -14,23 +14,23 @@ const TVC_I18N = {
     process1Title:"Chọn model", process1Desc:"Khách chọn công cụ phù hợp với nhu cầu.",
     process2Title:"Tải dữ liệu", process2Desc:"Upload ảnh, video mẫu và nhập prompt nếu cần.",
     process3Title:"Nhận kết quả", process3Desc:"Job vào queue, GPU xử lý và trả file về tài khoản.",
-    creditsKicker:"HỆ THỐNG TVC", creditsTitle:"Bán dịch vụ theo từng job.",
-    creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, TVC, job queue, hoàn TVC khi lỗi và admin duyệt nạp điểm.",
+    creditsKicker:"HỆ THỐNG LƯỢT", creditsTitle:"Bán dịch vụ theo từng job.",
+    creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, lượt, job queue, hoàn lượt khi lỗi và admin duyệt nạp điểm.",
     dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
-    walletNav:"◈ Ví TVC", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
+    walletNav:"◈ Ví lượt", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
     login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
     createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
     aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
     tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
-    topupHistory:"Lịch sử nạp", creditLedger:"Biến động TVC", affiliateTitle:"Giới Thiệu Bạn Bè",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động lượt", affiliateTitle:"Giới Thiệu Bạn Bè",
     affiliateSubtitle:"Chia sẻ link hoặc mã giới thiệu của bạn",
     shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
   },
   en:{
     topup:"VIP Top-up", account:"Account", balance:"Balance", accountSettings:"Account settings", hello:"Hello", profile:"My Profile", affiliateMenu:"Referral", addTVC:"Add TVC",
-    wallet:"TVC Wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
+    wallet:"Usage wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
-    creditPayment:"Pay with TVC", refundNote:"TVC are automatically refunded if a job fails",
+    creditPayment:"Pay per use", refundNote:"Uses are automatically refunded if a job fails",
     modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Turn a character image into video using motion from a reference video.",
     createNow:"Create now",
     modelBgTitle:"AI Đổi Bối Cảnh", modelBgDesc:"Replace the background while preserving the character.",
@@ -40,15 +40,15 @@ const TVC_I18N = {
     process1Title:"Choose a model", process1Desc:"Pick the AI tool that matches your task.",
     process2Title:"Upload inputs", process2Desc:"Upload images, a motion video and an optional prompt.",
     process3Title:"Get the result", process3Desc:"The job enters the queue, the GPU renders it, and the result returns to your account.",
-    creditsKicker:"TVC SYSTEM", creditsTitle:"Sell AI services per job.",
-    creditsDesc:"The backend already supports accounts, TVC, job queue, automatic refunds on failure and admin-approved top-ups.",
+    creditsKicker:"USAGE SYSTEM", creditsTitle:"Sell AI services per job.",
+    creditsDesc:"The backend already supports accounts, usage balance, job queue, automatic refunds on failure and admin-approved top-ups.",
     dashboardCta:"Open dashboard →", createVideoNav:"✨ Create Video", myJobsNav:"▤ My Jobs",
-    walletNav:"◈ TVC Wallet", earnNav:"🔗 Referral", accountNav:"⚙ Account",
+    walletNav:"◈ Usage wallet", earnNav:"🔗 Referral", accountNav:"⚙ Account",
     login:"Log in", register:"Sign up", welcomeBack:"Welcome back", createAccount:"Create account",
     createVideoTitle:"Create a new video", characterImage:"Character image", motionVideo:"Motion video", model:"Model",
     aspect:"Aspect ratio", quality:"Quality", prompt:"Prompt", cost:"Estimated cost", createVideo:"Create video",
     tips:"TIPS", betterVideo:"For better results", myJobs:"My jobs", topupRequest:"Create a top-up request",
-    topupHistory:"Top-up history", creditLedger:"TVC activity", affiliateTitle:"Refer Friends",
+    topupHistory:"Top-up history", creditLedger:"Usage activity", affiliateTitle:"Refer Friends",
     affiliateSubtitle:"Share your referral link or code",
     shareReward:"Share & Earn", enterReferral:"Enter Referral Code",
   }
@@ -108,7 +108,7 @@ async function tvcSyncToolbarAccount(){
     const r=await fetch('/api/me');
     if(!r.ok) throw new Error();
     const me=await r.json();
-    const credits=Number(me.credits||0);
+    const credits=Number(me.usage_balance||me.credits||0);
     const initial=(me.name||me.email||'T').slice(0,1).toUpperCase();
     const set=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val};
     set('toolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));set('mobileToolbarCredits',credits.toLocaleString('vi-VN',{maximumFractionDigits:1}));
@@ -164,7 +164,7 @@ async function boot(){
 function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').classList.add('hidden')}
 function showDashboard(){
   $('#authGate').classList.add('hidden');$('#dashboard').classList.remove('hidden');
-  $('#TVC').textContent=me.credits;$('#walletTVC').textContent=me.credits;
+  $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
   if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
 }
 $$('[data-auth]').forEach(b=>b.onclick=()=>{
@@ -195,7 +195,7 @@ if($('#logout')) $('#logout').onclick=logout;if($('#logout2')) $('#logout2').onc
 const meta={
   create:['Tạo video mới','Ảnh nhân vật + video chuyển động'],
   jobs:['Job của tôi','Theo dõi hàng đợi và tải kết quả'],
-  wallet:['Ví TVC','Nạp VIP và lịch sử giao dịch'],
+  wallet:['Ví lượt','Nạp VIP và lịch sử giao dịch'],
   affiliate:['Giới Thiệu','Chia sẻ link và theo dõi người được giới thiệu'],
   account:['Tài khoản','Thông tin tài khoản']
 };
@@ -341,7 +341,7 @@ form.onsubmit=async e=>{
     setJobSubmitLocked(false);
   }
 }
-function stateText(s){return {waiting:'Đang chờ',running:'Đang render',done:'Hoàn thành',failed:'Lỗi',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
+function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Lỗi',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 async function loadJobs(){
   try{
     const jobs=await api('/api/jobs');
@@ -378,11 +378,11 @@ function packageName(key){return {starter:'Trải nghiệm',creator:'Phổ biế
 async function loadWallet(){
   try{
     me=await api('/api/me');showDashboard();
-    const videoTurns=Math.max(0,Number(me.credits||0));
+    const videoTurns=Math.max(0,Number(me.usage_balance||me.credits||0));
     if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent=videoTurns;
     const [tops,led]=await Promise.all([api('/api/topups'),api('/api/ledger')]);
     $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} lượt</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
-    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} TVC</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
+    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} lượt</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
   }catch(e){say(e.message)}
 }
 

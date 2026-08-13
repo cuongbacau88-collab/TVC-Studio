@@ -640,3 +640,59 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Áp dụng đồng nhất cho Trang Chủ và toàn bộ trang public/chính sách.
 - Active tab sáng hơn nhẹ, vẫn giữ phong cách mirror glass.
 - Mobile dùng blur nhẹ hơn để hạn chế lag.
+
+## GPU service adapters
+
+Bốn dịch vụ mở rộng dùng chung contract worker:
+
+- `POST /v1/jobs`: nhận `client_job_id`, `operation`, `priority`, JSON `payload` và file multipart; trả `id` hoặc `job_id`.
+- `GET /v1/jobs/{id}`: trả trạng thái và progress.
+- `DELETE /v1/jobs/{id}`: hủy job còn trong hàng chờ.
+- `GET /v1/jobs/{id}/result`: stream ảnh hoặc video kết quả.
+- `GET /health`: health riêng của worker.
+
+Trạng thái được chuẩn hóa về `queued`, `processing`, `completed`, `failed`,
+`cancelled`. URL, token, capability và timeout đều lấy từ biến môi trường.
+
+### Biến môi trường GPU
+
+```env
+VIDEO_WORKER_URL=
+VIDEO_WORKER_TOKEN=
+OUTFIT_WORKER_URL=
+OUTFIT_WORKER_TOKEN=
+BACKGROUND_WORKER_URL=
+BACKGROUND_WORKER_TOKEN=
+UPSCALE_WORKER_URL=
+UPSCALE_WORKER_TOKEN=
+WORKER_REQUEST_TIMEOUT=30
+WORKER_POLL_INTERVAL=4
+VIDEO_USAGE_COST=
+VIDEO_ALLOWED_DURATIONS=
+UPSCALE_ALLOWED_SCALES=2,4
+UPSCALE_FACE_RESTORE_SUPPORTED=false
+```
+
+AI Tạo Video chỉ nhận job khi đã cấu hình worker, `VIDEO_USAGE_COST` và danh
+sách thời lượng model hỗ trợ, ví dụ `VIDEO_ALLOWED_DURATIONS=5,10`.
+
+### Storage
+
+`StorageBackend` tách lưu trữ khỏi API. Adapter `local` dùng cho development
+qua `STORAGE_BACKEND=local` và `STORAGE_LOCAL_ROOT`. Railway production
+
+### Model registry và nâng cấp video HD
+
+Model được chọn bằng biến môi trường: Motion Studio dùng danh sách
+`MOTION_STUDIO_MODELS` (Wan-Animate-2/SCAIL-2), AI Tạo Video dùng
+`VIDEO_MODEL`, thay trang phục dùng `OUTFIT_MODEL`, đổi bối cảnh dùng
+`BACKGROUND_MASK_MODEL` + `BACKGROUND_MODEL`, và nâng ảnh dùng
+`UPSCALE_MODEL`.
+
+`video_upscale` là hậu xử lý nội bộ ưu tiên cao cho Motion Studio và AI Tạo
+Video, không có card và không trừ thêm lượt. Khi bật, video gốc được gửi tới
+worker cấu hình bởi `VIDEO_UPSCALE_WORKER_URL/TOKEN`; payload yêu cầu giữ tỷ
+lệ, FPS, thời lượng, âm thanh, danh tính và chuyển động, đồng thời nâng cạnh
+ngắn tới `VIDEO_UPSCALE_TARGET_SHORT_SIDE`. Trạng thái công khai là
+`upscaling`. Nếu submit/poll/tải bản HD lỗi, job chuyển sang hoàn thành và
+endpoint kết quả tiếp tục trả video render gốc.

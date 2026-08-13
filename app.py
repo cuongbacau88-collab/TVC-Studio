@@ -1,5 +1,5 @@
 
-import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time
+import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -11,7 +11,11 @@ from fastapi.staticfiles import StaticFiles
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
 from gpu_api_client import GPUAPIClient, GPUAPIConfig, GPUAPIError
+from service_registry import SERVICES, PUBLIC_SERVICE_CONFIG, get_service, MOTION_MODELS
+from service_worker_adapters import build_adapters, build_video_upscale_adapter, WorkerAdapterError
+from storage_backend import build_storage
 
+import video_upscale_pipeline
 BASE = Path(__file__).resolve().parent
 DATA = BASE / "data"
 UPLOADS = DATA / "uploads"
@@ -45,6 +49,10 @@ gpu_api = GPUAPIClient(GPUAPIConfig(
     GPU_BACKEND_ENABLED, GPU_API_BASE_URL, GPU_API_SERVICE_TOKEN,
     GPU_API_CONNECT_TIMEOUT_SECONDS, GPU_API_READ_TIMEOUT_SECONDS,
 ))
+service_adapters = build_adapters()
+video_upscale_adapter = build_video_upscale_adapter()
+storage = build_storage(DATA)
+WORKER_POLL_INTERVAL = max(1.0, float(os.getenv("WORKER_POLL_INTERVAL", "4") or "4"))
 
 app = FastAPI(title="TVC Studio AI Business V3.3.45")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
@@ -175,6 +183,26 @@ def init_db():
     for column, definition in phase4b_columns.items():
         if column not in job_cols:
             con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {definition}")
+    service_columns = {
+        "service": "TEXT NOT NULL DEFAULT 'motion_studio'",
+        "input_json": "TEXT", "worker_job_id": "TEXT", "worker_status": "TEXT",
+        "output_media_type": "TEXT", "priority": "INTEGER NOT NULL DEFAULT 100",
+        "video_upscale_job_id": "TEXT", "video_upscale_status": "TEXT",
+        "video_upscale_attempted": "INTEGER NOT NULL DEFAULT 0",
+        "video_upscale_error": "TEXT",
+        "original_output_available": "INTEGER NOT NULL DEFAULT 0",
+    }
+    job_cols = {r["name"] for r in con.execute("PRAGMA table_info(jobs)").fetchall()}
+    for column, definition in service_columns.items():
+        if column not in job_cols:
+            con.execute(f"ALTER TABLE jobs ADD COLUMN {column} {definition}")
+    con.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_service_request_key
+                   ON jobs(user_id,service,request_key)
+                   WHERE request_key IS NOT NULL AND request_key!=''""")
+    con.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_service_worker_job
+                   ON jobs(service,worker_job_id)
+                   WHERE worker_job_id IS NOT NULL AND worker_job_id!=''""")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_jobs_priority_queue ON jobs(status,priority DESC,id)")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_user_request_key ON jobs(user_id, request_key) WHERE request_key IS NOT NULL AND request_key!=''")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_client_job_id ON jobs(client_job_id) WHERE client_job_id IS NOT NULL AND client_job_id!=''")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_jobs_gpu_job_id ON jobs(gpu_job_id) WHERE gpu_job_id IS NOT NULL AND gpu_job_id!=''")
@@ -339,6 +367,15 @@ async def save_upload(upload: UploadFile, dest: Path, allowed_exts, max_mb):
     ext = Path(upload.filename or "").suffix.lower()
     if ext not in allowed_exts:
         raise HTTPException(400, f"Định dạng không hỗ trợ: {ext}")
+    content_type = (upload.content_type or "").lower()
+    image_extensions = {".png", ".jpg", ".jpeg", ".webp"}
+    video_extensions = {".mp4", ".mov", ".webm", ".mkv"}
+    if ext in image_extensions and content_type and not content_type.startswith("image/"):
+        raise HTTPException(415, "Nội dung file ảnh không hợp lệ")
+    if ext in video_extensions and content_type and not (
+        content_type.startswith("video/") or content_type == "application/octet-stream"
+    ):
+        raise HTTPException(415, "Nội dung file video không hợp lệ")
     max_bytes = max_mb * 1024 * 1024
     size = 0
     with dest.open("wb") as f:
@@ -352,6 +389,9 @@ async def save_upload(upload: UploadFile, dest: Path, allowed_exts, max_mb):
                 dest.unlink(missing_ok=True)
                 raise HTTPException(413, f"File vượt quá {max_mb}MB")
             f.write(chunk)
+    if size == 0:
+        dest.unlink(missing_ok=True)
+        raise HTTPException(400, "File tải lên đang trống")
     return size
 
 @app.get("/")
@@ -393,6 +433,12 @@ def refund_page():
 @app.get("/ai-content-policy")
 def ai_content_policy_page():
     return FileResponse(BASE / "static" / "ai-content-policy.html")
+
+@app.get("/services/{service_key}")
+def service_page(service_key: str):
+    if service_key not in SERVICES:
+        raise HTTPException(404, "Dịch vụ không tồn tại")
+    return FileResponse(BASE / "static" / "service.html")
 
 def create_session(con, user_id: int, response: Response):
     token = secrets.token_urlsafe(32)
@@ -591,18 +637,32 @@ def apply_gpu_status(user_id: int, local_job_id: int, payload: dict):
             con.execute("UPDATE users SET credits=credits+? WHERE id=?", (job["cost"], user_id))
             con.execute(
                 "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
-                (user_id, job["cost"], f"Hoàn TVC job #{local_job_id}", "job_refund", local_job_id, now_iso())
+                (user_id, job["cost"], f"Hoàn lượt job #{local_job_id}", "job_refund", local_job_id, now_iso())
             )
             con.execute("UPDATE jobs SET credit_refunded=1 WHERE id=?", (local_job_id,))
+
         con.execute("""UPDATE jobs SET status=?,progress=?,gpu_status=?,gpu_error=?,error=?,updated_at=?
                        WHERE id=? AND user_id=?""",
                     (local_status, progress, gpu_status, error_text, error_text, now_iso(), local_job_id, user_id))
         con.commit()
     finally:
         con.close()
+    if gpu_status == "succeeded":
+        con = db()
+        completed = con.execute("SELECT * FROM jobs WHERE id=?", (local_job_id,)).fetchone()
+        con.close()
+        if completed:
+            values = video_upscale_pipeline.start(sys.modules[__name__], dict(completed))
+            video_upscale_pipeline.persist(sys.modules[__name__], local_job_id, values)
 
 
 def refresh_gpu_jobs(user_id: int):
+    con = db()
+    hd_rows = con.execute("SELECT * FROM jobs WHERE user_id=? AND status='upscaling' ORDER BY id DESC LIMIT 20", (user_id,)).fetchall()
+    con.close()
+    for row in hd_rows:
+        values = video_upscale_pipeline.poll(sys.modules[__name__], dict(row))
+        video_upscale_pipeline.persist(sys.modules[__name__], row["id"], values)
     if not GPU_BACKEND_ENABLED:
         return
     con = db()
@@ -639,7 +699,7 @@ async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: 
             reserved = con.execute("SELECT COALESCE(SUM(cost),0) total FROM jobs WHERE user_id=? AND credit_reserved=1",
                                    (u["id"],)).fetchone()["total"]
             if not available or available["credits"] - reserved < cost:
-                raise HTTPException(402, "Không đủ TVC")
+                raise HTTPException(402, "Không đủ lượt")
             cur = con.execute("""INSERT INTO jobs(
                 user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,
                 created_at,updated_at,request_key,client_job_id,credit_reserved
@@ -699,7 +759,7 @@ async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: 
             charged = con.execute("UPDATE users SET credits=credits-? WHERE id=? AND credits>=?",
                                   (cost, u["id"], cost))
             if charged.rowcount != 1:
-                raise HTTPException(402, "Không đủ TVC")
+                raise HTTPException(402, "Không đủ lượt")
             con.execute("""INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
                            VALUES(?,?,?,?,?,?)""",
                         (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso()))
@@ -725,7 +785,10 @@ def api_version():
 @app.get("/api/me")
 def me(request: Request):
     u = current_user(request)
-    return {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id","avatar_url","google_sub")}
+    result = {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id","avatar_url","google_sub")}
+    result["usage_balance"] = result["credits"]
+    result["usage_unit"] = "lượt"
+    return result
 
 @app.get("/api/jobs")
 def my_jobs(request: Request):
@@ -752,6 +815,8 @@ async def create_job(
     request_key: str = Form("")
 ):
     u = current_user(request)
+    if MOTION_MODELS:
+        model = MOTION_MODELS[0]
     if aspect_ratio not in {"9:16","16:9","1:1"}:
         raise HTTPException(400, "Tỷ lệ không hợp lệ")
     if GPU_BACKEND_ENABLED:
@@ -805,7 +870,7 @@ async def create_job(
         fresh = con.execute("SELECT credits FROM users WHERE id=?", (u["id"],)).fetchone()
         if not fresh or fresh["credits"] < cost:
             con.rollback(); con.close()
-            raise HTTPException(402, "Không đủ TVC")
+            raise HTTPException(402, "Không đủ lượt")
 
         cur = con.execute("""
             INSERT INTO jobs(user_id,model,aspect_ratio,quality,prompt,cost,image_path,video_path,status,progress,created_at,updated_at,request_key)
@@ -886,7 +951,7 @@ async def create_job(
             con.execute("DELETE FROM job_submit_guards WHERE user_id=? AND job_id=?", (u["id"], job_id))
             con.commit(); con.close()
             shutil.rmtree(job_dir, ignore_errors=True)
-            raise HTTPException(402, "Không đủ TVC")
+            raise HTTPException(402, "Không đủ lượt")
 
         con.execute(
             "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
@@ -931,6 +996,13 @@ def job_output(job_id: int, request: Request):
         raise HTTPException(404, "Không tìm thấy job")
     if row["user_id"] != u["id"] and u["role"] != "admin":
         raise HTTPException(403, "Không có quyền")
+    if row["video_upscale_status"] == "completed" and row["video_upscale_job_id"]:
+        try:
+            upstream = video_upscale_adapter.result(row["video_upscale_job_id"])
+            return StreamingResponse(gpu_api.stream(upstream), media_type=upstream.headers.get("content-type", "video/mp4"),
+                                     headers={"Content-Disposition": f'attachment; filename="tvc_job_{job_id}_hd.mp4"'})
+        except WorkerAdapterError:
+            pass
     if row["gpu_job_id"]:
         try:
             upstream = gpu_api.output(str(row["user_id"]), row["gpu_job_id"])
@@ -1158,13 +1230,13 @@ async def affiliate_request_withdrawal(request: Request):
     try:
         amount = round(float(body.get("amount_credits", 0)), 2)
     except Exception:
-        raise HTTPException(400, "Số TVC không hợp lệ")
+        raise HTTPException(400, "Số lượt không hợp lệ")
     method = (body.get("method") or "").strip()[:50]
     account = (body.get("account") or "").strip()[:200]
     note = (body.get("note") or "").strip()[:300]
 
     if amount < 10:
-        raise HTTPException(400, "Tối thiểu 1 TVC cho mỗi lần rút")
+        raise HTTPException(400, "Tối thiểu 1 lượt cho mỗi lần rút")
     if not method or not account:
         raise HTTPException(400, "Hãy nhập phương thức và thông tin nhận tiền")
 
@@ -1328,7 +1400,7 @@ async def admin_add_credits(user_id: int, request: Request):
     delta = int(body.get("delta", 0))
     reason = (body.get("reason") or "Admin điều chỉnh")[:200]
     if delta == 0 or abs(delta) > 1_000_000:
-        raise HTTPException(400, "Số TVC không hợp lệ")
+        raise HTTPException(400, "Số lượt không hợp lệ")
     con = db()
     con.execute("UPDATE users SET credits=MAX(0,credits+?) WHERE id=?", (delta, user_id))
     con.execute(
@@ -1432,7 +1504,8 @@ def worker_claim(x_worker_token: Optional[str] = Header(None)):
     check_worker(x_worker_token)
     con = db()
     con.execute("BEGIN IMMEDIATE")
-    row = con.execute("SELECT * FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL ORDER BY id LIMIT 1").fetchone()
+    row = con.execute("""SELECT * FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL
+                         AND service='motion_studio' ORDER BY priority DESC,id LIMIT 1""").fetchone()
     if not row:
         con.commit(); con.close()
         return {"job": None}
@@ -1486,8 +1559,14 @@ async def worker_complete(
     con = db()
     con.execute("UPDATE jobs SET output_path=?,status='done',progress=100,error=NULL,updated_at=? WHERE id=?",
                 (str(out.relative_to(BASE)), now_iso(), job_id))
-    con.commit(); con.close()
+    completed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+    con.commit()
+    con.close()
+    if completed:
+        values = video_upscale_pipeline.start(sys.modules[__name__], dict(completed))
+        video_upscale_pipeline.persist(sys.modules[__name__], job_id, values)
     return {"ok": True}
+
 
 @app.post("/api/worker/jobs/{job_id}/fail")
 async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[str] = Header(None)):
@@ -1503,11 +1582,26 @@ async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[st
         con.execute("""
             INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
             VALUES(?,?,?,?,?,?)
-        """, (job["user_id"], job["cost"], f"Hoàn TVC job lỗi #{job_id}", "job_refund", job_id, now_iso()))
+        """, (job["user_id"], job["cost"], f"Hoàn lượt job lỗi #{job_id}", "job_refund", job_id, now_iso()))
     con.execute("UPDATE jobs SET status='failed',error=?,updated_at=? WHERE id=?", (error, now_iso(), job_id))
     con.commit(); con.close()
     return {"ok": True}
 
+from service_routes import router as service_router
+app.include_router(service_router)
+
 @app.get("/api/health")
 def health():
-    return {"ok": True, "time": now_iso()}
+    return {
+        "ok": True, "time": now_iso(),
+        "workers": {
+            **{
+                key: {"configured": adapter.config.configured}
+                for key, adapter in service_adapters.items()
+            },
+            "video_upscale": {
+                "enabled": video_upscale_adapter.video_config.enabled,
+                "configured": video_upscale_adapter.video_config.configured,
+            },
+        },
+    }
