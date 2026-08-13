@@ -169,5 +169,50 @@ class StatusNormalizationTests(unittest.TestCase):
         self.assertEqual(expected, {value: normalize_status(value) for value in expected})
 
 
+class ServicePageRegressionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        static = Path(__file__).resolve().parents[1] / "static"
+        cls.service_html = (static / "service.html").read_text(encoding="utf-8")
+        cls.service_js = (static / "service.js").read_text(encoding="utf-8")
+        cls.toolbar_js = (static / "global-toolbar.js").read_text(encoding="utf-8")
+        cls.app_html = (static / "app.html").read_text(encoding="utf-8")
+
+    def test_service_script_uses_toolbar_balance_id_that_exists(self):
+        self.assertIn('id="mobileToolbarCredits"', self.toolbar_js)
+        self.assertIn("$('mobileToolbarCredits').textContent", self.service_js)
+        self.assertNotIn("$('balance')", self.service_js)
+
+    def test_each_service_renders_its_required_form_contract(self):
+        expected = {
+            "video_generation": ("prompt", "reference_image", "aspect_ratio", "duration"),
+            "outfit_change": ("character_image", "outfit_image", "prompt"),
+            "background_change": ("source_image", "background_image", "prompt"),
+            "image_upscale": ("source_image", "scale", "restore_face"),
+        }
+        for service_key, fields in expected.items():
+            with self.subTest(service=service_key):
+                self.assertIn(f"key==='{service_key}'", self.service_js)
+                for field in fields:
+                    self.assertTrue(
+                        f"'{field}'" in self.service_js or f'name="{field}"' in self.service_js,
+                        f"{service_key} is missing {field}",
+                    )
+        self.assertIn('id="dynamicFields"', self.service_html)
+        self.assertIn('id="submitButton"', self.service_html)
+
+    def test_offline_warning_does_not_prevent_form_render(self):
+        warning = self.service_js.index("if(unavailable)")
+        render = self.service_js.index("renderFields()", warning)
+        self.assertGreater(render, warning)
+        self.assertNotIn("return", self.service_js[warning:render])
+
+    def test_motion_transfer_keeps_its_dedicated_form(self):
+        self.assertIn('id="jobForm"', self.app_html)
+        self.assertIn('name="image"', self.app_html)
+        self.assertIn('name="motion"', self.app_html)
+        self.assertIn('value="AI Motion Studio"', self.app_html)
+
+
 if __name__ == "__main__":
     unittest.main()
