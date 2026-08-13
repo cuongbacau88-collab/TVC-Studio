@@ -5,12 +5,12 @@ const TVC_I18N = {
     wallet:"Ví TVC", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
     chooseModelEyebrow:"CHỌN MODEL", chooseToolSubtitle:"Chọn một công cụ bên dưới để bắt đầu tạo nội dung.",
     creditPayment:"Thanh toán bằng TVC", refundNote:"Job lỗi được hoàn TVC tự động",
-    modelMotionTitle:"AI Copy Chuyển Động", modelMotionDesc:"Tạo video chuyển động từ ảnh nhân vật và driving video. Hỗ trợ TikTok/Reels 9:16, YouTube 16:9.",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Biến ảnh nhân vật thành video bằng chuyển động từ video mẫu.",
     createNow:"Tạo ngay",
-    modelSkinTitle:"AI Fix Ảnh Da Nhựa", modelSkinDesc:"Tăng cảm giác ảnh thật, giảm da nhựa và khôi phục texture tự nhiên mà không cần chỉnh tay.",
-    modelBgTitle:"AI Thay Nền Ảnh", modelBgDesc:"Giữ nhân vật, đổi không gian phía sau và cân ánh sáng để tạo ảnh mới phù hợp cho social commerce.",
-    modelOutfitImageTitle:"AI Thay Trang Phục Ảnh", modelOutfitImageDesc:"Thay áo/quần theo ảnh tham chiếu, giữ khuôn mặt và bố cục nhân vật nhất quán.",
-    modelUpscaleTitle:"AI Upscale Ảnh / Video", modelUpscaleDesc:"Nâng độ phân giải và độ nét trước khi khách tải kết quả về hoặc đăng lên mạng xã hội.",
+    modelSkinTitle:"AI Photo Enhance", modelSkinDesc:"Khôi phục chi tiết, giảm cảm giác da nhựa và làm ảnh tự nhiên hơn.",
+    modelBgTitle:"AI Scene Studio", modelBgDesc:"Thay bối cảnh nhưng giữ nguyên nhân vật.",
+    modelOutfitImageTitle:"AI Outfit Studio", modelOutfitImageDesc:"Thay quần áo cho nhân vật, ưu tiên giữ nguyên khuôn mặt và danh tính.",
+    modelUpscaleTitle:"AI Upscale 4K", modelUpscaleDesc:"Nâng độ phân giải ảnh, ưu tiên giữ khuôn mặt và chi tiết.",
     comingSoon:"Sắp mở", processKicker:"QUY TRÌNH", processTitle:"3 bước để khách tạo video.",
     process1Title:"Chọn model", process1Desc:"Khách chọn công cụ phù hợp với nhu cầu.",
     process2Title:"Tải dữ liệu", process2Desc:"Upload ảnh, video mẫu và nhập prompt nếu cần.",
@@ -32,12 +32,12 @@ const TVC_I18N = {
     wallet:"TVC Wallet", earn:"Referral", logout:"Log out", models:"Choose Model", history:"History",
     chooseModelEyebrow:"CHOOSE A MODEL", chooseToolSubtitle:"Choose a tool below to start creating content.",
     creditPayment:"Pay with TVC", refundNote:"TVC are automatically refunded if a job fails",
-    modelMotionTitle:"AI Motion Copy", modelMotionDesc:"Create motion video from a character image and a driving video. Supports TikTok/Reels 9:16 and YouTube 16:9.",
+    modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Turn a character image into video using motion from a reference video.",
     createNow:"Create now",
-    modelSkinTitle:"AI Plastic-Skin Fix", modelSkinDesc:"Make images feel more realistic by reducing plastic skin and restoring natural texture.",
-    modelBgTitle:"AI Background Change", modelBgDesc:"Keep the subject, replace the background and balance lighting for social commerce images.",
-    modelOutfitImageTitle:"AI Image Outfit Change", modelOutfitImageDesc:"Replace clothing from a reference image while preserving the subject's face and composition.",
-    modelUpscaleTitle:"AI Image / Video Upscale", modelUpscaleDesc:"Increase resolution and sharpness before downloading or posting to social media.",
+    modelSkinTitle:"AI Photo Enhance", modelSkinDesc:"Restore detail, reduce plastic-looking skin, and make photos more natural.",
+    modelBgTitle:"AI Scene Studio", modelBgDesc:"Replace the scene while preserving the character.",
+    modelOutfitImageTitle:"AI Outfit Studio", modelOutfitImageDesc:"Change clothing while prioritizing face and identity preservation.",
+    modelUpscaleTitle:"AI Upscale 4K", modelUpscaleDesc:"Increase image resolution while prioritizing facial identity and detail.",
     comingSoon:"Coming soon", processKicker:"WORKFLOW", processTitle:"3 steps to create a video.",
     process1Title:"Choose a model", process1Desc:"Pick the AI tool that matches your task.",
     process2Title:"Upload inputs", process2Desc:"Upload images, a motion video and an optional prompt.",
@@ -349,7 +349,7 @@ async function loadJobs(){
     const jobs=await api('/api/jobs');
     $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
       <div class="thumb">🎬</div>
-      <div><b>#${j.id} • Véo 3 né ra tí 🤏</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
+      <div><b>#${j.id} • AI Motion Studio</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
       <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<br><a class="mini-btn" href="/api/jobs/${j.id}/output">Tải video</a>`:''}${j.can_cancel?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
