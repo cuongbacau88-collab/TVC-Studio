@@ -140,6 +140,10 @@
       trigger.focus({preventScroll:true});
     }
   });
+  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('pointerdown',()=>{
+    setActive(tab.dataset.tool);
+  }));
+  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('click',()=>setActive(tab.dataset.tool)));
   host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('click',()=>closeMenu(false)));
   menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeMenu(false)));
   host.querySelector('#toolbarLogout').addEventListener('click',async()=>{
@@ -157,8 +161,20 @@
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncAccount()});
   document.addEventListener('tvc-auth-change',()=>syncAccount());
 
+  function updateToolbarHeight(){
+    document.documentElement.style.setProperty('--tvc-toolbar-height',`${Math.ceil(host.getBoundingClientRect().height)}px`);
+  }
+  if('ResizeObserver' in window){
+    new ResizeObserver(updateToolbarHeight).observe(host);
+  }else{
+    window.addEventListener('resize',updateToolbarHeight,{passive:true});
+  }
+  window.addEventListener('orientationchange',updateToolbarHeight,{passive:true});
+  document.fonts?.ready.then(updateToolbarHeight);
+
   window.TVCGlobalToolbar={setActive,syncAccount,closeMenu};
   applyLanguage(language());
   setActive(routeTool());
+  requestAnimationFrame(updateToolbarHeight);
   syncAccount();
 })();

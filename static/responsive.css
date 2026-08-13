@@ -266,3 +266,94 @@ html,body{overflow-x:clip}
 @media(orientation:landscape) and (max-height:520px){
   .tvc-account-menu{max-height:calc(100dvh - 76px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))}
 }
+/* Final shared-header contract: fixed everywhere, measured spacer, compact dropdown. */
+:root{--tvc-toolbar-height:58px}
+body.tvc-fixed-toolbar{padding-top:var(--tvc-toolbar-height)!important}
+body.tvc-fixed-toolbar .global-toolbar,
+body.tvc-fixed-toolbar .global-toolbar.liquid-toolbar{
+  position:fixed!important;
+  inset:0 0 auto 0!important;
+  width:100%!important;
+  max-width:none!important;
+  transform:none!important;
+  contain:none!important;
+}
+.global-actions [data-tool]{
+  transition:background-color .22s ease,border-color .22s ease,box-shadow .22s ease,color .22s ease,opacity .22s ease!important;
+  transform:none!important;
+}
+.global-actions [data-tool]:active{transform:none!important}
+.tvc-account-menu{
+  width:clamp(280px,24vw,320px);
+  max-width:calc(100vw - 24px);
+  padding:14px;
+  border-radius:20px;
+  max-height:calc(100dvh - var(--tvc-toolbar-height) - 16px);
+}
+.tvc-account-avatar{width:44px;height:44px;font-size:16px}
+.tvc-account-menu header{gap:10px;padding:4px 5px 11px}
+.tvc-account-menu header small{font-size:12px}
+.tvc-account-menu header strong{font-size:14px}
+.tvc-account-menu nav{gap:5px;padding-top:8px}
+.tvc-account-menu nav a,.tvc-account-menu nav button{
+  min-height:46px;
+  grid-template-columns:28px minmax(0,1fr);
+  gap:8px;
+  padding:7px 9px;
+}
+.tvc-account-menu nav span{font-size:19px}
+.tvc-account-menu nav b{font-size:14px;font-weight:650}
+
+@media(max-width:768px){
+  body.tvc-fixed-toolbar{padding-top:var(--tvc-toolbar-height)!important}
+  body.tvc-fixed-toolbar .global-toolbar,
+  body.tvc-fixed-toolbar .global-toolbar.liquid-toolbar{
+    padding-left:max(8px,env(safe-area-inset-left,0px))!important;
+    padding-right:max(8px,env(safe-area-inset-right,0px))!important;
+  }
+  body.tvc-fixed-toolbar .global-toolbar-inner{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  body.tvc-fixed-toolbar .global-actions,
+  body.tvc-fixed-toolbar .liquid-nav{
+    display:grid!important;
+    grid-template-columns:repeat(5,minmax(0,1fr))!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    justify-self:stretch!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+  }
+  body.tvc-fixed-toolbar .global-actions>[data-tool]{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    flex-basis:auto!important;
+    margin:0!important;
+    transform:none!important;
+  }
+  .tvc-account-menu{
+    top:calc(100% + 6px);
+    right:max(4px,env(safe-area-inset-right,0px));
+    width:min(88vw,340px);
+    max-width:calc(100vw - 24px - env(safe-area-inset-left,0px) - env(safe-area-inset-right,0px));
+    max-height:calc(100dvh - var(--tvc-toolbar-height) - 12px - env(safe-area-inset-bottom,0px));
+    padding:clamp(14px,4vw,17px);
+    border-radius:clamp(18px,5vw,22px);
+  }
+  .tvc-account-avatar{width:clamp(42px,12vw,50px);height:clamp(42px,12vw,50px)}
+  .tvc-account-menu nav a,.tvc-account-menu nav button{min-height:clamp(44px,12vw,50px)}
+  .tvc-account-menu nav span{font-size:clamp(18px,5vw,21px)}
+  .tvc-account-menu nav b{font-size:clamp(14px,3.8vw,16px)}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .tvc-account-menu{width:min(72vw,320px);max-height:calc(100dvh - var(--tvc-toolbar-height) - 8px)}
+}
+@media(prefers-reduced-motion:reduce){
+  .global-actions [data-tool]{transition-duration:.01ms!important}
+}

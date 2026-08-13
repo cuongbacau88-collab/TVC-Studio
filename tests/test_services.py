@@ -261,13 +261,22 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn("data-tool=\"account\"", self.toolbar_js)
         self.assertIn("menu.querySelectorAll('a')", self.toolbar_js)
 
-    def test_shared_header_sticky_contract(self):
-        shared = self.responsive_css[self.responsive_css.index("/* Shared header/account state:"):]
-        self.assertIn("position:sticky!important", shared)
-        self.assertIn("top:0!important", shared)
-        self.assertIn(".has-global-toolbar{padding-top:0!important}", shared)
-        self.assertIn("overflow-x:clip", shared)
-        self.assertIn("max-height:calc(100dvh", shared)
+    def test_shared_header_fixed_contract_uses_measured_spacer(self):
+        final = self.responsive_css[self.responsive_css.index("/* Final shared-header contract:"):]
+        self.assertIn("position:fixed!important", final)
+        self.assertIn("padding-top:var(--tvc-toolbar-height)", final)
+        self.assertIn("repeat(5,minmax(0,1fr))", final)
+        self.assertIn("width:min(88vw,340px)", final)
+        self.assertIn("prefers-reduced-motion:reduce", final)
+        self.assertIn("ResizeObserver", self.toolbar_js)
+        self.assertIn("--tvc-toolbar-height", self.toolbar_js)
+        self.assertIn("orientationchange", self.toolbar_js)
+
+    def test_active_feedback_is_immediate_and_layout_stable(self):
+        self.assertIn("addEventListener('pointerdown'", self.toolbar_js)
+        final = self.responsive_css[self.responsive_css.index("/* Final shared-header contract:"):]
+        self.assertIn("transition:background-color .22s ease", final)
+        self.assertIn("transform:none!important", final)
 
 
 if __name__ == "__main__":
