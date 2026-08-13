@@ -292,6 +292,14 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn("classList.add('tvc-fixed-toolbar')", self.toolbar_js)
         self.assertIn("--header-height", self.toolbar_js)
 
+    def test_mobile_navigation_buttons_keep_horizontal_rectangle_contract(self):
+        final = self.responsive_css[self.responsive_css.index("/* Blue liquid-glass toolbar"):]
+        self.assertIn("height:clamp(58px,14vw,66px)", final)
+        self.assertIn("border-radius:clamp(14px,4vw,18px)", final)
+        self.assertIn("gap:clamp(2px,.8vw,6px)", final)
+        self.assertNotIn("aspect-ratio:1/1", final.replace(" ", ""))
+        self.assertNotIn("aspect-ratio:1 / 1", final)
+
 
 if __name__ == "__main__":
     unittest.main()
