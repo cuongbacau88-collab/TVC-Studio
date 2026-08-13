@@ -168,7 +168,6 @@ class StatusNormalizationTests(unittest.TestCase):
         }
         self.assertEqual(expected, {value: normalize_status(value) for value in expected})
 
-
 class ServicePageRegressionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -177,6 +176,7 @@ class ServicePageRegressionTests(unittest.TestCase):
         cls.service_js = (static / "service.js").read_text(encoding="utf-8")
         cls.toolbar_js = (static / "global-toolbar.js").read_text(encoding="utf-8")
         cls.app_html = (static / "app.html").read_text(encoding="utf-8")
+        cls.app_js = (static / "app.js").read_text(encoding="utf-8")
         cls.responsive_css = (static / "responsive.css").read_text(encoding="utf-8")
 
     def test_service_script_uses_toolbar_balance_id_that_exists(self):
@@ -214,18 +214,61 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn('name="motion"', self.app_html)
         self.assertIn('value="AI Motion Studio"', self.app_html)
 
-
-if __name__ == "__main__":
-    def test_mobile_toolbar_uses_five_fluid_columns_without_overflow(self):
-        css = self.responsive_css
-        marker = "/* Fluid mobile navigation:"
-        fluid = css[css.index(marker):]
+    def test_mobile_toolbar_uses_five_equal_columns_without_overflow(self):
+        fluid = self.responsive_css[self.responsive_css.index("/* Fluid mobile navigation:"):]
         self.assertIn("grid-template-columns:repeat(5,minmax(0,1fr))", fluid)
-        self.assertIn("overflow:visible", fluid)
+        self.assertIn("width:100%", fluid)
+        self.assertIn("max-width:none", fluid)
         self.assertIn("min-width:0", fluid)
-        self.assertIn("font-size:clamp(", fluid)
         self.assertIn("env(safe-area-inset-left", fluid)
         self.assertIn("env(safe-area-inset-right", fluid)
         self.assertNotIn("zoom:", fluid)
         self.assertNotIn("transform:scale", fluid.replace(" ", ""))
+
+    def test_toolbar_has_one_canonical_active_state(self):
+        navigation_markup = self.toolbar_js[self.toolbar_js.index('<nav class="global-actions'):self.toolbar_js.index('</nav>')]
+        self.assertEqual(5, navigation_markup.count('data-tool="'))
+        set_active = self.toolbar_js[self.toolbar_js.index("function setActive"):self.toolbar_js.index("function applyLanguage")]
+        self.assertIn("removeAttribute('aria-current')", set_active)
+        self.assertIn("setAttribute('aria-current','page')", set_active)
+        self.assertNotIn("mobile-active", self.app_js[self.app_js.index("function updateMobileToolState"):self.app_js.index("function goto")])
+
+    def test_account_state_comes_from_backend(self):
+        self.assertIn("fetch('/api/me'", self.toolbar_js)
+        self.assertIn("applySignedOut()", self.toolbar_js)
+        self.assertIn("applySignedIn(await response.json())", self.toolbar_js)
+        self.assertIn("fetch('/api/logout'", self.toolbar_js)
+        self.assertIn("aria-expanded", self.toolbar_js)
+        self.assertIn("aria-controls", self.toolbar_js)
+
+    def test_account_menu_items_are_in_required_order(self):
+        required = [
+            'data-account-label="history"',
+            'data-account-label="topup"',
+            'data-account-label="support"',
+            'data-account-label="profile"',
+            'data-account-label="commission"',
+            'data-account-label="logout"',
+        ]
+        positions = [self.toolbar_js.index(item) for item in required]
+        self.assertEqual(positions, sorted(positions))
+        self.assertNotIn(">Credits<", self.toolbar_js)
+
+    def test_account_menu_open_close_contract(self):
+        self.assertIn("menuOpen?closeMenu():openMenu()", self.toolbar_js)
+        self.assertIn("if(menuOpen&&!host.contains(event.target))closeMenu()", self.toolbar_js)
+        self.assertIn("event.key==='Escape'&&menuOpen", self.toolbar_js)
+        self.assertIn("data-tool=\"account\"", self.toolbar_js)
+        self.assertIn("menu.querySelectorAll('a')", self.toolbar_js)
+
+    def test_shared_header_sticky_contract(self):
+        shared = self.responsive_css[self.responsive_css.index("/* Shared header/account state:"):]
+        self.assertIn("position:sticky!important", shared)
+        self.assertIn("top:0!important", shared)
+        self.assertIn(".has-global-toolbar{padding-top:0!important}", shared)
+        self.assertIn("overflow-x:clip", shared)
+        self.assertIn("max-height:calc(100dvh", shared)
+
+
+if __name__ == "__main__":
     unittest.main()

@@ -203,10 +203,9 @@ let currentTab='create';
 let tabSwitchToken=0;
 
 function updateMobileToolState(tab){
-  const map={create:'models',jobs:'history',affiliate:'affiliate',wallet:'wallet'};
-  document.querySelectorAll('.global-actions [data-tool]').forEach(el=>{
-    el.classList.toggle('mobile-active',map[tab]===el.dataset.tool);
-  });
+  const map={create:'models',jobs:'history',affiliate:'affiliate',wallet:'wallet',account:'account'};
+  const tool=map[tab]||'models';
+  if(window.TVCGlobalToolbar) window.TVCGlobalToolbar.setActive(tool);
 }
 
 function goto(tab,opts={}){
