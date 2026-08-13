@@ -177,6 +177,7 @@ class ServicePageRegressionTests(unittest.TestCase):
         cls.service_js = (static / "service.js").read_text(encoding="utf-8")
         cls.toolbar_js = (static / "global-toolbar.js").read_text(encoding="utf-8")
         cls.app_html = (static / "app.html").read_text(encoding="utf-8")
+        cls.responsive_css = (static / "responsive.css").read_text(encoding="utf-8")
 
     def test_service_script_uses_toolbar_balance_id_that_exists(self):
         self.assertIn('id="mobileToolbarCredits"', self.toolbar_js)
@@ -215,4 +216,16 @@ class ServicePageRegressionTests(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    def test_mobile_toolbar_uses_five_fluid_columns_without_overflow(self):
+        css = self.responsive_css
+        marker = "/* Fluid mobile navigation:"
+        fluid = css[css.index(marker):]
+        self.assertIn("grid-template-columns:repeat(5,minmax(0,1fr))", fluid)
+        self.assertIn("overflow:visible", fluid)
+        self.assertIn("min-width:0", fluid)
+        self.assertIn("font-size:clamp(", fluid)
+        self.assertIn("env(safe-area-inset-left", fluid)
+        self.assertIn("env(safe-area-inset-right", fluid)
+        self.assertNotIn("zoom:", fluid)
+        self.assertNotIn("transform:scale", fluid.replace(" ", ""))
     unittest.main()
