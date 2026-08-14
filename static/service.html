@@ -18,6 +18,7 @@
       <span id="serviceBadge">DỊCH VỤ AI</span>
       <h1 id="serviceTitle">Đang tải…</h1>
       <p id="serviceDescription"></p>
+      <p id="serviceGuide" class="service-guide hidden"></p>
     </section>
     <div id="authNotice" class="service-alert hidden">Vui lòng <a href="/app">đăng nhập</a> trước khi tạo job.</div>
     <div id="configNotice" class="service-alert hidden"></div>
@@ -35,12 +36,15 @@
           <small>Không có kết quả giả khi worker chưa xử lý.</small>
         </div>
         <div id="jobState" class="job-state hidden">
-          <div class="job-state-head"><b id="statusLabel">Đang chờ</b><span id="progressLabel">0%</span></div>
-          <progress id="jobProgress" max="100" value="0"></progress>
+          <div class="job-state-head"><b id="statusLabel">Đang chờ</b><span id="progressLabel" class="hidden"></span></div>
+          <progress id="jobProgress" class="hidden" max="100" value="0"></progress>
           <p id="jobMessage"></p>
           <div class="result-preview" id="resultPreview"></div>
           <div class="job-actions">
             <button type="button" id="retryButton" class="secondary hidden">Thử lại</button>
+            <button type="button" id="regenerateButton" class="secondary hidden">Tạo lại</button>
+            <a id="historyButton" class="secondary hidden" href="/app#jobs">Xem trong Lịch Sử</a>
+            <button type="button" id="reuseButton" class="secondary hidden">Dùng lại thiết lập</button>
             <button type="button" id="cancelButton" class="secondary hidden">Hủy job</button>
             <a id="downloadButton" class="service-submit hidden" download>Tải kết quả</a>
           </div>
@@ -48,7 +52,20 @@
       </aside>
     </section>
   </main>
+  <script src="/static/video-creator.js"></script>
+  <section class="reference-gallery" aria-labelledby="galleryTitle">
+    <h2 id="galleryTitle">Khám phá video được tạo bằng AI</h2>
+    <p>Xem các mẫu nổi bật để tham khảo cách viết câu lệnh, chọn ảnh và xây dựng ý tưởng của bạn.</p>
+    <div id="videoGallery" class="gallery-empty">Các video mẫu đang được cập nhật.</div>
+  </section>
   <script src="/static/global-toolbar.js"></script>
+  <div class="gallery-modal" id="galleryModal" hidden role="dialog" aria-modal="true" aria-labelledby="galleryModalTitle">
+    <div class="gallery-modal-panel"><button type="button" data-close-gallery aria-label="Đóng">×</button><h2 id="galleryModalTitle"></h2>
+      <video id="galleryModalVideo" controls playsinline preload="none"></video><p id="galleryModalMeta"></p><p id="galleryModalPrompt"></p>
+      <button type="button" class="service-submit" id="galleryUseIdea">Dùng ý tưởng này</button>
+    </div>
+  </div>
   <script src="/static/service.js"></script>
 </body>
 </html>
+  <script src="/static/video-gallery.js"></script>

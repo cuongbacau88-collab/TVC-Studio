@@ -69,7 +69,7 @@ def get_service(key: str) -> ServiceDefinition:
 
 PUBLIC_SERVICE_CONFIG = {
     "video_generation": {
-        "aspect_ratios": ["9:16", "16:9", "1:1"],
+        "aspect_ratios": ["auto", "21:9", "16:9", "4:3", "1:1", "3:4", "9:16"],
         "durations": [
             value.strip() for value in os.getenv("VIDEO_ALLOWED_DURATIONS", "").split(",")
             if value.strip()

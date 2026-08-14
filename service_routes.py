@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import json
 import mimetypes
+import shutil
+import subprocess
 import secrets
 from pathlib import Path
 
@@ -14,7 +16,8 @@ from service_worker_adapters import WorkerAdapterError, normalize_status
 
 import video_upscale_pipeline
 router = APIRouter()
-IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".heic", ".heif"}
+VIDEO_EXTENSIONS = {".mp4", ".mov"}
 PROTECTED_PROMPTS = {
     "outfit_change": {
         "vi": "Chỉ thay trang phục của nhân vật trong ảnh gốc theo ảnh trang phục tham chiếu. Giữ nguyên khuôn mặt, danh tính, kiểu tóc, tông da, tỷ lệ cơ thể, tư thế, góc máy, ánh sáng và bối cảnh. Không lấy khuôn mặt, cơ thể hoặc tư thế từ ảnh trang phục.",
@@ -121,14 +124,73 @@ def catalog():
         "priority": "high" if definition.priority >= 100 else "idle",
         **PUBLIC_SERVICE_CONFIG.get(key, {}),
     } for key, definition in SERVICES.items()]
+def _parse_rate(value: str) -> float:
+    try:
+        numerator, denominator = str(value or "0/1").split("/", 1)
+        return float(numerator) / float(denominator)
+    except (ValueError, TypeError, ZeroDivisionError):
+        return 0.0
 
 
-def validate_request(service_key, prompt, aspect_ratio, duration, scale, restore_face, uploads):
+def probe_reference_video(path: Path) -> dict:
+    executable = shutil.which("ffprobe")
+    if not executable:
+        raise HTTPException(503, "Máy chủ chưa cài ffprobe để kiểm tra video tham chiếu")
+    try:
+        completed = subprocess.run(
+            [executable, "-v", "error", "-show_entries",
+             "format=duration:stream=codec_type,codec_name,avg_frame_rate,duration",
+             "-of", "json", str(path)], capture_output=True, text=True, timeout=20, check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise HTTPException(503, "Không thể chạy ffprobe để kiểm tra video tham chiếu") from exc
+    if completed.returncode != 0:
+        raise HTTPException(400, "Video tham chiếu không hợp lệ hoặc không đọc được metadata")
+    try:
+        metadata = json.loads(completed.stdout)
+        streams = metadata.get("streams") or []
+        video = next(stream for stream in streams if stream.get("codec_type") == "video")
+        duration = float(video.get("duration") or (metadata.get("format") or {}).get("duration"))
+        fps = _parse_rate(video.get("avg_frame_rate"))
+    except (ValueError, TypeError, StopIteration, json.JSONDecodeError) as exc:
+        raise HTTPException(400, "Không đọc được thông số video tham chiếu") from exc
+    codec = str(video.get("codec_name") or "").lower()
+    if codec not in {"h264", "hevc"}:
+        raise HTTPException(400, "Video tham chiếu phải dùng codec H.264 hoặc H.265")
+    if duration < 2 or duration > 15:
+        raise HTTPException(400, "Mỗi video tham chiếu phải dài từ 2 đến 15 giây")
+    if fps < 23.976 or fps > 60:
+        raise HTTPException(400, "Frame rate video tham chiếu phải từ 23.976 đến 60 FPS")
+    return {"duration": duration, "fps": fps, "codec": codec}
+
+
+def validate_reference_video_set(paths: list[Path]) -> list[dict]:
+    details = [probe_reference_video(path) for path in paths]
+    if sum(item["duration"] for item in details) > 15.001:
+        raise HTTPException(400, "Tổng thời lượng video tham chiếu đã vượt quá 15 giây")
+    return details
+
+
+def validate_request(service_key, prompt, aspect_ratio, duration, scale, restore_face, uploads, creation_method="reference_images"):
     if service_key == "video_generation":
         if not prompt:
             raise HTTPException(400, "Hãy nhập prompt")
-        if aspect_ratio not in {"9:16", "16:9", "1:1"}:
+        if creation_method not in {"reference_images", "motion_reference", "first_last"}:
+            raise HTTPException(400, "Phương thức tạo video không hợp lệ")
+        if aspect_ratio not in set(PUBLIC_SERVICE_CONFIG[service_key]["aspect_ratios"]):
             raise HTTPException(400, "Tỷ lệ không hợp lệ")
+        if creation_method == "first_last" and (not uploads.get("first_frame") or not uploads.get("last_frame")):
+            raise HTTPException(400, "Cần đủ ảnh bắt đầu và ảnh kết thúc")
+        if creation_method == "motion_reference" and not uploads.get("reference_videos"):
+            raise HTTPException(400, "Cần ít nhất một video tham chiếu")
+        if creation_method == "reference_images" and uploads.get("reference_videos"):
+            raise HTTPException(400, "Phương thức ảnh tham chiếu không nhận video tham chiếu")
+        if creation_method == "first_last" and (uploads.get("reference_images") or uploads.get("reference_videos")):
+            raise HTTPException(400, "Không được trộn ảnh đầu/ảnh cuối với nội dung tham chiếu")
+        if len(uploads.get("reference_images") or []) > 9:
+            raise HTTPException(400, "Tối đa 9 ảnh tham chiếu")
+        if len(uploads.get("reference_videos") or []) > 3:
+            raise HTTPException(400, "Tối đa 3 video tham chiếu")
         durations = PUBLIC_SERVICE_CONFIG[service_key]["durations"]
         if not durations:
             raise HTTPException(503, "Model chưa được cấu hình thời lượng hỗ trợ")
@@ -160,6 +222,11 @@ async def create_job(
     service_key: str, request: Request, prompt: str = Form(""),
     aspect_ratio: str = Form(""), duration: str = Form(""), scale: str = Form(""),
     restore_face: bool = Form(False), request_key: str = Form(""),
+    creation_method: str = Form("reference_images"),
+    reference_purposes: str = Form("[]"),
+    reference_images: list[UploadFile] = File(default=[]),
+    reference_videos: list[UploadFile] = File(default=[]),
+    first_frame: UploadFile | None = File(None), last_frame: UploadFile | None = File(None),
     language: str = Form("vi"),
     reference_image: UploadFile | None = File(None),
     character_image: UploadFile | None = File(None),
@@ -184,13 +251,28 @@ async def create_job(
         raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
     prompt = prompt.strip()[:2000]
     language = "en" if language == "en" else "vi"
+    creation_method = creation_method if isinstance(creation_method, str) else "reference_images"
+    reference_images = reference_images if isinstance(reference_images, list) else []
+    reference_videos = reference_videos if isinstance(reference_videos, list) else []
+    first_frame = first_frame if isinstance(first_frame, UploadFile) else None
+    last_frame = last_frame if isinstance(last_frame, UploadFile) else None
     system_prompt, prompt = protected_prompt(service_key, language, prompt)
     uploads = {
         "reference_image": reference_image, "character_image": character_image,
         "outfit_image": outfit_image, "source_image": source_image,
         "background_image": background_image,
     }
-    validate_request(service_key, prompt, aspect_ratio, duration, scale, restore_face, uploads)
+    uploads.update({"reference_images": reference_images, "reference_videos": reference_videos,
+                    "first_frame": first_frame, "last_frame": last_frame})
+    validate_request(service_key, prompt, aspect_ratio, duration, scale, restore_face, uploads, creation_method)
+    try:
+        purposes = json.loads(reference_purposes)
+        if not isinstance(purposes, list): purposes = []
+    except (TypeError, ValueError):
+        purposes = []
+    if service_key == "video_generation" and creation_method == "motion_reference":
+        hints = [f"Sử dụng video tham chiếu thứ {i + 1} cho {value}." for i, value in enumerate(purposes[:len(reference_videos)])]
+        if hints: prompt += "\n\nChỉ dẫn tham chiếu:\n- " + "\n- ".join(hints)
     request_key = (request_key or secrets.token_urlsafe(24)).strip()[:128]
 
     con = app.db()
@@ -233,18 +315,39 @@ async def create_job(
     prefix = f"service-inputs/{user['id']}/{job_id}"
     stored, opened = {}, {}
     try:
-        for name, upload in uploads.items():
+        reference_video_paths = []
+        singles = {k: v for k, v in uploads.items() if k not in {"reference_images", "reference_videos"}}
+        if service_key == "video_generation": singles = {"first_frame": first_frame, "last_frame": last_frame} if creation_method == "first_last" else {}
+        for name, upload in singles.items():
             if not upload:
                 continue
             ext = Path(upload.filename or "").suffix.lower()
             path = app.storage.path(f"{prefix}/{name}{ext}")
             path.parent.mkdir(parents=True, exist_ok=True)
-            await app.save_upload(upload, path, IMAGE_EXTENSIONS, app.MAX_IMAGE_MB)
+            await app.save_upload(upload, path, IMAGE_EXTENSIONS, 30 if service_key == "video_generation" else app.MAX_IMAGE_MB)
             stored[name] = f"{prefix}/{name}{ext}"
             opened[name] = (
                 Path(upload.filename or f"{name}{ext}").name, path.open("rb"),
                 upload.content_type or mimetypes.guess_type(path.name)[0] or "application/octet-stream"
             )
+        if service_key == "video_generation" and creation_method != "first_last":
+            for role, items, extensions, limit in (("reference_image", reference_images, IMAGE_EXTENSIONS, 30), ("reference_video", reference_videos, VIDEO_EXTENSIONS, 50)):
+                for index, upload in enumerate(items):
+                    ext = Path(upload.filename or "").suffix.lower()
+                    field = f"{role}_{index + 1}"
+                    path = app.storage.path(f"{prefix}/{field}{ext}")
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    await app.save_upload(upload, path, extensions, limit)
+                    stored[field] = f"{prefix}/{field}{ext}"
+                    opened[field] = (Path(upload.filename or path.name).name, path.open("rb"), upload.content_type or mimetypes.guess_type(path.name)[0] or "application/octet-stream")
+                    if role == "reference_video":
+                        reference_video_paths.append(path)
+        file_roles = ({"first_frame": "first_frame", "last_frame": "last_frame"}
+                      if creation_method == "first_last" else {
+                          **{f"reference_image_{i + 1}": "reference_image" for i in range(len(reference_images))},
+                          **{f"reference_video_{i + 1}": "reference_video" for i in range(len(reference_videos))}})
+
+        reference_video_metadata = validate_reference_video_set(reference_video_paths) if reference_video_paths else []
         payload = {
             "prompt": prompt, "aspect_ratio": aspect_ratio, "duration": duration,
             "scale": int(scale) if scale else None, "restore_face": restore_face,
@@ -252,6 +355,9 @@ async def create_job(
             "mask_model": __import__("service_registry").BACKGROUND_MASK_MODEL if service_key == "background_change" else None,
             "system_prompt": system_prompt,
             "language": language,
+            "creation_method": creation_method,
+            "file_roles": file_roles,
+            "reference_video_metadata": reference_video_metadata,
         }
         accepted = adapter.submit(client_job_id, payload, opened)
     except WorkerAdapterError as error:

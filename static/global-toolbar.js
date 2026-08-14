@@ -40,6 +40,22 @@
 
   const trigger=host.querySelector('#toolbarAccountTrigger');
   const menu=host.querySelector('#toolbarAccountMenu');
+  host.querySelector('.toolbar-left').insertAdjacentHTML('afterbegin','<button type="button" class="ai-tools-trigger liquid-pill" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span aria-hidden="true">☰</span><span>Công cụ AI</span></button>');
+  host.insertAdjacentHTML('beforeend',`<div class="ai-tools-overlay" id="aiToolsOverlay" hidden></div><aside class="ai-tools-drawer" id="aiToolsDrawer" aria-label="Công cụ AI" aria-hidden="true">
+    <header><a href="/" class="drawer-brand"><img src="/static/images/logo-tvc.png" alt=""><b>TVC Studio AI</b></a><button type="button" id="aiToolsClose" aria-label="Đóng menu">×</button></header>
+    <div class="drawer-account"><span class="tvc-account-avatar" id="drawerAvatar">T</span><div><b id="drawerEmail">Chưa đăng nhập</b><small><span id="drawerCredits">0</span> lượt</small></div><a id="drawerLogin" href="/app#login">Đăng Nhập</a></div>
+    <div class="drawer-scroll">
+      <details open><summary>Điều hướng</summary><nav><a href="/">Trang Chủ</a><a href="/app#jobs">Lịch Sử</a><a href="/about">Giới Thiệu</a><a href="/app#wallet">Nạp VIP</a><a href="/app#account">Tài Khoản</a></nav></details>
+      <details open><summary>Tạo video</summary><nav><a href="/app">AI Motion Studio <em>Viral</em></a><a href="/services/video_generation">AI Video Creator <em>Mới</em></a><button type="button" disabled>Tạo Video Review <em>Sắp ra mắt</em></button><button type="button" disabled>Video dạng câu chuyện <em>Sắp ra mắt</em></button></nav></details>
+      <details><summary>Chỉnh sửa ảnh</summary><nav><a href="/services/outfit_change">AI Đổi Trang Phục <em>Miễn phí</em></a><a href="/services/background_change">AI Đổi Bối Cảnh <em>Miễn phí</em></a><a href="/services/image_upscale">AI Nâng Cấp Ảnh <em>Miễn phí</em></a><button type="button" disabled>Lookbook Thời Trang <em>Sắp ra mắt</em></button><button type="button" disabled>Tạo Ảnh Trends <em>Sắp ra mắt</em></button></nav></details>
+      <details><summary>KOL và thương hiệu</summary><nav><button type="button" disabled>KOL của tôi <em>Sắp ra mắt</em></button><button type="button" disabled>Nhân bản giọng nói <em>Sắp ra mắt</em></button><button type="button" disabled>Hồ sơ nhân vật <em>Sắp ra mắt</em></button></nav></details>
+      <details><summary>Quản lý</summary><nav><a href="/app#jobs">Lịch Sử</a><a href="/app#wallet">Lượt của tôi</a><a href="/app#wallet">Nạp Thêm Lượt</a><a href="/app#account">Hồ Sơ Của Tôi</a><a href="/app#affiliate">Giới Thiệu Nhận Hoa Hồng</a><a href="/contact">Hỗ Trợ</a></nav></details>
+    </div></aside>`);
+  const toolsTrigger=host.querySelector('#aiToolsTrigger'),toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
+  function closeTools(){toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');toolsOverlay.hidden=true;toolsTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('ai-tools-open')}
+  function openTools(){closeMenu(false);toolsOverlay.hidden=false;requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');toolsTrigger.setAttribute('aria-expanded','true');document.body.classList.add('ai-tools-open');host.querySelector('#aiToolsClose').focus({preventScroll:true})}
+  toolsTrigger.addEventListener('click',()=>toolsDrawer.classList.contains('open')?closeTools():openTools());
+  toolsOverlay.addEventListener('click',closeTools);host.querySelector('#aiToolsClose').addEventListener('click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeTools));
 
   function language(){
     return localStorage.getItem('tvc_lang')==='en'?'en':'vi';
@@ -98,6 +114,10 @@
     host.querySelector('#toolbarAccountEmail').textContent='';
     host.querySelector('#toolbarAccountAvatar').textContent='';
     host.querySelector('#mobileToolbarCredits').textContent='0';
+    host.querySelector('#drawerEmail').textContent='Chưa đăng nhập';
+    host.querySelector('#drawerCredits').textContent='0';
+    host.querySelector('#drawerAvatar').textContent='T';
+    host.querySelector('#drawerLogin').hidden=false;
     setActive(routeTool());
   }
 
@@ -111,6 +131,10 @@
     host.querySelector('#toolbarAccountEmail').textContent=me.email||'';
     host.querySelector('#toolbarAccountLabel').textContent=labels[language()].account;
     host.querySelector('#mobileToolbarCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
+    host.querySelector('#drawerEmail').textContent=me.email||'';
+    host.querySelector('#drawerCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
+    host.querySelector('#drawerAvatar').textContent=initial;
+    host.querySelector('#drawerLogin').hidden=true;
     setActive(routeTool());
   }
 
@@ -139,6 +163,10 @@
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&menuOpen){
       closeMenu();
+    if(event.key==='Escape'&&toolsDrawer.classList.contains('open')){
+      closeTools();
+      toolsTrigger.focus({preventScroll:true});
+    }
       trigger.focus({preventScroll:true});
     }
   });

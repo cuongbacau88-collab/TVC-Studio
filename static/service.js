@@ -2,7 +2,7 @@ const key=location.pathname.split('/').filter(Boolean).pop();
 const $=id=>document.getElementById(id);
 let config=null,currentJob=null,pollTimer=null,submitting=false;
 const definitions={
- video_generation:{title:'AI Video Creator',desc:'Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.',button:'Tạo video'},
+ video_generation:{title:'AI Video Creator',desc:'Biến câu lệnh, hình ảnh hoặc nội dung tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.',button:'Tạo video'},
  outfit_change:{title:'AI Đổi Trang Phục',desc:'Thay trang phục, ưu tiên giữ khuôn mặt và danh tính.',button:'Đổi trang phục'},
  background_change:{title:'AI Đổi Bối Cảnh',desc:'Thay bối cảnh bằng ảnh tham chiếu hoặc mô tả.',button:'Đổi bối cảnh'},
  image_upscale:{title:'AI Nâng Cấp Ảnh',desc:'Tăng độ phân giải và so sánh ảnh trước/sau.',button:'Nâng cấp ảnh'}
@@ -24,6 +24,7 @@ function fileField(name,label,required=false){
  return `<label class="service-field"><span>${label}${required?' *':''}</span><input type="file" name="${name}" accept="image/png,image/jpeg,image/webp" ${required?'required':''}><div class="file-preview" data-preview="${name}"><small>Chưa chọn ảnh</small></div></label>`;
 }
 function renderFields(){
+ if(key==='video_generation'&&window.renderVideoCreator){window.renderVideoCreator(config);return}
  let html='';
  if(key==='video_generation'){
   html=`<p class="prompt-help">Nhân vật đang làm gì? • Bối cảnh ở đâu? • Camera chuyển động thế nào? • Ánh sáng và phong cách mong muốn?</p><label class="service-field"><span>Prompt *</span><textarea name="prompt" maxlength="2000" required placeholder="Ví dụ: Một cô gái mặc váy trắng bước chậm trên bãi biển lúc hoàng hôn, tóc bay nhẹ trong gió, camera tiến gần, ánh sáng điện ảnh, chuyển động tự nhiên."></textarea></label>
@@ -59,6 +60,9 @@ function setStatus(job){
  $('cancelButton').classList.toggle('hidden',!job.can_cancel);
  $('retryButton').classList.toggle('hidden',!['failed','cancelled'].includes(job.status));
  const done=job.status==='done',url=`/api/services/${key}/jobs/${job.id}/result`;
+ ['regenerateButton','historyButton','reuseButton'].forEach(id=>$(id).classList.toggle('hidden',!done));
+ $('historyButton').href='/app#jobs';
+
  $('downloadButton').classList.toggle('hidden',!done);$('downloadButton').href=url;
  if(done){
   $('resultPreview').innerHTML=config.output_kind==='video'?`<video controls playsinline src="${url}"></video>`:`<div class="comparison"><div class="before-clone"></div><img src="${url}" alt="Kết quả"></div>`;
@@ -68,6 +72,7 @@ function setStatus(job){
 }
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=setTimeout(poll,Number(window.workerPollMs||4000))}
 async function poll(){if(!currentJob)return;try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`))}catch(e){$('jobMessage').textContent=e.message;schedulePoll()}}
+ if(key==='video_generation'){$('serviceGuide').textContent='Chọn phương thức phù hợp, cung cấp nội dung tham chiếu và mô tả video bạn muốn tạo. AI sẽ tạo một video hoàn toàn mới dựa trên yêu cầu của bạn.';$('serviceGuide').classList.remove('hidden')}
 async function init(){
  const def=definitions[key];if(!def){location.href='/';return}
  $('serviceTitle').textContent=def.title;$('serviceDescription').textContent=def.desc;$('submitButton').textContent=def.button;
@@ -83,10 +88,12 @@ async function init(){
 }
 $('serviceForm').addEventListener('submit',async event=>{
  event.preventDefault();if(submitting)return;submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
- try{const data=new FormData(event.currentTarget);data.set('language',language());const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
+ try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f))}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
  catch(e){setError(e.message)}
  finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key].button}
 });
 $('cancelButton').onclick=async()=>{try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`,{method:'DELETE'}))}catch(e){setError(e.message)}};
 $('retryButton').onclick=()=>{clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError()};
+$('regenerateButton').onclick=()=>{if(!currentJob||currentJob.status!=='done')return;clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError();window.scrollTo({top:0,behavior:'smooth'})};
+$('reuseButton').onclick=()=>{if(!currentJob||currentJob.status!=='done')return;window.reuseVideoCreatorSettings?.();$('requestKey').value=requestKey();setError()};
 init();

@@ -303,3 +303,38 @@ class ServicePageRegressionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+class ReferenceVideoValidationTests(unittest.TestCase):
+    @staticmethod
+    def completed(codec="h264", fps="30000/1001", duration="5.0", returncode=0):
+        payload = {"streams": [{"codec_type": "video", "codec_name": codec,
+                                "avg_frame_rate": fps, "duration": duration}],
+                   "format": {"duration": duration}}
+        return type("Completed", (), {"returncode": returncode,
+                    "stdout": __import__("json").dumps(payload)})()
+
+    def test_accepts_h264_and_h265_in_supported_range(self):
+        from unittest.mock import patch
+        for codec in ("h264", "hevc"):
+            with self.subTest(codec=codec), patch("service_routes.shutil.which", return_value="/usr/bin/ffprobe"), patch("service_routes.subprocess.run", return_value=self.completed(codec=codec)):
+                result = service_routes.probe_reference_video(Path("sample.mp4"))
+                self.assertEqual(codec, result["codec"])
+
+    def test_rejects_codec_fps_duration_and_total_duration(self):
+        from unittest.mock import patch
+        cases = [("vp9", "30/1", "5"), ("h264", "20/1", "5"), ("h264", "30/1", "1")]
+        for codec, fps, duration in cases:
+            with self.subTest(codec=codec, fps=fps, duration=duration), patch("service_routes.shutil.which", return_value="ffprobe"), patch("service_routes.subprocess.run", return_value=self.completed(codec, fps, duration)):
+                with self.assertRaises(Exception) as raised:
+                    service_routes.probe_reference_video(Path("sample.mov"))
+                self.assertEqual(400, raised.exception.status_code)
+        with patch("service_routes.probe_reference_video", side_effect=[{"duration": 8, "fps": 30, "codec": "h264"}, {"duration": 8, "fps": 30, "codec": "hevc"}]):
+            with self.assertRaises(Exception) as raised:
+                service_routes.validate_reference_video_set([Path("a.mp4"), Path("b.mov")])
+            self.assertEqual(400, raised.exception.status_code)
+
+    def test_missing_ffprobe_is_configuration_error(self):
+        from unittest.mock import patch
+        with patch("service_routes.shutil.which", return_value=None):
+            with self.assertRaises(Exception) as raised:
+                service_routes.probe_reference_video(Path("sample.mp4"))
+            self.assertEqual(503, raised.exception.status_code)
