@@ -338,13 +338,13 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         parser=NavigationDOMParser()
         parser.feed(self.toolbar[template_start:template_end])
         self.assertEqual(["menu","models","history","affiliate","wallet","account"],parser.tools)
-        self.assertIn("toolbarNav.appendChild(tab)",self.toolbar)
-        mobile_rules=self.css[self.css.rindex("@media(max-width:768px){"):]
-        expected=(("menu",1),("home",2),("history",3),("about",4),("vip",5))
-        positions=[mobile_rules.index(f".{name}-tab{{order:{order}!important}}") for name,order in expected]
-        self.assertEqual(positions,sorted(positions))
-        self.assertIn(".account-tab,.global-actions>.login-tab{order:6!important}",mobile_rules)
-        self.assertNotIn(":nth-child",mobile_rules)
+        self.assertEqual("menu",parser.tools[0])
+        self.assertIn("navRow.firstElementChild!==menuTab",self.toolbar)
+        self.assertIn("navRow.prepend(menuTab)",self.toolbar)
+        self.assertGreaterEqual(self.toolbar.count("ensureMenuTabFirst()"),4)
+        self.assertNotIn("appendChild(tab)",self.toolbar)
+        self.assertNotRegex(self.css,r"\.(menu|home|history|about|vip|account|login)-tab\s*\{[^}]*order:")
+        self.assertNotIn(":nth-child",self.css[self.css.index("/* Drawer gesture"):])
 
     def test_backdrop_consumes_the_whole_input_sequence(self):
         for event in ("pointerdown", "pointerup", "touchstart", "touchend", "click"):

@@ -50,11 +50,12 @@
         <a href="/contact"><span>?</span><b data-account-label="support">Hỗ Trợ</b></a>
         <a href="/app#account"><span>◎</span><b data-account-label="profile">Hồ Sơ Của Tôi</b></a>
         <a href="/app#affiliate"><span>ⓢ</span><b data-account-label="commission">Giới Thiệu Nhận Hoa Hồng</b></a>
-  const toolbarTabOrder=['menu','models','history','affiliate','wallet','account'];
-  const toolbarNav=host.querySelector('.global-actions');
-  toolbarTabOrder.forEach(tool=>{
-    const tab=toolbarNav.querySelector(':scope > [data-tool="'+tool+'"]');if(tab)toolbarNav.appendChild(tab);
-  });
+  const navRow=host.querySelector('.global-actions');
+  const menuTab=navRow.querySelector(':scope > [data-tool="menu"]');
+  function ensureMenuTabFirst(){
+    if(navRow.firstElementChild!==menuTab)navRow.prepend(menuTab);
+  }
+  ensureMenuTabFirst();
         <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
       </nav>
     </section>
@@ -184,6 +185,7 @@
     host.querySelectorAll('[data-account-label]').forEach(node=>{node.textContent=dictionary[node.dataset.accountLabel]});
     host.querySelector('#toolbarGreeting').textContent=dictionary.greeting;
     host.querySelector('#toolbarAccountLabel').textContent=signedIn?dictionary.account:dictionary.login;
+    ensureMenuTabFirst();
   }
 
   function closeMenu(restore=true){
@@ -217,6 +219,7 @@
     toolsDrawer.querySelector('#drawerAvatar').textContent='T';
     toolsDrawer.querySelector('#drawerLogin').hidden=false;
     toolsDrawer.querySelector('#drawerLogin').href=loginUrl();
+    ensureMenuTabFirst();
     setActive(routeTool());
   }
 
@@ -234,6 +237,7 @@
     toolsDrawer.querySelector('#drawerCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
     toolsDrawer.querySelector('#drawerAvatar').textContent=initial;
     toolsDrawer.querySelector('#drawerLogin').hidden=true;
+    ensureMenuTabFirst();
     setActive(routeTool());
   }
 
