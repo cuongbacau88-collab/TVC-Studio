@@ -176,7 +176,7 @@ $('#doLogin').onclick=async()=>{
   try{
     await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:$('#lEmail').value,password:$('#lPass').value})});
-    location.reload()
+    location.href=window.TVCReturnNavigation?.consumeReturn()||'/'
   }catch(e){$('#authMsg').textContent=e.message}
 }
 $('#doRegister').onclick=async()=>{

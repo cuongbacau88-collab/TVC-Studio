@@ -77,7 +77,7 @@ async function init(){
  const def=definitions[key];if(!def){location.href='/';return}
  $('serviceTitle').textContent=def.title;$('serviceDescription').textContent=def.desc;$('submitButton').textContent=def.button;
  try{const [catalog,me]=await Promise.all([api('/api/services'),api('/api/me')]);config=catalog.find(v=>v.key===key);window.workerPollMs=Number(config?.poll_interval||4)*1000;$('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
- catch(e){if(e.message.includes('đăng nhập')||e.message.includes('Phiên'))$('authNotice').classList.remove('hidden');setError(e.message);return}
+ catch(e){if(e.message.includes('đăng nhập')||e.message.includes('Phiên')){$('authNotice').classList.remove('hidden');const link=$('authNotice').querySelector('a');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}setError(e.message);return}
  if(!config){setError('Dịch vụ không tồn tại');return}
  $('serviceCost').textContent=config.free?'Miễn phí • xử lý khi GPU rảnh':config.usage==null?'Mức lượt chưa được cấu hình':`${config.usage} lượt / job`;
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));

@@ -1,5 +1,16 @@
 (function(){
   'use strict';
+  const RETURN_KEY='tvc_login_return_to';
+  function safeInternalReturn(value){
+    if(typeof value!=='string'||!value.startsWith('/')||value.startsWith('//'))return null;
+    try{const url=new URL(value,location.origin);if(url.origin!==location.origin)return null;return url.pathname+url.search+url.hash}catch{return null}
+  }
+  function currentReturn(){return safeInternalReturn(location.pathname+location.search+location.hash)||'/'}
+  function storeReturn(value){const safe=safeInternalReturn(value);if(safe)sessionStorage.setItem(RETURN_KEY,safe);return safe}
+  function loginUrl(value=(location.pathname==='/app'&&['#login','#register'].includes(location.hash)?resolveReturn():currentReturn())){const safe=storeReturn(value)||'/';return `/app?return_to=${encodeURIComponent(safe)}#login`}
+  function resolveReturn(){const query=safeInternalReturn(new URLSearchParams(location.search).get('return_to'));if(query)return query;const saved=safeInternalReturn(sessionStorage.getItem(RETURN_KEY));if(saved)return saved;if(location.pathname==='/app'&&['#jobs','#affiliate','#wallet','#account','#create'].includes(location.hash))return currentReturn();return '/'}
+  function consumeReturn(){const target=resolveReturn();sessionStorage.removeItem(RETURN_KEY);return target}
+  window.TVCReturnNavigation={safeInternalReturn,currentReturn,storeReturn,loginUrl,resolveReturn,consumeReturn};
 
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
   if(!host)return;
@@ -118,6 +129,7 @@
     host.querySelector('#drawerCredits').textContent='0';
     host.querySelector('#drawerAvatar').textContent='T';
     host.querySelector('#drawerLogin').hidden=false;
+    host.querySelector('#drawerLogin').href=loginUrl();
     setActive(routeTool());
   }
 
@@ -151,7 +163,7 @@
   trigger.addEventListener('click',()=>{
     if(!signedIn){
       closeMenu(false);
-      location.href='/app#login';
+      location.href=loginUrl();
       return;
     }
     menuOpen?closeMenu():openMenu();

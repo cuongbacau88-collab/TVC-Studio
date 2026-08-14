@@ -242,13 +242,13 @@
 <script>
 const loginModal=document.getElementById('loginModal');
 const loginOpen=document.getElementById('loginOpen');
-if(loginOpen) loginOpen.onclick=()=>loginModal.classList.add('open');
+if(loginOpen) loginOpen.onclick=()=>{window.TVCReturnNavigation?.storeReturn(location.pathname+location.search+location.hash);loginModal.classList.add('open')};
 document.getElementById('loginClose').onclick=()=>loginModal.classList.remove('open');
 document.getElementById('loginBtn').onclick=async()=>{
   const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('password').value})});
   let j={}; try{j=await r.json()}catch{}
-  if(r.ok) location.href=j.role==='admin'?'/admin':'/app';
+  if(r.ok) location.href=j.role==='admin'?'/admin':window.TVCReturnNavigation?.consumeReturn()||'/';
   else document.getElementById('loginMsg').textContent=j.detail||'Đăng nhập thất bại';
 };
 const t=document.getElementById('homeToast');

@@ -66,6 +66,8 @@
     if(sub) sub.textContent=lang==='en'?'Continue to TVC Studio AI':'Tiếp tục với TVC Studio AI';
     if(email) email.textContent=lang==='en'?'Log in with Email':'Đăng nhập bằng Email';
     if(reg) reg.innerHTML=lang==='en'?'No account? <b>Sign up</b>':'Chưa có tài khoản? <b>Đăng ký</b>';
+    if(email&&window.TVCReturnNavigation)email.href=window.TVCReturnNavigation.loginUrl();
+    if(reg&&window.TVCReturnNavigation){const target=window.TVCReturnNavigation.resolveReturn();window.TVCReturnNavigation.storeReturn(target);reg.href=`/app?return_to=${encodeURIComponent(target)}#register`;}
   }
 
   function setToolbarLoggedIn(me){
@@ -107,7 +109,7 @@
       });
       let j={}; try{j=await r.json();}catch{}
       if(!r.ok) throw new Error(j.detail||'Google Login thất bại');
-      location.reload();
+      if(location.pathname==='/app')location.href=window.TVCReturnNavigation?.consumeReturn()||'/';else location.reload();
     }catch(err){
       showGoogleError(err.message||'Google Login thất bại');
     }
@@ -191,7 +193,8 @@
         const dash=qs('#dashboard'); if(dash) dash.classList.add('hidden');
         const target=reg?'register':'login';
         qs(`[data-auth="${target}"]`)?.click();
-        history.replaceState(null,'',`/app#${target}`);
+        const returnTo=window.TVCReturnNavigation?.resolveReturn()||'/';window.TVCReturnNavigation?.storeReturn(returnTo);
+        history.replaceState(null,'',`/app?return_to=${encodeURIComponent(returnTo)}#${target}`);
       }
     });
   }
