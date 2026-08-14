@@ -14,6 +14,10 @@
 
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
   if(!host)return;
+  window.__tvcToolbarAbort?.abort();
+  const toolbarAbort=new AbortController(),signal=toolbarAbort.signal;
+  window.__tvcToolbarAbort=toolbarAbort;
+  const listen=(target,type,handler,options={})=>target.addEventListener(type,handler,{...options,signal});
 
   document.body.classList.add('tvc-fixed-toolbar');
 
@@ -58,18 +62,71 @@
     <div class="drawer-account"><span class="tvc-account-avatar" id="drawerAvatar">T</span><div><b id="drawerEmail">Chưa đăng nhập</b><small><span id="drawerCredits">0</span> lượt</small></div><a id="drawerLogin" href="/app#login">Đăng Nhập</a></div>
     <div class="drawer-language"><span>Ngôn ngữ</span><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
     <div class="drawer-scroll">
-      <details open><summary>Điều hướng</summary><nav><a href="/">Trang Chủ</a><a href="/app#jobs">Lịch Sử</a><a href="/about">Giới Thiệu</a><a href="/app#wallet">Nạp VIP</a><a href="/app#account">Tài Khoản</a></nav></details>
       <details open><summary>Tạo video</summary><nav><a href="/app">AI Motion Studio <em>Viral</em></a><a href="/services/video_generation">AI Video Creator <em>Mới</em></a><button type="button" disabled>Tạo Video Review <em>Sắp ra mắt</em></button><button type="button" disabled>Video dạng câu chuyện <em>Sắp ra mắt</em></button></nav></details>
       <details><summary>Chỉnh sửa ảnh</summary><nav><a href="/services/outfit_change">AI Đổi Trang Phục <em>Miễn phí</em></a><a href="/services/background_change">AI Đổi Bối Cảnh <em>Miễn phí</em></a><a href="/services/image_upscale">AI Nâng Cấp Ảnh <em>Miễn phí</em></a><button type="button" disabled>Lookbook Thời Trang <em>Sắp ra mắt</em></button><button type="button" disabled>Tạo Ảnh Trends <em>Sắp ra mắt</em></button></nav></details>
       <details><summary>KOL và thương hiệu</summary><nav><button type="button" disabled>KOL của tôi <em>Sắp ra mắt</em></button><button type="button" disabled>Nhân bản giọng nói <em>Sắp ra mắt</em></button><button type="button" disabled>Hồ sơ nhân vật <em>Sắp ra mắt</em></button></nav></details>
       <details><summary>Quản lý</summary><nav><a href="/app#jobs">Lịch Sử</a><a href="/app#wallet">Lượt của tôi</a><a href="/app#wallet">Nạp Thêm Lượt</a><a href="/app#account">Hồ Sơ Của Tôi</a><a href="/app#affiliate">Giới Thiệu Nhận Hoa Hồng</a><a href="/contact">Hỗ Trợ</a></nav></details>
     </div></aside>`);
   const toolsTrigger=host.querySelector('#aiToolsTrigger'),desktopToolsTrigger=host.querySelector('#aiToolsDesktopTrigger'),toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
-  function closeTools(){toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');toolsOverlay.hidden=true;toolsTrigger.setAttribute('aria-expanded','false');desktopToolsTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('ai-tools-open');setActive(routeTool())}
-  function openTools(){closeMenu(false);toolsOverlay.hidden=false;requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');toolsTrigger.setAttribute('aria-expanded','true');desktopToolsTrigger.setAttribute('aria-expanded','true');document.body.classList.add('ai-tools-open');setActive('menu');host.querySelector('#aiToolsClose').focus({preventScroll:true})}
-  toolsTrigger.addEventListener('click',()=>toolsDrawer.classList.contains('open')?closeTools():openTools());
-  desktopToolsTrigger.addEventListener('click',()=>toolsDrawer.classList.contains('open')?closeTools():openTools());
-  toolsOverlay.addEventListener('click',closeTools);host.querySelector('#aiToolsClose').addEventListener('click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeTools));
+  let overlayTimer=0,gesture=null;
+  function resetDrag(){gesture=null;toolsDrawer.classList.remove('dragging');toolsDrawer.style.removeProperty('transform')}
+  function closeTools(){
+    clearTimeout(overlayTimer);resetDrag();toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');
+    toolsTrigger.setAttribute('aria-expanded','false');desktopToolsTrigger.setAttribute('aria-expanded','false');setActive(routeTool());
+    overlayTimer=setTimeout(()=>{toolsOverlay.hidden=true;document.body.classList.remove('ai-tools-open')},210);
+  }
+  function openTools(focusClose=true){
+    clearTimeout(overlayTimer);resetDrag();closeMenu(false);toolsOverlay.hidden=false;document.body.classList.add('ai-tools-open');
+    requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');
+    toolsTrigger.setAttribute('aria-expanded','true');desktopToolsTrigger.setAttribute('aria-expanded','true');setActive('menu');
+    if(focusClose)host.querySelector('#aiToolsClose').focus({preventScroll:true});
+  }
+  function consumeBackdrop(event){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();if(toolsDrawer.classList.contains('open'))closeTools()}
+  const toggleTools=()=>toolsDrawer.classList.contains('open')?closeTools():openTools();
+  listen(toolsTrigger,'click',toggleTools);listen(desktopToolsTrigger,'click',toggleTools);
+  ['pointerdown','pointerup','touchstart','touchend','click'].forEach(type=>listen(toolsOverlay,type,consumeBackdrop,{passive:false}));
+  listen(host.querySelector('#aiToolsClose'),'click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>listen(link,'click',closeTools));
+  function blockedGestureTarget(target){
+    if(!(target instanceof Element))return false;
+    if(target.closest('input,textarea,select,button,video,[data-no-drawer-gesture],[draggable="true"],.carousel,.video-gallery-carousel,.upload-tile,.add-reference,.reference-actions'))return true;
+    for(let node=target;node&&node!==document.body;node=node.parentElement){const style=getComputedStyle(node);if(['auto','scroll'].includes(style.overflowX)&&node.scrollWidth>node.clientWidth)return true}
+    return false;
+  }
+  const point=event=>{const item=event.touches?.[0]||event.changedTouches?.[0]||event;return{x:item.clientX,y:item.clientY}};
+  function startOpenGesture(event){
+    if(innerWidth>768||toolsDrawer.classList.contains('open')||blockedGestureTarget(event.target))return;
+    const p=point(event);if(p.x<24||p.x>80)return;gesture={kind:'open',x:p.x,y:p.y,horizontal:false};
+  }
+  function startCloseGesture(event){
+    if(!toolsDrawer.classList.contains('open')||blockedGestureTarget(event.target))return;
+    const p=point(event);gesture={kind:'close',x:p.x,y:p.y,horizontal:false};
+  }
+  function moveGesture(event){
+    if(!gesture)return;const p=point(event),dx=p.x-gesture.x,dy=p.y-gesture.y;
+    if(Math.abs(dy)>30&&!gesture.horizontal){resetDrag();return}
+    if(!gesture.horizontal){
+      if(Math.abs(dx)<10)return;
+      if(Math.abs(dx)<=Math.abs(dy)*1.35||(gesture.kind==='open'&&dx<0)||(gesture.kind==='close'&&dx>0)){resetDrag();return}
+      gesture.horizontal=true;toolsDrawer.classList.add('dragging');
+      if(gesture.kind==='open'){toolsOverlay.hidden=false;document.body.classList.add('ai-tools-open')}
+    }
+    event.preventDefault();const offset=gesture.kind==='open'?Math.max(0,dx):Math.min(0,dx);
+    toolsDrawer.style.transform=gesture.kind==='open'?'translateX(calc(-105% + '+offset+'px))':'translateX('+offset+'px)';
+  }
+  function endGesture(event){
+    if(!gesture)return;const active=gesture,dx=point(event).x-active.x;resetDrag();
+    if(active.kind==='open'){
+      if(active.horizontal&&dx>=60)openTools(false);
+      else{toolsDrawer.classList.remove('open');toolsOverlay.hidden=true;document.body.classList.remove('ai-tools-open');setActive(routeTool())}
+    }else if(active.horizontal&&dx<=-60)closeTools();else toolsDrawer.classList.add('open');
+  }
+  if('PointerEvent'in window){
+    listen(document,'pointerdown',startOpenGesture,{passive:true});listen(toolsDrawer,'pointerdown',startCloseGesture,{passive:true});
+    listen(document,'pointermove',moveGesture,{passive:false});listen(document,'pointerup',endGesture,{passive:true});listen(document,'pointercancel',endGesture,{passive:true});
+  }else{
+    listen(document,'touchstart',startOpenGesture,{passive:true});listen(toolsDrawer,'touchstart',startCloseGesture,{passive:true});
+    listen(document,'touchmove',moveGesture,{passive:false});listen(document,'touchend',endGesture,{passive:true});listen(document,'touchcancel',endGesture,{passive:true});
+  }
 
   function language(){
     return localStorage.getItem('tvc_lang')==='en'?'en':'vi';
@@ -175,10 +232,10 @@
     menuOpen?closeMenu():openMenu();
   });
 
-  document.addEventListener('click',event=>{
+  listen(document,'click',event=>{
     if(menuOpen&&!host.contains(event.target))closeMenu();
   });
-  document.addEventListener('keydown',event=>{
+  listen(document,'keydown',event=>{
     if(event.key==='Escape'&&menuOpen){
       closeMenu();
       trigger.focus({preventScroll:true});
@@ -203,22 +260,24 @@
   });
   host.querySelectorAll('.lang-switch button').forEach(button=>button.addEventListener('click',()=>applyLanguage(button.dataset.lang)));
 
-  window.addEventListener('hashchange',()=>{closeMenu(false);setActive(routeTool())});
-  window.addEventListener('popstate',()=>{closeMenu(false);setActive(routeTool())});
-  window.addEventListener('pageshow',()=>syncAccount());
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncAccount()});
-  document.addEventListener('tvc-auth-change',()=>syncAccount());
+  listen(window,'hashchange',()=>{closeMenu(false);setActive(routeTool())});
+  listen(window,'popstate',()=>{closeMenu(false);setActive(routeTool())});
+  listen(window,'pageshow',()=>syncAccount());
+  listen(document,'visibilitychange',()=>{if(!document.hidden)syncAccount()});
+  listen(document,'tvc-auth-change',()=>syncAccount());
 
   function updateToolbarHeight(){
     document.documentElement.style.setProperty('--header-height',Math.ceil(host.getBoundingClientRect().height)+'px');
     document.documentElement.style.setProperty('--tvc-toolbar-height',`${Math.ceil(host.getBoundingClientRect().height)}px`);
   }
+  let toolbarResizeObserver=null;
   if('ResizeObserver' in window){
-    new ResizeObserver(updateToolbarHeight).observe(host);
+    toolbarResizeObserver=new ResizeObserver(updateToolbarHeight);toolbarResizeObserver.observe(host);
   }else{
-    window.addEventListener('resize',updateToolbarHeight,{passive:true});
+    listen(window,'resize',updateToolbarHeight,{passive:true});
   }
-  window.addEventListener('orientationchange',updateToolbarHeight,{passive:true});
+  signal.addEventListener('abort',()=>toolbarResizeObserver?.disconnect(),{once:true});
+  listen(window,'orientationchange',updateToolbarHeight,{passive:true});
   document.fonts?.ready.then(updateToolbarHeight);
 
   window.TVCGlobalToolbar={setActive,syncAccount,closeMenu};

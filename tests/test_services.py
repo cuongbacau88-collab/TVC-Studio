@@ -299,6 +299,54 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertNotIn("aspect-ratio:1 / 1", final)
 
 
+class GlobalDrawerRegressionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        root = Path(__file__).resolve().parents[1]
+        cls.toolbar = (root / "static/global-toolbar.js").read_text(encoding="utf-8")
+        cls.css = (root / "static/responsive.css").read_text(encoding="utf-8")
+
+    def test_menu_is_first_and_drawer_has_no_duplicate_navigation_group(self):
+        nav = self.toolbar[self.toolbar.index('<nav class="global-actions'):self.toolbar.index('</nav>')]
+        order = [nav.index(f'data-tool="{name}"') for name in ("menu", "models", "history", "affiliate", "wallet", "account")]
+        self.assertEqual(order, sorted(order))
+        drawer = self.toolbar[self.toolbar.index('id="aiToolsDrawer"'):self.toolbar.index('</aside>')]
+        self.assertNotIn("<summary>Điều hướng</summary>", drawer)
+        self.assertEqual(1, self.toolbar.count('id="aiToolsDrawer"'))
+        self.assertEqual(1, self.toolbar.count('id="aiToolsOverlay"'))
+
+    def test_backdrop_consumes_the_whole_input_sequence(self):
+        for event in ("pointerdown", "pointerup", "touchstart", "touchend", "click"):
+            self.assertIn(f"'{event}'", self.toolbar)
+        self.assertIn("event.preventDefault()", self.toolbar)
+        self.assertIn("event.stopPropagation()", self.toolbar)
+        self.assertIn("event.stopImmediatePropagation()", self.toolbar)
+        self.assertIn("touch-action:none", self.css)
+
+    def test_all_explicit_close_controls_remain_connected(self):
+        self.assertIn("toggleTools", self.toolbar)
+        self.assertIn("aiToolsClose'),'click',closeTools", self.toolbar)
+        self.assertIn("event.key==='Escape'&&toolsDrawer.classList.contains('open')", self.toolbar)
+        self.assertIn("querySelectorAll('a').forEach(link=>listen(link,'click',closeTools))", self.toolbar)
+
+    def test_swipe_boundaries_thresholds_and_vertical_cancel(self):
+        self.assertIn("p.x<24||p.x>80", self.toolbar)
+        self.assertIn("dx>=60", self.toolbar)
+        self.assertIn("dx<=-60", self.toolbar)
+        self.assertIn("Math.abs(dy)>30", self.toolbar)
+        self.assertIn("Math.abs(dx)<=Math.abs(dy)*1.35", self.toolbar)
+        self.assertIn("touchstart',startOpenGesture", self.toolbar)
+        self.assertIn("pointerdown',startOpenGesture", self.toolbar)
+
+    def test_gesture_exclusions_and_listener_cleanup(self):
+        for selector in ("input", "textarea", "select", "button", "video", "data-no-drawer-gesture", "upload-tile"):
+            self.assertIn(selector, self.toolbar)
+        self.assertIn("overflowX", self.toolbar)
+        self.assertIn("window.__tvcToolbarAbort?.abort()", self.toolbar)
+        self.assertIn("signal=toolbarAbort.signal", self.toolbar)
+        self.assertIn("toolbarResizeObserver?.disconnect()", self.toolbar)
+
+
 if __name__ == "__main__":
     unittest.main()
 class ReferenceVideoValidationTests(unittest.TestCase):
