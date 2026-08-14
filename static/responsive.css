@@ -494,13 +494,16 @@ body.tvc-fixed-toolbar .global-toolbar,body.tvc-fixed-toolbar .global-toolbar.li
   body.tvc-fixed-toolbar .global-actions>[data-tool]{height:50px!important;min-height:50px!important}
 }
 /* Drawer gesture and backdrop event-isolation contract. */
-.ai-tools-overlay{pointer-events:auto!important;touch-action:none!important;overscroll-behavior:contain!important}
-.global-actions>[data-tool="menu"]{order:0}
-.global-actions>[data-tool="models"]{order:1}
-.global-actions>[data-tool="history"]{order:2}
-.global-actions>[data-tool="affiliate"]{order:3}
-.global-actions>[data-tool="wallet"]{order:4}
-.global-actions>[data-tool="account"]{order:5}
+.ai-tools-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:100000!important;pointer-events:auto!important;touch-action:none!important;overscroll-behavior:contain!important}
+.ai-tools-drawer{z-index:100001!important}
+@media(max-width:768px){
+  .global-actions>.menu-tab{order:1!important}
+  .global-actions>.home-tab{order:2!important}
+  .global-actions>.history-tab{order:3!important}
+  .global-actions>.about-tab{order:4!important}
+  .global-actions>.vip-tab{order:5!important}
+  .global-actions>.account-tab,.global-actions>.login-tab{order:6!important}
+}
 .ai-tools-drawer{touch-action:pan-y;overscroll-behavior-y:contain}
 .ai-tools-drawer.dragging{transition:none!important;will-change:transform}
 @media(prefers-reduced-motion:reduce){

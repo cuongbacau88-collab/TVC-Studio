@@ -15,6 +15,7 @@
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
   if(!host)return;
   window.__tvcToolbarAbort?.abort();
+  document.querySelectorAll('[data-toolbar-portal="true"]').forEach(node=>node.remove());
   const toolbarAbort=new AbortController(),signal=toolbarAbort.signal;
   window.__tvcToolbarAbort=toolbarAbort;
   const listen=(target,type,handler,options={})=>target.addEventListener(type,handler,{...options,signal});
@@ -34,12 +35,12 @@
     <div class="toolbar-left"><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
     <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI"><span class="brand-glass-orb"><img src="/static/images/logo-tvc.png" alt="TVC Studio"></span><strong>TVC Studio <b>AI</b></strong></a>
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
-      <button type="button" class="tool-pill liquid-pill mobile-menu-tool" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
-      <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
-      <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
-      <a href="/app#wallet" class="tool-pill liquid-pill" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
-      <button type="button" class="tool-pill liquid-pill tvc-account-trigger" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
+      <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
+      <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
+      <a href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
+      <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
     </nav>
     <section class="tvc-account-menu" id="toolbarAccountMenu" aria-label="Menu tài khoản" hidden>
       <header><span class="tvc-account-avatar" id="toolbarAccountAvatar">T</span><div><small id="toolbarGreeting">Chào bạn,</small><strong id="toolbarAccountEmail"></strong></div></header>
@@ -72,25 +73,43 @@
       <details><summary>KOL và thương hiệu</summary><nav><button type="button" disabled>KOL của tôi <em>Sắp ra mắt</em></button><button type="button" disabled>Nhân bản giọng nói <em>Sắp ra mắt</em></button><button type="button" disabled>Hồ sơ nhân vật <em>Sắp ra mắt</em></button></nav></details>
       <details><summary>Quản lý</summary><nav><a href="/app#jobs">Lịch Sử</a><a href="/app#wallet">Lượt của tôi</a><a href="/app#wallet">Nạp Thêm Lượt</a><a href="/app#account">Hồ Sơ Của Tôi</a><a href="/app#affiliate">Giới Thiệu Nhận Hoa Hồng</a><a href="/contact">Hỗ Trợ</a></nav></details>
     </div></aside>`);
-  const toolsTrigger=host.querySelector('#aiToolsTrigger'),desktopToolsTrigger=host.querySelector('#aiToolsDesktopTrigger'),toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
-  let overlayTimer=0,gesture=null;
+  const toolsTrigger=host.querySelector('#aiToolsTrigger'),desktopToolsTrigger=host.querySelector('#aiToolsDesktopTrigger');
+  const toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
+  document.body.append(toolsOverlay,toolsDrawer);
+  toolsDrawer.dataset.toolbarPortal='true';toolsOverlay.dataset.toolbarPortal='true';
+  let overlayTimer=0,gesture=null,drawerClosing=false,closeAnimationDone=false,backdropSequenceActive=false;
   function resetDrag(){gesture=null;toolsDrawer.classList.remove('dragging');toolsDrawer.style.removeProperty('transform')}
+  function finalizeClose(){
+    if(!drawerClosing||!closeAnimationDone||backdropSequenceActive)return;
+    drawerClosing=false;clearTimeout(overlayTimer);toolsOverlay.hidden=true;document.body.classList.remove('ai-tools-open');
+  }
   function closeTools(){
-    clearTimeout(overlayTimer);resetDrag();toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');
+    if(drawerClosing||!toolsDrawer.classList.contains('open'))return;
+    drawerClosing=true;closeAnimationDone=false;clearTimeout(overlayTimer);resetDrag();
+    toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');
     toolsTrigger.setAttribute('aria-expanded','false');desktopToolsTrigger.setAttribute('aria-expanded','false');setActive(routeTool());
-    overlayTimer=setTimeout(()=>{toolsOverlay.hidden=true;document.body.classList.remove('ai-tools-open')},210);
+    listen(toolsDrawer,'transitionend',event=>{
+      if(event.target===toolsDrawer&&event.propertyName==='transform'){closeAnimationDone=true;finalizeClose()}
+    },{once:true});
+    overlayTimer=setTimeout(()=>{backdropSequenceActive=false;closeAnimationDone=true;finalizeClose()},450);
   }
   function openTools(focusClose=true){
-    clearTimeout(overlayTimer);resetDrag();closeMenu(false);toolsOverlay.hidden=false;document.body.classList.add('ai-tools-open');
+    drawerClosing=false;closeAnimationDone=false;backdropSequenceActive=false;clearTimeout(overlayTimer);resetDrag();closeMenu(false);
+    toolsOverlay.hidden=false;document.body.classList.add('ai-tools-open');
     requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');
     toolsTrigger.setAttribute('aria-expanded','true');desktopToolsTrigger.setAttribute('aria-expanded','true');setActive('menu');
-    if(focusClose)host.querySelector('#aiToolsClose').focus({preventScroll:true});
+    if(focusClose)toolsDrawer.querySelector('#aiToolsClose').focus({preventScroll:true});
   }
-  function consumeBackdrop(event){event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();if(toolsDrawer.classList.contains('open'))closeTools()}
+  function consumeBackdrop(event){
+    event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+    if(event.type==='pointerdown'||event.type==='touchstart')backdropSequenceActive=true;
+    if(toolsDrawer.classList.contains('open'))closeTools();
+    if(event.type==='click'){backdropSequenceActive=false;finalizeClose()}
+  }
   const toggleTools=()=>toolsDrawer.classList.contains('open')?closeTools():openTools();
   listen(toolsTrigger,'click',toggleTools);listen(desktopToolsTrigger,'click',toggleTools);
-  ['pointerdown','pointerup','touchstart','touchend','click'].forEach(type=>listen(toolsOverlay,type,consumeBackdrop,{passive:false}));
-  listen(host.querySelector('#aiToolsClose'),'click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>listen(link,'click',closeTools));
+  ['pointerdown','pointerup','touchstart','touchend','click'].forEach(type=>listen(toolsOverlay,type,consumeBackdrop,{passive:false,capture:true}));
+  listen(toolsDrawer.querySelector('#aiToolsClose'),'click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>listen(link,'click',closeTools));
   function blockedGestureTarget(target){
     if(!(target instanceof Element))return false;
     if(target.closest('input,textarea,select,button,video,[data-no-drawer-gesture],[draggable="true"],.carousel,.video-gallery-carousel,.upload-tile,.add-reference,.reference-actions'))return true;
@@ -160,7 +179,7 @@
     const dictionary=labels[lang]||labels.vi;
     document.documentElement.lang=lang;
     localStorage.setItem('tvc_lang',lang);
-    host.querySelectorAll('.lang-switch button').forEach(button=>button.classList.toggle('active',button.dataset.lang===lang));
+    [...host.querySelectorAll('.lang-switch button'),...toolsDrawer.querySelectorAll('.lang-switch button')].forEach(button=>button.classList.toggle('active',button.dataset.lang===lang));
     host.querySelectorAll('[data-toolbar-label]').forEach(node=>{node.textContent=dictionary[node.dataset.toolbarLabel]});
     host.querySelectorAll('[data-account-label]').forEach(node=>{node.textContent=dictionary[node.dataset.accountLabel]});
     host.querySelector('#toolbarGreeting').textContent=dictionary.greeting;
@@ -193,11 +212,11 @@
     host.querySelector('#toolbarAccountEmail').textContent='';
     host.querySelector('#toolbarAccountAvatar').textContent='';
     host.querySelector('#mobileToolbarCredits').textContent='0';
-    host.querySelector('#drawerEmail').textContent='Chưa đăng nhập';
-    host.querySelector('#drawerCredits').textContent='0';
-    host.querySelector('#drawerAvatar').textContent='T';
-    host.querySelector('#drawerLogin').hidden=false;
-    host.querySelector('#drawerLogin').href=loginUrl();
+    toolsDrawer.querySelector('#drawerEmail').textContent='Chưa đăng nhập';
+    toolsDrawer.querySelector('#drawerCredits').textContent='0';
+    toolsDrawer.querySelector('#drawerAvatar').textContent='T';
+    toolsDrawer.querySelector('#drawerLogin').hidden=false;
+    toolsDrawer.querySelector('#drawerLogin').href=loginUrl();
     setActive(routeTool());
   }
 
@@ -211,10 +230,10 @@
     host.querySelector('#toolbarAccountEmail').textContent=me.email||'';
     host.querySelector('#toolbarAccountLabel').textContent=labels[language()].account;
     host.querySelector('#mobileToolbarCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
-    host.querySelector('#drawerEmail').textContent=me.email||'';
-    host.querySelector('#drawerCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
-    host.querySelector('#drawerAvatar').textContent=initial;
-    host.querySelector('#drawerLogin').hidden=true;
+    toolsDrawer.querySelector('#drawerEmail').textContent=me.email||'';
+    toolsDrawer.querySelector('#drawerCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
+    toolsDrawer.querySelector('#drawerAvatar').textContent=initial;
+    toolsDrawer.querySelector('#drawerLogin').hidden=true;
     setActive(routeTool());
   }
 
@@ -263,7 +282,7 @@
       location.href='/';
     }
   });
-  host.querySelectorAll('.lang-switch button').forEach(button=>button.addEventListener('click',()=>applyLanguage(button.dataset.lang)));
+  [...host.querySelectorAll('.lang-switch button'),...toolsDrawer.querySelectorAll('.lang-switch button')].forEach(button=>listen(button,'click',()=>applyLanguage(button.dataset.lang)));
 
   listen(window,'hashchange',()=>{closeMenu(false);setActive(routeTool())});
   listen(window,'popstate',()=>{closeMenu(false);setActive(routeTool())});

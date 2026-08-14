@@ -339,6 +339,12 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         parser.feed(self.toolbar[template_start:template_end])
         self.assertEqual(["menu","models","history","affiliate","wallet","account"],parser.tools)
         self.assertIn("toolbarNav.appendChild(tab)",self.toolbar)
+        mobile_rules=self.css[self.css.rindex("@media(max-width:768px){"):]
+        expected=(("menu",1),("home",2),("history",3),("about",4),("vip",5))
+        positions=[mobile_rules.index(f".{name}-tab{{order:{order}!important}}") for name,order in expected]
+        self.assertEqual(positions,sorted(positions))
+        self.assertIn(".account-tab,.global-actions>.login-tab{order:6!important}",mobile_rules)
+        self.assertNotIn(":nth-child",mobile_rules)
 
     def test_backdrop_consumes_the_whole_input_sequence(self):
         for event in ("pointerdown", "pointerup", "touchstart", "touchend", "click"):
@@ -347,6 +353,12 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         self.assertIn("event.stopPropagation()", self.toolbar)
         self.assertIn("event.stopImmediatePropagation()", self.toolbar)
         self.assertIn("touch-action:none", self.css)
+        self.assertIn("document.body.append(toolsOverlay,toolsDrawer)", self.toolbar)
+        self.assertIn("capture:true", self.toolbar)
+        self.assertIn("transitionend", self.toolbar)
+        self.assertIn("backdropSequenceActive", self.toolbar)
+        self.assertIn("height:100dvh", self.css)
+        self.assertIn("z-index:100000", self.css)
 
     def test_all_explicit_close_controls_remain_connected(self):
         self.assertIn("toggleTools", self.toolbar)
