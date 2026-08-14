@@ -76,13 +76,17 @@ async function poll(){if(!currentJob)return;try{setStatus(await api(`/api/servic
 async function init(){
  const def=definitions[key];if(!def){location.href='/';return}
  $('serviceTitle').textContent=def.title;$('serviceDescription').textContent=def.desc;$('submitButton').textContent=def.button;
- try{const [catalog,me]=await Promise.all([api('/api/services'),api('/api/me')]);config=catalog.find(v=>v.key===key);window.workerPollMs=Number(config?.poll_interval||4)*1000;$('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
- catch(e){if(e.message.includes('đăng nhập')||e.message.includes('Phiên')){$('authNotice').classList.remove('hidden');const link=$('authNotice').querySelector('a');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}setError(e.message);return}
+ let authenticated=false;
+ try{const catalog=await api('/api/services');config=catalog.find(v=>v.key===key);window.workerPollMs=Number(config?.poll_interval||4)*1000}
+ catch(e){setError(e.message);return}
  if(!config){setError('Dịch vụ không tồn tại');return}
+ try{const me=await api('/api/me');authenticated=true;document.getElementById('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
+ catch(e){const notice=$('authNotice'),link=$('serviceLoginCta');notice.classList.remove('hidden');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}
  $('serviceCost').textContent=config.free?'Miễn phí • xử lý khi GPU rảnh':config.usage==null?'Mức lượt chưa được cấu hình':`${config.usage} lượt / job`;
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));
  if(unavailable){$('configNotice').textContent=!config.configured?'Dịch vụ chưa kết nối máy chủ xử lý.':'Model chưa được cấu hình thời lượng hoặc mức lượt sử dụng.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}
  renderFields();$('requestKey').value=requestKey();
+ if(!authenticated){$('submitButton').disabled=true;$('submitButton').classList.add('hidden')}
  const requestedJob=new URLSearchParams(location.search).get('job');
  if(requestedJob&&/^\d+$/.test(requestedJob)){try{setStatus(await api(`/api/services/${key}/jobs/${requestedJob}`))}catch(e){setError(e.message)}}
 }

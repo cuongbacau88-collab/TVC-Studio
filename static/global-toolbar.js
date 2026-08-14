@@ -30,6 +30,7 @@
     <div class="toolbar-left"><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
     <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI"><span class="brand-glass-orb"><img src="/static/images/logo-tvc.png" alt="TVC Studio"></span><strong>TVC Studio <b>AI</b></strong></a>
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
+      <button type="button" class="tool-pill liquid-pill mobile-menu-tool" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
       <a href="/app#affiliate" class="tool-pill liquid-pill" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
@@ -51,10 +52,11 @@
 
   const trigger=host.querySelector('#toolbarAccountTrigger');
   const menu=host.querySelector('#toolbarAccountMenu');
-  host.querySelector('.toolbar-left').insertAdjacentHTML('afterbegin','<button type="button" class="ai-tools-trigger liquid-pill" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span aria-hidden="true">☰</span><span>Công cụ AI</span></button>');
+  host.querySelector('.toolbar-left').insertAdjacentHTML('afterbegin','<button type="button" class="ai-tools-trigger desktop-ai-tools-trigger liquid-pill" id="aiToolsDesktopTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span aria-hidden="true">☰</span><span>Công cụ AI</span></button>');
   host.insertAdjacentHTML('beforeend',`<div class="ai-tools-overlay" id="aiToolsOverlay" hidden></div><aside class="ai-tools-drawer" id="aiToolsDrawer" aria-label="Công cụ AI" aria-hidden="true">
     <header><a href="/" class="drawer-brand"><img src="/static/images/logo-tvc.png" alt=""><b>TVC Studio AI</b></a><button type="button" id="aiToolsClose" aria-label="Đóng menu">×</button></header>
     <div class="drawer-account"><span class="tvc-account-avatar" id="drawerAvatar">T</span><div><b id="drawerEmail">Chưa đăng nhập</b><small><span id="drawerCredits">0</span> lượt</small></div><a id="drawerLogin" href="/app#login">Đăng Nhập</a></div>
+    <div class="drawer-language"><span>Ngôn ngữ</span><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
     <div class="drawer-scroll">
       <details open><summary>Điều hướng</summary><nav><a href="/">Trang Chủ</a><a href="/app#jobs">Lịch Sử</a><a href="/about">Giới Thiệu</a><a href="/app#wallet">Nạp VIP</a><a href="/app#account">Tài Khoản</a></nav></details>
       <details open><summary>Tạo video</summary><nav><a href="/app">AI Motion Studio <em>Viral</em></a><a href="/services/video_generation">AI Video Creator <em>Mới</em></a><button type="button" disabled>Tạo Video Review <em>Sắp ra mắt</em></button><button type="button" disabled>Video dạng câu chuyện <em>Sắp ra mắt</em></button></nav></details>
@@ -62,10 +64,11 @@
       <details><summary>KOL và thương hiệu</summary><nav><button type="button" disabled>KOL của tôi <em>Sắp ra mắt</em></button><button type="button" disabled>Nhân bản giọng nói <em>Sắp ra mắt</em></button><button type="button" disabled>Hồ sơ nhân vật <em>Sắp ra mắt</em></button></nav></details>
       <details><summary>Quản lý</summary><nav><a href="/app#jobs">Lịch Sử</a><a href="/app#wallet">Lượt của tôi</a><a href="/app#wallet">Nạp Thêm Lượt</a><a href="/app#account">Hồ Sơ Của Tôi</a><a href="/app#affiliate">Giới Thiệu Nhận Hoa Hồng</a><a href="/contact">Hỗ Trợ</a></nav></details>
     </div></aside>`);
-  const toolsTrigger=host.querySelector('#aiToolsTrigger'),toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
-  function closeTools(){toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');toolsOverlay.hidden=true;toolsTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('ai-tools-open')}
-  function openTools(){closeMenu(false);toolsOverlay.hidden=false;requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');toolsTrigger.setAttribute('aria-expanded','true');document.body.classList.add('ai-tools-open');host.querySelector('#aiToolsClose').focus({preventScroll:true})}
+  const toolsTrigger=host.querySelector('#aiToolsTrigger'),desktopToolsTrigger=host.querySelector('#aiToolsDesktopTrigger'),toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
+  function closeTools(){toolsDrawer.classList.remove('open');toolsDrawer.setAttribute('aria-hidden','true');toolsOverlay.hidden=true;toolsTrigger.setAttribute('aria-expanded','false');desktopToolsTrigger.setAttribute('aria-expanded','false');document.body.classList.remove('ai-tools-open');setActive(routeTool())}
+  function openTools(){closeMenu(false);toolsOverlay.hidden=false;requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');toolsTrigger.setAttribute('aria-expanded','true');desktopToolsTrigger.setAttribute('aria-expanded','true');document.body.classList.add('ai-tools-open');setActive('menu');host.querySelector('#aiToolsClose').focus({preventScroll:true})}
   toolsTrigger.addEventListener('click',()=>toolsDrawer.classList.contains('open')?closeTools():openTools());
+  desktopToolsTrigger.addEventListener('click',()=>toolsDrawer.classList.contains('open')?closeTools():openTools());
   toolsOverlay.addEventListener('click',closeTools);host.querySelector('#aiToolsClose').addEventListener('click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeTools));
 
   function language(){
@@ -75,9 +78,12 @@
   function routeTool(){
     if(location.pathname==='/app'){
       const exact={jobs:'history',affiliate:'affiliate',wallet:'wallet',account:'account'};
-      return exact[location.hash.slice(1)]||'models';
+      return exact[location.hash.slice(1)]||(location.hash==='#login'||location.hash==='#register'?'account':'models');
     }
-    return 'models';
+    if(location.pathname==='/')return'models';
+    if(location.pathname==='/about')return'affiliate';
+    if(location.pathname==='/pricing')return'wallet';
+    return null;
   }
 
   function setActive(tool){
@@ -175,11 +181,11 @@
   document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&menuOpen){
       closeMenu();
+      trigger.focus({preventScroll:true});
+    }
     if(event.key==='Escape'&&toolsDrawer.classList.contains('open')){
       closeTools();
       toolsTrigger.focus({preventScroll:true});
-    }
-      trigger.focus({preventScroll:true});
     }
   });
   host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('pointerdown',()=>{

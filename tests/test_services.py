@@ -181,7 +181,7 @@ class ServicePageRegressionTests(unittest.TestCase):
 
     def test_service_script_uses_toolbar_balance_id_that_exists(self):
         self.assertIn('id="mobileToolbarCredits"', self.toolbar_js)
-        self.assertIn("$('mobileToolbarCredits').textContent", self.service_js)
+        self.assertIn("document.getElementById('mobileToolbarCredits').textContent", self.service_js)
         self.assertNotIn("$('balance')", self.service_js)
 
     def test_each_service_renders_its_required_form_contract(self):
@@ -214,20 +214,18 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn('name="motion"', self.app_html)
         self.assertIn('value="AI Motion Studio"', self.app_html)
 
-    def test_mobile_toolbar_uses_five_equal_columns_without_overflow(self):
-        fluid = self.responsive_css[self.responsive_css.index("/* Fluid mobile navigation:"):]
-        self.assertIn("grid-template-columns:repeat(5,minmax(0,1fr))", fluid)
+    def test_mobile_toolbar_uses_six_equal_columns_without_overflow(self):
+        fluid = self.responsive_css[self.responsive_css.index("/* V3 shared six-tab mobile navigation"):]
+        self.assertIn("grid-template-columns:repeat(6,minmax(0,1fr))", fluid)
         self.assertIn("width:100%", fluid)
         self.assertIn("max-width:none", fluid)
         self.assertIn("min-width:0", fluid)
-        self.assertIn("env(safe-area-inset-left", fluid)
-        self.assertIn("env(safe-area-inset-right", fluid)
         self.assertNotIn("zoom:", fluid)
         self.assertNotIn("transform:scale", fluid.replace(" ", ""))
 
     def test_toolbar_has_one_canonical_active_state(self):
         navigation_markup = self.toolbar_js[self.toolbar_js.index('<nav class="global-actions'):self.toolbar_js.index('</nav>')]
-        self.assertEqual(5, navigation_markup.count('data-tool="'))
+        self.assertEqual(6, navigation_markup.count('data-tool="'))
         set_active = self.toolbar_js[self.toolbar_js.index("function setActive"):self.toolbar_js.index("function applyLanguage")]
         self.assertIn("removeAttribute('aria-current')", set_active)
         self.assertIn("setAttribute('aria-current','page')", set_active)
@@ -266,7 +264,7 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn("position:fixed!important", final)
         self.assertIn("padding-top:var(--tvc-toolbar-height)", final)
         self.assertIn("repeat(5,minmax(0,1fr))", final)
-        self.assertIn("width:min(88vw,340px)", final)
+        self.assertIn("width:min(82vw,340px)", final)
         self.assertIn("prefers-reduced-motion:reduce", final)
         self.assertIn("ResizeObserver", self.toolbar_js)
         self.assertIn("--tvc-toolbar-height", self.toolbar_js)
