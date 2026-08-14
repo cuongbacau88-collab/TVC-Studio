@@ -99,8 +99,6 @@ function tvcInitToolbar(){
     location.href='/';
   });
 
-  const menu=document.getElementById('toolbarMenu');
-  if(menu) menu.onclick=()=>document.querySelector('.global-actions')?.classList.toggle('open');
 }
 
 async function tvcSyncToolbarAccount(){

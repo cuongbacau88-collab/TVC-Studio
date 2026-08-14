@@ -317,6 +317,17 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         self.assertEqual(1, self.toolbar.count('id="aiToolsOverlay"'))
 
     def test_rendered_navigation_dom_has_canonical_direct_child_order(self):
+        static=Path(__file__).resolve().parents[1]/"static"
+        pages=[]
+        for path in static.glob("*.html"):
+            html=path.read_text(encoding="utf-8")
+            if "global-toolbar.js" not in html:continue
+            pages.append(path.name)
+            self.assertIn('class="global-toolbar liquid-toolbar" data-global-toolbar></div>',html,path.name)
+            self.assertNotIn('<nav class="global-actions',html,path.name)
+            self.assertNotIn("public-toolbar-v3344.js",html,path.name)
+        self.assertGreaterEqual(len(pages),10)
+
         class NavigationDOMParser(HTMLParser):
             def __init__(self):
                 super().__init__();self.in_nav=False;self.depth=0;self.tools=[]
