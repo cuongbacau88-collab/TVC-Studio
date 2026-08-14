@@ -56,6 +56,9 @@
     if(navRow.firstElementChild!==menuTab)navRow.prepend(menuTab);
   }
   ensureMenuTabFirst();
+  const navOrderObserver=new MutationObserver(ensureMenuTabFirst);
+  navOrderObserver.observe(navRow,{childList:true});
+  signal.addEventListener('abort',()=>navOrderObserver.disconnect(),{once:true});
         <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
       </nav>
     </section>
