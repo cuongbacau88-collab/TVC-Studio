@@ -1,6 +1,7 @@
 import asyncio
 import io
 import os
+from html.parser import HTMLParser
 from pathlib import Path
 import tempfile
 import unittest
@@ -314,6 +315,30 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         self.assertNotIn("<summary>Điều hướng</summary>", drawer)
         self.assertEqual(1, self.toolbar.count('id="aiToolsDrawer"'))
         self.assertEqual(1, self.toolbar.count('id="aiToolsOverlay"'))
+
+    def test_rendered_navigation_dom_has_canonical_direct_child_order(self):
+        class NavigationDOMParser(HTMLParser):
+            def __init__(self):
+                super().__init__();self.in_nav=False;self.depth=0;self.tools=[]
+            def handle_starttag(self, tag, attrs):
+                attributes=dict(attrs)
+                if tag=="nav" and "global-actions" in attributes.get("class","").split():
+                    self.in_nav=True;self.depth=1;return
+                if self.in_nav:
+                    if self.depth==1 and attributes.get("data-tool"):
+                        self.tools.append(attributes["data-tool"])
+                    self.depth+=1
+            def handle_endtag(self, tag):
+                if self.in_nav:
+                    self.depth-=1
+                    if self.depth==0:self.in_nav=False
+
+        template_start=self.toolbar.index("host.innerHTML=`")+len("host.innerHTML=`")
+        template_end=self.toolbar.index("`;",template_start)
+        parser=NavigationDOMParser()
+        parser.feed(self.toolbar[template_start:template_end])
+        self.assertEqual(["menu","models","history","affiliate","wallet","account"],parser.tools)
+        self.assertIn("toolbarNav.appendChild(tab)",self.toolbar)
 
     def test_backdrop_consumes_the_whole_input_sequence(self):
         for event in ("pointerdown", "pointerup", "touchstart", "touchend", "click"):

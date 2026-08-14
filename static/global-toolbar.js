@@ -49,6 +49,11 @@
         <a href="/contact"><span>?</span><b data-account-label="support">Hỗ Trợ</b></a>
         <a href="/app#account"><span>◎</span><b data-account-label="profile">Hồ Sơ Của Tôi</b></a>
         <a href="/app#affiliate"><span>ⓢ</span><b data-account-label="commission">Giới Thiệu Nhận Hoa Hồng</b></a>
+  const toolbarTabOrder=['menu','models','history','affiliate','wallet','account'];
+  const toolbarNav=host.querySelector('.global-actions');
+  toolbarTabOrder.forEach(tool=>{
+    const tab=toolbarNav.querySelector(':scope > [data-tool="'+tool+'"]');if(tab)toolbarNav.appendChild(tab);
+  });
         <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
       </nav>
     </section>
