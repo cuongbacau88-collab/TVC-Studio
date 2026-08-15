@@ -1,5 +1,6 @@
 /* =====================================================================
-   TVC STUDIO AI — LUXURY CYBER PURPLE & iOS GLASSMORPHISM THEME
+   TVC STUDIO AI — UNIVERSAL iOS GLASSMORPHISM & LUXURY CYBER PURPLE THEME
+   ÁP DỤNG ĐỒNG BỘ 100% CHO TOÀN BỘ WEBSITE (ALL PAGES & ALL COMPONENTS)
    ===================================================================== */
 
 :root {
@@ -15,8 +16,8 @@
   --tvc-purple-50:  #faf5ff;
   
   --bg: #090214 !important;
-  --panel: rgba(255, 255, 255, 0.08) !important;
-  --panel2: rgba(255, 255, 255, 0.12) !important;
+  --panel: rgba(255, 255, 255, 0.10) !important;
+  --panel2: rgba(255, 255, 255, 0.14) !important;
   --line: rgba(255, 255, 255, 0.22) !important;
   --purple: #a855f7 !important;
   --purple2: #c084fc !important;
@@ -30,7 +31,7 @@
   --tvc-toolbar-highlight: rgba(255, 255, 255, 0.35) !important;
 }
 
-/* 1. Global background for all page types with ambient lights */
+/* 1. GLOBAL BACKGROUND (TẤT CẢ CÁC TRANG) */
 html, body,
 body.model-home,
 body.service-page,
@@ -46,76 +47,102 @@ body.public-page-v3343 {
 
 /* Ambient glow orbs */
 .v3-bg-orbs i:nth-child(1) {
-  background: radial-gradient(circle, rgba(168, 85, 247, .45), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(168, 85, 247, .48), transparent 70%) !important;
 }
 .v3-bg-orbs i:nth-child(2) {
-  background: radial-gradient(circle, rgba(217, 70, 239, .38), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(217, 70, 239, .40), transparent 70%) !important;
 }
 .v3-bg-orbs i:nth-child(3) {
-  background: radial-gradient(circle, rgba(126, 34, 206, .40), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(126, 34, 206, .42), transparent 70%) !important;
 }
 
-/* 2. CHUẨN iOS GLASSMORPHISM CARD (.glass-card & Mọi thẻ trong web) */
-.glass-card,
-.model-card,
-.platform-intro,
-.panel-card,
-.result-panel,
-.method-card,
-.legal-card,
-.affiliate-card,
-.service-login-notice,
-.video-balance-card,
-.topup-pack-card,
-.referral-stats article,
-.referral-share-card,
-.referral-code-card,
-.referral-history-card,
-.home-info,
-.home-credit-section,
-.home-process > div {
-  /* Màu nền kính bán trong suốt chuẩn iOS */
+/* =====================================================================
+   2. QUY TẮC KÍNH MỜ CHUẨN iOS (.glass-card) ÁP DỤNG CHO MỌI KHỐI/CARD
+   ===================================================================== */
+:is(
+  .glass-card,
+  .model-card,
+  .platform-intro,
+  .panel-card,
+  .result-panel,
+  .method-card,
+  .legal-card,
+  .affiliate-card,
+  .service-login-notice,
+  .video-balance-card,
+  .topup-pack-card,
+  .referral-stats article,
+  .referral-share-card,
+  .referral-code-card,
+  .referral-history-card,
+  .home-info,
+  .home-credit-section,
+  .home-process > div,
+  .credit-note,
+  .contact-cards > *,
+  .public-pricing-grid section,
+  .gallery-card,
+  .job,
+  .stat,
+  .simple-create-card,
+  .simple-aspect,
+  .packs button,
+  .gallery-modal-panel,
+  .creator-warning,
+  .reference-card,
+  .upload-tile,
+  .add-reference,
+  details
+) {
+  /* Nền kính bán trong suốt chuẩn iOS */
   background: rgba(255, 255, 255, 0.12) !important;
   
-  /* Làm mờ hình nền phía sau */
+  /* Làm mờ hình nền phía sau (Frosted Glass) */
   backdrop-filter: blur(24px) saturate(160%) !important;
   -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
   
-  /* Viền sáng tạo cảm giác mép kính */
+  /* Viền kính đón sáng mép trên chuẩn Apple */
   border: 1px solid rgba(255, 255, 255, 0.28) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important; /* Đón sáng từ trên xuống */
+  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important;
   
   /* Bo góc chuẩn iOS */
   border-radius: 28px !important;
   
   /* Đổ bóng nhẹ phía dưới + viền sáng trong */
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-  overflow: hidden;
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease !important;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease !important;
 }
 
-/* Hiệu ứng hover nổi cho các thẻ card */
-.model-card:hover,
-.glass-card:hover,
-.panel-card:hover,
-.method-card:hover {
+/* Hover nổi bật cho tất cả các thẻ tương tác */
+:is(
+  .model-card,
+  .glass-card,
+  .panel-card,
+  .method-card,
+  .gallery-card,
+  .public-pricing-grid section,
+  .packs button,
+  .simple-aspect,
+  .job
+):hover {
   transform: translateY(-4px) !important;
-  background: rgba(255, 255, 255, 0.16) !important;
-  border-color: rgba(255, 255, 255, 0.45) !important;
-  border-top-color: rgba(255, 255, 255, 0.85) !important;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 28px rgba(192, 132, 252, 0.4) !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.48) !important;
+  border-top-color: rgba(255, 255, 255, 0.90) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 28px rgba(192, 132, 252, 0.45) !important;
 }
 
-/* Đảm bảo phần thân và visual của model-card trong suốt để lộ kính */
+/* 3. TRANG CHỦ (HOME PAGE) */
 .model-card .model-visual {
-  background: rgba(0, 0, 0, 0.2) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(0, 0, 0, 0.20) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
 }
 .model-card .model-body {
   background: transparent !important;
 }
 .model-card h2,
-.model-card h3 {
+.model-card h3,
+.platform-intro h1 {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
@@ -123,18 +150,16 @@ body.public-page-v3343 {
   color: #e9d5ff !important;
 }
 .badge.purple {
-  background: rgba(147, 51, 234, 0.35) !important;
-  border: 1px solid rgba(216, 180, 254, 0.4) !important;
+  background: rgba(147, 51, 234, 0.38) !important;
+  border: 1px solid rgba(216, 180, 254, 0.45) !important;
   color: #f5f3ff !important;
 }
-
-/* Platform intro trên Trang Chủ */
 .platform-intro {
-  padding: 16px 20px !important;
+  padding: 16px 22px !important;
   margin-bottom: 24px !important;
 }
 
-/* 3. Global Toolbar Header (Kính Mờ Tím) */
+/* 4. THANH HEADER TOOLBAR (KÍNH MỜ TÍM) */
 .global-toolbar,
 .global-toolbar.liquid-toolbar,
 .global-toolbar.is-scrolled,
@@ -156,7 +181,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 34px rgba(10, 2, 26, 0.45) !important;
 }
 
-/* Navigation buttons (Pills) */
+/* Các nút trên toolbar (Pills) */
 .global-toolbar .tool-pill,
 .global-toolbar .liquid-pill,
 .global-toolbar .credit-tool,
@@ -187,14 +212,8 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   box-shadow: 0 0 22px rgba(168, 85, 247, .55), inset 0 1px 0 rgba(255,255,255,.45) !important;
   color: #fff !important;
 }
-.global-toolbar .mobile-tool-icon {
-  color: #ffffff !important;
-}
-.global-toolbar .mobile-credit-icon b {
-  color: #e9d5ff !important;
-}
 
-/* 4. AI Tools Drawer (Menu Trượt iOS Glassmorphism) */
+/* 5. MENU TRƯỢT BÊN TRÁI (AI TOOLS DRAWER) */
 .ai-tools-drawer {
   background: rgba(25, 7, 55, 0.85) !important;
   backdrop-filter: blur(30px) saturate(180%) !important;
@@ -217,8 +236,6 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   padding: 12px 14px !important;
   margin: 10px 0 !important;
 }
-
-/* Menu Group & Submenu active open states */
 .menu-group {
   margin-bottom: 10px !important;
   border-radius: 18px !important;
@@ -266,7 +283,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   color: #ffffff !important;
 }
 
-/* 5. Account Dropdown Menu */
+/* 6. POPUP MENU TÀI KHOẢN */
 .tvc-account-menu {
   background: rgba(30, 8, 65, 0.88) !important;
   backdrop-filter: blur(28px) saturate(180%) !important;
@@ -281,71 +298,64 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   background: rgba(168, 85, 247, 0.35) !important;
   border-radius: 14px !important;
 }
-.tvc-account-menu nav span {
-  color: #e9d5ff !important;
-}
 
-/* 6. Service Creation Pages (AI Video Creator, Outfit Change, etc.) */
-.method-card {
-  border-radius: 24px !important;
-}
-.method-card.active {
+/* 7. CÁC TRANG DỊCH VỤ & FORM TẠO (AI SERVICES & APP STUDIO) */
+.method-card.active,
+.packs button.active,
+.simple-aspect.active {
   background: linear-gradient(145deg, rgba(147, 51, 234, 0.45), rgba(217, 70, 239, 0.25)) !important;
   border-color: rgba(255, 255, 255, 0.55) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 0 0 28px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255,255,255,0.4) !important;
 }
-.service-field input,
-.service-field select,
-.service-field textarea {
+
+/* Tất cả ô Input, Select, Textarea trên toàn bộ trang web */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
   background: rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(12px) !important;
   -webkit-backdrop-filter: blur(12px) !important;
   border: 1px solid rgba(255, 255, 255, 0.24) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
   border-radius: 16px !important;
-  color: #fff !important;
+  color: #ffffff !important;
 }
-.service-field input:focus,
-.service-field select:focus,
-.service-field textarea:focus {
+input:focus,
+select:focus,
+textarea:focus {
   border-color: rgba(255, 255, 255, 0.6) !important;
   border-top-color: #ffffff !important;
   box-shadow: 0 0 20px rgba(192, 132, 252, 0.5) !important;
   outline: none !important;
 }
-.reference-card,
-.upload-tile,
-.add-reference,
-details {
-  background: rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.5) !important;
-  border-radius: 20px !important;
-}
-.result-placeholder span {
-  color: #c084fc !important;
-  filter: drop-shadow(0 0 20px rgba(192, 132, 252, 0.8)) !important;
-}
-.service-submit {
+
+/* Nút Submit & CTA Chính */
+.service-submit,
+.primary,
+.model-button,
+.simple-render-btn {
   background: linear-gradient(135deg, #d946ef, #8b5cf6) !important;
   border: 1px solid rgba(255, 255, 255, 0.45) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 0 0 28px rgba(217, 70, 239, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
   border-radius: 999px !important;
   color: #fff !important;
+  font-weight: 800 !important;
 }
-.service-submit:hover {
+.service-submit:hover,
+.primary:hover,
+.model-button:hover,
+.simple-render-btn:hover {
   filter: brightness(1.15) !important;
   box-shadow: 0 0 35px rgba(217, 70, 239, 0.75) !important;
 }
 
-/* 7. Footer */
+/* 8. CHÂN TRANG FOOTER (SITE FOOTER) */
 .site-footer {
   background: rgba(14, 3, 30, 0.85) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
