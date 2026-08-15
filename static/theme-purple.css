@@ -1,5 +1,5 @@
 /* =====================================================================
-   TVC STUDIO AI — LUXURY CYBER PURPLE THEME (MÀU TÍM HUYỀN ẢO)
+   TVC STUDIO AI — LUXURY CYBER PURPLE & iOS GLASSMORPHISM THEME
    ===================================================================== */
 
 :root {
@@ -15,22 +15,22 @@
   --tvc-purple-50:  #faf5ff;
   
   --bg: #090214 !important;
-  --panel: #130528 !important;
-  --panel2: #1e093d !important;
-  --line: rgba(192, 132, 252, .20) !important;
+  --panel: rgba(255, 255, 255, 0.08) !important;
+  --panel2: rgba(255, 255, 255, 0.12) !important;
+  --line: rgba(255, 255, 255, 0.22) !important;
   --purple: #a855f7 !important;
   --purple2: #c084fc !important;
   --text: #fcfaff !important;
-  --muted: #a99ec5 !important;
+  --muted: #c4b5fd !important;
   
-  --tvc-toolbar-navy: rgba(22, 6, 48, .84) !important;
-  --tvc-toolbar-blue: rgba(147, 51, 234, .30) !important;
-  --tvc-toolbar-purple: rgba(192, 132, 252, .26) !important;
-  --tvc-toolbar-line: rgba(216, 180, 254, .25) !important;
-  --tvc-toolbar-highlight: rgba(255, 255, 255, .15) !important;
+  --tvc-toolbar-navy: rgba(25, 7, 52, 0.75) !important;
+  --tvc-toolbar-blue: rgba(147, 51, 234, 0.30) !important;
+  --tvc-toolbar-purple: rgba(192, 132, 252, 0.26) !important;
+  --tvc-toolbar-line: rgba(255, 255, 255, 0.25) !important;
+  --tvc-toolbar-highlight: rgba(255, 255, 255, 0.35) !important;
 }
 
-/* 1. Global background for all page types */
+/* 1. Global background for all page types with ambient lights */
 html, body,
 body.model-home,
 body.service-page,
@@ -41,20 +41,100 @@ body.public-page-v3343 {
   background-color: #090214 !important;
   background-attachment: fixed !important;
   color: #fcfaff !important;
+  min-height: 100vh;
 }
 
 /* Ambient glow orbs */
 .v3-bg-orbs i:nth-child(1) {
-  background: radial-gradient(circle, rgba(168, 85, 247, .38), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(168, 85, 247, .45), transparent 70%) !important;
 }
 .v3-bg-orbs i:nth-child(2) {
-  background: radial-gradient(circle, rgba(217, 70, 239, .32), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(217, 70, 239, .38), transparent 70%) !important;
 }
 .v3-bg-orbs i:nth-child(3) {
-  background: radial-gradient(circle, rgba(126, 34, 206, .35), transparent 70%) !important;
+  background: radial-gradient(circle, rgba(126, 34, 206, .40), transparent 70%) !important;
 }
 
-/* 2. Global Toolbar Header */
+/* 2. CHUẨN iOS GLASSMORPHISM CARD (.glass-card & Mọi thẻ trong web) */
+.glass-card,
+.model-card,
+.platform-intro,
+.panel-card,
+.result-panel,
+.method-card,
+.legal-card,
+.affiliate-card,
+.service-login-notice,
+.video-balance-card,
+.topup-pack-card,
+.referral-stats article,
+.referral-share-card,
+.referral-code-card,
+.referral-history-card,
+.home-info,
+.home-credit-section,
+.home-process > div {
+  /* Màu nền kính bán trong suốt chuẩn iOS */
+  background: rgba(255, 255, 255, 0.12) !important;
+  
+  /* Làm mờ hình nền phía sau */
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  
+  /* Viền sáng tạo cảm giác mép kính */
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important; /* Đón sáng từ trên xuống */
+  
+  /* Bo góc chuẩn iOS */
+  border-radius: 28px !important;
+  
+  /* Đổ bóng nhẹ phía dưới + viền sáng trong */
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  overflow: hidden;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease !important;
+}
+
+/* Hiệu ứng hover nổi cho các thẻ card */
+.model-card:hover,
+.glass-card:hover,
+.panel-card:hover,
+.method-card:hover {
+  transform: translateY(-4px) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  border-top-color: rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 28px rgba(192, 132, 252, 0.4) !important;
+}
+
+/* Đảm bảo phần thân và visual của model-card trong suốt để lộ kính */
+.model-card .model-visual {
+  background: rgba(0, 0, 0, 0.2) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+.model-card .model-body {
+  background: transparent !important;
+}
+.model-card h2,
+.model-card h3 {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+.model-card p {
+  color: #e9d5ff !important;
+}
+.badge.purple {
+  background: rgba(147, 51, 234, 0.35) !important;
+  border: 1px solid rgba(216, 180, 254, 0.4) !important;
+  color: #f5f3ff !important;
+}
+
+/* Platform intro trên Trang Chủ */
+.platform-intro {
+  padding: 16px 20px !important;
+  margin-bottom: 24px !important;
+}
+
+/* 3. Global Toolbar Header (Kính Mờ Tím) */
 .global-toolbar,
 .global-toolbar.liquid-toolbar,
 .global-toolbar.is-scrolled,
@@ -66,12 +146,14 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
     radial-gradient(520px 120px at 78% 0%, rgba(217, 70, 239, .28), transparent 68%),
     radial-gradient(720px 150px at 24% -15%, rgba(147, 51, 234, .36), transparent 70%),
     linear-gradient(108deg,
-      rgba(20, 6, 45, .88) 0%,
-      rgba(28, 8, 62, .85) 70%,
-      rgba(55, 15, 110, .80) 90%,
-      rgba(88, 28, 135, .76) 100%) !important;
-  border-bottom: 1px solid rgba(216, 180, 254, .24) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 12px 34px rgba(10, 2, 26, .45) !important;
+      rgba(20, 6, 45, .82) 0%,
+      rgba(28, 8, 62, .80) 70%,
+      rgba(55, 15, 110, .75) 90%,
+      rgba(88, 28, 135, .70) 100%) !important;
+  backdrop-filter: blur(24px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 12px 34px rgba(10, 2, 26, 0.45) !important;
 }
 
 /* Navigation buttons (Pills) */
@@ -79,227 +161,191 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
 .global-toolbar .liquid-pill,
 .global-toolbar .credit-tool,
 .global-toolbar .lang-switch {
-  background: rgba(59, 7, 100, .45) !important;
-  border: 1px solid rgba(192, 132, 252, .24) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+  border-radius: 18px !important;
   color: #f5f3ff !important;
 }
 .global-toolbar .tool-pill:hover,
 .global-toolbar .liquid-pill:hover,
 .global-toolbar .credit-tool:hover {
-  background: rgba(126, 34, 206, .48) !important;
-  border-color: rgba(233, 213, 255, .65) !important;
-  box-shadow: 0 0 18px rgba(168, 85, 247, .4) !important;
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  border-top-color: rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 0 0 18px rgba(192, 132, 252, .5) !important;
   color: #fff !important;
 }
 .global-toolbar .tool-pill.active,
 .global-toolbar .tool-pill[aria-current="page"],
 .global-actions [aria-current="page"] {
-  background: linear-gradient(135deg, rgba(147, 51, 234, .55), rgba(192, 132, 252, .35)) !important;
-  border-color: rgba(233, 213, 255, .75) !important;
-  box-shadow: 0 0 22px rgba(168, 85, 247, .48), inset 0 1px 0 rgba(255,255,255,.25) !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, .6), rgba(217, 70, 239, .45)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 0 22px rgba(168, 85, 247, .55), inset 0 1px 0 rgba(255,255,255,.45) !important;
   color: #fff !important;
 }
 .global-toolbar .mobile-tool-icon {
-  color: #e9d5ff !important;
+  color: #ffffff !important;
 }
 .global-toolbar .mobile-credit-icon b {
-  color: #d8b4fe !important;
-}
-
-/* 3. Service Creation Pages (AI Video Creator, Outfit Change, etc.) */
-.service-shell {
-  color: #fcfaff !important;
-}
-.method-card {
-  background: linear-gradient(145deg, rgba(74, 15, 125, .45), rgba(126, 34, 206, .22)) !important;
-  border: 1px solid rgba(192, 132, 252, .26) !important;
-  box-shadow: 0 6px 22px rgba(12, 2, 28, .3) !important;
-}
-.method-card:hover {
-  background: linear-gradient(145deg, rgba(90, 20, 150, .55), rgba(147, 51, 234, .32)) !important;
-  border-color: rgba(216, 180, 254, .5) !important;
-  box-shadow: 0 0 22px rgba(168, 85, 247, .35) !important;
-}
-.method-card.active {
-  border-color: #c084fc !important;
-  box-shadow: 0 0 0 1px rgba(192, 132, 252, .5), 0 0 28px rgba(168, 85, 247, .45) !important;
-  background: linear-gradient(145deg, rgba(107, 33, 168, .65), rgba(147, 51, 234, .38)) !important;
-}
-.method-card b {
-  color: #faf5ff !important;
-}
-.method-card span,
-.creator-section p,
-.service-field small {
-  color: #d8b4fe !important;
-}
-
-/* Service input fields */
-.service-field input,
-.service-field select,
-.service-field textarea {
-  background: #140728 !important;
-  border: 1px solid rgba(192, 132, 252, .26) !important;
-  color: #fff !important;
-}
-.service-field input:focus,
-.service-field select:focus,
-.service-field textarea:focus {
-  border-color: #c084fc !important;
-  box-shadow: 0 0 18px rgba(192, 132, 252, .45) !important;
-  outline: none !important;
-}
-
-/* Reference Cards & Upload Dropzones */
-.reference-card,
-.upload-tile,
-.add-reference,
-details {
-  background: rgba(35, 10, 75, .50) !important;
-  border: 1px solid rgba(192, 132, 252, .24) !important;
   color: #e9d5ff !important;
 }
-.reference-card {
-  background: linear-gradient(145deg, rgba(42, 12, 88, .6), rgba(26, 7, 58, .7)) !important;
-}
-.reference-preview img,
-.reference-preview video {
-  background: #0d031c !important;
-}
-.reference-card select {
-  background: #180833 !important;
-  border: 1px solid rgba(192, 132, 252, .25) !important;
-  color: #fff !important;
-}
 
-/* Right Result Preview Panel */
-.result-panel {
-  background: linear-gradient(160deg, rgba(32, 9, 68, .78), rgba(18, 4, 40, .92)) !important;
-  border: 1px solid rgba(192, 132, 252, .28) !important;
-  border-radius: 20px !important;
-  box-shadow: 0 18px 45px rgba(5, 1, 15, .45), inset 0 1px 0 rgba(255, 255, 255, .10) !important;
-}
-.result-placeholder span {
-  color: #c084fc !important;
-  filter: drop-shadow(0 0 18px rgba(192, 132, 252, .75)) !important;
-}
-.result-placeholder b {
-  color: #faf5ff !important;
-}
-
-/* Submit Action Button */
-.service-submit {
-  background: linear-gradient(135deg, #d946ef, #8b5cf6) !important;
-  box-shadow: 0 0 26px rgba(217, 70, 239, .5), inset 0 1px 0 rgba(255, 255, 255, .3) !important;
-  border: 1px solid rgba(255, 255, 255, .3) !important;
-  color: #fff !important;
-}
-.service-submit:hover {
-  filter: brightness(1.1) !important;
-  box-shadow: 0 0 32px rgba(217, 70, 239, .7) !important;
-}
-
-/* 4. AI Tools Drawer (Slide Menu) */
+/* 4. AI Tools Drawer (Menu Trượt iOS Glassmorphism) */
 .ai-tools-drawer {
-  background: linear-gradient(155deg, rgba(32, 9, 70, .98), rgba(16, 4, 38, .98) 58%, rgba(48, 14, 98, .95)) !important;
-  border-right: 1px solid rgba(192, 132, 252, .32) !important;
-  box-shadow: inset -1px 0 rgba(216, 180, 254, .15), 18px 0 45px rgba(5, 1, 15, .5) !important;
+  background: rgba(25, 7, 55, 0.85) !important;
+  backdrop-filter: blur(30px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.2), 24px 0 65px rgba(5, 1, 15, 0.65) !important;
+  border-radius: 0 28px 28px 0 !important;
+}
+.ai-tools-overlay {
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  background: rgba(6, 1, 15, 0.65) !important;
 }
 .drawer-account {
-  border-bottom: 1px solid rgba(192, 132, 252, .18) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 20px !important;
+  padding: 12px 14px !important;
+  margin: 10px 0 !important;
 }
-.drawer-scroll summary {
-  color: #d8b4fe !important;
+
+/* Menu Group & Submenu active open states */
+.menu-group {
+  margin-bottom: 10px !important;
+  border-radius: 18px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  padding: 8px 12px !important;
+  transition: all .2s ease !important;
+}
+.menu-group.active,
+.menu-group.open,
+.menu-group[open] {
+  background: rgba(255, 255, 255, 0.10) !important;
+  border-color: rgba(216, 180, 254, .35) !important;
+  border-top-color: rgba(255, 255, 255, 0.6) !important;
+}
+.menu-group.active .menu-header,
+.menu-group.open .menu-header,
+.menu-group[open] .menu-header {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+.menu-group .submenu nav,
+.menu-group .submenu {
+  display: block !important;
+  padding-top: 6px !important;
+}
+.drawer-scroll nav a,
+.drawer-scroll nav button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 14px !important;
+  margin: 4px 0 !important;
+  padding: 10px 12px !important;
 }
 .drawer-scroll nav a:hover {
-  background: rgba(147, 51, 234, .25) !important;
+  background: rgba(168, 85, 247, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
   color: #fff !important;
 }
 .drawer-scroll em {
-  color: #f0abfc !important;
-  border-color: rgba(240, 171, 252, .35) !important;
+  background: rgba(217, 70, 239, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 999px !important;
+  color: #ffffff !important;
 }
 
 /* 5. Account Dropdown Menu */
 .tvc-account-menu {
-  background: linear-gradient(145deg, rgba(35, 10, 75, .96), rgba(58, 16, 120, .94) 68%, rgba(22, 6, 50, .94)) !important;
-  border: 1px solid rgba(192, 132, 252, .35) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 20px 54px rgba(10, 1, 25, .6), 0 0 35px rgba(168, 85, 247, .35) !important;
+  background: rgba(30, 8, 65, 0.88) !important;
+  backdrop-filter: blur(28px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 28px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 24px 60px rgba(5, 1, 20, 0.65) !important;
 }
 .tvc-account-menu nav a:hover,
 .tvc-account-menu nav button:hover {
-  background: rgba(168, 85, 247, .25) !important;
+  background: rgba(168, 85, 247, 0.35) !important;
+  border-radius: 14px !important;
 }
 .tvc-account-menu nav span {
   color: #e9d5ff !important;
 }
 
-/* 6. Footer & Cards */
-.site-footer {
-  background: linear-gradient(180deg, rgba(16, 4, 38, .88), rgba(8, 2, 20, .98)) !important;
-  border-top: 1px solid rgba(192, 132, 252, .15) !important;
-}
-.site-footer-logo b {
-  color: #c084fc !important;
-}
-.site-footer-links b {
-  color: #f5f3ff !important;
-}
-.site-footer-links a:hover {
-  color: #d8b4fe !important;
-}
-
-/* Menu Group & Submenu active open states */
-.menu-group {
-  margin-bottom: 8px;
-  border-radius: 12px;
-  transition: all .2s ease;
-}
-.menu-group.active,
-.menu-group.open {
-  background: rgba(147, 51, 234, .12) !important;
-  border: 1px solid rgba(192, 132, 252, .25) !important;
-}
-.menu-group.active .menu-header,
-.menu-group.open .menu-header,
-.menu-group[open] .menu-header {
-  color: #e9d5ff !important;
-}
-.menu-group.active .submenu,
-.menu-group.open .submenu,
-.menu-group[open] .submenu {
-  display: block !important;
-}
-
-/* =====================================================================
-   iOS GLASSMORPHISM CARD STYLES (.glass-card)
-   ===================================================================== */
-.glass-card {
-  /* Màu nền kính bán trong suốt */
-  background: rgba(255, 255, 255, 0.15) !important;
-  
-  /* Làm mờ hình nền phía sau */
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  
-  /* Viền sáng tạo cảm giác mép kính */
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important; /* Đón sáng từ trên xuống */
-  
-  /* Bo góc chuẩn iOS */
-  border-radius: 28px !important;
-  
-  /* Đổ bóng nhẹ phía dưới */
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-/* Biến thể Glass Card tím cao cấp cho theme tím */
-.glass-card-purple,
-.service-grid .panel-card,
-.result-panel,
+/* 6. Service Creation Pages (AI Video Creator, Outfit Change, etc.) */
 .method-card {
+  border-radius: 24px !important;
+}
+.method-card.active {
+  background: linear-gradient(145deg, rgba(147, 51, 234, 0.45), rgba(217, 70, 239, 0.25)) !important;
+  border-color: rgba(255, 255, 255, 0.55) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 0 28px rgba(168, 85, 247, 0.45), inset 0 1px 0 rgba(255,255,255,0.4) !important;
+}
+.service-field input,
+.service-field select,
+.service-field textarea {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 16px !important;
+  color: #fff !important;
+}
+.service-field input:focus,
+.service-field select:focus,
+.service-field textarea:focus {
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  border-top-color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(192, 132, 252, 0.5) !important;
+  outline: none !important;
+}
+.reference-card,
+.upload-tile,
+.add-reference,
+details {
+  background: rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 20px !important;
+}
+.result-placeholder span {
+  color: #c084fc !important;
+  filter: drop-shadow(0 0 20px rgba(192, 132, 252, 0.8)) !important;
+}
+.service-submit {
+  background: linear-gradient(135deg, #d946ef, #8b5cf6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow: 0 0 28px rgba(217, 70, 239, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+}
+.service-submit:hover {
+  filter: brightness(1.15) !important;
+  box-shadow: 0 0 35px rgba(217, 70, 239, 0.75) !important;
+}
+
+/* 7. Footer */
+.site-footer {
+  background: rgba(14, 3, 30, 0.85) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
 }
