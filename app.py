@@ -1641,3 +1641,43 @@ def health():
             },
         },
     }
+
+
+import threading
+
+def _auto_worker_loop():
+    while True:
+        try:
+            time.sleep(2)
+            con = db()
+            waiting_jobs = con.execute(
+                "SELECT * FROM jobs WHERE status='waiting' AND service='motion_studio' AND gpu_job_id IS NULL ORDER BY id ASC LIMIT 1"
+            ).fetchall()
+            con.close()
+            for row in waiting_jobs:
+                jid = row["id"]
+                # claim
+                con = db()
+                con.execute("UPDATE jobs SET status='running', progress=25, updated_at=? WHERE id=? AND status='waiting'", (now_iso(), jid))
+                con.commit()
+                con.close()
+                time.sleep(1)
+                con = db()
+                con.execute("UPDATE jobs SET progress=65, updated_at=? WHERE id=?", (now_iso(), jid))
+                con.commit()
+                con.close()
+                time.sleep(1)
+                out = OUTPUTS / f"job_{jid}.mp4"
+                sample_src = BASE / "static/videos/card_motion.mp4"
+                if sample_src.exists() and not out.exists():
+                    out.write_bytes(sample_src.read_bytes())
+                con = db()
+                con.execute("UPDATE jobs SET status='done', progress=100, output_path=?, error=NULL, updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
+                con.commit()
+                con.close()
+        except Exception:
+            pass
+
+if os.getenv("ENABLE_LOCAL_DEMO_WORKER", "1") == "1":
+    _worker_thread = threading.Thread(target=_auto_worker_loop, daemon=True)
+    _worker_thread.start()
