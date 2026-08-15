@@ -1682,28 +1682,56 @@ def _auto_worker_loop():
             time.sleep(2)
             con = db()
             waiting_jobs = con.execute(
-                "SELECT * FROM jobs WHERE status='waiting' AND service='motion_studio' AND gpu_job_id IS NULL ORDER BY id ASC LIMIT 1"
+                "SELECT * FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL ORDER BY id ASC LIMIT 1"
             ).fetchall()
             con.close()
             for row in waiting_jobs:
                 jid = row["id"]
-                # claim
+                svc = row["service"] or "motion_studio"
                 con = db()
-                con.execute("UPDATE jobs SET status='running', progress=25, updated_at=? WHERE id=? AND status='waiting'", (now_iso(), jid))
+                con.execute("UPDATE jobs SET status='running', progress=30, updated_at=? WHERE id=? AND status='waiting'", (now_iso(), jid))
                 con.commit()
                 con.close()
                 time.sleep(1)
                 con = db()
-                con.execute("UPDATE jobs SET progress=70, updated_at=? WHERE id=?", (now_iso(), jid))
+                con.execute("UPDATE jobs SET progress=75, updated_at=? WHERE id=?", (now_iso(), jid))
                 con.commit()
                 con.close()
                 time.sleep(1)
                 
+                import all_services_processor as asp
+                import json
+                
+                input_data = {}
+                try: input_data = json.loads(row["input_json"] or "{}")
+                except Exception: pass
+                files_dict = {k: BASE / v for k, v in input_data.get("files", {}).items()}
+                
+                if svc in {"outfit_change", "background_change", "image_upscale"}:
+                    out = OUTPUTS / f"job_{jid}.png"
+                else:
+                    out = OUTPUTS / f"job_{jid}.mp4"
+                
                 img_file = BASE / (row["image_path"] or "")
                 vid_file = BASE / (row["video_path"] or "")
-                out = OUTPUTS / f"job_{jid}.mp4"
-                from ai_motion_animator import render_ai_motion_video
-                render_ai_motion_video(img_file, vid_file, out)
+                
+                if svc == "motion_studio":
+                    asp.process_motion_studio(img_file, vid_file, out)
+                elif svc == "video_generation":
+                    asp.process_video_generation(files_dict, row["prompt"] or "", out)
+                elif svc == "outfit_change":
+                    char_f = files_dict.get("character_image", img_file)
+                    outfit_f = files_dict.get("outfit_image", vid_file)
+                    asp.process_outfit_change(char_f, outfit_f, out)
+                elif svc == "background_change":
+                    src_f = files_dict.get("source_image", img_file)
+                    bg_f = files_dict.get("background_image", vid_file)
+                    asp.process_background_change(src_f, bg_f, row["prompt"] or "", out)
+                elif svc == "image_upscale":
+                    src_f = files_dict.get("source_image", img_file)
+                    asp.process_image_upscale(src_f, 2, True, out)
+                else:
+                    asp.process_motion_studio(img_file, vid_file, out)
 
                 con = db()
                 con.execute("UPDATE jobs SET status='done', progress=100, output_path=?, error=NULL, updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
