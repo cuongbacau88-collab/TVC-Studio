@@ -7,9 +7,8 @@ import shutil
 import subprocess
 import secrets
 from pathlib import Path
-
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 from service_registry import SERVICES, PUBLIC_SERVICE_CONFIG, get_service
 from service_worker_adapters import WorkerAdapterError, normalize_status
@@ -434,6 +433,15 @@ def result(service_key: str, job_id: int, request: Request):
         raise HTTPException(404, "Không tìm thấy job")
     if row["status"] != "done":
         raise HTTPException(409, "Kết quả chưa sẵn sàng")
+    # Ưu tiên trả về file kết quả local nếu có
+    output_path = row["output_path"] if "output_path" in row.keys() else None
+    if output_path:
+        local_path = (app.BASE / output_path).resolve()
+        if local_path.is_file():
+            media_type = "video/mp4" if SERVICES[service_key].output_kind == "video" else "image/png"
+            extension = ".mp4" if SERVICES[service_key].output_kind == "video" else ".png"
+            return FileResponse(local_path, media_type=media_type, filename=f"{service_key}_{job_id}{extension}")
+
     try:
         upstream = video_upscale_pipeline.result_response(app, row) if service_key == "video_generation" else None
         if upstream is None:
