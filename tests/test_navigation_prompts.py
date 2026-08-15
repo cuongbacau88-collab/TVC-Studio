@@ -64,6 +64,11 @@ class ReturnToRegressionTests(unittest.TestCase):
         for value in ("#jobs", "#affiliate", "#wallet"):
             self.assertIn(value, self.toolbar)
 
+    def test_google_login_supports_current_global_toolbar(self):
+        self.assertIn("#toolbarAccountTrigger", self.google)
+        self.assertIn("#toolbarAccountLabel", self.google)
+        self.assertIn("#toolbarAccountIcon", self.google)
+
     def test_email_and_google_login_consume_same_return_target(self):
         self.assertIn("TVCReturnNavigation?.consumeReturn()", self.app)
         self.assertIn("TVCReturnNavigation?.consumeReturn()", self.google)

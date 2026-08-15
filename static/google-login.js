@@ -44,6 +44,14 @@
   }
 
   function setToolbarLoggedOut(){
+    const currentTrigger=qs('#toolbarAccountTrigger');
+    if(currentTrigger){
+      currentTrigger.dataset.authState='signed-out';
+      const label=qs('#toolbarAccountLabel',currentTrigger),icon=qs('#toolbarAccountIcon',currentTrigger);
+      if(label)label.textContent=currentLang()==='en'?'Log In':'Đăng Nhập';
+      if(icon)icon.textContent='↪';
+      return;
+    }
     const details=qs('#accountMenuDetails');
     const pop=qs('#accountPopover');
     if(!details||!pop) return;
@@ -71,6 +79,14 @@
   }
 
   function setToolbarLoggedIn(me){
+    const currentTrigger=qs('#toolbarAccountTrigger');
+    if(currentTrigger){
+      currentTrigger.dataset.authState='signed-in';
+      const label=qs('#toolbarAccountLabel',currentTrigger),icon=qs('#toolbarAccountIcon',currentTrigger);
+      if(label)label.textContent=currentLang()==='en'?'Account':'Tài Khoản';
+      if(icon)icon.textContent=(me?.name||me?.email||'T').slice(0,1).toUpperCase();
+      return;
+    }
     const details=qs('#accountMenuDetails');
     const pop=qs('#accountPopover');
     if(!details||!pop) return;

@@ -50,6 +50,11 @@
         <a href="/contact"><span>?</span><b data-account-label="support">Hỗ Trợ</b></a>
         <a href="/app#account"><span>◎</span><b data-account-label="profile">Hồ Sơ Của Tôi</b></a>
         <a href="/app#affiliate"><span>ⓢ</span><b data-account-label="commission">Giới Thiệu Nhận Hoa Hồng</b></a>
+        <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
+      </nav>
+    </section>
+  </div>`;
+
   const navRow=host.querySelector('.global-actions');
   const menuTab=navRow.querySelector(':scope > [data-tool="menu"]');
   function ensureMenuTabFirst(){
@@ -59,10 +64,6 @@
   const navOrderObserver=new MutationObserver(ensureMenuTabFirst);
   navOrderObserver.observe(navRow,{childList:true});
   signal.addEventListener('abort',()=>navOrderObserver.disconnect(),{once:true});
-        <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
-      </nav>
-    </section>
-  </div>`;
 
   const trigger=host.querySelector('#toolbarAccountTrigger');
   const menu=host.querySelector('#toolbarAccountMenu');

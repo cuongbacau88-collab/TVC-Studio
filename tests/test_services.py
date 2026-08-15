@@ -346,12 +346,15 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
 
         template_start=self.toolbar.index("host.innerHTML=`")+len("host.innerHTML=`")
         template_end=self.toolbar.index("`;",template_start)
+        template=self.toolbar[template_start:template_end]
         parser=NavigationDOMParser()
-        parser.feed(self.toolbar[template_start:template_end])
+        parser.feed(template)
         self.assertEqual(["menu","models","history","affiliate","wallet","account"],parser.tools)
         self.assertEqual("menu",parser.tools[0])
         self.assertIn("navRow.firstElementChild!==menuTab",self.toolbar)
         self.assertIn("navRow.prepend(menuTab)",self.toolbar)
+        self.assertNotIn("const navRow=",template)
+        self.assertGreater(self.toolbar.index("const navRow="),template_end)
         self.assertGreaterEqual(self.toolbar.count("ensureMenuTabFirst()"),4)
         self.assertIn("new MutationObserver(ensureMenuTabFirst)",self.toolbar)
         self.assertIn("navOrderObserver.observe(navRow,{childList:true})",self.toolbar)
