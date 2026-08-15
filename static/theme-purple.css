@@ -270,3 +270,36 @@ details {
 .menu-group[open] .submenu {
   display: block !important;
 }
+
+/* =====================================================================
+   iOS GLASSMORPHISM CARD STYLES (.glass-card)
+   ===================================================================== */
+.glass-card {
+  /* Màu nền kính bán trong suốt */
+  background: rgba(255, 255, 255, 0.15) !important;
+  
+  /* Làm mờ hình nền phía sau */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  /* Viền sáng tạo cảm giác mép kính */
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important; /* Đón sáng từ trên xuống */
+  
+  /* Bo góc chuẩn iOS */
+  border-radius: 28px !important;
+  
+  /* Đổ bóng nhẹ phía dưới */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Biến thể Glass Card tím cao cấp cho theme tím */
+.glass-card-purple,
+.service-grid .panel-card,
+.result-panel,
+.method-card {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}

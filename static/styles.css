@@ -8510,3 +8510,36 @@ body.public-page-v3343 .global-toolbar-inner{
   }
 }
 .ai-tools-trigger{display:inline-flex;align-items:center;gap:7px;color:#eaf1ff;background:rgba(36,69,120,.48);border:1px solid rgba(151,185,255,.2);padding:8px 11px;cursor:pointer}.ai-tools-overlay{position:fixed;inset:0;background:rgba(2,7,18,.7);z-index:9998;backdrop-filter:blur(3px)}.ai-tools-drawer{position:fixed;z-index:9999;top:0;left:0;width:min(88vw,370px);height:100dvh;transform:translateX(-105%);transition:transform .25s ease;background:linear-gradient(155deg,rgba(13,35,72,.98),rgba(15,15,42,.98));border-right:1px solid rgba(138,176,255,.25);box-shadow:24px 0 70px rgba(0,0,0,.45);color:#fff;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom));display:flex;flex-direction:column}.ai-tools-drawer.open{transform:translateX(0)}body.ai-tools-open{overflow:hidden}.ai-tools-drawer>header{display:flex;align-items:center;justify-content:space-between;padding:4px 4px 14px;border-bottom:1px solid rgba(255,255,255,.1)}.drawer-brand{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none}.drawer-brand img{width:34px;height:34px;object-fit:contain}.ai-tools-drawer>header button{width:38px;height:38px;border:1px solid rgba(255,255,255,.14);border-radius:50%;background:rgba(255,255,255,.06);color:#fff;font-size:25px}.drawer-account{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:14px 4px}.drawer-account div{display:grid;min-width:0}.drawer-account b{overflow:hidden;text-overflow:ellipsis}.drawer-account small{color:#9fb3da}.drawer-account a{color:#cbb8ff}.drawer-scroll{overflow-y:auto;overscroll-behavior:contain;padding-right:3px}.drawer-scroll details{border-bottom:1px solid rgba(255,255,255,.08);padding:11px 2px}.drawer-scroll summary{font-size:12px;font-weight:800;color:#aebee1;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}.drawer-scroll nav{display:grid;gap:5px;padding-top:8px}.drawer-scroll nav a,.drawer-scroll nav button{display:flex;justify-content:space-between;align-items:center;text-align:left;padding:10px;border:0;border-radius:11px;background:transparent;color:#eef4ff;text-decoration:none;font:inherit}.drawer-scroll nav a:hover{background:rgba(101,132,237,.15)}.drawer-scroll nav button:disabled{color:#8290ac;cursor:not-allowed}.drawer-scroll em{font-size:10px;font-style:normal;color:#c7afff;border:1px solid rgba(173,133,255,.3);border-radius:999px;padding:3px 6px;white-space:nowrap}@media(max-width:700px){.ai-tools-trigger span:last-child{display:none}.ai-tools-trigger{padding:8px 10px}.toolbar-left{display:flex;align-items:center;gap:6px}}
+
+/* =====================================================================
+   iOS GLASSMORPHISM CARD STYLES (.glass-card)
+   ===================================================================== */
+.glass-card {
+  /* Màu nền kính bán trong suốt */
+  background: rgba(255, 255, 255, 0.15) !important;
+  
+  /* Làm mờ hình nền phía sau */
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  /* Viền sáng tạo cảm giác mép kính */
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.6) !important; /* Đón sáng từ trên xuống */
+  
+  /* Bo góc chuẩn iOS */
+  border-radius: 28px !important;
+  
+  /* Đổ bóng nhẹ phía dưới */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Biến thể Glass Card tím cao cấp cho theme tím */
+.glass-card-purple,
+.service-grid .panel-card,
+.result-panel,
+.method-card {
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
