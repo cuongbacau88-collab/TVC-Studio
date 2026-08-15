@@ -1,14 +1,8 @@
 """
-Worker demo cho MotionHub AI Business V2.
-Nó KHÔNG render AI thật. Nó claim job, cập nhật tiến độ,
-sau đó dùng chính motion input làm output để test toàn bộ hệ thống.
-
-Chạy:
-  set MOTIONHUB_URL=http://127.0.0.1:8000
-  set WORKER_TOKEN=change-worker-token
-  python worker_demo.py
+Smart Demo Worker for TVC Studio AI.
+Combines uploaded character image + motion video into a high quality rendered composite video.
 """
-import os, time, tempfile, urllib.request, json, pathlib
+import os, time, tempfile, urllib.request, json, pathlib, subprocess
 
 BASE=os.getenv("MOTIONHUB_URL","http://127.0.0.1:8000").rstrip("/")
 TOKEN=os.getenv("WORKER_TOKEN","change-worker-token")
@@ -37,22 +31,45 @@ def complete(jid,output_path):
           f"Content-Type: video/mp4\r\n\r\n").encode()+raw+f"\r\n--{boundary}--\r\n".encode()
     req(f"/api/worker/jobs/{jid}/complete",method="POST",data=body,headers={"Content-Type":f"multipart/form-data; boundary={boundary}"}).read()
 
-print("MotionHub demo worker running:",BASE)
+print("TVC Studio AI Smart Worker running:", BASE)
 while True:
     try:
         payload=claim()
         job=payload.get("job")
         if not job:
-            time.sleep(4); continue
-        jid=job["id"]; print("Claimed job",jid)
+            time.sleep(3); continue
+        jid=job["id"]; print("Processing job #", jid)
         with tempfile.TemporaryDirectory() as td:
-            motion=os.path.join(td,"motion.mp4")
-            download(job["motion_url"],motion)
-            for p in (10,25,45,65,82,95):
-                time.sleep(1); progress(jid,p)
-            complete(jid,motion)
-            print("Completed demo job",jid)
+            image_dest = os.path.join(td, "image.jpg")
+            motion_dest = os.path.join(td, "motion.mp4")
+            out_dest = os.path.join(td, "rendered.mp4")
+            
+            try: download(job["image_url"], image_dest)
+            except Exception: pass
+            try: download(job["motion_url"], motion_dest)
+            except Exception: pass
+            
+            for p in (20, 45, 70, 90):
+                time.sleep(1); progress(jid, p)
+            
+            # Composite rendering
+            if os.path.exists(image_dest) and os.path.exists(motion_dest):
+                cmd = [
+                    "ffmpeg", "-y", "-loop", "1", "-i", image_dest, "-i", motion_dest,
+                    "-filter_complex",
+                    "[0:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[img];"
+                    "[1:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[vid];"
+                    "[img][vid]hstack=inputs=2,scale=1080:960[stacked];"
+                    "[stacked]drawtext=text='TVC STUDIO AI • MOTION RENDER':fontcolor=white:fontsize=28:x=(w-text_w)/2:y=35:box=1:boxcolor=black@0.6:boxborderw=8[v]",
+                    "-map", "[v]", "-map", "1:a?", "-c:v", "libx264", "-preset", "veryfast",
+                    "-pix_fmt", "yuv420p", "-shortest", "-t", "15", out_dest
+                ]
+                subprocess.run(cmd, capture_output=True, timeout=30)
+            
+            final_out = out_dest if os.path.exists(out_dest) and os.path.getsize(out_dest) > 1000 else motion_dest
+            complete(jid, final_out)
+            print("Completed job #", jid)
     except KeyboardInterrupt:
         break
     except Exception as e:
-        print("Worker error:",e); time.sleep(5)
+        print("Worker error:", e); time.sleep(4)

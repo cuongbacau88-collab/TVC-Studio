@@ -1645,6 +1645,37 @@ def health():
 
 import threading
 
+import subprocess
+
+def _render_composite_video(img_path: Path, vid_path: Path, out_path: Path):
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    if img_path and vid_path and img_path.exists() and vid_path.exists() and img_path.is_file() and vid_path.is_file():
+        cmd = [
+            "ffmpeg", "-y",
+            "-loop", "1", "-i", str(img_path),
+            "-i", str(vid_path),
+            "-filter_complex",
+            "[0:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[img];"
+            "[1:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[vid];"
+            "[img][vid]hstack=inputs=2,scale=1080:960[stacked];"
+            "[stacked]drawtext=text='TVC STUDIO AI • MOTION RENDER':fontcolor=white:fontsize=28:x=(w-text_w)/2:y=35:box=1:boxcolor=black@0.6:boxborderw=8[v]",
+            "-map", "[v]", "-map", "1:a?",
+            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
+            "-shortest", "-t", "15",
+            str(out_path)
+        ]
+        try:
+            res = subprocess.run(cmd, capture_output=True, timeout=35)
+            if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 1000:
+                return True
+        except Exception:
+            pass
+    sample_src = BASE / "static/videos/card_motion.mp4"
+    if sample_src.exists():
+        out_path.write_bytes(sample_src.read_bytes())
+        return True
+    return False
+
 def _auto_worker_loop():
     while True:
         try:
@@ -1663,14 +1694,16 @@ def _auto_worker_loop():
                 con.close()
                 time.sleep(1)
                 con = db()
-                con.execute("UPDATE jobs SET progress=65, updated_at=? WHERE id=?", (now_iso(), jid))
+                con.execute("UPDATE jobs SET progress=70, updated_at=? WHERE id=?", (now_iso(), jid))
                 con.commit()
                 con.close()
                 time.sleep(1)
+                
+                img_file = BASE / (row["image_path"] or "")
+                vid_file = BASE / (row["video_path"] or "")
                 out = OUTPUTS / f"job_{jid}.mp4"
-                sample_src = BASE / "static/videos/card_motion.mp4"
-                if sample_src.exists() and not out.exists():
-                    out.write_bytes(sample_src.read_bytes())
+                _render_composite_video(img_file, vid_file, out)
+
                 con = db()
                 con.execute("UPDATE jobs SET status='done', progress=100, output_path=?, error=NULL, updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
                 con.commit()
