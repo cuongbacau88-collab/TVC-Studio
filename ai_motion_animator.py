@@ -28,24 +28,36 @@ def render_ai_motion_video(character_img_path: Path, motion_video_path: Path, ou
     if width <= 0 or height <= 0:
         width, height = 720, 1280
 
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    face_cascade = None
+    try:
+        if hasattr(cv2, 'CascadeClassifier'):
+            cascade_file = getattr(cv2.data, 'haarcascades', '') + 'haarcascade_frontalface_default.xml'
+            if os.path.exists(cascade_file):
+                face_cascade = cv2.CascadeClassifier(cascade_file)
+    except Exception:
+        face_cascade = None
     
     # 1. Detect Character Face
-    gray_char = cv2.cvtColor(char_img, cv2.COLOR_BGR2GRAY)
-    char_faces = face_cascade.detectMultiScale(gray_char, 1.1, 4, minSize=(50, 50))
-    
-    if len(char_faces) > 0:
-        cx, cy, cw, ch = sorted(char_faces, key=lambda f: f[2] * f[3], reverse=True)[0]
-        pad_x = int(cw * 0.22)
-        pad_y_top = int(ch * 0.35)
-        pad_y_bot = int(ch * 0.22)
-        
-        x1 = max(0, cx - pad_x)
-        y1 = max(0, cy - pad_y_top)
-        x2 = min(char_img.shape[1], cx + cw + pad_x)
-        y2 = min(char_img.shape[0], cy + ch + pad_y_bot)
-        char_face_crop = char_img[y1:y2, x1:x2]
-    else:
+    char_face_crop = None
+    if face_cascade and not face_cascade.empty():
+        try:
+            gray_char = cv2.cvtColor(char_img, cv2.COLOR_BGR2GRAY)
+            char_faces = face_cascade.detectMultiScale(gray_char, 1.1, 4, minSize=(50, 50))
+            if len(char_faces) > 0:
+                cx, cy, cw, ch = sorted(char_faces, key=lambda f: f[2] * f[3], reverse=True)[0]
+                pad_x = int(cw * 0.22)
+                pad_y_top = int(ch * 0.35)
+                pad_y_bot = int(ch * 0.22)
+                
+                x1 = max(0, cx - pad_x)
+                y1 = max(0, cy - pad_y_top)
+                x2 = min(char_img.shape[1], cx + cw + pad_x)
+                y2 = min(char_img.shape[0], cy + ch + pad_y_bot)
+                char_face_crop = char_img[y1:y2, x1:x2]
+        except Exception:
+            char_face_crop = None
+
+    if char_face_crop is None or char_face_crop.size == 0:
         h_crop = int(char_img.shape[0] * 0.6)
         char_face_crop = char_img[0:h_crop, :]
 
@@ -62,13 +74,24 @@ def render_ai_motion_video(character_img_path: Path, motion_video_path: Path, ou
         if not ret or frame is None:
             break
         
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, 1.15, 4, minSize=(50, 50))
+        faces = []
+        if face_cascade and not face_cascade.empty():
+            try:
+                gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                faces = face_cascade.detectMultiScale(gray, 1.15, 4, minSize=(50, 50))
+            except Exception:
+                faces = []
         
         if len(faces) > 0:
             fx, fy, fw, fh = sorted(faces, key=lambda f: f[2] * f[3], reverse=True)[0]
             curr_box = np.array([fx, fy, fw, fh], dtype=float)
             prev_box = curr_box if prev_box is None else prev_box * 0.7 + curr_box * 0.3
+        elif prev_box is None:
+            default_w = int(width * 0.45)
+            default_h = int(height * 0.35)
+            default_x = int((width - default_w) / 2)
+            default_y = int(height * 0.08)
+            prev_box = np.array([default_x, default_y, default_w, default_h], dtype=float)
         
         if prev_box is not None:
             bx, by, bw, bh = prev_box.astype(int)
