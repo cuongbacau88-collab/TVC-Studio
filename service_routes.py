@@ -416,6 +416,13 @@ async def create_job(
 def get_job(service_key: str, job_id: int, request: Request):
     app = core()
     user = app.current_user(request)
+    if service_key == "motion_studio":
+        con = app.db()
+        row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, user["id"])).fetchone()
+        con.close()
+        if not row:
+            raise HTTPException(404, "Không tìm thấy job")
+        return public_job(row)
     row = refresh_job(user["id"], job_id)
     if not row or row["service"] != service_key:
         raise HTTPException(404, "Không tìm thấy job")
@@ -427,7 +434,10 @@ def result(service_key: str, job_id: int, request: Request):
     app = core()
     user = app.current_user(request)
     con = app.db()
-    row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=? AND service=?", (job_id, user["id"], service_key)).fetchone()
+    if service_key == "motion_studio":
+        row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, user["id"])).fetchone()
+    else:
+        row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=? AND service=?", (job_id, user["id"], service_key)).fetchone()
     con.close()
     if not row:
         raise HTTPException(404, "Không tìm thấy job")
@@ -440,9 +450,12 @@ def result(service_key: str, job_id: int, request: Request):
     except Exception:
         is_download = False
     disposition_type = "attachment" if is_download else "inline"
-    extension = ".mp4" if SERVICES[service_key].output_kind == "video" else ".png"
+    
+    svc = SERVICES.get(service_key)
+    output_kind = svc.output_kind if svc else ("image" if service_key in {"outfit_change", "background_change", "image_upscale"} else "video")
+    extension = ".mp4" if output_kind == "video" else ".png"
     filename = f"{service_key}_{job_id}{extension}"
-    media_type = "video/mp4" if SERVICES[service_key].output_kind == "video" else "image/png"
+    media_type = "video/mp4" if output_kind == "video" else "image/png"
 
     # Ưu tiên trả về file kết quả local nếu có
     output_path = row["output_path"] if "output_path" in row.keys() else None
@@ -455,18 +468,21 @@ def result(service_key: str, job_id: int, request: Request):
             }
             return FileResponse(local_path, media_type=media_type, headers=headers)
 
-    try:
-        upstream = video_upscale_pipeline.result_response(app, row) if service_key == "video_generation" else None
-        if upstream is None:
-            upstream = app.service_adapters[service_key].result(row["worker_job_id"])
-    except WorkerAdapterError as error:
-        raise worker_error(error)
+    if service_key in app.service_adapters:
+        try:
+            upstream = video_upscale_pipeline.result_response(app, row) if service_key == "video_generation" else None
+            if upstream is None:
+                upstream = app.service_adapters[service_key].result(row["worker_job_id"])
+        except WorkerAdapterError as error:
+            raise worker_error(error)
+        
+        upstream_type = upstream.headers.get("content-type", media_type)
+        return StreamingResponse(app.gpu_api.stream(upstream), media_type=upstream_type, headers={
+            "Accept-Ranges": "bytes",
+            "Content-Disposition": f'{disposition_type}; filename="{filename}"'
+        })
     
-    upstream_type = upstream.headers.get("content-type", media_type)
-    return StreamingResponse(app.gpu_api.stream(upstream), media_type=upstream_type, headers={
-        "Accept-Ranges": "bytes",
-        "Content-Disposition": f'{disposition_type}; filename="{filename}"'
-    })
+    raise HTTPException(404, "File kết quả không tồn tại")
 
 
 @router.delete("/api/services/{service_key}/jobs/{job_id}")
