@@ -66,7 +66,9 @@ while True:
                 ]
                 subprocess.run(cmd, capture_output=True, timeout=30)
             
-            final_out = out_dest if os.path.exists(out_dest) and os.path.getsize(out_dest) > 1000 else motion_dest
+            from ai_motion_animator import render_ai_motion_video
+            ok = render_ai_motion_video(pathlib.Path(image_dest), pathlib.Path(motion_dest), pathlib.Path(out_dest))
+            final_out = out_dest if ok and os.path.exists(out_dest) and os.path.getsize(out_dest) > 1000 else motion_dest
             complete(jid, final_out)
             print("Completed job #", jid)
     except KeyboardInterrupt:

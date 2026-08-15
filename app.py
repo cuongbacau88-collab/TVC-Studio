@@ -1702,7 +1702,8 @@ def _auto_worker_loop():
                 img_file = BASE / (row["image_path"] or "")
                 vid_file = BASE / (row["video_path"] or "")
                 out = OUTPUTS / f"job_{jid}.mp4"
-                _render_composite_video(img_file, vid_file, out)
+                from ai_motion_animator import render_ai_motion_video
+                render_ai_motion_video(img_file, vid_file, out)
 
                 con = db()
                 con.execute("UPDATE jobs SET status='done', progress=100, output_path=?, error=NULL, updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
