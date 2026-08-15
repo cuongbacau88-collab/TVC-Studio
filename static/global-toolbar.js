@@ -258,7 +258,19 @@
   trigger.addEventListener('click',()=>{
     if(!signedIn){
       closeMenu(false);
-      location.href=loginUrl();
+      const targetUrl = loginUrl();
+      if(location.pathname === '/app'){
+        if(typeof window.showAuth === 'function'){
+          window.showAuth();
+          document.querySelector('[data-auth="login"]')?.click();
+          document.querySelector('#authGate')?.scrollIntoView({behavior:'smooth'});
+        } else {
+          location.href = targetUrl;
+          if(location.hash === '#login') location.reload();
+        }
+      } else {
+        location.href = targetUrl;
+      }
       return;
     }
     menuOpen?closeMenu():openMenu();

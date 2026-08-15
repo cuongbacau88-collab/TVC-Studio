@@ -160,6 +160,14 @@ async function boot(){
   }
 }
 function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').classList.add('hidden')}
+window.showAuth = showAuth;
+window.addEventListener('hashchange', () => {
+  if(location.hash === '#login' || location.hash === '#register'){
+    showAuth();
+    if(location.hash === '#register') document.querySelector('[data-auth="register"]')?.click();
+    else document.querySelector('[data-auth="login"]')?.click();
+  }
+});
 function showDashboard(){
   $('#authGate').classList.add('hidden');$('#dashboard').classList.remove('hidden');
   $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
