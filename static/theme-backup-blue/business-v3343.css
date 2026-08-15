@@ -1,0 +1,386 @@
+
+/* =========================================================
+   TVC Studio AI V3.3.43
+   Clean public/legal layout + footer + mobile pricing
+   ========================================================= */
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body.public-page-v3343 {
+  min-height: 100vh;
+  background:
+    radial-gradient(760px 420px at 50% 0%, rgba(91,75,194,.13), transparent 68%),
+    #0a1020;
+}
+
+body.public-page-v3343 .legal-topbar {
+  display: none !important;
+}
+
+body.public-page-v3343 .legal-main {
+  width: min(100% - 32px, 1040px);
+  max-width: 1040px;
+  margin: 0 auto !important;
+  padding: 42px 0 26px !important;
+}
+
+body.public-page-v3343 .legal-hero {
+  margin: 0 0 22px !important;
+}
+
+body.public-page-v3343 .legal-hero > span {
+  display: block;
+  font-size: 10px !important;
+  letter-spacing: .18em;
+  font-weight: 900;
+  color: #aa90ff;
+}
+
+body.public-page-v3343 .legal-hero h1 {
+  margin: 10px 0 0 !important;
+  font-size: clamp(38px, 6vw, 62px) !important;
+  line-height: 1.02 !important;
+  letter-spacing: -.045em !important;
+  overflow-wrap: anywhere;
+}
+
+body.public-page-v3343 .legal-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: clamp(22px, 4vw, 38px) !important;
+  border: 1px solid rgba(255,255,255,.09) !important;
+  border-radius: 22px !important;
+  background: linear-gradient(155deg, rgba(27,38,67,.88), rgba(11,18,33,.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 24px 70px rgba(0,0,0,.18) !important;
+}
+
+body.public-page-v3343 .legal-card h2 {
+  margin: 28px 0 8px !important;
+  font-size: clamp(22px, 3vw, 31px) !important;
+  line-height: 1.16 !important;
+  color: #f7f8ff !important;
+}
+
+body.public-page-v3343 .legal-card h2:first-child {
+  margin-top: 0 !important;
+}
+
+body.public-page-v3343 .legal-card p,
+body.public-page-v3343 .legal-card li {
+  font-size: 14px !important;
+  line-height: 1.75 !important;
+  color: #b5bed0 !important;
+}
+
+body.public-page-v3343 .legal-callout {
+  margin-top: 22px !important;
+  padding: 16px 18px !important;
+  border: 1px solid rgba(139,112,255,.24) !important;
+  border-radius: 15px !important;
+  background: rgba(120,91,224,.07) !important;
+  color: #b8c1d2 !important;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+}
+
+/* Pricing */
+body.public-page-v3343 .pricing-intro h2 {
+  margin: 0 0 8px !important;
+  font-size: clamp(27px, 4vw, 40px) !important;
+  line-height: 1.12 !important;
+}
+
+body.public-page-v3343 .public-pricing-grid {
+  width: 100% !important;
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin: 24px 0 0 !important;
+  overflow: visible !important;
+}
+
+body.public-page-v3343 .public-pricing-grid > section {
+  min-width: 0 !important;
+  width: 100% !important;
+  min-height: 300px !important;
+  margin: 0 !important;
+  padding: 22px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  border: 1px solid rgba(255,255,255,.10) !important;
+  border-radius: 20px !important;
+  background: linear-gradient(160deg, rgba(26,37,64,.82), rgba(13,20,36,.92)) !important;
+  transform: none !important;
+}
+
+body.public-page-v3343 .public-pricing-grid > section.featured {
+  border-color: rgba(139,104,255,.58) !important;
+  background: linear-gradient(165deg, rgba(77,54,152,.42), rgba(16,22,41,.96)) !important;
+  box-shadow: 0 18px 42px rgba(77,54,152,.18) !important;
+}
+
+body.public-page-v3343 .public-pricing-grid h3 {
+  margin: 18px 0 3px !important;
+  font-size: clamp(31px, 4vw, 42px) !important;
+}
+
+body.public-page-v3343 .public-pricing-grid strong {
+  font-size: 22px !important;
+}
+
+body.public-page-v3343 .public-pricing-grid p {
+  flex: 1;
+  font-size: 13px !important;
+  line-height: 1.65 !important;
+}
+
+body.public-page-v3343 .public-pricing-grid a {
+  width: 100% !important;
+  min-height: 48px !important;
+  padding: 0 14px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg,#7659e7,#4e70d9) !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+}
+
+body.public-page-v3343 .contact-cards {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+
+body.public-page-v3343 .contact-cards > * {
+  min-width: 0 !important;
+}
+
+/* Footer */
+body .site-footer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 48px 0 0 !important;
+  padding: 0 !important;
+  display: block !important;
+  overflow: hidden !important;
+  border-top: 1px solid rgba(255,255,255,.08) !important;
+  background: linear-gradient(180deg,rgba(12,19,35,.95),rgba(7,11,21,.99)) !important;
+  color: #a9b2c4 !important;
+}
+
+body .site-footer-inner {
+  width: min(100% - 40px, 1180px) !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding: 34px 0 28px !important;
+  display: grid !important;
+  grid-template-columns: minmax(230px,.9fr) minmax(360px,1.35fr) !important;
+  gap: 56px !important;
+  align-items: start !important;
+}
+
+body .site-footer-brand,
+body .site-footer-links,
+body .site-footer-links > div,
+body .site-footer-contact {
+  min-width: 0 !important;
+}
+
+body .site-footer-logo {
+  width: auto !important;
+  max-width: 100% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  color: #f7f8ff !important;
+  font-weight: 850 !important;
+  white-space: nowrap !important;
+}
+
+body .site-footer-logo img {
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px !important;
+  min-height: 28px !important;
+  max-width: 28px !important;
+  max-height: 28px !important;
+  object-fit: contain !important;
+}
+
+body .site-footer-logo span {
+  display: inline !important;
+  width: auto !important;
+  max-width: none !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  font-size: 16px !important;
+  line-height: 1.2 !important;
+}
+
+body .site-footer-brand > p {
+  margin: 10px 0 17px !important;
+  color: #778399 !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+}
+
+body .site-footer-contact {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+}
+
+body .site-footer-contact span,
+body .site-footer-contact a {
+  display: block !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+  color: #9ba6b9 !important;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+  overflow-wrap: anywhere !important;
+}
+
+body .site-footer-links {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 34px !important;
+}
+
+body .site-footer-links > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 9px !important;
+}
+
+body .site-footer-links b {
+  display: block !important;
+  margin: 0 0 3px !important;
+  color: #f2f4fb !important;
+  font-size: 11px !important;
+  line-height: 1.3 !important;
+}
+
+body .site-footer-links a {
+  display: block !important;
+  width: auto !important;
+  color: #909caf !important;
+  font-size: 11px !important;
+  line-height: 1.4 !important;
+}
+
+body .site-footer-bottom {
+  width: min(100% - 40px, 1180px) !important;
+  max-width: 1180px !important;
+  margin: 0 auto !important;
+  padding: 16px 0 24px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  gap: 18px !important;
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+  color: #6f7a8e !important;
+  font-size: 10px !important;
+  line-height: 1.45 !important;
+}
+
+@media (max-width: 760px) {
+  body.public-page-v3343 .legal-main {
+    width: calc(100% - 28px) !important;
+    padding: 28px 0 14px !important;
+  }
+
+  body.public-page-v3343 .legal-hero {
+    margin-bottom: 18px !important;
+  }
+
+  body.public-page-v3343 .legal-hero h1 {
+    font-size: clamp(36px,10vw,52px) !important;
+  }
+
+  body.public-page-v3343 .legal-card {
+    padding: 20px 16px !important;
+    border-radius: 18px !important;
+  }
+
+  body.public-page-v3343 .legal-card h2 {
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+  }
+
+  body.public-page-v3343 .legal-card p,
+  body.public-page-v3343 .legal-card li {
+    font-size: 13px !important;
+  }
+
+  body.public-page-v3343 .public-pricing-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0,1fr) !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+
+  body.public-page-v3343 .public-pricing-grid > section,
+  body.public-page-v3343 .public-pricing-grid > section.featured {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    transform: none !important;
+  }
+
+  body.public-page-v3343 .contact-cards {
+    grid-template-columns: 1fr !important;
+  }
+
+  body .site-footer {
+    margin-top: 34px !important;
+  }
+
+  body .site-footer-inner {
+    width: calc(100% - 32px) !important;
+    padding: 26px 0 20px !important;
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  body .site-footer-logo img {
+    flex-basis: 24px !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+  }
+
+  body .site-footer-logo span {
+    font-size: 15px !important;
+  }
+
+  body .site-footer-links {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 22px 16px !important;
+  }
+
+  body .site-footer-bottom {
+    width: calc(100% - 32px) !important;
+    padding: 14px 0 22px !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 5px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  body .site-footer-links {
+    grid-template-columns: 1fr !important;
+  }
+}
