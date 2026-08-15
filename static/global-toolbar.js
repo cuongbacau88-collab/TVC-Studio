@@ -35,11 +35,11 @@
     <div class="toolbar-left"><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
     <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI"><span class="brand-glass-orb"><img src="/static/images/logo-tvc.png" alt="TVC Studio"></span><strong>TVC Studio <b>AI</b></strong></a>
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
-      <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
       <a href="/app#affiliate" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
       <a href="/app#wallet" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
+      <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
     </nav>
     <section class="tvc-account-menu" id="toolbarAccountMenu" aria-label="Menu tài khoản" hidden>
@@ -57,11 +57,14 @@
 
   const navRow=host.querySelector('.global-actions');
   const menuTab=navRow.querySelector(':scope > [data-tool="menu"]');
-  function ensureMenuTabFirst(){
-    if(navRow.firstElementChild!==menuTab)navRow.prepend(menuTab);
+  const accountTab=navRow.querySelector(':scope > [data-tool="account"]');
+  function ensureMenuTabNearAccount(){
+    if(accountTab&&menuTab&&accountTab.previousElementSibling!==menuTab){
+      accountTab.before(menuTab);
+    }
   }
-  ensureMenuTabFirst();
-  const navOrderObserver=new MutationObserver(ensureMenuTabFirst);
+  ensureMenuTabNearAccount();
+  const navOrderObserver=new MutationObserver(ensureMenuTabNearAccount);
   navOrderObserver.observe(navRow,{childList:true});
   signal.addEventListener('abort',()=>navOrderObserver.disconnect(),{once:true});
 
@@ -189,7 +192,7 @@
     host.querySelectorAll('[data-account-label]').forEach(node=>{node.textContent=dictionary[node.dataset.accountLabel]});
     host.querySelector('#toolbarGreeting').textContent=dictionary.greeting;
     host.querySelector('#toolbarAccountLabel').textContent=signedIn?dictionary.account:dictionary.login;
-    ensureMenuTabFirst();
+    ensureMenuTabNearAccount();
   }
 
   function closeMenu(restore=true){
@@ -223,7 +226,7 @@
     toolsDrawer.querySelector('#drawerAvatar').textContent='T';
     toolsDrawer.querySelector('#drawerLogin').hidden=false;
     toolsDrawer.querySelector('#drawerLogin').href=loginUrl();
-    ensureMenuTabFirst();
+    ensureMenuTabNearAccount();
     setActive(routeTool());
   }
 
@@ -241,7 +244,7 @@
     toolsDrawer.querySelector('#drawerCredits').textContent=Number(me.usage_balance||me.credits||0).toLocaleString('vi-VN',{maximumFractionDigits:1});
     toolsDrawer.querySelector('#drawerAvatar').textContent=initial;
     toolsDrawer.querySelector('#drawerLogin').hidden=true;
-    ensureMenuTabFirst();
+    ensureMenuTabNearAccount();
     setActive(routeTool());
   }
 

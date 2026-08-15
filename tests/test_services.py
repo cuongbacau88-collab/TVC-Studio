@@ -309,7 +309,7 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
 
     def test_menu_is_first_and_drawer_has_no_duplicate_navigation_group(self):
         nav = self.toolbar[self.toolbar.index('<nav class="global-actions'):self.toolbar.index('</nav>')]
-        order = [nav.index(f'data-tool="{name}"') for name in ("menu", "models", "history", "affiliate", "wallet", "account")]
+        order = [nav.index(f'data-tool="{name}"') for name in ("models", "history", "affiliate", "wallet", "menu", "account")]
         self.assertEqual(order, sorted(order))
         drawer = self.toolbar[self.toolbar.index('id="aiToolsDrawer"'):self.toolbar.index('</aside>')]
         self.assertNotIn("<summary>Điều hướng</summary>", drawer)
@@ -349,14 +349,16 @@ class GlobalDrawerRegressionTests(unittest.TestCase):
         template=self.toolbar[template_start:template_end]
         parser=NavigationDOMParser()
         parser.feed(template)
-        self.assertEqual(["menu","models","history","affiliate","wallet","account"],parser.tools)
-        self.assertEqual("menu",parser.tools[0])
-        self.assertIn("navRow.firstElementChild!==menuTab",self.toolbar)
-        self.assertIn("navRow.prepend(menuTab)",self.toolbar)
+        self.assertEqual(["models","history","affiliate","wallet","menu","account"],parser.tools)
+        self.assertEqual("models",parser.tools[0])
+        self.assertEqual("menu",parser.tools[4])
+        self.assertEqual("account",parser.tools[5])
+        self.assertIn("accountTab&&menuTab&&accountTab.previousElementSibling!==menuTab",self.toolbar)
+        self.assertIn("accountTab.before(menuTab)",self.toolbar)
         self.assertNotIn("const navRow=",template)
         self.assertGreater(self.toolbar.index("const navRow="),template_end)
-        self.assertGreaterEqual(self.toolbar.count("ensureMenuTabFirst()"),4)
-        self.assertIn("new MutationObserver(ensureMenuTabFirst)",self.toolbar)
+        self.assertGreaterEqual(self.toolbar.count("ensureMenuTabNearAccount()"),4)
+        self.assertIn("new MutationObserver(ensureMenuTabNearAccount)",self.toolbar)
         self.assertIn("navOrderObserver.observe(navRow,{childList:true})",self.toolbar)
         self.assertIn("navOrderObserver.disconnect()",self.toolbar)
         self.assertNotIn("appendChild(tab)",self.toolbar)
