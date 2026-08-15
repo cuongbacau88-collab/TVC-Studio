@@ -433,14 +433,27 @@ def result(service_key: str, job_id: int, request: Request):
         raise HTTPException(404, "Không tìm thấy job")
     if row["status"] != "done":
         raise HTTPException(409, "Kết quả chưa sẵn sàng")
+    
+    is_download = False
+    try:
+        is_download = request.query_params.get("download") == "1"
+    except Exception:
+        is_download = False
+    disposition_type = "attachment" if is_download else "inline"
+    extension = ".mp4" if SERVICES[service_key].output_kind == "video" else ".png"
+    filename = f"{service_key}_{job_id}{extension}"
+    media_type = "video/mp4" if SERVICES[service_key].output_kind == "video" else "image/png"
+
     # Ưu tiên trả về file kết quả local nếu có
     output_path = row["output_path"] if "output_path" in row.keys() else None
     if output_path:
         local_path = (app.BASE / output_path).resolve()
         if local_path.is_file():
-            media_type = "video/mp4" if SERVICES[service_key].output_kind == "video" else "image/png"
-            extension = ".mp4" if SERVICES[service_key].output_kind == "video" else ".png"
-            return FileResponse(local_path, media_type=media_type, filename=f"{service_key}_{job_id}{extension}")
+            headers = {
+                "Accept-Ranges": "bytes",
+                "Content-Disposition": f'{disposition_type}; filename="{filename}"'
+            }
+            return FileResponse(local_path, media_type=media_type, headers=headers)
 
     try:
         upstream = video_upscale_pipeline.result_response(app, row) if service_key == "video_generation" else None
@@ -448,10 +461,11 @@ def result(service_key: str, job_id: int, request: Request):
             upstream = app.service_adapters[service_key].result(row["worker_job_id"])
     except WorkerAdapterError as error:
         raise worker_error(error)
-    media_type = upstream.headers.get("content-type", "application/octet-stream")
-    extension = ".mp4" if SERVICES[service_key].output_kind == "video" else ".png"
-    return StreamingResponse(app.gpu_api.stream(upstream), media_type=media_type, headers={
-        "Content-Disposition": f'attachment; filename="{service_key}_{job_id}{extension}"'
+    
+    upstream_type = upstream.headers.get("content-type", media_type)
+    return StreamingResponse(app.gpu_api.stream(upstream), media_type=upstream_type, headers={
+        "Accept-Ranges": "bytes",
+        "Content-Disposition": f'{disposition_type}; filename="{filename}"'
     })
 
 

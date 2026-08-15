@@ -63,9 +63,11 @@ function setStatus(job){
  ['regenerateButton','historyButton','reuseButton'].forEach(id=>$(id).classList.toggle('hidden',!done));
  $('historyButton').href='/app#jobs';
 
- $('downloadButton').classList.toggle('hidden',!done);$('downloadButton').href=url;
+ $('downloadButton').classList.toggle('hidden',!done);
+ $('downloadButton').href=url + '?download=1';
+ $('downloadButton').setAttribute('download', `${key}_${job.id}.${config?.output_kind==='video'?'mp4':'png'}`);
  if(done){
-  $('resultPreview').innerHTML=config.output_kind==='video'?`<video controls playsinline src="${url}"></video>`:`<div class="comparison"><div class="before-clone"></div><img src="${url}" alt="Kết quả"></div>`;
+  $('resultPreview').innerHTML=config.output_kind==='video'?`<video controls playsinline autoplay preload="auto" src="${url}" style="width:100%;max-height:480px;border-radius:18px;background:#000;box-shadow:0 10px 30px rgba(0,0,0,0.5);"></video>`:`<div class="comparison"><div class="before-clone"></div><img src="${url}" alt="Kết quả"></div>`;
   if(key==='image_upscale'){const source=document.querySelector('[data-preview="source_image"] img');if(source)document.querySelector('.before-clone')?.append(source.cloneNode())}
  }
  if(['waiting','running','upscaling'].includes(job.status))schedulePoll();else clearTimeout(pollTimer);

@@ -1003,11 +1003,27 @@ def job_output(job_id: int, request: Request):
         raise HTTPException(404, "Không tìm thấy job")
     if row["user_id"] != u["id"] and u["role"] != "admin":
         raise HTTPException(403, "Không có quyền")
+    
+    is_download = False
+    try:
+        is_download = request.query_params.get("download") == "1"
+    except Exception:
+        is_download = False
+    disposition_type = "attachment" if is_download else "inline"
+    filename_hd = f"tvc_job_{job_id}_hd.mp4"
+    filename_std = f"tvc_job_{job_id}.mp4"
+
     if row["video_upscale_status"] == "completed" and row["video_upscale_job_id"]:
         try:
             upstream = video_upscale_adapter.result(row["video_upscale_job_id"])
-            return StreamingResponse(gpu_api.stream(upstream), media_type=upstream.headers.get("content-type", "video/mp4"),
-                                     headers={"Content-Disposition": f'attachment; filename="tvc_job_{job_id}_hd.mp4"'})
+            return StreamingResponse(
+                gpu_api.stream(upstream),
+                media_type=upstream.headers.get("content-type", "video/mp4"),
+                headers={
+                    "Accept-Ranges": "bytes",
+                    "Content-Disposition": f'{disposition_type}; filename="{filename_hd}"'
+                }
+            )
         except WorkerAdapterError:
             pass
     if row["gpu_job_id"]:
@@ -1015,16 +1031,29 @@ def job_output(job_id: int, request: Request):
             upstream = gpu_api.output(str(row["user_id"]), row["gpu_job_id"])
         except GPUAPIError as error:
             raise gpu_http_error(error)
-        content_type = upstream.headers.get("content-type", "application/octet-stream")
-        disposition = f'attachment; filename="tvc_job_{job_id}.mp4"'
-        return StreamingResponse(gpu_api.stream(upstream), media_type=content_type,
-                                 headers={"Content-Disposition": disposition})
+        content_type = upstream.headers.get("content-type", "video/mp4")
+        return StreamingResponse(
+            gpu_api.stream(upstream),
+            media_type=content_type,
+            headers={
+                "Accept-Ranges": "bytes",
+                "Content-Disposition": f'{disposition_type}; filename="{filename_std}"'
+            }
+        )
     if not row["output_path"]:
         raise HTTPException(404, "Job chưa có kết quả")
     path = BASE / row["output_path"]
     if not path.exists():
         raise HTTPException(404, "File kết quả không tồn tại")
-    return FileResponse(path, filename=f"motionhub_job_{job_id}{path.suffix}")
+    
+    ext = path.suffix or ".mp4"
+    filename = f"tvc_job_{job_id}{ext}"
+    media_type = "video/mp4" if ext in {".mp4", ".mov", ".webm"} else "application/octet-stream"
+    headers = {
+        "Accept-Ranges": "bytes",
+        "Content-Disposition": f'{disposition_type}; filename="{filename}"'
+    }
+    return FileResponse(path, media_type=media_type, headers=headers)
 
 
 @app.delete("/api/jobs/{job_id}")
