@@ -31,10 +31,7 @@ MAX_VIDEO_MB = 300
 JOB_SUBMIT_INFLIGHT_SECONDS = 600
 JOB_SUBMIT_COOLDOWN_SECONDS = 8
 RENDER_MODE = os.getenv("RENDER_MODE", "worker").strip().lower()
-try:
-    JOB_STALE_TIMEOUT_SECONDS = max(60, int(os.getenv("JOB_STALE_TIMEOUT_SECONDS", "1800") or "1800"))
-except ValueError:
-    JOB_STALE_TIMEOUT_SECONDS = 1800
+MOCK_VIDEO_DURATION = os.getenv("MOCK_VIDEO_DURATION", "5").strip() or "5"
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
@@ -49,6 +46,24 @@ try:
     TEST_INITIAL_CREDITS = max(0, int(os.getenv("TEST_INITIAL_CREDITS", "100") or "100"))
 except ValueError:
     TEST_INITIAL_CREDITS = 0
+try:
+    JOB_QUEUE_TIMEOUT_SECONDS = max(
+        1, int(os.getenv("JOB_QUEUE_TIMEOUT_SECONDS", "60" if TEST_MODE else "300") or "300")
+    )
+except ValueError:
+    JOB_QUEUE_TIMEOUT_SECONDS = 60 if TEST_MODE else 300
+try:
+    JOB_RENDER_TIMEOUT_SECONDS = max(
+        1, int(os.getenv("JOB_RENDER_TIMEOUT_SECONDS", "1800") or "1800")
+    )
+except ValueError:
+    JOB_RENDER_TIMEOUT_SECONDS = 1800
+try:
+    JOB_RECONCILE_INTERVAL_SECONDS = max(
+        5, int(os.getenv("JOB_RECONCILE_INTERVAL_SECONDS", "30") or "30")
+    )
+except ValueError:
+    JOB_RECONCILE_INTERVAL_SECONDS = 30
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 GPU_BACKEND_ENABLED = os.getenv("GPU_BACKEND_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
 GPU_API_BASE_URL = os.getenv("GPU_API_BASE_URL", "").strip()
@@ -695,7 +710,7 @@ def fail_job_once(job_id: int, error: str) -> bool:
 def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | None = None) -> int:
     reference_time = reference_time or datetime.now(timezone.utc)
     con = db()
-    sql = "SELECT id,updated_at FROM jobs WHERE status IN ('waiting','running','upscaling','submit_retry')"
+    sql = "SELECT id,status,updated_at FROM jobs WHERE status IN ('waiting','running','upscaling','submit_retry')"
     params = ()
     if user_id is not None:
         sql += " AND user_id=?"
@@ -710,10 +725,17 @@ def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | No
                 updated = updated.replace(tzinfo=timezone.utc)
         except (TypeError, ValueError):
             updated = datetime.fromtimestamp(0, timezone.utc)
-        if (reference_time - updated).total_seconds() > JOB_STALE_TIMEOUT_SECONDS:
-            stale.append(row["id"])
-    for job_id in stale:
-        fail_job_once(job_id, "Render bị gián đoạn hoặc worker không phản hồi trong thời gian cho phép")
+        queued = row["status"] in {"waiting", "submit_retry"}
+        timeout = JOB_QUEUE_TIMEOUT_SECONDS if queued else JOB_RENDER_TIMEOUT_SECONDS
+        if (reference_time - updated).total_seconds() > timeout:
+            error = (
+                "Không có GPU worker khả dụng trong thời gian cho phép"
+                if queued else
+                "Render bị gián đoạn hoặc worker không phản hồi trong thời gian cho phép"
+            )
+            stale.append((row["id"], error))
+    for job_id, error in stale:
+        fail_job_once(job_id, error)
     return len(stale)
 
 
@@ -1804,106 +1826,111 @@ def health():
 
 import threading
 
-import subprocess
+from mock_renderer import render_mock_fixture
 
-def _render_composite_video(img_path: Path, vid_path: Path, out_path: Path):
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    if img_path and vid_path and img_path.exists() and vid_path.exists() and img_path.is_file() and vid_path.is_file():
-        cmd = [
-            "ffmpeg", "-y",
-            "-loop", "1", "-i", str(img_path),
-            "-i", str(vid_path),
-            "-filter_complex",
-            "[0:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[img];"
-            "[1:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[vid];"
-            "[img][vid]hstack=inputs=2,scale=1080:960[stacked];"
-            "[stacked]drawtext=text='TVC STUDIO AI • MOTION RENDER':fontcolor=white:fontsize=28:x=(w-text_w)/2:y=35:box=1:boxcolor=black@0.6:boxborderw=8[v]",
-            "-map", "[v]", "-map", "1:a?",
-            "-c:v", "libx264", "-preset", "veryfast", "-pix_fmt", "yuv420p",
-            "-shortest", "-t", "15",
-            str(out_path)
-        ]
+
+_reconcile_stop = threading.Event()
+
+
+def _job_reconcile_loop():
+    while not _reconcile_stop.wait(JOB_RECONCILE_INTERVAL_SECONDS):
         try:
-            res = subprocess.run(cmd, capture_output=True, timeout=35)
-            if res.returncode == 0 and out_path.exists() and out_path.stat().st_size > 1000:
-                return True
-        except Exception:
-            pass
-    return False
+            recover_stale_jobs()
+        except Exception as error:
+            print("[Job Reconciler Error]", error)
+
+
+@app.on_event("startup")
+def start_job_reconciler():
+    thread = getattr(app.state, "job_reconciler_thread", None)
+    if thread and thread.is_alive():
+        return
+    _reconcile_stop.clear()
+    thread = threading.Thread(target=_job_reconcile_loop, daemon=True)
+    app.state.job_reconciler_thread = thread
+    thread.start()
+
+
+@app.on_event("shutdown")
+def stop_job_reconciler():
+    _reconcile_stop.set()
+
+
+def process_mock_job(job_id: int):
+    """Process one queued job only when explicit mock mode is active."""
+    if RENDER_MODE != "mock":
+        return None
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        claimed = con.execute(
+            """UPDATE jobs SET status='running',progress=30,worker_status='mock_preparing',updated_at=?
+               WHERE id=? AND status='waiting' AND gpu_job_id IS NULL""",
+            (now_iso(), job_id),
+        )
+        if claimed.rowcount != 1:
+            con.commit()
+            row = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+            return dict(row) if row else None
+        con.commit()
+        row = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+    finally:
+        con.close()
+    if not row:
+        return None
+    try:
+        service = row["service"] or "motion_studio"
+        extension = ".png" if service in {"outfit_change", "background_change", "image_upscale"} else ".mp4"
+        output = OUTPUTS / f"mock_job_{job_id}{extension}"
+        con = db()
+        con.execute(
+            "UPDATE jobs SET progress=70,worker_status='mock_processing',updated_at=? WHERE id=? AND status='running'",
+            (now_iso(), job_id),
+        )
+        con.commit()
+        con.close()
+        if not render_mock_fixture(service, job_id, output):
+            raise RuntimeError("Mock renderer không tạo được output")
+        validation_error = validate_local_output(row, output)
+        if validation_error:
+            raise RuntimeError(validation_error)
+        con = db()
+        con.execute(
+            """UPDATE jobs SET status='done',progress=100,output_path=?,output_media_type=?,
+               worker_status='mock_completed',error=NULL,updated_at=? WHERE id=? AND status='running'""",
+            (
+                str(output.relative_to(BASE)),
+                "image/png" if extension == ".png" else "video/mp4",
+                now_iso(), job_id,
+            ),
+        )
+        con.commit()
+        completed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+        con.close()
+        return dict(completed) if completed else None
+    except Exception as error:
+        fail_job_once(job_id, str(error))
+        con = db()
+        failed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+        con.close()
+        return dict(failed) if failed else None
+
 
 def _auto_worker_loop():
     while True:
         try:
-            time.sleep(2)
+            time.sleep(1)
             con = db()
-            # Dọn dẹp hoặc nhận job đang chờ
-            waiting_jobs = con.execute(
-                "SELECT * FROM jobs WHERE status IN ('waiting', 'running') AND progress < 100 AND gpu_job_id IS NULL ORDER BY id ASC LIMIT 1"
-            ).fetchall()
+            row = con.execute(
+                """SELECT id FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL
+                   ORDER BY priority DESC,id ASC LIMIT 1"""
+            ).fetchone()
             con.close()
-            for row in waiting_jobs:
-                jid = row["id"]
-                svc = row["service"] or "motion_studio"
-                con = db()
-                con.execute("UPDATE jobs SET status='running', progress=30, updated_at=? WHERE id=?", (now_iso(), jid))
-                con.commit()
-                con.close()
-                time.sleep(1)
-                con = db()
-                con.execute("UPDATE jobs SET progress=70, updated_at=? WHERE id=?", (now_iso(), jid))
-                con.commit()
-                con.close()
-                
-                try:
-                    import all_services_processor as asp
-                    import json
-                    
-                    input_data = {}
-                    try: input_data = json.loads(row["input_json"] or "{}")
-                    except Exception: pass
-                    files_dict = {k: BASE / v for k, v in input_data.get("files", {}).items()}
-                    
-                    if svc in {"outfit_change", "background_change", "image_upscale"}:
-                        out = OUTPUTS / f"job_{jid}.png"
-                    else:
-                        out = OUTPUTS / f"job_{jid}.mp4"
-                    
-                    img_file = BASE / (row["image_path"] or "")
-                    vid_file = BASE / (row["video_path"] or "")
-                    
-                    if svc == "motion_studio":
-                        rendered = asp.process_motion_studio(img_file, vid_file, out)
-                    elif svc == "video_generation":
-                        rendered = asp.process_video_generation(files_dict, row["prompt"] or "", out)
-                    elif svc == "outfit_change":
-                        char_f = files_dict.get("character_image", img_file)
-                        outfit_f = files_dict.get("outfit_image", vid_file)
-                        rendered = asp.process_outfit_change(char_f, outfit_f, out)
-                    elif svc == "background_change":
-                        src_f = files_dict.get("source_image", img_file)
-                        bg_f = files_dict.get("background_image", vid_file)
-                        rendered = asp.process_background_change(src_f, bg_f, row["prompt"] or "", out)
-                    elif svc == "image_upscale":
-                        src_f = files_dict.get("source_image", img_file)
-                        rendered = asp.process_image_upscale(src_f, 2, True, out)
-                    else:
-                        raise RuntimeError(f"Dịch vụ mock không được hỗ trợ: {svc}")
-                    if not rendered:
-                        raise RuntimeError("Mock renderer không tạo được output")
-                    validation_error = validate_local_output(row, out)
-                    if validation_error:
-                        raise RuntimeError(validation_error)
+            if row:
+                process_mock_job(row["id"])
+        except Exception as error:
+            print("[Mock Worker Loop Error]", error)
 
-                    con = db()
-                    con.execute("UPDATE jobs SET status='done',progress=100,output_path=?,worker_status='mock',error=NULL,updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
-                    con.commit()
-                    con.close()
-                except Exception as e:
-                    import traceback
-                    print(f"[Worker Error] Job {jid} render failed:", e, traceback.format_exc())
-                    fail_job_once(jid, str(e))
-        except Exception as exc:
-            print("[Mock Worker Loop Error]", exc)
 
 if RENDER_MODE == "mock":
     _worker_thread = threading.Thread(target=_auto_worker_loop, daemon=True)

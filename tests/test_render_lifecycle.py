@@ -18,7 +18,8 @@ class RenderLifecycleTests(unittest.TestCase):
         self.originals = {
             "BASE": app.BASE, "DATA": app.DATA, "UPLOADS": app.UPLOADS,
             "OUTPUTS": app.OUTPUTS, "DB_PATH": app.DB_PATH,
-            "JOB_STALE_TIMEOUT_SECONDS": app.JOB_STALE_TIMEOUT_SECONDS,
+            "JOB_QUEUE_TIMEOUT_SECONDS": app.JOB_QUEUE_TIMEOUT_SECONDS,
+            "JOB_RENDER_TIMEOUT_SECONDS": app.JOB_RENDER_TIMEOUT_SECONDS,
         }
         app.BASE = self.root
         app.DATA = self.root / "data"
@@ -28,7 +29,8 @@ class RenderLifecycleTests(unittest.TestCase):
         app.UPLOADS.mkdir(parents=True)
         app.OUTPUTS.mkdir(parents=True)
         (self.root / "static" / "videos").mkdir(parents=True)
-        app.JOB_STALE_TIMEOUT_SECONDS = 60
+        app.JOB_QUEUE_TIMEOUT_SECONDS = 60
+        app.JOB_RENDER_TIMEOUT_SECONDS = 60
         app.init_db()
         con = app.db()
         con.execute(

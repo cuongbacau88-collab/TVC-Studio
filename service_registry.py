@@ -38,7 +38,7 @@ def _optional_nonnegative_int(name: str) -> int | None:
 
 SERVICES = {
     "video_generation": ServiceDefinition(
-        "video_generation", "AI Tạo Video", "video_generation", "VIDEO",
+        "video_generation", "AI Video Creator", "video_generation", "VIDEO",
         "video", 100, _optional_nonnegative_int("VIDEO_USAGE_COST"),
         "VIDEO_MODEL", ("prompt",), ("reference_image",),
     ),

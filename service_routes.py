@@ -85,6 +85,7 @@ def validate_worker_completion(app, row, payload):
 
 def refresh_job(user_id: int, job_id: int):
     app = core()
+    app.recover_stale_jobs(user_id)
     con = app.db()
     row = con.execute(
         "SELECT * FROM jobs WHERE id=? AND user_id=? AND worker_job_id IS NOT NULL",
@@ -93,6 +94,8 @@ def refresh_job(user_id: int, job_id: int):
     con.close()
     if not row or row["status"] not in {"waiting", "running", "upscaling"}:
         return dict(row) if row else None
+    if app.RENDER_MODE == "mock" and row["status"] == "waiting":
+        return app.process_mock_job(job_id)
     if row["status"] == "upscaling":
         return video_upscale_pipeline.persist(app, job_id, video_upscale_pipeline.poll(app, dict(row)))
     try:
@@ -150,15 +153,25 @@ def refresh_job(user_id: int, job_id: int):
 @router.get("/api/services")
 def catalog():
     app = core()
-    return [{
-        "key": key, "title": definition.title, "output_kind": definition.output_kind,
-        "free": definition.is_free, "usage": definition.usage_cost, "usage_unit": "lượt",
-        "configured": app.service_adapters[key].config.configured and bool(definition.model),
-        "model_configured": bool(definition.model),
-        "poll_interval": app.WORKER_POLL_INTERVAL,
-        "priority": "high" if definition.priority >= 100 else "idle",
-        **PUBLIC_SERVICE_CONFIG.get(key, {}),
-    } for key, definition in SERVICES.items()]
+    mock_mode = app.RENDER_MODE == "mock"
+    result = []
+    for key, definition in SERVICES.items():
+        public = dict(PUBLIC_SERVICE_CONFIG.get(key, {}))
+        if mock_mode and key == "video_generation" and not public.get("durations"):
+            public["durations"] = [app.MOCK_VIDEO_DURATION]
+        usage = definition.usage_cost if definition.usage_cost is not None else (0 if mock_mode else None)
+        result.append({
+            "key": key, "title": definition.title, "output_kind": definition.output_kind,
+            "free": usage == 0, "usage": usage, "usage_unit": "lượt",
+            "configured": mock_mode or (
+                app.service_adapters[key].config.configured and bool(definition.model)
+            ),
+            "model_configured": mock_mode or bool(definition.model),
+            "poll_interval": app.WORKER_POLL_INTERVAL,
+            "priority": "high" if definition.priority >= 100 else "idle",
+            **public,
+        })
+    return result
 def _parse_rate(value: str) -> float:
     try:
         numerator, denominator = str(value or "0/1").split("/", 1)
@@ -227,6 +240,8 @@ def validate_request(service_key, prompt, aspect_ratio, duration, scale, restore
         if len(uploads.get("reference_videos") or []) > 3:
             raise HTTPException(400, "Tối đa 3 video tham chiếu")
         durations = PUBLIC_SERVICE_CONFIG[service_key]["durations"]
+        if not durations and core().RENDER_MODE == "mock":
+            durations = [core().MOCK_VIDEO_DURATION]
         if not durations:
             raise HTTPException(503, "Model chưa được cấu hình thời lượng hỗ trợ")
         if duration not in durations:
@@ -276,14 +291,18 @@ async def create_job(
     except KeyError:
         raise HTTPException(404, "Dịch vụ không tồn tại")
     adapter = app.service_adapters[service_key]
-    if not adapter.config.configured:
+    mock_mode = app.RENDER_MODE == "mock"
+    if not mock_mode and not adapter.config.configured:
         raise HTTPException(503, "Dịch vụ chưa kết nối máy chủ xử lý")
-    if not service.model:
+    if not mock_mode and not service.model:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình model")
-    if service_key == "background_change" and not __import__("service_registry").BACKGROUND_MASK_MODEL:
+    if not mock_mode and service_key == "background_change" and not __import__("service_registry").BACKGROUND_MASK_MODEL:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình model tạo mask")
-    if service.usage_cost is None:
+    if not mock_mode and service.usage_cost is None:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
+    effective_cost = service.usage_cost if service.usage_cost is not None else 0
+    if mock_mode and service_key == "video_generation" and not duration:
+        duration = app.MOCK_VIDEO_DURATION
     prompt = prompt.strip()[:2000]
     language = "en" if language == "en" else "vi"
     creation_method = creation_method if isinstance(creation_method, str) else "reference_images"
@@ -320,13 +339,13 @@ async def create_job(
         if existing:
             con.commit()
             return {**public_job(existing), "duplicate": True}
-        if service.usage_cost:
+        if effective_cost:
             balance = con.execute("SELECT credits FROM users WHERE id=?", (user["id"],)).fetchone()
             reserved = con.execute(
                 "SELECT COALESCE(SUM(cost),0) total FROM jobs WHERE user_id=? AND credit_reserved=1",
                 (user["id"],)
             ).fetchone()["total"]
-            if not balance or balance["credits"] - reserved < service.usage_cost:
+            if not balance or balance["credits"] - reserved < effective_cost:
                 raise HTTPException(402, "Không đủ lượt")
         client_job_id = f"tvc-{user['id']}-{service_key}-{request_key}"
         cursor = con.execute(
@@ -336,8 +355,8 @@ async def create_job(
                input_json,priority
             ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (user["id"], service.title, service_key, aspect_ratio or "n/a", "worker",
-             prompt, service.usage_cost, "", "", "uploading", 0, app.now_iso(), app.now_iso(),
-             request_key, client_job_id, 1 if service.usage_cost else 0, "{}", service.priority)
+             prompt, effective_cost, "", "", "uploading", 0, app.now_iso(), app.now_iso(),
+             request_key, client_job_id, 1 if effective_cost else 0, "{}", service.priority)
         )
         job_id = cursor.lastrowid
         con.commit()
@@ -386,15 +405,20 @@ async def create_job(
         payload = {
             "prompt": prompt, "aspect_ratio": aspect_ratio, "duration": duration,
             "scale": int(scale) if scale else None, "restore_face": restore_face,
-            "model": service.model,
-            "mask_model": __import__("service_registry").BACKGROUND_MASK_MODEL if service_key == "background_change" else None,
+            "model": service.model or ("mock-fixture" if mock_mode else ""),
+            "mask_model": (
+                __import__("service_registry").BACKGROUND_MASK_MODEL or ("mock-fixture" if mock_mode else None)
+            ) if service_key == "background_change" else None,
             "system_prompt": system_prompt,
             "language": language,
             "creation_method": creation_method,
             "file_roles": file_roles,
             "reference_video_metadata": reference_video_metadata,
         }
-        accepted = adapter.submit(client_job_id, payload, opened)
+        accepted = (
+            {"job_id": f"mock-{job_id}", "status": "queued"}
+            if mock_mode else adapter.submit(client_job_id, payload, opened)
+        )
     except WorkerAdapterError as error:
         app.storage.delete_prefix(prefix)
         cleanup = app.db()
@@ -414,17 +438,17 @@ async def create_job(
     con = app.db()
     try:
         con.execute("BEGIN IMMEDIATE")
-        if service.usage_cost:
+        if effective_cost:
             charged = con.execute(
                 "UPDATE users SET credits=credits-? WHERE id=? AND credits>=?",
-                (service.usage_cost, user["id"], service.usage_cost)
+                (effective_cost, user["id"], effective_cost)
             )
             if charged.rowcount != 1:
                 raise HTTPException(402, "Không đủ lượt")
             con.execute(
                 """INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
                    VALUES(?,?,?,?,?,?)""",
-                (user["id"], -service.usage_cost, f"Sử dụng {service.title} #{job_id}", "job", job_id, app.now_iso())
+                (user["id"], -effective_cost, f"Sử dụng {service.title} #{job_id}", "job", job_id, app.now_iso())
             )
         con.execute(
             """UPDATE jobs SET image_path=?,video_path=?,input_json=?,worker_job_id=?,
@@ -433,7 +457,7 @@ async def create_job(
             (stored.get("source_image") or stored.get("character_image") or stored.get("reference_image") or "",
              stored.get("outfit_image") or stored.get("background_image") or "",
              json.dumps({"files": stored, **payload}, ensure_ascii=False), accepted["job_id"],
-             accepted["status"], 1 if service.usage_cost else 0, app.now_iso(), job_id)
+             accepted["status"], 1 if effective_cost else 0, app.now_iso(), job_id)
         )
         con.commit()
         return {**public_job(con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()), "duplicate": False}
@@ -453,6 +477,9 @@ def get_job(service_key: str, job_id: int, request: Request):
     app = core()
     user = app.current_user(request)
     if service_key == "motion_studio":
+        app.recover_stale_jobs(user["id"])
+        if app.RENDER_MODE == "mock":
+            app.process_mock_job(job_id)
         con = app.db()
         row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, user["id"])).fetchone()
         con.close()

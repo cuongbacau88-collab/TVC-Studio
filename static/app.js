@@ -358,7 +358,8 @@ form.onsubmit=async e=>{
 function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Render thất bại',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 function jobResultUrl(j){return (j.service && j.service !== 'motion_studio')?`/api/services/${encodeURIComponent(j.service)}/jobs/${j.id}/result`:`/api/jobs/${j.id}/output`}
 function jobOpenUrl(j){return (j.service && j.service !== 'motion_studio')?`/services/${encodeURIComponent(j.service)}?job=${j.id}`:null}
-function jobDisplayName(j){return j.service==='video_generation'?'AI Video Creator':!j.service?'AI Motion Studio':j.model}
+function jobDisplayName(j){return {motion_studio:'AI Motion Studio',video_generation:'AI Video Creator',outfit_change:'AI Đổi Trang Phục',background_change:'AI Đổi Bối Cảnh',image_upscale:'AI Nâng Cấp Ảnh'}[j.service]||(!j.service?'AI Motion Studio':j.model)}
+function jobOutputExtension(j){return ['outfit_change','background_change','image_upscale'].includes(j.service)?'png':'mp4'}
 async function loadJobs(){
   try{
     const jobs=await api('/api/jobs');
@@ -366,7 +367,7 @@ async function loadJobs(){
       <div class="thumb">🎬</div>
       <div><b>#${j.id} • ${jobDisplayName(j)}</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}${jobOpenUrl(j)?`<small><a class="mini-btn" href="${jobOpenUrl(j)}">Mở lại job</a></small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
-      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"><a class="mini-btn" href="${jobResultUrl(j)}" target="_blank" style="background:rgba(168,85,247,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">▶ Xem</a><a class="mini-btn" href="${jobResultUrl(j)}?download=1" download="tvc_video_${j.id}.mp4" style="background:rgba(217,70,239,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">⬇ Tải về</a></div>`:''}${j.can_cancel&&!j.service?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
+      <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"><a class="mini-btn" href="${jobResultUrl(j)}" target="_blank" style="background:rgba(168,85,247,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">▶ Xem</a><a class="mini-btn" href="${jobResultUrl(j)}?download=1" download="tvc_result_${j.id}.${jobOutputExtension(j)}" style="background:rgba(217,70,239,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">⬇ Tải về</a></div>`:''}${j.can_cancel&&!j.service?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
     </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
   }catch(e){say(e.message)}
 }
