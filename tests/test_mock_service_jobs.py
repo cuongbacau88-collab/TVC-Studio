@@ -217,6 +217,49 @@ class MockServiceJobTests(unittest.TestCase):
         con.close()
         self.assertEqual(1, count)
 
+    def create_first_last(self, key, first=True, last=True):
+        return asyncio.run(service_routes.create_job(
+            service_key="video_generation", request=self.request(),
+            prompt="Chuyển cảnh tự nhiên", aspect_ratio="9:16",
+            duration=app.MOCK_VIDEO_DURATION, scale="", restore_face=False,
+            request_key=key, creation_method="first_last",
+            reference_purposes="[]", reference_images=[], reference_videos=[],
+            first_frame=self.image("start.png", b"start-image") if first else None,
+            last_frame=self.image("end.png", b"end-image") if last else None,
+            language="vi", reference_image=None, character_image=None,
+            outfit_image=None, source_image=None, background_image=None,
+        ))
+
+    def test_first_last_uses_independent_payload_fields_and_mock_completes(self):
+        created = self.create_first_last("first-last-mock")
+        row = self.row(created["id"])
+        payload = __import__("json").loads(row["input_json"])
+        self.assertNotEqual(payload["files"]["first_frame"], payload["files"]["last_frame"])
+        self.assertIn("first_frame", payload["file_roles"])
+        self.assertIn("last_frame", payload["file_roles"])
+        completed = app.process_mock_job(created["id"])
+        self.assertEqual("done", completed["status"])
+        self.assertEqual(99, self.credits())
+
+    def test_first_last_missing_either_image_does_not_create_or_charge(self):
+        for key, first, last in (("missing-start", False, True), ("missing-end", True, False), ("missing-both", False, False)):
+            with self.subTest(key=key), self.assertRaises(HTTPException):
+                self.create_first_last(key, first, last)
+        con = app.db()
+        count = con.execute("SELECT COUNT(*) count FROM jobs WHERE user_id=?", (self.user_id,)).fetchone()["count"]
+        con.close()
+        self.assertEqual(0, count)
+        self.assertEqual(100, self.credits())
+
+    def test_first_last_worker_offline_is_queued_without_fake_output(self):
+        app.RENDER_MODE = "worker"
+        created = self.create_first_last("first-last-offline")
+        row = self.row(created["id"])
+        self.assertEqual("waiting", row["status"])
+        self.assertIsNone(row["worker_job_id"])
+        self.assertIsNone(row["output_path"])
+        self.assertEqual(99, self.credits())
+
     def test_catalog_exposes_mock_services_without_real_worker_configuration(self):
         catalog = {item["key"]: item for item in service_routes.catalog()}
         self.assertEqual(set(SERVICES), set(catalog))

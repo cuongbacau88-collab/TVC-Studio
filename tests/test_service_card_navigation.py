@@ -42,7 +42,7 @@ class ServiceCardNavigationTests(unittest.TestCase):
 
     def test_service_metadata_is_rendered_before_catalog_fetch(self):
         self.assertIn("service-metadata.js?v=20260816.1", self.service_html)
-        self.assertLess(self.service_html.index("service-metadata.js"), self.service_html.index("service.js?v=20260816.1"))
+        self.assertLess(self.service_html.index("service-metadata.js"), self.service_html.index("service.js?v="))
         self.assertIn("window.TVCServiceDefinitions=definitions", self.metadata)
         self.assertIn("const definitions=window.TVCServiceDefinitions||{}", self.service_js)
         self.assertLess(self.service_js.index("$('serviceTitle').textContent=def.title"), self.service_js.index("await api('/api/services')"))

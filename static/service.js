@@ -90,7 +90,7 @@ async function init(){
 }
 $('serviceForm').addEventListener('submit',async event=>{
  event.preventDefault();if(submitting)return;submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
- try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f))}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
+ try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f));if(event.currentTarget.__creatorFiles.first)data.set('first_frame',event.currentTarget.__creatorFiles.first);if(event.currentTarget.__creatorFiles.last)data.set('last_frame',event.currentTarget.__creatorFiles.last)}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
  catch(e){setError(e.message)}
  finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key].button}
 });
