@@ -1,0 +1,35 @@
+.motion-file-preview{
+  width:100%;
+  max-width:100%;
+  padding:10px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  background:rgba(8,14,29,.46);
+  overflow:hidden;
+}
+.motion-file-preview[hidden],
+.motion-file-error[hidden]{display:none!important}
+.motion-file-preview img,
+.motion-file-preview video{
+  display:block;
+  width:100%;
+  max-width:100%;
+  max-height:320px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#080d18;
+}
+.motion-file-error{
+  display:block;
+  color:#ffb4c0!important;
+  font-size:11px;
+  line-height:1.45;
+}
+#motionDurationNote{display:block;line-height:1.45}
+.simple-render-btn:disabled:not(.is-submitting){
+  cursor:not-allowed!important;
+}
+@media(max-width:760px){
+  .motion-file-preview img,
+  .motion-file-preview video{max-height:240px}
+}

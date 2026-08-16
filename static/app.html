@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="/static/styles.css?v=20260815.4">
 
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
-<link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/theme-purple.css?v=20260815.4">
+<link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/theme-purple.css?v=20260815.4"><link rel="stylesheet" href="/static/motion-form.css?v=20260816.1">
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -63,20 +63,24 @@
         <div class="simple-field">
           <label>Ảnh nhân vật</label>
           <label class="simple-upload-row">
-            <input name="image" type="file" accept="image/*">
+            <input name="image" type="file" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp" required>
             <span class="simple-upload-button">♙ Tải ảnh nhân vật</span>
             <span class="simple-file-name" id="imgName">Chưa chọn ảnh</span>
           </label>
+          <div class="motion-file-preview" id="imagePreview" hidden></div>
+          <small class="motion-file-error" id="imageError" role="alert" hidden></small>
         </div>
 
         <div class="simple-field">
           <label>Video mẫu</label>
           <label class="simple-upload-row">
-            <input name="motion" type="file" accept="video/*">
+            <input name="motion" type="file" accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm" required>
             <span class="simple-upload-button">▣ Tải video mẫu</span>
             <span class="simple-file-name" id="vidName">Chưa chọn video</span>
           </label>
-          <small class="simple-duration-note">⏱ Video chuyển động nên có thời lượng từ 10s đến 20s.</small>
+          <div class="motion-file-preview" id="motionPreview" hidden></div>
+          <small class="motion-file-error" id="motionError" role="alert" hidden></small>
+          <small class="simple-duration-note" id="motionDurationNote">⏱ Video chuyển động phải có thời lượng từ 10s đến 20s.</small>
         </div>
 
         <div class="simple-field">
@@ -96,7 +100,7 @@
         </div>
 
         <div class="simple-render-actions single-render-action">
-          <button class="simple-render-btn quick single-render-btn" type="submit">
+          <button class="simple-render-btn quick single-render-btn" type="submit" disabled aria-disabled="true">
             <span>
               <b>🎬 Tạo Video</b>
               <small>1 lượt cho mỗi video</small>
@@ -221,7 +225,8 @@
 </div>
 <div class="toast" id="toast"></div>
 <script src="/static/global-toolbar.js?v=20260815.2"></script>
-<script src="/static/app.js"></script>
+<script src="/static/motion-form.js?v=20260816.1"></script>
+<script src="/static/app.js?v=20260816.1"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="/static/google-login.js?v=20260814.8"></script>
 </body></html>

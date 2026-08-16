@@ -39,6 +39,11 @@ DEFAULT_GOOGLE_CLIENT_ID = "839956952093-d9jubsvlu5sh64275j2rve1t36704v3r.apps.g
 # the fallback prevents the login button from disappearing if the service has
 # not picked up the variable yet.
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", DEFAULT_GOOGLE_CLIENT_ID).strip() or DEFAULT_GOOGLE_CLIENT_ID
+TEST_MODE = os.getenv("TEST_MODE", "false").strip().lower() in {"1", "true", "yes", "on"}
+try:
+    TEST_INITIAL_CREDITS = max(0, int(os.getenv("TEST_INITIAL_CREDITS", "100") or "100"))
+except ValueError:
+    TEST_INITIAL_CREDITS = 0
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "true").strip().lower() not in {"0", "false", "no", "off"}
 GPU_BACKEND_ENABLED = os.getenv("GPU_BACKEND_ENABLED", "false").strip().lower() in {"1", "true", "yes", "on"}
 GPU_API_BASE_URL = os.getenv("GPU_API_BASE_URL", "").strip()
@@ -518,19 +523,29 @@ async def google_login(request: Request, response: Response):
                 raise HTTPException(400, "Mã giới thiệu không tồn tại")
 
             # Google-only accounts receive a random unusable local password hash.
+            # Test credits are assigned only at account creation; returning users
+            # keep their persisted database balance unchanged.
+            initial_credits = TEST_INITIAL_CREDITS if TEST_MODE else 0
             random_password = secrets.token_urlsafe(48)
             cur = con.execute(
                 """INSERT INTO users(
                     email,name,password_hash,credits,role,created_at,referred_by_user_id,referred_at,google_sub,avatar_url
                 ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
                 (
-                    email, name, hash_password(random_password), 0, "user", now_iso(),
+                    email, name, hash_password(random_password), initial_credits, "user", now_iso(),
                     referrer["id"] if referrer else None,
                     now_iso() if referrer else None, google_sub, avatar_url
                 )
             )
             user_id = cur.lastrowid
             ensure_user_referral_code(con, user_id)
+            if initial_credits:
+                con.execute(
+                    """INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
+                       VALUES(?,?,?,?,?,?)""",
+                    (user_id, initial_credits, "TEST MODE: Google signup credits",
+                     "test_google_signup", user_id, now_iso())
+                )
 
         create_session(con, user_id, response)
         con.commit()

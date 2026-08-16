@@ -295,8 +295,15 @@ window.addEventListener('hashchange',()=>{
 });
 
 const form=$('#jobForm');
-form.image.onchange=()=>{$('#imgName').textContent=form.image.files[0]?.name||'Chưa chọn ảnh'};
-form.motion.onchange=()=>{$('#vidName').textContent=form.motion.files[0]?.name||'Chưa chọn video'};
+const renderBtns=$$('.simple-render-btn');
+const renderBtnHTML=new Map(renderBtns.map(btn=>[btn,btn.innerHTML]));
+let jobSubmitLocked=false;
+const motionForm=window.TVCMotionForm?.create(form,{onValidityChange:valid=>{
+  if(!jobSubmitLocked)renderBtns.forEach(btn=>{
+    btn.disabled=!valid;
+    btn.setAttribute('aria-disabled',valid?'false':'true');
+  });
+}});
 
 $$('.simple-aspect').forEach(btn=>btn.onclick=()=>{
   if(form.classList.contains('is-submitting')) return;
@@ -305,9 +312,6 @@ $$('.simple-aspect').forEach(btn=>btn.onclick=()=>{
   $('#aspectRatio').value=btn.dataset.aspect;
 });
 
-const renderBtns=$$('.simple-render-btn');
-const renderBtnHTML=new Map(renderBtns.map(btn=>[btn,btn.innerHTML]));
-let jobSubmitLocked=false;
 function jobRequestKey(){
   if(window.crypto?.randomUUID) return window.crypto.randomUUID();
   return 'job-'+Date.now()+'-'+Math.random().toString(36).slice(2);
@@ -317,8 +321,9 @@ function setJobSubmitLocked(locked,activeBtn=null){
   form.classList.toggle('is-submitting',locked);
   form.setAttribute('aria-busy',locked?'true':'false');
   renderBtns.forEach(btn=>{
-    btn.disabled=locked;
-    btn.setAttribute('aria-disabled',locked?'true':'false');
+    const disabled=locked||!motionForm?.isValid();
+    btn.disabled=disabled;
+    btn.setAttribute('aria-disabled',disabled?'true':'false');
     if(locked && btn===activeBtn){
       btn.innerHTML='<span><b>⏳ Đang tạo video...</b><small>Không cần bấm lại</small></span><em>…</em>';
     }else if(!locked){
@@ -330,12 +335,8 @@ function setJobSubmitLocked(locked,activeBtn=null){
 form.onsubmit=async e=>{
   e.preventDefault();
   if(jobSubmitLocked) return;
-  if(!form.image.files || !form.image.files.length){
-    say('Vui lòng chọn Ảnh nhân vật');
-    return;
-  }
-  if(!form.motion.files || !form.motion.files.length){
-    say('Vui lòng chọn Video mẫu');
+  if(!motionForm||!await motionForm.validateForSubmit()){
+    say(motionForm?.firstError()||'Vui lòng kiểm tra lại ảnh và video mẫu');
     return;
   }
   const submitter=e.submitter || renderBtns[0];
