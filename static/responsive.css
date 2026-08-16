@@ -36,6 +36,14 @@ input,select,textarea,button{max-width:100%;font:inherit}
 /* Mobile layout override: real reflow, never whole-page scaling. */
 @media(max-width:760px){
   html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+  body.app-body{
+    height:auto!important;
+    min-height:100vh!important;
+    min-height:100dvh!important;
+    overflow-x:clip!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
   body.has-global-toolbar{padding-top:0!important}
   .global-toolbar,.global-toolbar.liquid-toolbar{
     position:sticky!important;top:0!important;height:auto!important;min-height:0!important;
@@ -66,7 +74,12 @@ input,select,textarea,button{max-width:100%;font:inherit}
   }
   .mobile-tool-icon{font-size:14px!important;line-height:1!important}
   .mobile-tool-label{font-size:12px!important;line-height:1.1!important}
-  .has-global-toolbar.app-body .app-shell{height:auto!important;min-height:calc(100dvh - 86px)!important}
+  .has-global-toolbar.app-body .app-shell{
+    height:auto!important;
+    min-height:calc(100vh - 86px)!important;
+    min-height:calc(100dvh - 86px)!important;
+  }
+  .app-body .workspace{overflow:visible!important}
   .service-page .service-shell{
     width:100%!important;max-width:none!important;margin:0!important;
     padding:24px 14px max(60px,env(safe-area-inset-bottom,0px))!important
@@ -83,10 +96,10 @@ input,select,textarea,button{max-width:100%;font:inherit}
   .service-page .result-panel{min-height:320px}
   .service-page .result-placeholder{min-height:280px}
   #tab-create, .simple-create-card{
-    padding-bottom: max(90px, env(safe-area-inset-bottom, 40px)) !important;
+    padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
   }
   .simple-render-actions{
-    margin-bottom: 24px !important;
+    margin-bottom:calc(24px + env(safe-area-inset-bottom,0px))!important;
   }
 }
 @media(max-width:340px){
@@ -507,3 +520,12 @@ body.tvc-fixed-toolbar .global-toolbar,body.tvc-fixed-toolbar .global-toolbar.li
 @media(prefers-reduced-motion:reduce){
   .ai-tools-drawer{transition-duration:.01ms!important}
 }
+
+/* Service cards are navigable as a whole; decorative layers never intercept taps. */
+.service-navigation-card{cursor:pointer}
+.service-navigation-card:focus-visible{
+  outline:2px solid #c084fc;
+  outline-offset:4px;
+}
+.service-navigation-card::before,
+.service-navigation-card::after{pointer-events:none!important}

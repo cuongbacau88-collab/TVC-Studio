@@ -1,12 +1,7 @@
 const key=location.pathname.split('/').filter(Boolean).pop();
 const $=id=>document.getElementById(id);
 let config=null,currentJob=null,pollTimer=null,submitting=false;
-const definitions={
- video_generation:{title:'AI Video Creator',desc:'Biến câu lệnh, hình ảnh hoặc nội dung tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.',button:'Tạo video'},
- outfit_change:{title:'AI Đổi Trang Phục',desc:'Thay trang phục, ưu tiên giữ khuôn mặt và danh tính.',button:'Đổi trang phục'},
- background_change:{title:'AI Đổi Bối Cảnh',desc:'Thay bối cảnh bằng ảnh tham chiếu hoặc mô tả.',button:'Đổi bối cảnh'},
- image_upscale:{title:'AI Nâng Cấp Ảnh',desc:'Tăng độ phân giải và so sánh ảnh trước/sau.',button:'Nâng cấp ảnh'}
-};
+const definitions=window.TVCServiceDefinitions||{};
 const prompts={
  vi:{outfit:'Chỉ thay trang phục của nhân vật trong ảnh gốc theo ảnh trang phục tham chiếu. Giữ nguyên khuôn mặt, danh tính, kiểu tóc, tông da, tỷ lệ cơ thể, tư thế, góc máy, ánh sáng và bối cảnh. Không lấy khuôn mặt, cơ thể hoặc tư thế từ ảnh trang phục.',background:'Chỉ thay bối cảnh của ảnh gốc theo ảnh tham chiếu hoặc mô tả. Giữ nguyên tuyệt đối khuôn mặt, danh tính, kiểu tóc, trang phục, cơ thể, tư thế, góc máy và bố cục nhân vật. Ghép cảnh tự nhiên, giữ viền tóc sạch và không làm da bị ám màu theo nền.'},
  en:{outfit:'Only replace the original character’s clothing using the outfit reference. Preserve the face, identity, hairstyle, skin tone, body proportions, pose, camera angle, lighting, and background. Do not copy the face, body, or pose from the outfit image.',background:'Only replace the original image background using the reference image or description. Strictly preserve the face, identity, hairstyle, clothing, body, pose, camera angle, and character composition. Blend naturally, keep clean hair edges, and prevent background color spill on skin.'}

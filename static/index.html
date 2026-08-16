@@ -42,7 +42,7 @@
     </section>
 
     <div class="model-grid">
-      <article class="model-card live motion-featured">
+      <article class="model-card live motion-featured service-navigation-card" data-service-href="/app?tool=motion" role="link" tabindex="0" aria-label="Mở AI Motion Studio">
         <div class="model-visual motion motion-video-shell">
           <video class="model-preview-video motion-preview-video" autoplay muted loop playsinline preload="metadata" poster="/static/images/card_motion.png">
             <source src="/static/videos/card_motion.mp4" type="video/mp4">
@@ -61,7 +61,7 @@
         </div>
       </article>
 
-      <article class="model-card coming">
+      <article class="model-card coming service-navigation-card" data-service-href="/services/video_generation" role="link" tabindex="0" aria-label="Mở AI Video Creator">
         <div class="model-visual service-image-visual">
           <img class="model-preview-image service-card-image" src="/static/images/services/ai-tao-video.png" alt="AI Video Creator">
         </div>
@@ -76,7 +76,7 @@
         </div>
       </article>
 
-      <article class="model-card coming">
+      <article class="model-card coming service-navigation-card" data-service-href="/services/outfit_change" role="link" tabindex="0" aria-label="Mở AI Đổi Trang Phục">
         <div class="model-visual service-image-visual">
           <img class="model-preview-image service-card-image" src="/static/images/services/ai-doi-trang-phuc.png" alt="AI Đổi Trang Phục">
         </div>
@@ -89,7 +89,7 @@
         </div>
       </article>
 
-      <article class="model-card coming">
+      <article class="model-card coming service-navigation-card" data-service-href="/services/background_change" role="link" tabindex="0" aria-label="Mở AI Đổi Bối Cảnh">
         <div class="model-visual service-image-visual">
           <img class="model-preview-image service-card-image" src="/static/images/services/ai-doi-boi-canh.png" alt="AI Đổi Bối Cảnh">
         </div>
@@ -103,7 +103,7 @@
       </article>
 
 
-      <article class="model-card coming">
+      <article class="model-card coming service-navigation-card" data-service-href="/services/image_upscale" role="link" tabindex="0" aria-label="Mở AI Nâng Cấp Ảnh">
         <div class="model-visual service-image-visual">
           <img class="model-preview-image service-card-image" src="/static/images/services/ai-nang-cap-anh.png" alt="AI Nâng Cấp Ảnh">
         </div>
@@ -442,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script src="/static/global-toolbar.js?v=20260815.2"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
+<script src="/static/service-card-navigation.js?v=20260816.1"></script>
 <script src="/static/google-login.js?v=20260814.8"></script>
 </body>
 </html>
