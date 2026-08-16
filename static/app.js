@@ -330,6 +330,14 @@ function setJobSubmitLocked(locked,activeBtn=null){
 form.onsubmit=async e=>{
   e.preventDefault();
   if(jobSubmitLocked) return;
+  if(!form.image.files || !form.image.files.length){
+    say('Vui lòng chọn Ảnh nhân vật');
+    return;
+  }
+  if(!form.motion.files || !form.motion.files.length){
+    say('Vui lòng chọn Video mẫu');
+    return;
+  }
   const submitter=e.submitter || renderBtns[0];
   setJobSubmitLocked(true,submitter);
   // One public render mode: backend also enforces one TVC per job.

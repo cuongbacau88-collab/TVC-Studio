@@ -82,6 +82,12 @@ input,select,textarea,button{max-width:100%;font:inherit}
   .service-page .service-submit,.service-page .secondary{min-height:46px;font-size:15px}
   .service-page .result-panel{min-height:320px}
   .service-page .result-placeholder{min-height:280px}
+  #tab-create, .simple-create-card{
+    padding-bottom: max(90px, env(safe-area-inset-bottom, 40px)) !important;
+  }
+  .simple-render-actions{
+    margin-bottom: 24px !important;
+  }
 }
 @media(max-width:340px){
   .global-toolbar-inner{padding-inline:14px!important}
