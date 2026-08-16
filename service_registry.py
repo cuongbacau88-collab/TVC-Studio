@@ -26,8 +26,9 @@ class ServiceDefinition:
     def model(self) -> str:
         return os.getenv(self.model_env, "").strip()
 
-def _optional_nonnegative_int(name: str) -> int | None:
-    value = os.getenv(name, "").strip()
+def _optional_nonnegative_int(name: str, default: int | None = None) -> int | None:
+    fallback = "" if default is None else str(default)
+    value = os.getenv(name, fallback).strip()
     if not value:
         return None
     parsed = int(value)
@@ -39,7 +40,7 @@ def _optional_nonnegative_int(name: str) -> int | None:
 SERVICES = {
     "video_generation": ServiceDefinition(
         "video_generation", "AI Video Creator", "video_generation", "VIDEO",
-        "video", 100, _optional_nonnegative_int("VIDEO_USAGE_COST"),
+        "video", 100, _optional_nonnegative_int("VIDEO_USAGE_COST", 1),
         "VIDEO_MODEL", ("prompt",), ("reference_image",),
     ),
     "outfit_change": ServiceDefinition(
@@ -71,7 +72,7 @@ PUBLIC_SERVICE_CONFIG = {
     "video_generation": {
         "aspect_ratios": ["auto", "21:9", "16:9", "4:3", "1:1", "3:4", "9:16"],
         "durations": [
-            value.strip() for value in os.getenv("VIDEO_ALLOWED_DURATIONS", "").split(",")
+            value.strip() for value in os.getenv("VIDEO_ALLOWED_DURATIONS", "5,10").split(",")
             if value.strip()
         ],
     },

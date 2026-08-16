@@ -81,7 +81,8 @@ async function init(){
  catch(e){const notice=$('authNotice'),link=$('serviceLoginCta');notice.classList.remove('hidden');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}
  $('serviceCost').textContent=config.free?'Miễn phí • xử lý khi GPU rảnh':config.usage==null?'Mức lượt chưa được cấu hình':`${config.usage} lượt / job`;
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));
- if(unavailable){$('configNotice').textContent=!config.configured?'Dịch vụ chưa kết nối máy chủ xử lý.':'Model chưa được cấu hình thời lượng hoặc mức lượt sử dụng.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}
+ if(unavailable){$('configNotice').textContent='Cấu hình dịch vụ chưa đầy đủ.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}
+ else if(config.render_mode==='worker'&&!config.worker_configured){$('configNotice').textContent='GPU worker hiện chưa online. Bạn vẫn có thể tạo job; job sẽ chờ worker và tự thất bại/hoàn lượt nếu quá thời gian.';$('configNotice').classList.remove('hidden')}
  renderFields();$('requestKey').value=requestKey();
  if(!authenticated){$('submitButton').disabled=true;$('submitButton').classList.add('hidden')}
  const requestedJob=new URLSearchParams(location.search).get('job');

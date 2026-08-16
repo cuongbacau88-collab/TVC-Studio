@@ -22,7 +22,8 @@ class MockServiceJobTests(unittest.TestCase):
             "BASE": app.BASE, "DATA": app.DATA, "UPLOADS": app.UPLOADS,
             "OUTPUTS": app.OUTPUTS, "DB_PATH": app.DB_PATH, "storage": app.storage,
             "RENDER_MODE": app.RENDER_MODE,
-            "JOB_QUEUE_TIMEOUT_SECONDS": app.JOB_QUEUE_TIMEOUT_SECONDS,
+            "WORKER_UNAVAILABLE_TIMEOUT_SECONDS": app.WORKER_UNAVAILABLE_TIMEOUT_SECONDS,
+            "WORKER_HEARTBEAT_TIMEOUT_SECONDS": app.WORKER_HEARTBEAT_TIMEOUT_SECONDS,
             "JOB_RENDER_TIMEOUT_SECONDS": app.JOB_RENDER_TIMEOUT_SECONDS,
         }
         app.BASE = self.root
@@ -35,7 +36,8 @@ class MockServiceJobTests(unittest.TestCase):
         (self.root / "static" / "videos").mkdir(parents=True)
         app.storage = LocalStorage(app.DATA)
         app.RENDER_MODE = "mock"
-        app.JOB_QUEUE_TIMEOUT_SECONDS = 60
+        app.WORKER_UNAVAILABLE_TIMEOUT_SECONDS = 60
+        app.WORKER_HEARTBEAT_TIMEOUT_SECONDS = 60
         app.JOB_RENDER_TIMEOUT_SECONDS = 60
         app.init_db()
         con = app.db()
@@ -219,7 +221,8 @@ class MockServiceJobTests(unittest.TestCase):
         catalog = {item["key"]: item for item in service_routes.catalog()}
         self.assertEqual(set(SERVICES), set(catalog))
         self.assertTrue(all(item["configured"] for item in catalog.values()))
-        self.assertEqual([app.MOCK_VIDEO_DURATION], catalog["video_generation"]["durations"])
+        self.assertEqual(["5", "10"], catalog["video_generation"]["durations"])
+        self.assertEqual(1, catalog["video_generation"]["usage"])
 
 
     def test_history_maps_all_services_and_frontend_submit_is_locked(self):

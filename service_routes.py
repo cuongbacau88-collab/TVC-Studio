@@ -83,12 +83,49 @@ def validate_worker_completion(app, row, payload):
     return None
 
 
+def _dispatch_waiting_job(app, row):
+    if app.RENDER_MODE != "worker" or row["worker_job_id"] or row["status"] != "waiting":
+        return dict(row)
+    adapter = app.service_adapters[row["service"]]
+    service = SERVICES[row["service"]]
+    if not adapter.config.configured or not service.model:
+        return dict(row)
+    try:
+        input_data = json.loads(row["input_json"] or "{}")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        app.fail_job_once(row["id"], "Dữ liệu đầu vào của job không hợp lệ")
+        return None
+    opened = {}
+    try:
+        for field, key in (input_data.get("files") or {}).items():
+            path = app.storage.path(str(key))
+            if not path.is_file():
+                app.fail_job_once(row["id"], "File đầu vào của job không còn tồn tại")
+                return None
+            opened[field] = (path.name, path.open("rb"), mimetypes.guess_type(path.name)[0] or "application/octet-stream")
+        accepted = adapter.submit(row["client_job_id"], input_data, opened)
+    except WorkerAdapterError:
+        return dict(row)
+    finally:
+        for _, source, _ in opened.values():
+            source.close()
+    con = app.db()
+    con.execute(
+        """UPDATE jobs SET worker_job_id=?,worker_status=?,updated_at=?
+           WHERE id=? AND status='waiting' AND worker_job_id IS NULL""",
+        (accepted["job_id"], accepted["status"], app.now_iso(), row["id"]),
+    )
+    con.commit()
+    fresh = con.execute("SELECT * FROM jobs WHERE id=?", (row["id"],)).fetchone()
+    con.close()
+    return dict(fresh) if fresh else None
+
+
 def refresh_job(user_id: int, job_id: int):
     app = core()
-    app.recover_stale_jobs(user_id)
     con = app.db()
     row = con.execute(
-        "SELECT * FROM jobs WHERE id=? AND user_id=? AND worker_job_id IS NOT NULL",
+        "SELECT * FROM jobs WHERE id=? AND user_id=?",
         (job_id, user_id)
     ).fetchone()
     con.close()
@@ -96,6 +133,11 @@ def refresh_job(user_id: int, job_id: int):
         return dict(row) if row else None
     if app.RENDER_MODE == "mock" and row["status"] == "waiting":
         return app.process_mock_job(job_id)
+    if row["status"] == "waiting" and not row["worker_job_id"]:
+        dispatched = _dispatch_waiting_job(app, row)
+        if dispatched is None or not dispatched.get("worker_job_id"):
+            return dispatched or dict(row)
+        row = dispatched
     if row["status"] == "upscaling":
         return video_upscale_pipeline.persist(app, job_id, video_upscale_pipeline.poll(app, dict(row)))
     try:
@@ -163,10 +205,12 @@ def catalog():
         result.append({
             "key": key, "title": definition.title, "output_kind": definition.output_kind,
             "free": usage == 0, "usage": usage, "usage_unit": "lượt",
-            "configured": mock_mode or (
-                app.service_adapters[key].config.configured and bool(definition.model)
+            "configured": usage is not None and (
+                key != "video_generation" or bool(public.get("durations"))
             ),
+            "worker_configured": mock_mode or app.service_adapters[key].config.configured,
             "model_configured": mock_mode or bool(definition.model),
+            "render_mode": app.RENDER_MODE,
             "poll_interval": app.WORKER_POLL_INTERVAL,
             "priority": "high" if definition.priority >= 100 else "idle",
             **public,
@@ -292,12 +336,6 @@ async def create_job(
         raise HTTPException(404, "Dịch vụ không tồn tại")
     adapter = app.service_adapters[service_key]
     mock_mode = app.RENDER_MODE == "mock"
-    if not mock_mode and not adapter.config.configured:
-        raise HTTPException(503, "Dịch vụ chưa kết nối máy chủ xử lý")
-    if not mock_mode and not service.model:
-        raise HTTPException(503, "Dịch vụ chưa được cấu hình model")
-    if not mock_mode and service_key == "background_change" and not __import__("service_registry").BACKGROUND_MASK_MODEL:
-        raise HTTPException(503, "Dịch vụ chưa được cấu hình model tạo mask")
     if not mock_mode and service.usage_cost is None:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
     effective_cost = service.usage_cost if service.usage_cost is not None else 0
@@ -415,16 +453,15 @@ async def create_job(
             "file_roles": file_roles,
             "reference_video_metadata": reference_video_metadata,
         }
-        accepted = (
-            {"job_id": f"mock-{job_id}", "status": "queued"}
-            if mock_mode else adapter.submit(client_job_id, payload, opened)
-        )
-    except WorkerAdapterError as error:
-        app.storage.delete_prefix(prefix)
-        cleanup = app.db()
-        cleanup.execute("DELETE FROM jobs WHERE id=? AND credit_charged=0", (job_id,))
-        cleanup.commit(); cleanup.close()
-        raise worker_error(error)
+        if mock_mode:
+            accepted = {"job_id": f"mock-{job_id}", "status": "queued"}
+        elif adapter.config.configured and service.model:
+            try:
+                accepted = adapter.submit(client_job_id, payload, opened)
+            except WorkerAdapterError:
+                accepted = {"job_id": None, "status": "worker_unavailable"}
+        else:
+            accepted = {"job_id": None, "status": "worker_unavailable"}
     except Exception:
         app.storage.delete_prefix(prefix)
         cleanup = app.db()
@@ -487,6 +524,10 @@ def get_job(service_key: str, job_id: int, request: Request):
             raise HTTPException(404, "Không tìm thấy job")
         return public_job(row)
     row = refresh_job(user["id"], job_id)
+    app.recover_stale_jobs(user["id"])
+    con = app.db()
+    row = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (job_id, user["id"])).fetchone()
+    con.close()
     if not row or row["service"] != service_key:
         raise HTTPException(404, "Không tìm thấy job")
     return public_job(row)

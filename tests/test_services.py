@@ -129,14 +129,16 @@ class ServiceAPITests(unittest.TestCase):
         self.assertEqual(0, con.execute("SELECT COUNT(*) c FROM jobs").fetchone()["c"])
         con.close()
 
-    def test_offline_worker_rejects_without_creating_job(self):
+    def test_offline_worker_accepts_job_into_local_queue(self):
         app.service_adapters["outfit_change"] = FakeAdapter(False)
-        with self.assertRaises(Exception) as raised:
-            self.submit_outfit()
-        self.assertEqual(503, raised.exception.status_code)
-        self.assertIn("chưa kết nối", raised.exception.detail)
+        created = self.submit_outfit()
+        self.assertEqual("waiting", created["status"])
         con = app.db()
-        self.assertEqual(0, con.execute("SELECT COUNT(*) c FROM jobs").fetchone()["c"])
+        row = con.execute("SELECT * FROM jobs WHERE id=?", (created["id"],)).fetchone()
+        self.assertEqual("waiting", row["status"])
+        self.assertIsNone(row["worker_job_id"])
+        self.assertEqual("worker_unavailable", row["worker_status"])
+        self.assertEqual(1, con.execute("SELECT COUNT(*) c FROM jobs").fetchone()["c"])
         con.close()
 
     def test_failure_normalization_and_refund_is_once(self):

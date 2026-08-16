@@ -47,11 +47,20 @@ try:
 except ValueError:
     TEST_INITIAL_CREDITS = 0
 try:
-    JOB_QUEUE_TIMEOUT_SECONDS = max(
-        1, int(os.getenv("JOB_QUEUE_TIMEOUT_SECONDS", "60" if TEST_MODE else "300") or "300")
+    WORKER_UNAVAILABLE_TIMEOUT_SECONDS = max(
+        1, int(os.getenv(
+            "WORKER_UNAVAILABLE_TIMEOUT_SECONDS",
+            os.getenv("JOB_QUEUE_TIMEOUT_SECONDS", "60" if TEST_MODE else "300"),
+        ) or "300")
     )
 except ValueError:
-    JOB_QUEUE_TIMEOUT_SECONDS = 60 if TEST_MODE else 300
+    WORKER_UNAVAILABLE_TIMEOUT_SECONDS = 60 if TEST_MODE else 300
+try:
+    WORKER_HEARTBEAT_TIMEOUT_SECONDS = max(
+        1, int(os.getenv("WORKER_HEARTBEAT_TIMEOUT_SECONDS", "90") or "90")
+    )
+except ValueError:
+    WORKER_HEARTBEAT_TIMEOUT_SECONDS = 90
 try:
     JOB_RENDER_TIMEOUT_SECONDS = max(
         1, int(os.getenv("JOB_RENDER_TIMEOUT_SECONDS", "1800") or "1800")
@@ -142,6 +151,12 @@ def init_db():
         claimed_at TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS worker_heartbeats(
+        worker_id TEXT PRIMARY KEY,
+        status TEXT NOT NULL,
+        current_job_id INTEGER,
+        last_heartbeat TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS job_submit_guards(
         user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -707,6 +722,43 @@ def fail_job_once(job_id: int, error: str) -> bool:
         con.close()
 
 
+def record_worker_heartbeat(worker_id: str, status: str, current_job_id: int | None = None):
+    worker_id = worker_id if isinstance(worker_id, str) else "default-worker"
+    worker_id = (worker_id or "default-worker").strip()[:128] or "default-worker"
+    normalized = status if status in {"idle", "busy"} else "idle"
+    con = db()
+    con.execute(
+        """INSERT INTO worker_heartbeats(worker_id,status,current_job_id,last_heartbeat)
+           VALUES(?,?,?,?)
+           ON CONFLICT(worker_id) DO UPDATE SET status=excluded.status,
+             current_job_id=excluded.current_job_id,last_heartbeat=excluded.last_heartbeat""",
+        (worker_id, normalized, current_job_id, now_iso()),
+    )
+    con.commit()
+    con.close()
+
+
+def worker_presence(reference_time: datetime | None = None) -> dict:
+    reference_time = reference_time or datetime.now(timezone.utc)
+    con = db()
+    rows = con.execute("SELECT * FROM worker_heartbeats").fetchall()
+    con.close()
+    fresh = []
+    for row in rows:
+        try:
+            heartbeat = datetime.fromisoformat(row["last_heartbeat"])
+            if heartbeat.tzinfo is None:
+                heartbeat = heartbeat.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            continue
+        if (reference_time - heartbeat).total_seconds() <= WORKER_HEARTBEAT_TIMEOUT_SECONDS:
+            fresh.append(dict(row))
+    if not fresh:
+        return {"state": "offline", "workers": []}
+    state = "busy" if all(row["status"] == "busy" for row in fresh) else "idle"
+    return {"state": state, "workers": fresh}
+
+
 def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | None = None) -> int:
     reference_time = reference_time or datetime.now(timezone.utc)
     con = db()
@@ -718,6 +770,7 @@ def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | No
     rows = con.execute(sql, params).fetchall()
     con.close()
     stale = []
+    presence = worker_presence(reference_time)
     for row in rows:
         try:
             updated = datetime.fromisoformat(row["updated_at"])
@@ -726,14 +779,22 @@ def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | No
         except (TypeError, ValueError):
             updated = datetime.fromtimestamp(0, timezone.utc)
         queued = row["status"] in {"waiting", "submit_retry"}
-        timeout = JOB_QUEUE_TIMEOUT_SECONDS if queued else JOB_RENDER_TIMEOUT_SECONDS
-        if (reference_time - updated).total_seconds() > timeout:
-            error = (
-                "Không có GPU worker khả dụng trong thời gian cho phép"
-                if queued else
-                "Render bị gián đoạn hoặc worker không phản hồi trong thời gian cho phép"
-            )
-            stale.append((row["id"], error))
+        age = (reference_time - updated).total_seconds()
+        if queued:
+            if presence["state"] in {"idle", "busy"}:
+                continue
+            if age > WORKER_UNAVAILABLE_TIMEOUT_SECONDS:
+                stale.append((row["id"], "Không có GPU worker khả dụng trong thời gian cho phép"))
+            continue
+        current_ids = {
+            worker["current_job_id"] for worker in presence["workers"]
+            if worker.get("current_job_id") is not None
+        }
+        heartbeat_matches = row["id"] in current_ids
+        if not heartbeat_matches and age > WORKER_HEARTBEAT_TIMEOUT_SECONDS:
+            stale.append((row["id"], "GPU worker mất heartbeat khi đang render"))
+        elif age > JOB_RENDER_TIMEOUT_SECONDS:
+            stale.append((row["id"], "Render vượt quá thời gian xử lý cho phép"))
     for job_id, error in stale:
         fail_job_once(job_id, error)
     return len(stale)
@@ -957,14 +1018,14 @@ def me(request: Request):
 @app.get("/api/jobs")
 def my_jobs(request: Request):
     u = current_user(request)
-    recover_stale_jobs(u["id"])
     refresh_gpu_jobs(u["id"])
     con = db()
-    service_rows = con.execute("SELECT id FROM jobs WHERE user_id=? AND service IS NOT NULL AND status IN ('waiting','running','upscaling') ORDER BY id DESC LIMIT 20", (u["id"],)).fetchall()
+    service_rows = con.execute("SELECT id FROM jobs WHERE user_id=? AND service IS NOT NULL AND service!='motion_studio' AND status IN ('waiting','running','upscaling') ORDER BY id DESC LIMIT 20", (u["id"],)).fetchall()
     con.close()
     from service_routes import refresh_job as refresh_service_job
     for service_row in service_rows:
         refresh_service_job(u["id"], service_row["id"])
+    recover_stale_jobs(u["id"])
     con = db()
     rows = con.execute("""
         SELECT id,model,service,aspect_ratio,quality,prompt,cost,status,progress,error,created_at,updated_at,
@@ -1703,9 +1764,32 @@ def check_worker(auth: Optional[str]):
     if not auth or not hmac.compare_digest(auth, WORKER_TOKEN):
         raise HTTPException(401, "Worker token không hợp lệ")
 
-@app.post("/api/worker/claim")
-def worker_claim(x_worker_token: Optional[str] = Header(None)):
+@app.post("/api/worker/heartbeat")
+async def worker_heartbeat(
+    request: Request,
+    x_worker_token: Optional[str] = Header(None),
+    x_worker_id: Optional[str] = Header(None),
+):
     check_worker(x_worker_token)
+    body = await request.json()
+    status = str(body.get("status") or "idle").lower()
+    current_job_id = body.get("current_job_id")
+    try:
+        current_job_id = int(current_job_id) if current_job_id is not None else None
+    except (TypeError, ValueError):
+        current_job_id = None
+    record_worker_heartbeat(x_worker_id or "default-worker", status, current_job_id)
+    return {"ok": True, "state": worker_presence()["state"]}
+
+
+@app.post("/api/worker/claim")
+def worker_claim(
+    x_worker_token: Optional[str] = Header(None),
+    x_worker_id: Optional[str] = Header(None),
+):
+    check_worker(x_worker_token)
+    worker_id = x_worker_id if isinstance(x_worker_id, str) else "default-worker"
+    record_worker_heartbeat(worker_id, "idle")
     con = db()
     con.execute("BEGIN IMMEDIATE")
     row = con.execute("""SELECT * FROM jobs WHERE status='waiting' AND gpu_job_id IS NULL
@@ -1718,6 +1802,7 @@ def worker_claim(x_worker_token: Optional[str] = Header(None)):
     con.commit()
     row = con.execute("SELECT * FROM jobs WHERE id=?", (row["id"],)).fetchone()
     con.close()
+    record_worker_heartbeat(worker_id, "busy", row["id"])
     d = dict(row)
     d["image_url"] = f"/api/worker/files/{row['id']}/image"
     d["motion_url"] = f"/api/worker/files/{row['id']}/motion"
@@ -1735,8 +1820,13 @@ def worker_file(job_id: int, kind: str, x_worker_token: Optional[str] = Header(N
     return FileResponse(path)
 
 @app.post("/api/worker/jobs/{job_id}/progress")
-async def worker_progress(job_id: int, request: Request, x_worker_token: Optional[str] = Header(None)):
+async def worker_progress(
+    job_id: int, request: Request,
+    x_worker_token: Optional[str] = Header(None),
+    x_worker_id: Optional[str] = Header(None),
+):
     check_worker(x_worker_token)
+    record_worker_heartbeat(x_worker_id or "default-worker", "busy", job_id)
     body = await request.json()
     progress = max(1, min(99, int(body.get("progress", 1))))
     con = db()
@@ -1748,7 +1838,8 @@ async def worker_progress(job_id: int, request: Request, x_worker_token: Optiona
 async def worker_complete(
     job_id: int,
     output: UploadFile = File(...),
-    x_worker_token: Optional[str] = Header(None)
+    x_worker_token: Optional[str] = Header(None),
+    x_worker_id: Optional[str] = Header(None),
 ):
     check_worker(x_worker_token)
     ext = Path(output.filename or ".mp4").suffix.lower()
@@ -1785,6 +1876,7 @@ async def worker_complete(
     con.commit()
     completed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
     con.close()
+    record_worker_heartbeat(x_worker_id or "default-worker", "idle")
     if completed:
         values = video_upscale_pipeline.start(sys.modules[__name__], dict(completed))
         video_upscale_pipeline.persist(sys.modules[__name__], job_id, values)
@@ -1792,7 +1884,11 @@ async def worker_complete(
 
 
 @app.post("/api/worker/jobs/{job_id}/fail")
-async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[str] = Header(None)):
+async def worker_fail(
+    job_id: int, request: Request,
+    x_worker_token: Optional[str] = Header(None),
+    x_worker_id: Optional[str] = Header(None),
+):
     check_worker(x_worker_token)
     body = await request.json()
     error = (body.get("error") or "Render failed")[:1000]
@@ -1802,6 +1898,7 @@ async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[st
     if not exists:
         raise HTTPException(404, "Không tìm thấy job")
     changed = fail_job_once(job_id, error)
+    record_worker_heartbeat(x_worker_id or "default-worker", "idle")
     return {"ok": True, "changed": changed}
 
 from service_routes import router as service_router
@@ -1835,6 +1932,17 @@ _reconcile_stop = threading.Event()
 def _job_reconcile_loop():
     while not _reconcile_stop.wait(JOB_RECONCILE_INTERVAL_SECONDS):
         try:
+            from service_routes import refresh_job as refresh_service_job
+            con = db()
+            pending = con.execute(
+                """SELECT id,user_id FROM jobs
+                   WHERE service IS NOT NULL AND service!='motion_studio'
+                     AND status IN ('waiting','running','upscaling')
+                   ORDER BY id LIMIT 100"""
+            ).fetchall()
+            con.close()
+            for row in pending:
+                refresh_service_job(row["user_id"], row["id"])
             recover_stale_jobs()
         except Exception as error:
             print("[Job Reconciler Error]", error)
