@@ -24,6 +24,9 @@ def progress(jid,p):
 def download(path,dest):
     with req(path) as r, open(dest,"wb") as f: f.write(r.read())
 
+def fail(jid,error):
+    req(f"/api/worker/jobs/{jid}/fail",method="POST",data={"error":str(error)[:1000]}).read()
+
 def complete(jid,output_path):
     boundary="----MotionHubBoundary"
     raw=pathlib.Path(output_path).read_bytes()
@@ -33,6 +36,7 @@ def complete(jid,output_path):
 
 print("TVC Studio AI Smart Worker running:", BASE)
 while True:
+    jid=None
     try:
         payload=claim()
         job=payload.get("job")
@@ -68,10 +72,16 @@ while True:
             
             from ai_motion_animator import render_ai_motion_video
             ok = render_ai_motion_video(pathlib.Path(image_dest), pathlib.Path(motion_dest), pathlib.Path(out_dest))
-            final_out = out_dest if ok and os.path.exists(out_dest) and os.path.getsize(out_dest) > 1000 else motion_dest
-            complete(jid, final_out)
+            if not ok or not os.path.exists(out_dest) or os.path.getsize(out_dest) <= 1000:
+                fail(jid, "Motion renderer did not create a valid output")
+                print("Failed job #", jid)
+                continue
+            complete(jid, out_dest)
             print("Completed job #", jid)
     except KeyboardInterrupt:
         break
     except Exception as e:
+        if jid is not None:
+            try: fail(jid, e)
+            except Exception as report_error: print("Could not report worker failure:", report_error)
         print("Worker error:", e); time.sleep(4)

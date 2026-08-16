@@ -30,6 +30,11 @@ MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
 JOB_SUBMIT_INFLIGHT_SECONDS = 600
 JOB_SUBMIT_COOLDOWN_SECONDS = 8
+RENDER_MODE = os.getenv("RENDER_MODE", "worker").strip().lower()
+try:
+    JOB_STALE_TIMEOUT_SECONDS = max(60, int(os.getenv("JOB_STALE_TIMEOUT_SECONDS", "1800") or "1800"))
+except ValueError:
+    JOB_STALE_TIMEOUT_SECONDS = 1800
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
@@ -621,6 +626,114 @@ def logout(request: Request, response: Response):
     response.delete_cookie("mh_session", path="/")
     return {"ok": True}
 
+def _file_digest(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def validate_local_output(job, output_path: Path) -> str | None:
+    try:
+        output = output_path.resolve(strict=True)
+    except (OSError, RuntimeError):
+        return "Worker không tạo file kết quả"
+    if not output.is_file() or output.stat().st_size <= 0:
+        return "Worker tạo file kết quả rỗng"
+    motion_value = str(job["video_path"] or "") if "video_path" in job.keys() else ""
+    if motion_value:
+        motion = (BASE / motion_value).resolve()
+        if output == motion:
+            return "Worker trả video chuyển động đầu vào làm kết quả"
+        if motion.is_file() and output.stat().st_size == motion.stat().st_size and _file_digest(output) == _file_digest(motion):
+            return "Worker trả video chuyển động đầu vào làm kết quả"
+    demo_root = (BASE / "static" / "videos").resolve()
+    if demo_root.is_dir():
+        output_digest = None
+        for candidate in demo_root.iterdir():
+            if not candidate.is_file() or candidate.suffix.lower() not in {".mp4", ".mov", ".webm"}:
+                continue
+            if output == candidate.resolve():
+                return "Worker trả video demo/sample làm kết quả"
+            if candidate.stat().st_size == output.stat().st_size:
+                output_digest = output_digest or _file_digest(output)
+                if output_digest == _file_digest(candidate):
+                    return "Worker trả video demo/sample làm kết quả"
+    return None
+
+
+def fail_job_once(job_id: int, error: str) -> bool:
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        job = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+        if not job or job["status"] in {"failed", "cancelled"}:
+            con.commit()
+            return False
+        charged = con.execute(
+            "SELECT 1 FROM credit_ledger WHERE user_id=? AND ref_type='job' AND ref_id=? LIMIT 1",
+            (job["user_id"], job_id)
+        ).fetchone()
+        should_refund = bool((job["credit_charged"] or charged) and not job["credit_refunded"])
+        if should_refund:
+            con.execute("UPDATE users SET credits=credits+? WHERE id=?", (job["cost"], job["user_id"]))
+            con.execute(
+                "INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)",
+                (job["user_id"], job["cost"], f"Hoàn lượt job lỗi #{job_id}", "job_refund", job_id, now_iso())
+            )
+        con.execute(
+            "UPDATE jobs SET status='failed',error=?,output_path=NULL,credit_reserved=0,credit_refunded=?,updated_at=? WHERE id=?",
+            (str(error or "Render thất bại")[:1000], 1 if should_refund or job["credit_refunded"] else 0, now_iso(), job_id)
+        )
+        con.commit()
+        return True
+    finally:
+        con.close()
+
+
+def recover_stale_jobs(user_id: int | None = None, reference_time: datetime | None = None) -> int:
+    reference_time = reference_time or datetime.now(timezone.utc)
+    con = db()
+    sql = "SELECT id,updated_at FROM jobs WHERE status IN ('waiting','running','upscaling','submit_retry')"
+    params = ()
+    if user_id is not None:
+        sql += " AND user_id=?"
+        params = (user_id,)
+    rows = con.execute(sql, params).fetchall()
+    con.close()
+    stale = []
+    for row in rows:
+        try:
+            updated = datetime.fromisoformat(row["updated_at"])
+            if updated.tzinfo is None:
+                updated = updated.replace(tzinfo=timezone.utc)
+        except (TypeError, ValueError):
+            updated = datetime.fromtimestamp(0, timezone.utc)
+        if (reference_time - updated).total_seconds() > JOB_STALE_TIMEOUT_SECONDS:
+            stale.append(row["id"])
+    for job_id in stale:
+        fail_job_once(job_id, "Render bị gián đoạn hoặc worker không phản hồi trong thời gian cho phép")
+    return len(stale)
+
+
+def _remote_output_error(job, payload: dict, response) -> str | None:
+    locator = next((str(payload[key]) for key in ("output_id", "output_url", "video_url") if payload.get(key)), "")
+    lowered = locator.lower()
+    if any(marker in lowered for marker in ("/static/videos/", "demo.", "sample.", "placeholder")):
+        return "Worker trả video demo/sample làm kết quả"
+    inputs = {str(job[key]) for key in ("gpu_motion_upload_id", "video_path") if key in job.keys() and job[key]}
+    if locator and locator in inputs:
+        return "Worker trả video chuyển động đầu vào làm kết quả"
+    headers = getattr(response, "headers", {}) or {}
+    if str(headers.get("content-length", "")).strip() == "0":
+        return "Worker trả file kết quả rỗng"
+    content_type = str(headers.get("content-type", "")).lower()
+    if content_type and not content_type.startswith("video/"):
+        return "Worker trả kết quả không phải video"
+    return None
+
+
 GPU_STATUS_MAP = {
     "queued": ("waiting", 0), "running": ("running", 50),
     "succeeded": ("done", 100), "failed": ("failed", 100),
@@ -649,6 +762,17 @@ def apply_gpu_status(user_id: int, local_job_id: int, payload: dict):
         job = con.execute("SELECT * FROM jobs WHERE id=? AND user_id=?", (local_job_id, user_id)).fetchone()
         if not job:
             con.rollback(); return
+        if gpu_status == "succeeded":
+            try:
+                upstream = gpu_api.output(str(user_id), job["gpu_job_id"])
+                validation_error = _remote_output_error(job, payload, upstream)
+                upstream.close()
+            except GPUAPIError as exc:
+                validation_error = exc.message
+            if validation_error:
+                con.rollback()
+                fail_job_once(local_job_id, validation_error)
+                return
         if gpu_status in {"failed", "cancelled"} and job["credit_charged"] and not job["credit_refunded"]:
             con.execute("UPDATE users SET credits=credits+? WHERE id=?", (job["cost"], user_id))
             con.execute(
@@ -779,11 +903,13 @@ async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: 
             con.execute("""INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
                            VALUES(?,?,?,?,?,?)""",
                         (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso()))
-        con.execute("""UPDATE jobs SET image_path=?,video_path=?,gpu_job_id=?,gpu_status=?,status=?,
-                       progress=?,credit_reserved=0,credit_charged=1,error=NULL,gpu_error=NULL,updated_at=?
+        con.execute("""UPDATE jobs SET image_path=?,video_path=?,gpu_job_id=?,gpu_image_upload_id=?,
+                       gpu_motion_upload_id=?,gpu_status=?,status=?,progress=?,credit_reserved=0,
+                       credit_charged=1,error=NULL,gpu_error=NULL,updated_at=?
                        WHERE id=? AND user_id=?""",
                     (str(image_dest.relative_to(BASE)), str(motion_dest.relative_to(BASE)), gpu_job_id,
-                     str(accepted.get("status") or "queued"), local_status, progress, now_iso(), job_id, u["id"]))
+                     str(gpu_image["id"]), str(gpu_motion["id"]), str(accepted.get("status") or "queued"),
+                     local_status, progress, now_iso(), job_id, u["id"]))
         con.commit()
     except Exception:
         con.rollback()
@@ -809,6 +935,7 @@ def me(request: Request):
 @app.get("/api/jobs")
 def my_jobs(request: Request):
     u = current_user(request)
+    recover_stale_jobs(u["id"])
     refresh_gpu_jobs(u["id"])
     con = db()
     service_rows = con.execute("SELECT id FROM jobs WHERE user_id=? AND service IS NOT NULL AND status IN ('waiting','running','upscaling') ORDER BY id DESC LIMIT 20", (u["id"],)).fetchall()
@@ -819,7 +946,7 @@ def my_jobs(request: Request):
     con = db()
     rows = con.execute("""
         SELECT id,model,service,aspect_ratio,quality,prompt,cost,status,progress,error,created_at,updated_at,
-               CASE WHEN output_path IS NOT NULL OR (gpu_job_id IS NOT NULL AND status='done') THEN 1 ELSE 0 END AS has_output,
+               CASE WHEN status='done' AND (output_path IS NOT NULL OR gpu_job_id IS NOT NULL OR worker_job_id IS NOT NULL) THEN 1 ELSE 0 END AS has_output,
                CASE WHEN gpu_job_id IS NOT NULL AND status='waiting' THEN 1 ELSE 0 END AS can_cancel
         FROM jobs WHERE user_id=? ORDER BY id DESC LIMIT 100
     """, (u["id"],)).fetchall()
@@ -980,7 +1107,7 @@ async def create_job(
             (u["id"], -cost, f"Tạo job #{job_id}", "job", job_id, now_iso())
         )
         con.execute("""
-            UPDATE jobs SET image_path=?,video_path=?,status='waiting',updated_at=? WHERE id=?
+            UPDATE jobs SET image_path=?,video_path=?,status='waiting',credit_charged=1,updated_at=? WHERE id=?
         """, (str(image_dest.relative_to(BASE)), str(video_dest.relative_to(BASE)), now_iso(), job_id))
         con.execute(
             "UPDATE job_submit_guards SET locked_until=? WHERE user_id=? AND job_id=?",
@@ -1028,6 +1155,8 @@ def job_output(job_id: int, request: Request):
     filename_hd = f"tvc_job_{job_id}_hd.mp4"
     filename_std = f"tvc_job_{job_id}.mp4"
 
+    if row["status"] != "done":
+        raise HTTPException(409, "Kết quả chưa sẵn sàng")
     if row["video_upscale_status"] == "completed" and row["video_upscale_job_id"]:
         try:
             upstream = video_upscale_adapter.result(row["video_upscale_job_id"])
@@ -1058,8 +1187,10 @@ def job_output(job_id: int, request: Request):
     if not row["output_path"]:
         raise HTTPException(404, "Job chưa có kết quả")
     path = BASE / row["output_path"]
-    if not path.exists():
-        raise HTTPException(404, "File kết quả không tồn tại")
+    validation_error = validate_local_output(row, path)
+    if validation_error:
+        fail_job_once(job_id, validation_error)
+        raise HTTPException(404, validation_error)
     
     ext = path.suffix or ".mp4"
     filename = f"tvc_job_{job_id}{ext}"
@@ -1601,17 +1732,36 @@ async def worker_complete(
     ext = Path(output.filename or ".mp4").suffix.lower()
     if ext not in {".mp4",".mov",".webm"}:
         ext = ".mp4"
-    out = OUTPUTS / f"job_{job_id}{ext}"
-    with out.open("wb") as f:
-        while True:
-            chunk = await output.read(1024*1024)
-            if not chunk: break
-            f.write(chunk)
     con = db()
-    con.execute("UPDATE jobs SET output_path=?,status='done',progress=100,error=NULL,updated_at=? WHERE id=?",
-                (str(out.relative_to(BASE)), now_iso(), job_id))
-    completed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+    job = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+    con.close()
+    if not job:
+        raise HTTPException(404, "Không tìm thấy job")
+    if job["status"] not in {"waiting", "running"}:
+        raise HTTPException(409, "Job không ở trạng thái nhận kết quả")
+    out = OUTPUTS / f"job_{job_id}{ext}"
+    temporary = OUTPUTS / f".job_{job_id}{ext}.uploading"
+    try:
+        with temporary.open("wb") as destination:
+            while True:
+                chunk = await output.read(1024 * 1024)
+                if not chunk:
+                    break
+                destination.write(chunk)
+        validation_error = validate_local_output(job, temporary)
+        if validation_error:
+            fail_job_once(job_id, validation_error)
+            raise HTTPException(422, validation_error)
+        temporary.replace(out)
+    finally:
+        temporary.unlink(missing_ok=True)
+    con = db()
+    con.execute(
+        "UPDATE jobs SET output_path=?,status='done',progress=100,error=NULL,updated_at=? WHERE id=?",
+        (str(out.relative_to(BASE)), now_iso(), job_id)
+    )
     con.commit()
+    completed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
     con.close()
     if completed:
         values = video_upscale_pipeline.start(sys.modules[__name__], dict(completed))
@@ -1625,18 +1775,12 @@ async def worker_fail(job_id: int, request: Request, x_worker_token: Optional[st
     body = await request.json()
     error = (body.get("error") or "Render failed")[:1000]
     con = db()
-    job = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
-    if not job:
-        con.close(); raise HTTPException(404, "Không tìm thấy job")
-    if job["status"] not in {"failed","done"}:
-        con.execute("UPDATE users SET credits=credits+? WHERE id=?", (job["cost"], job["user_id"]))
-        con.execute("""
-            INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
-            VALUES(?,?,?,?,?,?)
-        """, (job["user_id"], job["cost"], f"Hoàn lượt job lỗi #{job_id}", "job_refund", job_id, now_iso()))
-    con.execute("UPDATE jobs SET status='failed',error=?,updated_at=? WHERE id=?", (error, now_iso(), job_id))
-    con.commit(); con.close()
-    return {"ok": True}
+    exists = con.execute("SELECT 1 FROM jobs WHERE id=?", (job_id,)).fetchone()
+    con.close()
+    if not exists:
+        raise HTTPException(404, "Không tìm thấy job")
+    changed = fail_job_once(job_id, error)
+    return {"ok": True, "changed": changed}
 
 from service_routes import router as service_router
 app.include_router(service_router)
@@ -1685,10 +1829,6 @@ def _render_composite_video(img_path: Path, vid_path: Path, out_path: Path):
                 return True
         except Exception:
             pass
-    sample_src = BASE / "static/videos/card_motion.mp4"
-    if sample_src.exists():
-        out_path.write_bytes(sample_src.read_bytes())
-        return True
     return False
 
 def _auto_worker_loop():
@@ -1732,37 +1872,39 @@ def _auto_worker_loop():
                     vid_file = BASE / (row["video_path"] or "")
                     
                     if svc == "motion_studio":
-                        asp.process_motion_studio(img_file, vid_file, out)
+                        rendered = asp.process_motion_studio(img_file, vid_file, out)
                     elif svc == "video_generation":
-                        asp.process_video_generation(files_dict, row["prompt"] or "", out)
+                        rendered = asp.process_video_generation(files_dict, row["prompt"] or "", out)
                     elif svc == "outfit_change":
                         char_f = files_dict.get("character_image", img_file)
                         outfit_f = files_dict.get("outfit_image", vid_file)
-                        asp.process_outfit_change(char_f, outfit_f, out)
+                        rendered = asp.process_outfit_change(char_f, outfit_f, out)
                     elif svc == "background_change":
                         src_f = files_dict.get("source_image", img_file)
                         bg_f = files_dict.get("background_image", vid_file)
-                        asp.process_background_change(src_f, bg_f, row["prompt"] or "", out)
+                        rendered = asp.process_background_change(src_f, bg_f, row["prompt"] or "", out)
                     elif svc == "image_upscale":
                         src_f = files_dict.get("source_image", img_file)
-                        asp.process_image_upscale(src_f, 2, True, out)
+                        rendered = asp.process_image_upscale(src_f, 2, True, out)
                     else:
-                        asp.process_motion_studio(img_file, vid_file, out)
+                        raise RuntimeError(f"Dịch vụ mock không được hỗ trợ: {svc}")
+                    if not rendered:
+                        raise RuntimeError("Mock renderer không tạo được output")
+                    validation_error = validate_local_output(row, out)
+                    if validation_error:
+                        raise RuntimeError(validation_error)
 
                     con = db()
-                    con.execute("UPDATE jobs SET status='done', progress=100, output_path=?, error=NULL, updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
+                    con.execute("UPDATE jobs SET status='done',progress=100,output_path=?,worker_status='mock',error=NULL,updated_at=? WHERE id=?", (str(out.relative_to(BASE)), now_iso(), jid))
                     con.commit()
                     con.close()
                 except Exception as e:
                     import traceback
                     print(f"[Worker Error] Job {jid} render failed:", e, traceback.format_exc())
-                    con = db()
-                    con.execute("UPDATE jobs SET status='failed', error=?, progress=0, updated_at=? WHERE id=?", (str(e)[:500], now_iso(), jid))
-                    con.commit()
-                    con.close()
-        except Exception:
-            pass
+                    fail_job_once(jid, str(e))
+        except Exception as exc:
+            print("[Mock Worker Loop Error]", exc)
 
-if os.getenv("ENABLE_LOCAL_DEMO_WORKER", "1") == "1":
+if RENDER_MODE == "mock":
     _worker_thread = threading.Thread(target=_auto_worker_loop, daemon=True)
     _worker_thread.start()

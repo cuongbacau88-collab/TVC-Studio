@@ -355,7 +355,7 @@ form.onsubmit=async e=>{
     setJobSubmitLocked(false);
   }
 }
-function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Lỗi',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
+function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Render thất bại',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 function jobResultUrl(j){return (j.service && j.service !== 'motion_studio')?`/api/services/${encodeURIComponent(j.service)}/jobs/${j.id}/result`:`/api/jobs/${j.id}/output`}
 function jobOpenUrl(j){return (j.service && j.service !== 'motion_studio')?`/services/${encodeURIComponent(j.service)}?job=${j.id}`:null}
 function jobDisplayName(j){return j.service==='video_generation'?'AI Video Creator':!j.service?'AI Motion Studio':j.model}

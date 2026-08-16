@@ -55,6 +55,34 @@ def public_job(row):
     }
 
 
+def validate_worker_completion(app, row, payload):
+    locator = next((str(payload[key]) for key in ("output_id", "output_url", "video_url") if payload.get(key)), "")
+    lowered = locator.lower()
+    if any(marker in lowered for marker in ("/static/videos/", "demo.", "sample.", "placeholder")):
+        return "Worker trả demo/sample asset làm kết quả"
+    try:
+        inputs = (json.loads(row["input_json"] or "{}").get("files") or {}).values()
+    except (TypeError, ValueError, json.JSONDecodeError):
+        inputs = ()
+    if locator and locator in {str(value) for value in inputs}:
+        return "Worker trả input/reference làm kết quả"
+    try:
+        response = app.service_adapters[row["service"]].result(row["worker_job_id"])
+    except WorkerAdapterError as error:
+        return error.message
+    try:
+        headers = response.headers or {}
+        if str(headers.get("content-length", "")).strip() == "0":
+            return "Worker trả file kết quả rỗng"
+        content_type = str(headers.get("content-type", "")).lower()
+        expected = SERVICES[row["service"]].output_kind
+        if content_type and not content_type.startswith(expected + "/"):
+            return "Worker trả sai định dạng kết quả"
+    finally:
+        response.close()
+    return None
+
+
 def refresh_job(user_id: int, job_id: int):
     app = core()
     con = app.db()
@@ -82,6 +110,14 @@ def refresh_job(user_id: int, job_id: int):
     except (TypeError, ValueError):
         progress = defaults[local_status]
     error_text = str(payload.get("error") or "")[:1000] or None
+    if local_status == "done":
+        validation_error = validate_worker_completion(app, row, payload)
+        if validation_error:
+            app.fail_job_once(job_id, validation_error)
+            con = app.db()
+            failed = con.execute("SELECT * FROM jobs WHERE id=?", (job_id,)).fetchone()
+            con.close()
+            return dict(failed) if failed else None
     if local_status == "done" and row["service"] == "video_generation":
         con = app.db(); con.execute("UPDATE jobs SET original_output_available=1 WHERE id=?", (job_id,)); con.commit(); con.close()
         return video_upscale_pipeline.persist(app, job_id, video_upscale_pipeline.start(app, dict(row)))
