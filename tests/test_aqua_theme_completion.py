@@ -22,6 +22,21 @@ class AquaThemeCompletionTests(unittest.TestCase):
         self.assertEqual(positions, sorted(positions))
         self.assertIn('class="legal-card about-team-card"', html)
 
+    def test_home_intro_uses_approved_copy_without_i18n_overwrite(self):
+        html = (STATIC / "index.html").read_text(encoding="utf-8")
+        start = html.index('<section class="platform-intro"')
+        end = html.index("</section>", start)
+        intro = html[start:end]
+        for value in (
+            "✨ TVC STUDIO AI",
+            "Dự án được thực hiện bởi",
+            "Thảo Điệu Đà • Phương Vy • Quỳnh Chi",
+            "⚙️ Vận hành: Nhi An",
+            "Sáng tạo bằng AI • Kiếm tiền từ Affiliate • Chia sẻ sức mạnh GPU",
+        ):
+            self.assertIn(value, intro)
+        self.assertNotIn("data-i18n", intro)
+
     def test_drawer_uses_measured_header_height_and_safe_area(self):
         css = (STATIC / "theme-purple.css").read_text(encoding="utf-8")
         self.assertIn("--drawer-top-offset:max(var(--header-height,0px),env(safe-area-inset-top,0px))", css)
@@ -43,7 +58,5 @@ class AquaThemeCompletionTests(unittest.TestCase):
         self.assertTrue(pages)
         for page in pages:
             with self.subTest(page=page.name):
-                self.assertIn(
-                    "theme-purple.css?v=20260818.3",
-                    page.read_text(encoding="utf-8"),
-                )
+                version = "20260818.4" if page.name == "index.html" else "20260818.3"
+                self.assertIn(f"theme-purple.css?v={version}", page.read_text(encoding="utf-8"))
