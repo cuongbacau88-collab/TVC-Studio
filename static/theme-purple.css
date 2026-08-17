@@ -532,3 +532,148 @@ p,small,.muted,.model-body p,.tip-card li,.legal-card p{color:var(--text-seconda
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;
     animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+/* =====================================================================
+   AQUA LIQUID GLASS — approved visual direction.
+   Purple/pink are restricted to thin iridescent interaction reflections.
+   ===================================================================== */
+:root{
+  color-scheme:light;
+  --bg-primary:#dff8ff;--bg-secondary:#bdeefa;--bg-tertiary:#eafcff;
+  --glass-surface:linear-gradient(142deg,rgba(255,255,255,.70),rgba(219,250,255,.42));
+  --glass-surface-strong:linear-gradient(145deg,rgba(247,255,255,.92),rgba(192,240,250,.76));
+  --glass-surface-subtle:linear-gradient(135deg,rgba(255,255,255,.68),rgba(190,242,250,.34));
+  --glass-border:rgba(255,255,255,.88);--glass-border-soft:rgba(81,197,220,.28);
+  --glass-highlight:rgba(255,255,255,.98);--text-primary:#083553;
+  --text-secondary:rgba(20,73,99,.76);--text-muted:rgba(35,94,119,.60);
+  --accent-purple:#a47cff;--accent-blue:#27b9da;--accent-cyan:#24d8ee;
+  --accent-pink:#f38acb;--accent-aqua:#3de1cf;--accent-turquoise:#00bfd1;
+  --shadow-glass:0 18px 42px rgba(21,111,139,.16),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(37,185,211,.16);
+  --shadow-glow:0 14px 34px rgba(0,191,209,.20),0 0 20px rgba(36,216,238,.16);
+  --bg:var(--bg-primary)!important;--panel:rgba(244,255,255,.66)!important;
+  --panel2:rgba(221,250,255,.72)!important;--line:var(--glass-border-soft)!important;
+  --text:var(--text-primary)!important;--muted:var(--text-secondary)!important;
+  --purple:var(--accent-turquoise)!important;--purple2:var(--accent-cyan)!important
+}
+html{background:#dff8ff!important}
+body,body.v3-liquid-theme,body.model-home,body.service-page,body.app-body,
+body.legal-body,body.public-page-v3343{
+  color:var(--text-primary)!important;
+  background:
+    radial-gradient(850px 580px at -4% -8%,rgba(255,255,255,.96),transparent 67%),
+    radial-gradient(760px 520px at 102% 2%,rgba(73,218,235,.24),transparent 70%),
+    radial-gradient(720px 500px at 50% 110%,rgba(61,225,207,.16),transparent 70%),
+    linear-gradient(145deg,#edfaff 0%,#d2f4fb 48%,#bfeaf5 100%)!important
+}
+.v3-bg-orbs i:nth-child(1){background:radial-gradient(circle,rgba(255,255,255,.78),transparent 70%)!important}
+.v3-bg-orbs i:nth-child(2){background:radial-gradient(circle,rgba(36,216,238,.25),transparent 70%)!important}
+.v3-bg-orbs i:nth-child(3){background:radial-gradient(circle,rgba(61,225,207,.20),transparent 70%)!important}
+:is(.glass-card,.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+.affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
+.referral-share-card,.referral-code-card,.referral-history-card,.home-info,.home-credit-section,
+.home-process>div,.credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,
+.simple-create-card,.simple-aspect,.packs button,.gallery-modal-panel,.creator-warning,.reference-card,
+.upload-tile,.add-reference,.modal,.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,
+.queue,.tip-card,.table-wrap,.admin-grid>*,details){
+  color:var(--text-primary)!important;background:var(--glass-surface)!important;
+  border-color:var(--glass-border)!important;
+  box-shadow:var(--shadow-glass),0 0 0 1px rgba(63,192,216,.18)!important
+}
+:is(.model-card,.gallery-card,.reference-card,.upload-tile,.simple-create-preview,.model-visual){
+  background-color:rgba(213,247,251,.66)!important
+}
+.global-toolbar,.global-toolbar.liquid-toolbar,.global-toolbar.is-scrolled,.global-toolbar.scrolled,
+.global-toolbar.sticky,.topbar,.app-topbar,.page-topbar{
+  color:var(--text-primary)!important;
+  background:linear-gradient(110deg,rgba(252,255,255,.88),rgba(212,247,252,.78),rgba(188,237,247,.72))!important;
+  border-color:rgba(255,255,255,.92)!important;
+  box-shadow:0 10px 28px rgba(26,118,143,.13),inset 0 1px rgba(255,255,255,.98)!important
+}
+.sidebar,.app-sidebar,.left-sidebar,.ai-tools-drawer{
+  color:var(--text-primary)!important;
+  background:linear-gradient(168deg,rgba(248,255,255,.91),rgba(210,246,252,.84),rgba(186,235,245,.78))!important;
+  border-color:rgba(255,255,255,.92)!important;
+  box-shadow:14px 0 34px rgba(30,119,143,.14),inset -1px 0 rgba(255,255,255,.86)!important
+}
+.global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch),
+.credit-pill,.avatar,.icon,.drawer-account,.menu-group{
+  color:var(--text-primary)!important;background:var(--glass-surface-subtle)!important;
+  border-color:rgba(255,255,255,.88)!important;
+  box-shadow:0 7px 17px rgba(26,119,145,.11),inset 0 1px rgba(255,255,255,.96)!important
+}
+.side,.sidebar a,.sidebar button,.drawer-scroll nav a,.drawer-scroll nav button,
+.menu-header,.global-toolbar a,.global-toolbar button{color:var(--text-secondary)!important}
+.side.active,.sidebar a.active,.menu-group.active .menu-header,.menu-group[open] .menu-header,
+.global-toolbar :is(.tool-pill,.credit-tool,.account-pill).active,.global-actions [aria-current="page"]{
+  color:#07506d!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(57,221,232,.34),rgba(61,225,207,.38))!important;
+  border-color:rgba(255,255,255,.96)!important;
+  box-shadow:0 9px 22px rgba(0,177,198,.18),inset 0 1px rgba(255,255,255,1)!important
+}
+@media (hover:hover) and (pointer:fine){
+  :is(.side,.sidebar a,.drawer-scroll nav a,.tool-pill,.simple-aspect,.packs button):hover{
+    color:#064966!important;
+    border-color:rgba(255,255,255,.96)!important;
+    box-shadow:0 10px 24px rgba(0,191,209,.18),1px -1px 0 rgba(164,124,255,.38),-1px 1px 0 rgba(243,138,203,.24)!important
+  }
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,
+  .job,.stat,.reference-card):hover{
+    background:linear-gradient(142deg,rgba(255,255,255,.80),rgba(204,248,251,.48))!important;
+    border-color:rgba(255,255,255,.96)!important;
+    box-shadow:var(--shadow-glass),var(--shadow-glow),1px -1px 0 rgba(164,124,255,.24),-1px 1px 0 rgba(243,138,203,.16)!important
+  }
+}
+:is(.service-submit,.primary,.model-button,.simple-render-btn,.motion-cta-button,
+button.primary-btn,button.cta,.simple-upload-button){
+  color:#fff!important;
+  background:linear-gradient(135deg,#42e7ed 0%,#00bfd1 48%,#28d9c6 100%)!important;
+  border:1px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 11px 26px rgba(0,170,191,.25),inset 0 1px rgba(255,255,255,.96),
+    1px -1px 0 rgba(164,124,255,.34),-1px 1px 0 rgba(243,138,203,.24)!important;
+  text-shadow:0 1px 2px rgba(0,86,110,.22)
+}
+@media (hover:hover) and (pointer:fine){
+  :is(.service-submit,.primary,.model-button,.simple-render-btn,.motion-cta-button,
+  button.primary-btn,button.cta,.simple-upload-button):hover{
+    filter:brightness(1.04) saturate(1.08)!important;
+    box-shadow:0 15px 32px rgba(0,174,196,.30),0 0 20px rgba(36,216,238,.24),
+      1px -1px 0 rgba(164,124,255,.68),-1px 1px 0 rgba(243,138,203,.48)!important
+  }
+}
+.zalo-community-link{
+  color:#fff!important;
+  background:linear-gradient(135deg,#49e2ee,#08bfd5 52%,#37dcca)!important;
+  border-color:rgba(255,255,255,.94)!important;
+  box-shadow:0 10px 23px rgba(0,164,195,.22),inset 0 1px rgba(255,255,255,.96),
+    1px -1px 0 rgba(164,124,255,.28),-1px 1px 0 rgba(243,138,203,.20)!important
+}
+.zalo-community-icon{background:linear-gradient(145deg,#8af2f4,#16c9dc 58%,#26b9d1)!important}
+input:not([type="checkbox"]):not([type="radio"]),select,textarea,.simple-upload-row,.fake-input,.drop{
+  color:var(--text-primary)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(208,246,251,.60))!important;
+  border-color:rgba(255,255,255,.92)!important;
+  box-shadow:inset 0 1px 7px rgba(35,139,164,.09),0 6px 16px rgba(30,125,150,.08)!important
+}
+input::placeholder,textarea::placeholder{color:rgba(31,91,116,.48)!important}
+select option{color:#083553;background:#e7fbff}
+:is(button,input,select,textarea,a):focus-visible{
+  outline:2px solid #19cddd!important;
+  box-shadow:0 0 0 5px rgba(36,216,238,.18),1px -1px 0 rgba(164,124,255,.62),-1px 1px 0 rgba(243,138,203,.42)!important
+}
+.tvc-account-menu,.account-popover,.account-popover-v2{
+  color:var(--text-primary)!important;background:var(--glass-surface-strong)!important;
+  border-color:rgba(255,255,255,.94)!important;
+  box-shadow:0 22px 52px rgba(20,106,132,.20),inset 0 1px rgba(255,255,255,.98)!important
+}
+.modal-wrap,.gallery-modal,.ai-tools-overlay{background:rgba(77,149,169,.28)!important}
+p,small,.muted,.model-body p,.tip-card li,.legal-card p{color:var(--text-secondary)!important}
+h1,h2,h3,h4,strong,b,.model-body h2,.platform-intro h1{color:var(--text-primary)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  :is(.glass-card,.model-card,.panel-card,.legal-card,.modal,.auth-card,.simple-create-card,
+  .gallery-card,.sidebar,.ai-tools-drawer,.global-toolbar,.topbar){background:#e8faff!important}
+}
+@media (max-width:760px){
+  body,body.v3-liquid-theme{
+    background:radial-gradient(520px 380px at 50% -5%,rgba(255,255,255,.94),transparent 70%),
+    linear-gradient(160deg,#ebfbff,#c9f1f8)!important
+  }
+}
