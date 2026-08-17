@@ -896,3 +896,110 @@ body.model-home .model-body p,
 body.model-home .credit-price span{
   color:#185d70!important
 }
+
+/* =====================================================================
+   SITE-WIDE TEAL/CYAN STATE AND CONTRAST NORMALIZATION
+   The surface color is stable across default, hover, active and focus.
+   ===================================================================== */
+:root{
+  --accent-purple:#00bfd1!important;--accent-pink:#31d8d0!important;
+  --tvc-purple-900:#064c61;--tvc-purple-800:#075d70;--tvc-purple-700:#08788b;
+  --tvc-purple-600:#0799aa;--tvc-purple-500:#00b8c8;--tvc-purple-400:#24d8ee;
+  --tvc-purple-300:#53e5eb;--tvc-purple-200:#91f1f2;--tvc-purple-100:#ccf9fa;
+  --tvc-purple-50:#efffff;--tvc-toolbar-purple:rgba(36,216,238,.22)!important;
+  --stable-ice-surface:linear-gradient(142deg,rgba(250,255,255,.88),rgba(204,246,251,.72));
+  --stable-ice-border:rgba(255,255,255,.94);--stable-dark-text:#073e50;
+  --stable-body-text:#185d70;--stable-teal-surface:linear-gradient(115deg,#087e97,#09abba 55%,#1bc9c6)
+}
+.global-toolbar,.global-toolbar.liquid-toolbar,.global-toolbar.is-scrolled,.global-toolbar.scrolled,
+.global-toolbar.sticky,.topbar,.app-topbar,.page-topbar,.service-nav,.legal-topbar,.nav{
+  color:#f3ffff!important;background:var(--stable-teal-surface)!important;
+  border-color:rgba(204,253,255,.78)!important;
+  box-shadow:0 10px 28px rgba(7,103,127,.20),inset 0 1px rgba(239,255,255,.72)!important
+}
+:is(.global-toolbar,.topbar,.app-topbar,.page-topbar,.service-nav,.legal-topbar,.nav)
+:is(a,button,h1,h2,h3,h4,p,span,strong,b,.brand,.brand-text,.menu-header){color:#f3ffff!important}
+:is(.global-toolbar,.topbar,.app-topbar,.page-topbar,.service-nav,.legal-topbar,.nav)
+:is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch,.credit-pill,.avatar,.icon){
+  color:#f3ffff!important;background:rgba(225,253,255,.13)!important;border-color:rgba(221,254,255,.48)!important
+}
+:is(.global-toolbar,.topbar,.service-nav,.legal-topbar,.nav)
+:is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch,a,button):is(:hover,:active,:focus,:focus-visible,.active,[aria-current="page"]){
+  color:#fff!important;background:rgba(215,253,255,.20)!important;border-color:rgba(239,255,255,.88)!important;
+  box-shadow:0 8px 20px rgba(3,93,113,.18),inset 0 1px rgba(255,255,255,.72)!important
+}
+.sidebar,.app-sidebar,.left-sidebar,.ai-tools-drawer,.tvc-account-menu,.account-popover,.account-popover-v2{
+  color:var(--stable-dark-text)!important;background:linear-gradient(165deg,rgba(249,255,255,.96),rgba(207,246,251,.92))!important;
+  border-color:var(--stable-ice-border)!important
+}
+:is(.sidebar,.app-sidebar,.left-sidebar,.ai-tools-drawer,.tvc-account-menu,.account-popover,.account-popover-v2)
+:is(a,button,p,span,small,strong,b,.menu-header,.drawer-brand){color:var(--stable-body-text)!important}
+:is(.side,.sidebar a,.sidebar button,.drawer-scroll nav a,.drawer-scroll nav button,.menu-group,.auth-tabs button,
+.method-card,.simple-aspect,.packs button,.reference-actions button,.small-action):is(.active,.selected,[aria-selected="true"],[aria-current="page"]){
+  color:var(--stable-dark-text)!important;background:linear-gradient(135deg,rgba(255,255,255,.90),rgba(65,221,232,.35))!important;
+  border-color:rgba(97,229,236,.92)!important
+}
+:is(.side,.sidebar a,.sidebar button,.drawer-scroll nav a,.drawer-scroll nav button,.menu-group,.auth-tabs button,
+.method-card,.simple-aspect,.packs button,.reference-actions button,.small-action):is(:hover,:active,:focus,:focus-visible){
+  color:var(--stable-dark-text)!important;border-color:rgba(97,229,236,.92)!important;
+  box-shadow:0 8px 20px rgba(0,167,187,.14)!important
+}
+:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,.affiliate-card,
+.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,.referral-share-card,
+.referral-code-card,.referral-history-card,.home-info,.home-credit-section,.home-process>div,.credit-note,
+.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,.simple-aspect,
+.packs button,.gallery-modal-panel,.creator-warning,.reference-card,.upload-tile,.add-reference,.modal,
+.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,.table-wrap,.admin-grid>*,details,
+.gallery-empty,.worker,.product-card,.features article,.pricing article,.steps){
+  color:var(--stable-dark-text)!important;background:var(--stable-ice-surface)!important;
+  border-color:var(--stable-ice-border)!important;box-shadow:var(--shadow-glass),0 0 0 1px rgba(63,192,216,.18)!important
+}
+:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,.affiliate-card,
+.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,.referral-share-card,
+.referral-code-card,.referral-history-card,.home-info,.home-credit-section,.home-process>div,.credit-note,
+.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,.simple-aspect,
+.packs button,.gallery-modal-panel,.creator-warning,.reference-card,.upload-tile,.add-reference,.modal,
+.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,.table-wrap,.admin-grid>*,details,
+.gallery-empty,.worker,.product-card,.features article,.pricing article,.steps)
+:is(h1,h2,h3,h4,p,span,small,strong,b,label,li,em,summary,.muted){color:var(--stable-body-text)!important}
+:is(.model-card,.panel-card,.result-panel,.method-card,.legal-card,.public-pricing-grid section,.gallery-card,
+.job,.stat,.simple-create-card,.simple-aspect,.packs button,.reference-card,.upload-tile,.add-reference,.tip-card,
+.product-card,.features article,.pricing article,.steps):is(:hover,:active,:focus,:focus-visible,.active,.selected,[aria-selected="true"]){
+  color:var(--stable-dark-text)!important;background:var(--stable-ice-surface)!important;
+  border-color:rgba(83,225,233,.96)!important;
+  box-shadow:var(--shadow-glass),0 0 0 2px rgba(36,216,238,.24)!important;filter:none!important
+}
+@media (hover:hover) and (pointer:fine){
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.job,.stat,.reference-card,.simple-aspect,.packs button):hover{
+    transform:translateY(-2px)!important
+  }
+}
+@media (hover:none),(pointer:coarse){
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.job,.stat,.reference-card,.simple-aspect,.packs button):is(:hover,:active,:focus){
+    transform:none!important
+  }
+}
+:is(.service-submit,.service-login-cta,.primary,.model-button,.simple-render-btn,.motion-cta-button,
+button.primary-btn,button.cta,.simple-upload-button,.zalo-community-link){
+  color:#fff!important;background:linear-gradient(135deg,#20d7e4,#00aebe 52%,#22cdbd)!important;
+  border-color:rgba(225,255,255,.90)!important;text-shadow:0 1px 2px rgba(0,74,91,.26)!important
+}
+:is(.service-submit,.service-login-cta,.primary,.model-button,.simple-render-btn,.motion-cta-button,
+button.primary-btn,button.cta,.simple-upload-button,.zalo-community-link):is(:hover,:active,:focus,:focus-visible){
+  color:#fff!important;background:linear-gradient(135deg,#20d7e4,#00aebe 52%,#22cdbd)!important;
+  border-color:#efffff!important;filter:none!important
+}
+.badge,.badge.purple,.model-badges .badge,.drawer-scroll em,.counter,.chips .active{
+  color:#efffff!important;background:rgba(5,119,137,.88)!important;border-color:rgba(189,250,252,.78)!important
+}
+body :is(.model-title-row p,.service-heading p,.legal-hero p,.section-head p,.service-field>span,.service-field small,
+.creator-section p,.method-card span,.file-preview,.endpoint-preview small,.gallery-empty,.gallery-card small,
+.gallery-card em,.worker small,.topbar p,.tip-card li,.credit-price span,.platform-intro-copy>span,
+.platform-intro-copy .intro-team-names,.platform-intro-copy .intro-operator,.platform-intro-copy .intro-mission,
+.back-link,.legal-back,.service-cost,.creator-warning,.service-alert,.service-error){color:var(--stable-body-text)!important}
+body> :is(p,small),main> :is(p,small),.model-hero>p{color:var(--stable-body-text)!important}
+input:not([type="checkbox"]):not([type="radio"]),select,textarea,.fake-input,.drop,.simple-upload-row{
+  color:var(--stable-dark-text)!important;background:rgba(244,255,255,.90)!important;border-color:rgba(89,203,218,.58)!important
+}
+input::placeholder,textarea::placeholder{color:#397486!important;opacity:.92!important}
+:focus-visible{outline-color:#00b7c7!important}
