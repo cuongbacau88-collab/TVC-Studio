@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap");
+
 /* =====================================================================
    TVC STUDIO AI — UNIVERSAL iOS GLASSMORPHISM & LUXURY CYBER PURPLE THEME
    ÁP DỤNG ĐỒNG BỘ 100% CHO TOÀN BỘ WEBSITE (ALL PAGES & ALL COMPONENTS)
@@ -525,6 +527,132 @@ p,small,.muted,.model-body p,.tip-card li,.legal-card p{color:var(--text-seconda
   }
   button,.side,.zalo-community-link,.drawer-scroll nav a,.drawer-scroll nav button{min-height:44px}
   .drawer-zalo-link{position:sticky;top:0;z-index:2}
+}
+/* =====================================================================
+   AQUA LIQUID GLASS — final typography, card and mobile drawer polish
+   ===================================================================== */
+:root{
+  --font-ui:"Be Vietnam Pro",Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  --text-heading-light:#073e50;--text-primary-light:#145264;--text-secondary-light:#477985;
+  --text-heading-dark:#f6fdff;--text-primary-dark:#e8f9fc;--text-secondary-dark:#c3e4ea;
+  --card-teal-surface:linear-gradient(145deg,rgba(18,101,128,.74),rgba(15,133,151,.62));
+  --card-teal-border:rgba(210,250,255,.76);
+  --card-teal-shadow:0 18px 38px rgba(9,102,128,.20),inset 0 1px 0 rgba(255,255,255,.36),inset 0 -1px 0 rgba(31,205,211,.18)
+}
+html,body,button,input,select,textarea{font-family:var(--font-ui)!important}
+h1,.legal-hero h1,.model-title-row h1,.service-heading h1{
+  font-weight:800!important;line-height:1.18!important;color:var(--text-heading-light)!important
+}
+h2,h3,h4,.model-body h2,.panel-card h2,.legal-card h2{
+  font-weight:700!important;line-height:1.25!important
+}
+button,.side,.menu-header,.drawer-scroll nav a,.drawer-scroll nav button,
+.model-button,.service-submit,.simple-render-btn{font-weight:600!important}
+p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
+  font-weight:400!important;line-height:1.6!important
+}
+.badge,label,.label,.field-label{font-weight:600!important}
+
+:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+.affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
+.referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
+.credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
+.simple-aspect,.packs button,.gallery-modal-panel,.creator-warning,.reference-card,.upload-tile,
+.add-reference,.modal,.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,
+.table-wrap,.admin-grid>*,details){
+  color:var(--text-primary-dark)!important;
+  background:var(--card-teal-surface)!important;
+  border-color:var(--card-teal-border)!important;
+  box-shadow:var(--card-teal-shadow)!important
+}
+:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+.affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
+.referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
+.credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
+.simple-aspect,.packs button,.gallery-modal-panel,.creator-warning,.reference-card,.upload-tile,
+.add-reference,.modal,.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,
+.table-wrap,.admin-grid>*,details)
+:is(h1,h2,h3,h4,strong,b,label){color:var(--text-heading-dark)!important}
+:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+.affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
+.referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
+.credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
+.simple-aspect,.packs button,.gallery-modal-panel,.creator-warning,.reference-card,.upload-tile,
+.add-reference,.modal,.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,
+.table-wrap,.admin-grid>*,details)
+:is(p,small,span,li,em){color:var(--text-secondary-dark)!important}
+
+/* Card state never replaces the surface color. */
+:is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+.reference-card,.simple-aspect,.packs button,.service-navigation-card):is(
+:hover,:active,:focus,:focus-visible,.active,.selected,[aria-selected="true"],[aria-current="true"]
+){
+  color:var(--text-primary-dark)!important;
+  background:var(--card-teal-surface)!important;
+  border-color:rgba(117,241,246,.92)!important;
+  box-shadow:0 20px 42px rgba(10,162,179,.22),inset 0 1px 0 rgba(255,255,255,.42)!important
+}
+@media (hover:hover) and (pointer:fine){
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+  .reference-card,.simple-aspect,.packs button,.service-navigation-card):hover{
+    transform:translateY(-3px)!important
+  }
+}
+@media (hover:none),(pointer:coarse){
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+  .reference-card,.simple-aspect,.packs button,.service-navigation-card):is(:hover,:active,:focus,.active,.selected){
+    transform:none!important;filter:none!important
+  }
+}
+.badge,.model-badges .badge,.drawer-scroll em,.counter{
+  color:#eaffff!important;background:rgba(4,113,133,.54)!important;
+  border-color:rgba(184,248,250,.64)!important
+}
+input:not([type="checkbox"]):not([type="radio"]),select,textarea{
+  font-family:var(--font-ui)!important;font-weight:500!important;
+  color:var(--text-heading-light)!important;background:rgba(239,254,255,.86)!important;
+  border-color:rgba(115,207,220,.58)!important;line-height:1.5!important
+}
+input::placeholder,textarea::placeholder{color:#56818b!important;opacity:.88!important}
+:is(button,input,select,textarea):disabled{color:rgba(232,249,252,.72)!important;opacity:.64!important}
+
+/* About team card */
+.about-team-card{margin-top:22px;text-align:center}
+.about-team-card h2{margin:0 0 16px!important;font-size:clamp(22px,3vw,30px)!important}
+.about-team-card p{margin:8px 0!important}
+.about-team-card .about-team-names{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600!important;color:var(--text-heading-dark)!important}
+.about-team-card .about-team-operator{margin-top:14px!important;font-weight:500!important}
+.about-team-card .about-team-mission{margin-top:18px!important;color:#7ff7f0!important;font-weight:600!important}
+
+/* Drawer starts exactly below the measured fixed toolbar. */
+@media(max-width:768px){
+  .ai-tools-drawer{
+    --drawer-top-offset:max(var(--header-height,0px),env(safe-area-inset-top,0px));
+    top:var(--drawer-top-offset)!important;
+    height:calc(100dvh - var(--drawer-top-offset))!important;
+    padding-top:10px!important;
+    padding-bottom:max(14px,env(safe-area-inset-bottom,0px))!important
+  }
+  .ai-tools-drawer>header{flex:0 0 auto}
+  .drawer-account{flex:0 0 auto;min-height:64px}
+  .drawer-account b,.drawer-account small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .drawer-language{flex:0 0 auto}
+  .drawer-scroll{flex:1 1 auto;min-height:0!important}
+  body{overflow-x:hidden}
+}
+@media(max-width:760px){
+  body{font-size:16px}
+  p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{font-size:max(16px,1em)!important}
+  h2,h3,.model-body h2,.panel-card h2,.legal-card h2{font-size:max(20px,1em)!important}
+  button,.side,.drawer-scroll nav a,.drawer-scroll nav button,.model-button,.service-submit,.simple-render-btn{
+    font-size:max(16px,1em)!important;min-height:44px
+  }
+  .badge,.model-badges .badge,.drawer-scroll em{font-size:12px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  :is(.model-card,.panel-card,.method-card,.gallery-card,.job,.stat,.reference-card,.simple-aspect,.packs button){
+    transform:none!important
+  }
 }
 @media (max-width:430px){:root{--radius-card:16px}.zalo-community-link{font-size:11px}}
 @media (max-width:320px){.dash{padding-inline:10px!important}.zalo-community-link{padding-inline:8px!important;gap:7px}}
