@@ -863,3 +863,36 @@ h1,h2,h3,h4,strong,b,.model-body h2,.platform-intro h1{color:var(--text-primary)
     linear-gradient(160deg,#ebfbff,#c9f1f8)!important
   }
 }
+
+/* Homepage color correction: preserve layout and typography. */
+body.model-home .global-toolbar,
+body.model-home .global-toolbar.liquid-toolbar,
+body.model-home .global-toolbar.is-scrolled,
+body.model-home .global-toolbar.scrolled,
+body.model-home .global-toolbar.sticky{
+  background:linear-gradient(110deg,rgba(8,126,151,.96),rgba(9,171,190,.94),rgba(27,201,198,.92))!important;
+  border-color:rgba(196,252,255,.82)!important;
+  box-shadow:0 10px 28px rgba(7,103,127,.20),inset 0 1px rgba(235,255,255,.74)!important
+}
+body.model-home .global-toolbar :is(.brand-text,.menu-header,a,button){color:#efffff!important}
+body.model-home .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch){
+  color:#efffff!important;
+  background:rgba(226,253,255,.13)!important;
+  border-color:rgba(220,253,255,.46)!important
+}
+body.model-home .platform-intro{
+  color:var(--text-primary)!important;
+  background:var(--glass-surface)!important;
+  border-color:var(--glass-border)!important;
+  box-shadow:var(--shadow-glass),0 0 0 1px rgba(63,192,216,.18)!important
+}
+body.model-home .platform-intro-copy>span,
+body.model-home .platform-intro-copy .intro-team-names,
+body.model-home .platform-intro-copy .intro-operator,
+body.model-home .platform-intro-copy .intro-mission,
+body.model-home .model-title-row p,
+body.model-home .model-eyebrow,
+body.model-home .model-body p,
+body.model-home .credit-price span{
+  color:#185d70!important
+}
