@@ -1003,3 +1003,104 @@ input:not([type="checkbox"]):not([type="radio"]),select,textarea,.fake-input,.dr
 }
 input::placeholder,textarea::placeholder{color:#397486!important;opacity:.92!important}
 :focus-visible{outline-color:#00b7c7!important}
+
+/* =====================================================================
+   COMPLETE LIGHT ICE-GLASS COVERAGE ? auth, dashboard, services, admin.
+   Loaded last so every screen is teal/cyan before the first interaction.
+   ===================================================================== */
+html,body,body.app-body,body.service-page,body.legal-body,body.model-home,
+body.public-page-v3343,body.v3-liquid-theme{
+  background-color:#dff8ff!important;
+  background-image:radial-gradient(780px 520px at 0 -8%,rgba(255,255,255,.96),transparent 68%),radial-gradient(720px 480px at 103% 0,rgba(62,218,232,.25),transparent 70%),linear-gradient(145deg,#edfaff,#d2f4fb 52%,#bfeaf5)!important;
+  color:var(--stable-dark-text)!important
+}
+.app-shell,.workspace,.dash,.tab,.simple-create-wrap,.wallet-grid,.referral-page,.jobs,.simple-list,
+.service-shell,.service-grid,.reference-gallery,.admin-wrap,.legal-main,.model-main{
+  color:var(--stable-dark-text)!important;background:transparent!important
+}
+.auth-gate{
+  color:var(--stable-dark-text)!important;
+  background:linear-gradient(145deg,rgba(237,252,255,.98),rgba(196,241,249,.96))!important;
+  backdrop-filter:blur(18px) saturate(125%)!important;-webkit-backdrop-filter:blur(18px) saturate(125%)!important
+}
+.auth-card,.service-panel,.admin-head,.share-box,.referral-note,.referrer-state,.affiliate-rules,
+.account-v2-balance,.account-v2-menu,.job-state,.result-placeholder,.file-preview,.endpoint-preview,
+.simple-create-form,.simple-create-head,.simple-field,.sectionbar,.legal-callout,.contact-cards>*{
+  color:var(--stable-dark-text)!important;background:var(--stable-ice-surface)!important;
+  border-color:var(--stable-ice-border)!important;
+  box-shadow:var(--shadow-glass),0 0 0 1px rgba(63,192,216,.15)!important
+}
+.auth-card :is(h1,h2,h3,p,label,span,small,strong,b),
+.service-panel :is(h1,h2,h3,p,label,span,small,strong,b,li),
+:is(.share-box,.referral-note,.referrer-state,.affiliate-rules,.account-v2-balance,.account-v2-menu,
+.job-state,.result-placeholder,.file-preview,.endpoint-preview,.simple-create-form,.simple-create-head,
+.simple-field,.sectionbar,.legal-callout,.contact-cards>*) :is(h1,h2,h3,h4,p,label,span,small,strong,b,li,em){
+  color:var(--stable-body-text)!important
+}
+.auth-tabs{
+  background:rgba(219,249,252,.92)!important;border:1px solid rgba(80,205,219,.45)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.92)!important
+}
+.auth-tabs button{color:var(--stable-body-text)!important;background:transparent!important}
+.auth-tabs button:is(.active,:hover,:active,:focus,:focus-visible){
+  color:#075266!important;background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(50,216,227,.38))!important;
+  border-color:rgba(76,220,229,.82)!important;box-shadow:0 6px 16px rgba(0,166,185,.14)!important
+}
+#loginForm,#registerForm,#accountInfo{color:var(--stable-dark-text)!important;background:transparent!important}
+#loginForm :is(h2,p,label),#registerForm :is(h2,p,label),#accountInfo :is(h1,h2,h3,p,strong,b,span){color:var(--stable-dark-text)!important}
+.topbar,.service-heading,.legal-hero,.affiliate-heading,.referral-heading{
+  color:var(--stable-dark-text)!important
+}
+.service-heading :is(h1,h2,h3,p,.back-link),.legal-hero :is(h1,h2,p,span),
+.affiliate-heading :is(h1,h2,h3,p,span),.referral-heading :is(h1,h2,h3,p,span){color:var(--stable-dark-text)!important}
+.service-panel,.service-login-notice,.service-alert,.service-error,.creator-warning{
+  background:var(--stable-ice-surface)!important;border-color:rgba(87,207,220,.56)!important;color:var(--stable-dark-text)!important
+}
+.service-alert :is(a,p,span,strong),.service-error :is(a,p,span,strong),.creator-warning :is(a,p,span,strong){color:var(--stable-dark-text)!important}
+.service-field>span,.service-field small,.creator-section p,.method-card span,.result-placeholder,
+.job-state,.gallery-empty,.reference-gallery>p{color:var(--stable-body-text)!important}
+.service-panel input,.service-panel select,.service-panel textarea,.reference-card select,
+.auth-card input,.ref-code-row input,.withdraw-form input{
+  color:var(--stable-dark-text)!important;background:rgba(246,255,255,.94)!important;
+  border-color:rgba(83,196,213,.58)!important
+}
+:is(.secondary,.dark,.ghost,.mini-btn,.mini-copy,.back-link,.small-action,.reference-actions button){
+  color:#075266!important;background:linear-gradient(145deg,rgba(250,255,255,.94),rgba(187,240,247,.82))!important;
+  border:1px solid rgba(79,205,218,.58)!important;box-shadow:0 6px 15px rgba(7,120,144,.10)!important
+}
+:is(.secondary,.dark,.ghost,.mini-btn,.mini-copy,.back-link,.small-action,.reference-actions button):is(:hover,:active,:focus,:focus-visible){
+  color:#075266!important;background:linear-gradient(145deg,rgba(250,255,255,.94),rgba(187,240,247,.82))!important;
+  border-color:rgba(35,213,224,.92)!important;box-shadow:0 8px 18px rgba(0,166,185,.16)!important;filter:none!important
+}
+.worker{background:var(--stable-ice-surface)!important;border-color:rgba(76,205,218,.55)!important}
+.worker :is(b,small){color:var(--stable-body-text)!important}.worker .green{background:#00b99c!important;box-shadow:0 0 0 3px rgba(0,185,156,.15)}
+.share-box.purple-box,.share-box.green-box,.purple-box,.green-box{
+  background:linear-gradient(145deg,rgba(249,255,255,.94),rgba(194,243,248,.82))!important;
+  border-color:rgba(76,205,218,.55)!important
+}
+.account-popover-v2,.tvc-account-menu,.account-popover{
+  background:linear-gradient(155deg,rgba(249,255,255,.98),rgba(202,244,249,.97))!important;
+  border-color:rgba(255,255,255,.96)!important;box-shadow:0 24px 60px rgba(12,104,127,.22)!important
+}
+:is(.account-popover-v2,.tvc-account-menu,.account-popover) :is(a,button,h1,h2,h3,p,span,small,strong,b){color:var(--stable-body-text)!important}
+.account-v2-head .account-avatar-lg,.tvc-account-avatar{
+  color:#fff!important;background:linear-gradient(145deg,#20d7e4,#00aebe 58%,#22cdbd)!important
+}
+.account-v2-topup{color:#fff!important;background:linear-gradient(135deg,#20d7e4,#00aebe 52%,#22cdbd)!important}
+.account-v2-menu a:is(:hover,:active,:focus,:focus-visible){background:rgba(36,216,238,.16)!important}
+.admin-head{background:var(--stable-ice-surface)!important}
+.table{color:var(--stable-dark-text)!important;background:rgba(245,255,255,.76)!important}
+.table th{color:#0a5267!important;background:rgba(156,231,239,.48)!important}
+.table td{color:var(--stable-body-text)!important;border-bottom-color:rgba(70,180,198,.20)!important}
+.table tr:hover td{background:rgba(36,216,238,.10)!important}
+.site-footer{
+  color:var(--stable-body-text)!important;background:linear-gradient(155deg,rgba(239,253,255,.92),rgba(190,238,246,.88))!important;
+  border-color:rgba(255,255,255,.90)!important
+}
+.site-footer :is(a,p,span,strong,b){color:var(--stable-body-text)!important}
+.modal-wrap,.gallery-modal,.ai-tools-overlay{background:rgba(62,139,158,.30)!important}
+.toast,.msg{color:var(--stable-dark-text)!important;background:rgba(240,254,255,.96)!important;border-color:rgba(77,202,216,.55)!important}
+@media (hover:none),(pointer:coarse){
+  :is(.auth-tabs button,.secondary,.dark,.ghost,.mini-btn,.mini-copy,.service-panel,.share-box,
+  .account-v2-menu a,.service-panel,.auth-card):is(:hover,:active,:focus){transform:none!important;filter:none!important}
+}
