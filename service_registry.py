@@ -52,7 +52,7 @@ SERVICES = {
         "image", 10, 0, "BACKGROUND_MODEL", ("source_image",), ("background_image", "prompt"),
     ),
     "image_upscale": ServiceDefinition(
-        "image_upscale", "AI Nâng Cấp Ảnh", "image_upscale", "UPSCALE",
+        "image_upscale", "AI Nâng Cấp Ảnh", "image-upscale-restoration", "UPSCALE",
         "image", 10, 0, "UPSCALE_MODEL", ("source_image",), ("scale", "restore_face"),
     ),
 }

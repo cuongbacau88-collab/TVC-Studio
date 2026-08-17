@@ -67,7 +67,10 @@ def validate_worker_completion(app, row, payload):
     if locator and locator in {str(value) for value in inputs}:
         return "Worker trả input/reference làm kết quả"
     try:
-        response = app.service_adapters[row["service"]].result(row["worker_job_id"])
+        adapter = app.service_adapters[row["service"]]
+        response = (adapter.result_upscale(row["worker_job_id"], str(row["user_id"]))
+                    if row["service"] == "image_upscale"
+                    else adapter.result(row["worker_job_id"]))
     except WorkerAdapterError as error:
         return error.message
     try:
@@ -103,7 +106,9 @@ def _dispatch_waiting_job(app, row):
                 app.fail_job_once(row["id"], "File đầu vào của job không còn tồn tại")
                 return None
             opened[field] = (path.name, path.open("rb"), mimetypes.guess_type(path.name)[0] or "application/octet-stream")
-        accepted = adapter.submit(row["client_job_id"], input_data, opened)
+        accepted = (adapter.submit_upscale(str(row["user_id"]), row["client_job_id"], opened)
+                    if row["service"] == "image_upscale"
+                    else adapter.submit(row["client_job_id"], input_data, opened))
     except WorkerAdapterError:
         return dict(row)
     finally:
@@ -141,7 +146,10 @@ def refresh_job(user_id: int, job_id: int):
     if row["status"] == "upscaling":
         return video_upscale_pipeline.persist(app, job_id, video_upscale_pipeline.poll(app, dict(row)))
     try:
-        payload = app.service_adapters[row["service"]].status(row["worker_job_id"])
+        adapter = app.service_adapters[row["service"]]
+        payload = (adapter.status_upscale(row["worker_job_id"], str(user_id))
+                   if row["service"] == "image_upscale"
+                   else adapter.status(row["worker_job_id"]))
     except WorkerAdapterError:
         return dict(row)
     normalized = normalize_status(payload.get("status"))
@@ -457,7 +465,9 @@ async def create_job(
             accepted = {"job_id": f"mock-{job_id}", "status": "queued"}
         elif adapter.config.configured and service.model:
             try:
-                accepted = adapter.submit(client_job_id, payload, opened)
+                accepted = (adapter.submit_upscale(str(user["id"]), client_job_id, opened)
+                            if service_key == "image_upscale"
+                            else adapter.submit(client_job_id, payload, opened))
             except WorkerAdapterError:
                 accepted = {"job_id": None, "status": "worker_unavailable"}
         else:
@@ -501,7 +511,10 @@ async def create_job(
     except Exception:
         con.rollback()
         try:
-            adapter.cancel(accepted["job_id"])
+            if service_key == "image_upscale":
+                adapter.cancel_upscale(accepted["job_id"], str(user["id"]))
+            else:
+                adapter.cancel(accepted["job_id"])
         except WorkerAdapterError:
             pass
         raise
@@ -576,7 +589,10 @@ def result(service_key: str, job_id: int, request: Request):
         try:
             upstream = video_upscale_pipeline.result_response(app, row) if service_key == "video_generation" else None
             if upstream is None:
-                upstream = app.service_adapters[service_key].result(row["worker_job_id"])
+                adapter = app.service_adapters[service_key]
+                upstream = (adapter.result_upscale(row["worker_job_id"], str(user["id"]))
+                            if service_key == "image_upscale"
+                            else adapter.result(row["worker_job_id"]))
         except WorkerAdapterError as error:
             raise worker_error(error)
         
@@ -601,7 +617,11 @@ def cancel(service_key: str, job_id: int, request: Request):
     if row["status"] != "waiting":
         raise HTTPException(409, "Chỉ có thể hủy job đang chờ")
     try:
-        app.service_adapters[service_key].cancel(row["worker_job_id"])
+        adapter = app.service_adapters[service_key]
+        if service_key == "image_upscale":
+            adapter.cancel_upscale(row["worker_job_id"], str(user["id"]))
+        else:
+            adapter.cancel(row["worker_job_id"])
     except WorkerAdapterError as error:
         raise worker_error(error)
     return public_job(refresh_job(user["id"], job_id))

@@ -5,13 +5,16 @@ from html.parser import HTMLParser
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from fastapi import UploadFile
 from starlette.requests import Request
 
 import app
 import service_routes
-from service_worker_adapters import normalize_status, WorkerAdapterError
+from service_worker_adapters import (
+    normalize_status, ProductionUpscaleAdapter, WorkerAdapterError, WorkerConfig,
+)
 from storage_backend import LocalStorage
 
 
@@ -161,6 +164,158 @@ class ServiceAPITests(unittest.TestCase):
                 {"source_image": self.image(), "background_image": None}
             )
         self.assertEqual(400, raised.exception.status_code)
+
+
+class FakeHTTPResponse:
+    def __init__(self, json_value=None, content=b"", content_type="image/png", status_code=200):
+        self.json_value = json_value
+        self.content = content
+        self.headers = {"content-type": content_type, "content-length": str(len(content))}
+        self.status_code = status_code
+        self.closed = False
+
+    def json(self):
+        return self.json_value
+
+    def close(self):
+        self.closed = True
+
+    def iter_content(self, chunk_size=1024 * 1024):
+        yield self.content
+
+
+class ProductionUpscaleAdapterTests(unittest.TestCase):
+    def setUp(self):
+        service = service_routes.SERVICES["image_upscale"]
+        self.adapter = ProductionUpscaleAdapter(
+            service, WorkerConfig("https://ai.example", "secret-token", 30)
+        )
+
+    @patch("service_worker_adapters.requests.request")
+    def test_upload_then_submit_uses_production_contract(self, request):
+        request.side_effect = [
+            FakeHTTPResponse({"upload": {"id": "upload-123"}}),
+            FakeHTTPResponse({"id": "remote-456", "status": "queued"}),
+        ]
+        source = io.BytesIO(b"raw-image")
+        result = self.adapter.submit_upscale(
+            "42", "stable-client-job", {"source_image": ("portrait.png", source, "image/png")}
+        )
+
+        upload_call, submit_call = request.call_args_list
+        self.assertEqual(("POST", "https://ai.example/v1/uploads"), upload_call.args)
+        self.assertEqual(b"raw-image", upload_call.kwargs["data"].getvalue())
+        self.assertEqual("Bearer secret-token", upload_call.kwargs["headers"]["Authorization"])
+        self.assertEqual("42", upload_call.kwargs["headers"]["X-Owner-ID"])
+        self.assertEqual("portrait.png", upload_call.kwargs["headers"]["X-Filename"])
+        self.assertEqual("image/png", upload_call.kwargs["headers"]["Content-Type"])
+        self.assertNotIn("files", upload_call.kwargs)
+
+        self.assertEqual(("POST", "https://ai.example/v1/jobs"), submit_call.args)
+        self.assertEqual("Bearer secret-token", submit_call.kwargs["headers"]["Authorization"])
+        self.assertEqual("42", submit_call.kwargs["headers"]["X-Owner-ID"])
+        self.assertNotIn("files", submit_call.kwargs)
+        self.assertNotIn("data", submit_call.kwargs)
+        self.assertEqual({
+            "owner_id": "42",
+            "client_job_id": "stable-client-job",
+            "operation": "image-upscale-restoration",
+            "model_id": "realesrgan",
+            "inputs": {"image": {"upload_id": "upload-123"}},
+            "parameters": {},
+        }, submit_call.kwargs["json"])
+        self.assertEqual("remote-456", result["job_id"])
+
+    @patch("service_worker_adapters.requests.request")
+    def test_succeeded_poll_and_output_endpoint(self, request):
+        request.side_effect = [
+            FakeHTTPResponse({"id": "remote-456", "status": "succeeded"}),
+            FakeHTTPResponse(content=b"upscaled-image"),
+        ]
+        status = self.adapter.status_upscale("remote-456", "42")
+        output = self.adapter.result_upscale("remote-456", "42")
+
+        self.assertEqual("completed", status["status"])
+        self.assertEqual("https://ai.example/v1/jobs/remote-456", request.call_args_list[0].args[1])
+        self.assertEqual("42", request.call_args_list[0].kwargs["headers"]["X-Owner-ID"])
+        self.assertEqual("https://ai.example/v1/jobs/remote-456/output", request.call_args_list[1].args[1])
+        self.assertTrue(request.call_args_list[1].kwargs["stream"])
+        self.assertEqual(b"upscaled-image", output.content)
+
+    @patch("service_worker_adapters.requests.request")
+    def test_health_uses_ready_endpoint(self, request):
+        request.return_value = FakeHTTPResponse({"ready": True})
+        self.assertTrue(self.adapter.health()["online"])
+        self.assertEqual("https://ai.example/health/ready", request.call_args.args[1])
+
+
+class UpscaleResultSecurityTests(unittest.TestCase):
+    class ResultAdapter(FakeAdapter):
+        def result_upscale(self, worker_job_id, owner_id):
+            self.result_owner = owner_id
+            return FakeHTTPResponse(content=b"upscaled-image")
+
+    def setUp(self):
+        ServiceAPITests.setUp(self)
+        self.result_adapter = self.ResultAdapter()
+        app.service_adapters["image_upscale"] = self.result_adapter
+        con = app.db()
+        con.execute(
+            """INSERT INTO jobs(
+               user_id,model,service,aspect_ratio,quality,prompt,cost,image_path,video_path,
+               status,progress,created_at,updated_at,request_key,client_job_id,credit_reserved,
+               input_json,priority,worker_job_id
+            ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (self.user_id, "AI Nâng Cấp Ảnh", "image_upscale", "n/a", "worker", "", 0,
+             "", "", "done", 100, app.now_iso(), app.now_iso(), "result-key",
+             "result-client", 0, "{}", 10, "remote-result"),
+        )
+        self.result_job_id = con.execute(
+            "SELECT id FROM jobs WHERE request_key='result-key'"
+        ).fetchone()["id"]
+        con.execute(
+            """INSERT INTO users(email,name,password_hash,credits,role,created_at)
+               VALUES('other@example.com','Other User','x',3,'user',?)""",
+            (app.now_iso(),),
+        )
+        other_id = con.execute(
+            "SELECT id FROM users WHERE email='other@example.com'"
+        ).fetchone()["id"]
+        con.execute(
+            "INSERT INTO sessions(token,user_id,expires_at) VALUES('other-session',?,?)",
+            (other_id, "2999-01-01T00:00:00+00:00"),
+        )
+        con.commit()
+        con.close()
+
+    def tearDown(self):
+        ServiceAPITests.tearDown(self)
+
+    @staticmethod
+    def auth_request(token):
+        return Request({
+            "type": "http", "method": "GET", "path": "/",
+            "query_string": b"", "headers": [(b"cookie", f"mh_session={token}".encode())],
+        })
+
+    def test_browser_result_endpoint_streams_upscale_output(self):
+        response = service_routes.result(
+            "image_upscale", self.result_job_id, self.auth_request("service-session")
+        )
+
+        async def body():
+            return b"".join([chunk async for chunk in response.body_iterator])
+
+        self.assertEqual(b"upscaled-image", asyncio.run(body()))
+        self.assertEqual("image/png", response.media_type)
+        self.assertEqual(str(self.user_id), self.result_adapter.result_owner)
+
+    def test_other_user_cannot_retrieve_upscale_result(self):
+        with self.assertRaises(Exception) as raised:
+            service_routes.result(
+                "image_upscale", self.result_job_id, self.auth_request("other-session")
+            )
+        self.assertEqual(404, raised.exception.status_code)
 
 
 class StatusNormalizationTests(unittest.TestCase):

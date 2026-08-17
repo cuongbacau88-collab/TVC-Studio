@@ -121,6 +121,73 @@ class ServiceWorkerAdapter:
             return {"configured": True, "online": False, "status": "offline", "error": error.code}
 
 
+class ProductionUpscaleAdapter(ServiceWorkerAdapter):
+    """Adapter for the authenticated production GPU API upload/job contract."""
+
+    def _owner_request(self, method: str, path: str, owner_id: str, **kwargs) -> requests.Response:
+        headers = kwargs.pop("headers", {})
+        headers["X-Owner-ID"] = str(owner_id)
+        return self._request(method, path, headers=headers, **kwargs)
+
+    def submit_upscale(self, owner_id: str, client_job_id: str,
+                       files: dict[str, tuple[str, BinaryIO, str]]) -> dict:
+        source = files.get("source_image")
+        if source is None:
+            raise WorkerAdapterError("Thiếu ảnh cần nâng cấp", 400, "source_image_required")
+        filename, stream, media_type = source
+        upload = self._json(self._owner_request(
+            "POST", "/v1/uploads", owner_id, data=stream,
+            headers={"X-Filename": filename, "Content-Type": media_type},
+        )).get("upload")
+        upload_id = str(upload.get("id") or "") if isinstance(upload, dict) else ""
+        if not upload_id:
+            raise WorkerAdapterError("Máy chủ xử lý chưa xác nhận file tải lên")
+        value = self._json(self._owner_request(
+            "POST", "/v1/jobs", owner_id, json={
+                "owner_id": str(owner_id),
+                "client_job_id": client_job_id,
+                "operation": "image-upscale-restoration",
+                "model_id": "realesrgan",
+                "inputs": {"image": {"upload_id": upload_id}},
+                "parameters": {},
+            },
+        ))
+        job_id = str(value.get("id") or "")
+        if not job_id:
+            raise WorkerAdapterError("Máy chủ xử lý chưa xác nhận job")
+        value["job_id"] = job_id
+        value["status"] = normalize_status(value.get("status"))
+        return value
+
+    def status_upscale(self, worker_job_id: str, owner_id: str) -> dict:
+        value = self._json(self._owner_request(
+            "GET", f"/v1/jobs/{quote(worker_job_id, safe='')}", owner_id,
+        ))
+        value["status"] = normalize_status(value.get("status"))
+        return value
+
+    def cancel_upscale(self, worker_job_id: str, owner_id: str) -> dict:
+        value = self._json(self._owner_request(
+            "DELETE", f"/v1/jobs/{quote(worker_job_id, safe='')}", owner_id,
+        ))
+        value["status"] = normalize_status(value.get("status"))
+        return value
+
+    def result_upscale(self, worker_job_id: str, owner_id: str) -> requests.Response:
+        return self._owner_request(
+            "GET", f"/v1/jobs/{quote(worker_job_id, safe='')}/output", owner_id, stream=True,
+        )
+
+    def health(self) -> dict:
+        if not self.config.configured:
+            return {"configured": False, "online": False, "status": "not_configured"}
+        try:
+            value = self._json(self._request("GET", "/health/ready"))
+            return {"configured": True, "online": True, "status": "online", "detail": value}
+        except WorkerAdapterError as error:
+            return {"configured": True, "online": False, "status": "offline", "error": error.code}
+
+
 def normalize_status(value) -> str:
     return STATUS_MAP.get(str(value or "").strip().lower(), "queued")
 
@@ -162,7 +229,8 @@ def build_adapters() -> dict[str, ServiceWorkerAdapter]:
     result = {}
     for key, service in SERVICES.items():
         prefix = service.worker_prefix
-        result[key] = ServiceWorkerAdapter(service, WorkerConfig(
+        adapter_class = ProductionUpscaleAdapter if key == "image_upscale" else ServiceWorkerAdapter
+        result[key] = adapter_class(service, WorkerConfig(
             os.getenv(f"{prefix}_WORKER_URL", "").strip(),
             os.getenv(f"{prefix}_WORKER_TOKEN", "").strip(),
             timeout,
