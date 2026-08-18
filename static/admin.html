@@ -41,16 +41,21 @@
       </label>
       <button type="button" class="wf-btn secondary" id="wfBtnNew">? M?i</button>
       <button type="button" class="wf-btn secondary" id="wfBtnDuplicate">?? Nh?n b?n</button>
+      <button type="button" class="wf-btn import" id="wfBtnImport">⇩ Import JSON</button>
+      <button type="button" class="wf-btn export" id="wfBtnExport">⇪ Export JSON</button>
+      <input type="file" id="wfImportFile" accept="application/json,.json" hidden>
     </div>
     <div class="wf-toolbar-center">
       <input type="text" id="wfTitleInput" class="wf-title-input" placeholder="T?n Workflow..." value="Wan 2.1 Video Motion Studio">
     </div>
     <div class="wf-toolbar-right">
-      <button type="button" class="wf-btn primary" id="wfBtnSave">?? L?u Workflow</button>
-      <button type="button" class="wf-btn run" id="wfBtnRun">? Ch?y Th? Nghi?m (Test Run)</button>
-      <button type="button" class="wf-btn publish" id="wfBtnPublish">?? Xu?t B?n M?u Ra Trang Ch?</button>
+      <button type="button" class="wf-btn primary" id="wfBtnSave">💾 Lưu Workflow</button>
+      <button type="button" class="wf-btn run" id="wfBtnRun">▶ Chạy Thử Nghiệm (Test Run)</button>
+      <button type="button" class="wf-btn publish" id="wfBtnPublish">🚀 Xuất Bản Mẫu Ra Trang Chủ</button>
     </div>
   </div>
+
+  <div class="wf-template-strip" id="wfTemplateStrip" aria-label="Workflow templates"></div>
 
   <!-- Main Workflow Studio Canvas Workspace -->
   <div class="wf-workspace">

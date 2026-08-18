@@ -653,81 +653,94 @@ def health_workers(request: Request):
 
 WORKFLOWS_FILE = Path("data/workflows.json")
 
+
+def build_default_workflows():
+    return [
+        {
+            "id": "wf_wan21_motion",
+            "name": "Wan 2.1 Video Motion Studio",
+            "description": "Sao chép chuyển động video mẫu và tạo video chân thực từ ảnh nhân vật bằng Wan 2.1.",
+            "category": "video",
+            "published": True,
+            "created_at": "2026-08-18T10:00:00Z",
+            "updated_at": "2026-08-18T14:00:00Z",
+            "nodes": [
+                {"id": "node_1", "type": "input_image", "title": "Ảnh Nhân Vật Gốc", "x": 60, "y": 100, "params": {"slot": "character_image"}},
+                {"id": "node_2", "type": "input_prompt", "title": "Câu lệnh Prompt", "x": 60, "y": 320, "params": {"prompt": "A young woman smiling naturally in cinematic lighting, 4k ultra realistic"}},
+                {"id": "node_3", "type": "wan_video", "title": "Wan 2.1 Video Generator", "x": 400, "y": 160, "params": {"steps": 30, "cfg": 6.5, "seed": 1337, "fps": 24, "duration": 5.0, "denoise": 0.85}},
+                {"id": "node_4", "type": "realesrgan", "title": "RealESRGAN Upscale", "x": 760, "y": 160, "params": {"scale": 4, "restore_face": True, "denoise": 0.3}},
+                {"id": "node_5", "type": "output_video", "title": "Xuất Video MP4", "x": 1080, "y": 160, "params": {"codec": "h264", "bitrate": "12M", "format": "mp4"}}
+            ],
+            "links": [
+                {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
+                {"id": "link_2", "from_node": "node_2", "from_port": "text", "to_node": "node_3", "to_port": "prompt"},
+                {"id": "link_3", "from_node": "node_3", "from_port": "video", "to_node": "node_4", "to_port": "input"},
+                {"id": "link_4", "from_node": "node_4", "from_port": "output", "to_node": "node_5", "to_port": "video"}
+            ]
+        },
+        {
+            "id": "wf_minimax_h3",
+            "name": "MiniMax-H3 Ultra Motion Pipeline",
+            "description": "Tạo video biểu cảm thần thái sống động theo công nghệ MiniMax-H3 tương tự Veo 3.",
+            "category": "video",
+            "published": True,
+            "created_at": "2026-08-18T10:30:00Z",
+            "updated_at": "2026-08-18T14:10:00Z",
+            "nodes": [
+                {"id": "node_1", "type": "input_image", "title": "Ảnh Tham Chiếu", "x": 60, "y": 140, "params": {"slot": "source_image"}},
+                {"id": "node_2", "type": "input_prompt", "title": "Prompt Chỉ Đạo", "x": 60, "y": 360, "params": {"prompt": "Smooth camera pan, lifelike skin tone, natural flowing movement"}},
+                {"id": "node_3", "type": "minimax_h3", "title": "MiniMax-H3 Engine", "x": 420, "y": 200, "params": {"steps": 40, "cfg": 7.0, "seed": 42000, "motion_intensity": 1.2}},
+                {"id": "node_4", "type": "output_video", "title": "Xuất Video Hoàn Chỉnh", "x": 800, "y": 200, "params": {"codec": "h264", "format": "mp4"}}
+            ],
+            "links": [
+                {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
+                {"id": "link_2", "from_node": "node_2", "from_port": "text", "to_node": "node_3", "to_port": "prompt"},
+                {"id": "link_3", "from_node": "node_3", "from_port": "video", "to_node": "node_4", "to_port": "video"}
+            ]
+        },
+        {
+            "id": "wf_flux2_outfit",
+            "name": "FLUX.2 Klein Đổi Trang Phục",
+            "description": "Thay đổi trang phục cho nhân vật từ ảnh mẫu với khả năng bảo toàn khuôn mặt và nhận dạng.",
+            "category": "image",
+            "published": True,
+            "created_at": "2026-08-18T11:00:00Z",
+            "updated_at": "2026-08-18T14:15:00Z",
+            "nodes": [
+                {"id": "node_1", "type": "input_image", "title": "Ảnh Nhân Vật", "x": 60, "y": 100, "params": {"slot": "person"}},
+                {"id": "node_2", "type": "input_image", "title": "Ảnh Trang Phục Mới", "x": 60, "y": 320, "params": {"slot": "outfit"}},
+                {"id": "node_3", "type": "flux2_klein", "title": "FLUX.2 Klein Editor", "x": 420, "y": 180, "params": {"steps": 28, "cfg": 4.5, "denoise": 0.75, "preserve_face": True}},
+                {"id": "node_4", "type": "realesrgan", "title": "RealESRGAN 4x Upscale", "x": 780, "y": 180, "params": {"scale": 4, "restore_face": True}},
+                {"id": "node_5", "type": "output_video", "title": "Xuất Ảnh Kết Quả", "x": 1100, "y": 180, "params": {"format": "png"}}
+            ],
+            "links": [
+                {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
+                {"id": "link_2", "from_node": "node_2", "from_port": "image", "to_node": "node_3", "to_port": "reference"},
+                {"id": "link_3", "from_node": "node_3", "from_port": "image", "to_node": "node_4", "to_port": "input"},
+                {"id": "link_4", "from_node": "node_4", "from_port": "output", "to_node": "node_5", "to_port": "image"}
+            ]
+        }
+    ]
+
+
 def load_workflows_db():
     if not WORKFLOWS_FILE.exists():
-        default_templates = [
-            {
-                "id": "wf_wan21_motion",
-                "name": "Wan 2.1 Video Motion Studio",
-                "description": "Sao ch?p chuy?n ??ng video m?u v? t?o video ch?n th?c t? ?nh nh?n v?t b?ng Wan 2.1.",
-                "category": "video",
-                "published": True,
-                "created_at": "2026-08-18T10:00:00Z",
-                "updated_at": "2026-08-18T14:00:00Z",
-                "nodes": [
-                    {"id": "node_1", "type": "input_image", "title": "?nh Nh?n V?t G?c", "x": 60, "y": 100, "params": {"slot": "character_image"}},
-                    {"id": "node_2", "type": "input_prompt", "title": "C?u l?nh Prompt", "x": 60, "y": 320, "params": {"prompt": "A young woman smiling naturally in cinematic lighting, 4k ultra realistic"}},
-                    {"id": "node_3", "type": "wan_video", "title": "Wan 2.1 Video Generator", "x": 400, "y": 160, "params": {"steps": 30, "cfg": 6.5, "seed": 1337, "fps": 24, "duration": 5.0, "denoise": 0.85}},
-                    {"id": "node_4", "type": "realesrgan", "title": "RealESRGAN Upscale", "x": 760, "y": 160, "params": {"scale": 4, "restore_face": True, "denoise": 0.3}},
-                    {"id": "node_5", "type": "output_video", "title": "Xu?t Video MP4", "x": 1080, "y": 160, "params": {"codec": "h264", "bitrate": "12M", "format": "mp4"}}
-                ],
-                "links": [
-                    {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
-                    {"id": "link_2", "from_node": "node_2", "from_port": "text", "to_node": "node_3", "to_port": "prompt"},
-                    {"id": "link_3", "from_node": "node_3", "from_port": "video", "to_node": "node_4", "to_port": "input"},
-                    {"id": "link_4", "from_node": "node_4", "from_port": "output", "to_node": "node_5", "to_port": "video"}
-                ]
-            },
-            {
-                "id": "wf_minimax_h3",
-                "name": "MiniMax-H3 Ultra Motion Pipeline",
-                "description": "T?o video bi?u c?m th?n th?i s?ng ??ng theo c?ng ngh? MiniMax-H3 t??ng t? Veo 3.",
-                "category": "video",
-                "published": True,
-                "created_at": "2026-08-18T10:30:00Z",
-                "updated_at": "2026-08-18T14:10:00Z",
-                "nodes": [
-                    {"id": "node_1", "type": "input_image", "title": "?nh Tham Chi?u", "x": 60, "y": 140, "params": {"slot": "source_image"}},
-                    {"id": "node_2", "type": "input_prompt", "title": "Prompt Ch? ??o", "x": 60, "y": 360, "params": {"prompt": "Smooth camera pan, lifelike skin tone, natural flowing movement"}},
-                    {"id": "node_3", "type": "minimax_h3", "title": "MiniMax-H3 Engine", "x": 420, "y": 200, "params": {"steps": 40, "cfg": 7.0, "seed": 42000, "motion_intensity": 1.2}},
-                    {"id": "node_4", "type": "output_video", "title": "Xu?t Video Ho?n Ch?nh", "x": 800, "y": 200, "params": {"codec": "h264", "format": "mp4"}}
-                ],
-                "links": [
-                    {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
-                    {"id": "link_2", "from_node": "node_2", "from_port": "text", "to_node": "node_3", "to_port": "prompt"},
-                    {"id": "link_3", "from_node": "node_3", "from_port": "video", "to_node": "node_4", "to_port": "video"}
-                ]
-            },
-            {
-                "id": "wf_flux2_outfit",
-                "name": "FLUX.2 Klein ??i Trang Ph?c",
-                "description": "Thay ??i trang ph?c cho nh?n v?t t? ?nh m?u v?i kh? n?ng b?o to?n khu?n m?t v? nh?n d?ng.",
-                "category": "image",
-                "published": True,
-                "created_at": "2026-08-18T11:00:00Z",
-                "updated_at": "2026-08-18T14:15:00Z",
-                "nodes": [
-                    {"id": "node_1", "type": "input_image", "title": "?nh Nh?n V?t", "x": 60, "y": 100, "params": {"slot": "person"}},
-                    {"id": "node_2", "type": "input_image", "title": "?nh Trang Ph?c M?i", "x": 60, "y": 320, "params": {"slot": "outfit"}},
-                    {"id": "node_3", "type": "flux2_klein", "title": "FLUX.2 Klein Editor", "x": 420, "y": 180, "params": {"steps": 28, "cfg": 4.5, "denoise": 0.75, "preserve_face": True}},
-                    {"id": "node_4", "type": "realesrgan", "title": "RealESRGAN 4x Upscale", "x": 780, "y": 180, "params": {"scale": 4, "restore_face": True}},
-                    {"id": "node_5", "type": "output_video", "title": "Xu?t ?nh K?t Qu?", "x": 1100, "y": 180, "params": {"format": "png"}}
-                ],
-                "links": [
-                    {"id": "link_1", "from_node": "node_1", "from_port": "image", "to_node": "node_3", "to_port": "image"},
-                    {"id": "link_2", "from_node": "node_2", "from_port": "image", "to_node": "node_3", "to_port": "reference"},
-                    {"id": "link_3", "from_node": "node_3", "from_port": "image", "to_node": "node_4", "to_port": "input"},
-                    {"id": "link_4", "from_node": "node_4", "from_port": "output", "to_node": "node_5", "to_port": "image"}
-                ]
-            }
-        ]
+        default_templates = build_default_workflows()
         WORKFLOWS_FILE.parent.mkdir(parents=True, exist_ok=True)
         WORKFLOWS_FILE.write_text(json.dumps(default_templates, ensure_ascii=False, indent=2), encoding="utf-8")
         return default_templates
     try:
-        return json.loads(WORKFLOWS_FILE.read_text(encoding="utf-8"))
+        workflows = json.loads(WORKFLOWS_FILE.read_text(encoding="utf-8"))
+        if not workflows:
+            default_templates = build_default_workflows()
+            WORKFLOWS_FILE.write_text(json.dumps(default_templates, ensure_ascii=False, indent=2), encoding="utf-8")
+            return default_templates
+        return workflows
     except Exception:
-        return []
+        default_templates = build_default_workflows()
+        WORKFLOWS_FILE.parent.mkdir(parents=True, exist_ok=True)
+        WORKFLOWS_FILE.write_text(json.dumps(default_templates, ensure_ascii=False, indent=2), encoding="utf-8")
+        return default_templates
 
 def save_workflows_db(workflows):
     WORKFLOWS_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -759,6 +772,62 @@ async def save_admin_workflow(request: Request):
         workflows.append(payload)
     save_workflows_db(workflows)
     return {"status": "saved", "workflow": payload}
+
+
+@router.get("/api/admin/workflows/export")
+def export_admin_workflow(request: Request, workflow_id: str | None = None):
+    app = core()
+    app.require_admin(request)
+    workflows = load_workflows_db()
+    target = next((w for w in workflows if w.get("id") == workflow_id), None) if workflow_id else (workflows[0] if workflows else None)
+    if not target:
+        raise HTTPException(404, "Không tìm thấy workflow để xuất")
+    filename = f"{(target.get('name') or 'workflow').strip()[:40] or 'workflow'}".lower()
+    filename = ''.join(ch if ch.isalnum() or ch in {'-', '_'} else '-' for ch in filename).strip('-') or 'workflow'
+    payload = json.dumps(target, ensure_ascii=False, indent=2)
+    return Response(
+        content=payload,
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="{filename}.json"'}
+    )
+
+
+@router.post("/api/admin/workflows/import")
+async def import_admin_workflow(request: Request, file: UploadFile = File(...)):
+    app = core()
+    app.require_admin(request)
+    try:
+        raw = await file.read()
+        data = json.loads(raw.decode("utf-8"))
+    except Exception as exc:
+        raise HTTPException(400, "File workflow không hợp lệ hoặc không phải JSON") from exc
+
+    items = data if isinstance(data, list) else [data]
+    if not all(isinstance(item, dict) for item in items):
+        raise HTTPException(400, "Workflow JSON phải là object hoặc mảng object")
+
+    workflows = load_workflows_db()
+    imported = []
+    for item in items:
+        wf = dict(item)
+        wf["id"] = str(wf.get("id") or f"wf_{secrets.token_hex(4)}")
+        wf["name"] = str(wf.get("name") or "Imported Workflow")
+        wf["nodes"] = wf.get("nodes") if isinstance(wf.get("nodes"), list) else []
+        wf["links"] = wf.get("links") if isinstance(wf.get("links"), list) else []
+        wf["description"] = wf.get("description") or "Workflow đã import từ file JSON"
+        wf["published"] = bool(wf.get("published", False))
+        wf["updated_at"] = app.now_iso() if hasattr(app, "now_iso") else "2026-08-18T14:30:00Z"
+        if not wf.get("created_at"):
+            wf["created_at"] = wf["updated_at"]
+        existing = next((idx for idx, existing_wf in enumerate(workflows) if existing_wf.get("id") == wf["id"]), None)
+        if existing is not None:
+            workflows[existing] = {**workflows[existing], **wf}
+        else:
+            workflows.append(wf)
+        imported.append(wf)
+
+    save_workflows_db(workflows)
+    return {"status": "imported", "count": len(imported), "workflow": imported[0] if len(imported) == 1 else imported}
 
 
 @router.post("/api/admin/workflows/{workflow_id}/publish")

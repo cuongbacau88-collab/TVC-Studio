@@ -48,9 +48,10 @@ class ServiceWorkerAdapter:
             raise WorkerAdapterError(
                 "Dịch vụ chưa kết nối máy chủ xử lý", 503, "worker_not_configured"
             )
-        headers = kwargs.pop("headers", {})
+        headers = dict(kwargs.pop("headers", {}))
         headers["Authorization"] = f"Bearer {self.config.token}"
-        headers["X-Owner-ID"] = "tvc-frontend"
+        if "X-Owner-ID" not in headers:
+            headers["X-Owner-ID"] = "tvc-frontend"
         try:
             response = requests.request(
                 method, self.config.url.rstrip("/") + path,

@@ -20,6 +20,11 @@ function jobDisplayName(job) {
   return job.service === 'video_generation' ? 'AI Video Creator' : !job.service ? 'AI Motion Studio' : job.model;
 }
 
+function redirectToLogin() {
+  const returnTo = encodeURIComponent('/admin');
+  location.href = `/app?return_to=${returnTo}#login`;
+}
+
 async function boot() {
   try {
     const me = await api('/api/me');
@@ -27,8 +32,12 @@ async function boot() {
     initAdminTabs();
     await load();
   } catch (e) {
-    alert(e.message);
-    location.href = '/';
+    if (e && e.message === 'Kh?ng c? quy?n admin') {
+      alert('Tài khoản hiện tại không phải admin.');
+      location.href = '/';
+      return;
+    }
+    redirectToLogin();
   }
 }
 
@@ -202,7 +211,7 @@ const NODE_DEFS = {
 let currentWorkflow = {
   id: "wf_wan21_motion",
   name: "Wan 2.1 Video Motion Studio",
-  description: "Sao ch?p chuy?n ??ng video m?u v? t?o video ch?n th?c t? ?nh nh?n v?t b?ng Wan 2.1.",
+  description: "Sao chép chuyển động video mẫu và tạo video chân thực từ ảnh nhân vật bằng Wan 2.1.",
   nodes: [],
   links: []
 };
@@ -211,6 +220,121 @@ let allWorkflows = [];
 let connectingPort = null;
 let zoomLevel = 1;
 let panOffset = { x: 0, y: 0 };
+let selectedNodeId = null;
+
+function createStarterWorkflow() {
+  return {
+    id: "wf_wan21_motion",
+    name: "Wan 2.1 Video Motion Studio",
+    description: "Sao chép chuyển động video mẫu và tạo video chân thực từ ảnh nhân vật bằng Wan 2.1.",
+    published: true,
+    nodes: [
+      { id: "node_1", type: "input_image", title: "Ảnh Nhân Vật Gốc", x: 60, y: 120, params: { slot: "character_image" } },
+      { id: "node_2", type: "input_prompt", title: "Prompt Đầu Vào", x: 60, y: 330, params: { prompt: "Cinematic portrait, 4k, natural motion, realistic lighting" } },
+      { id: "node_3", type: "wan_video", title: "Wan 2.1 Video", x: 420, y: 200, params: { steps: 30, cfg: 6.5, seed: 1234, denoise: 0.85 } },
+      { id: "node_4", type: "output_video", title: "Xuất Video", x: 820, y: 200, params: { codec: "h264", format: "mp4" } }
+    ],
+    links: [
+      { id: "link_1", from_node: "node_1", from_port: "image", to_node: "node_3", to_port: "image" },
+      { id: "link_2", from_node: "node_2", from_port: "text", to_node: "node_3", to_port: "prompt" },
+      { id: "link_3", from_node: "node_3", from_port: "video", to_node: "node_4", to_port: "video" }
+    ]
+  };
+}
+
+function validateCurrentWorkflow({ forPublish = false } = {}) {
+  const name = (currentWorkflow?.name || $('#wfTitleInput')?.value || '').trim();
+  if (!name) {
+    return { ok: false, message: 'Workflow cần có tên trước khi lưu hoặc xuất bản.' };
+  }
+  const nodeIds = new Set((currentWorkflow?.nodes || []).map(node => node.id));
+  const invalidLinks = (currentWorkflow?.links || []).filter(link => !nodeIds.has(link.from_node) || !nodeIds.has(link.to_node));
+  if ((currentWorkflow?.nodes || []).length === 0) {
+    return { ok: false, message: forPublish ? 'Workflow trống. Thêm ít nhất 1 node trước khi xuất bản.' : 'Workflow đang trống. Thêm node trước khi lưu.' };
+  }
+  if (invalidLinks.length > 0) {
+    return { ok: false, message: 'Có liên kết tham chiếu tới node không tồn tại. Hãy xóa hoặc sửa kết nối.' };
+  }
+  return { ok: true };
+}
+
+async function saveCurrentWorkflow() {
+  const validation = validateCurrentWorkflow();
+  if (!validation.ok) {
+    say(validation.message);
+    return false;
+  }
+  currentWorkflow.name = ($('#wfTitleInput').value || '').trim() || currentWorkflow.name || 'Workflow AI';
+  try {
+    const res = await api('/api/admin/workflows', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentWorkflow)
+    });
+    say('Lưu workflow thành công!');
+    currentWorkflow = JSON.parse(JSON.stringify(res.workflow || currentWorkflow));
+    await loadWorkflowsList();
+    if ($('#wfSelector')) $('#wfSelector').value = currentWorkflow.id;
+    return true;
+  } catch (e) {
+    say('Lỗi khi lưu: ' + e.message);
+    return false;
+  }
+}
+
+async function publishCurrentWorkflow() {
+  const validation = validateCurrentWorkflow({ forPublish: true });
+  if (!validation.ok) {
+    say(validation.message);
+    return false;
+  }
+  if (!confirm('Bạn muốn xuất bản workflow này ra trang chủ?')) return false;
+  try {
+    const res = await api(`/api/admin/workflows/${currentWorkflow.id}/publish`, { method: 'POST' });
+    say(res.message || 'Xuất bản workflow thành công!');
+    await loadWorkflowsList();
+    return true;
+  } catch (e) {
+    say('Lỗi khi xuất bản: ' + e.message);
+    return false;
+  }
+}
+
+function renderTemplateCards() {
+  const strip = $('#wfTemplateStrip');
+  if (!strip) return;
+  const workflows = Array.isArray(allWorkflows) && allWorkflows.length ? allWorkflows : [currentWorkflow].filter(Boolean);
+  strip.innerHTML = workflows.map((wf) => {
+    const active = currentWorkflow && wf.id === currentWorkflow.id ? 'active' : '';
+    const nodeCount = Array.isArray(wf.nodes) ? wf.nodes.length : 0;
+    const linkCount = Array.isArray(wf.links) ? wf.links.length : 0;
+    return `
+      <button type="button" class="wf-template-card ${active}" data-workflow-id="${wf.id}">
+        <div class="wf-template-card-header">
+          <span class="wf-template-tag">${wf.published ? 'Published' : 'Draft'}</span>
+          <span class="wf-template-node-count">${nodeCount} nodes</span>
+        </div>
+        <strong>${(wf.name || 'Workflow').slice(0, 28)}</strong>
+        <small>${(wf.description || 'Workflow AI').slice(0, 70)}</small>
+        <div class="wf-template-stats"><span>${linkCount} links</span><span>${wf.published ? 'Ready' : 'Editing'}</span></div>
+      </button>
+    `;
+  }).join('');
+
+  strip.querySelectorAll('.wf-template-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const id = card.dataset.workflowId;
+      const wf = allWorkflows.find(item => item.id === id) || currentWorkflow;
+      if (!wf) return;
+      currentWorkflow = JSON.parse(JSON.stringify(wf));
+      selectedNodeId = null;
+      $('#wfTitleInput').value = currentWorkflow.name || '';
+      $('#wfSelector').value = currentWorkflow.id;
+      renderWorkflowGraph();
+      renderTemplateCards();
+    });
+  });
+}
 
 async function initWorkflowStudio() {
   await loadWorkflowsList();
@@ -222,14 +346,25 @@ async function loadWorkflowsList() {
   try {
     allWorkflows = await api('/api/admin/workflows');
     const sel = $('#wfSelector');
-    sel.innerHTML = allWorkflows.map(w => `<option value="${w.id}">${w.name} ${w.published ? ' (?? xu?t b?n)' : ''}</option>`).join('');
-    if (allWorkflows.length > 0) {
-      currentWorkflow = JSON.parse(JSON.stringify(allWorkflows[0]));
+    if (!Array.isArray(allWorkflows) || allWorkflows.length === 0) {
+      currentWorkflow = createStarterWorkflow();
+      sel.innerHTML = `<option value="${currentWorkflow.id}">${currentWorkflow.name}</option>`;
       $('#wfTitleInput').value = currentWorkflow.name || '';
+      renderTemplateCards();
       renderWorkflowGraph();
+      return;
     }
+    sel.innerHTML = allWorkflows.map(w => `<option value="${w.id}">${w.name} ${w.published ? ' (Đã xuất bản)' : ''}</option>`).join('');
+    currentWorkflow = JSON.parse(JSON.stringify(allWorkflows[0]));
+    $('#wfTitleInput').value = currentWorkflow.name || '';
+    renderTemplateCards();
+    renderWorkflowGraph();
   } catch (e) {
-    say('Kh?ng t?i ???c danh s?ch workflow: ' + e.message);
+    say('Không tải được danh sách workflow: ' + e.message);
+    currentWorkflow = createStarterWorkflow();
+    $('#wfTitleInput').value = currentWorkflow.name || '';
+    renderTemplateCards();
+    renderWorkflowGraph();
   }
 }
 
@@ -280,6 +415,20 @@ function bindStudioEvents() {
     say("?? nh?n b?n workflow");
   });
 
+  $('#wfBtnImport').addEventListener('click', () => $('#wfImportFile').click());
+  $('#wfImportFile').addEventListener('change', async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    try {
+      await importWorkflowFile(file);
+    } catch (e) {
+      say('L?i import workflow: ' + e.message);
+    } finally {
+      event.target.value = '';
+    }
+  });
+  $('#wfBtnExport').addEventListener('click', exportCurrentWorkflow);
+
   $('#wfBtnClear').addEventListener('click', () => {
     if (confirm('X?a to?n b? nodes v? k?t n?i hi?n t?i?')) {
       currentWorkflow.nodes = [];
@@ -289,33 +438,41 @@ function bindStudioEvents() {
   });
 
   $('#wfBtnSave').addEventListener('click', async () => {
-    try {
-      currentWorkflow.name = $('#wfTitleInput').value || 'Workflow AI';
-      await api('/api/admin/workflows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentWorkflow)
-      });
-      say('?? l?u workflow th?nh c?ng!');
-      await loadWorkflowsList();
-      $('#wfSelector').value = currentWorkflow.id;
-    } catch (e) {
-      say('L?i khi l?u: ' + e.message);
-    }
+    await saveCurrentWorkflow();
   });
 
   $('#wfBtnPublish').addEventListener('click', async () => {
-    try {
-      if (!currentWorkflow.id) await $('#wfBtnSave').click();
-      const res = await api(`/api/admin/workflows/${currentWorkflow.id}/publish`, { method: 'POST' });
-      say(res.message || '?? xu?t b?n template ra trang ch? th?nh c?ng!');
-      await loadWorkflowsList();
-    } catch (e) {
-      say('L?i khi xu?t b?n: ' + e.message);
-    }
+    await publishCurrentWorkflow();
   });
 
   $('#wfBtnRun').addEventListener('click', runWorkflowTest);
+
+  document.addEventListener('keydown', (event) => {
+    const target = event.target;
+    const isTyping = target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+    if (isTyping) return;
+
+    const metaKey = event.ctrlKey || event.metaKey;
+    if (metaKey && event.key.toLowerCase() === 's') {
+      event.preventDefault();
+      saveCurrentWorkflow();
+      return;
+    }
+    if (metaKey && event.key.toLowerCase() === 'p') {
+      event.preventDefault();
+      publishCurrentWorkflow();
+      return;
+    }
+    if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNodeId) {
+      event.preventDefault();
+      deleteNode(selectedNodeId);
+      selectedNodeId = null;
+    }
+    if (event.key.toLowerCase() === 'n' && !metaKey) {
+      const type = 'wan_video';
+      addNodeToCanvas(type, 180 + Math.random() * 180, 160 + Math.random() * 150);
+    }
+  });
 
   $$('.add-node-btn').forEach(b => {
     b.addEventListener('click', e => {
@@ -378,6 +535,67 @@ function bindStudioEvents() {
   });
 }
 
+async function importWorkflowFile(file) {
+  const text = await file.text();
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    throw new Error('File không hợp lệ, phải là JSON workflow.');
+  }
+
+  const response = await fetch('/api/admin/workflows/import', {
+    method: 'POST',
+    body: (() => {
+      const form = new FormData();
+      form.append('file', file);
+      return form;
+    })()
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.detail || 'Import workflow thất b?i');
+  }
+
+  const imported = Array.isArray(payload.workflow) ? payload.workflow[0] : payload.workflow;
+  if (!imported) {
+    throw new Error('Không tìm th?y workflow ?? import');
+  }
+
+  currentWorkflow = JSON.parse(JSON.stringify(imported));
+  $('#wfTitleInput').value = currentWorkflow.name || '';
+  await loadWorkflowsList();
+  $('#wfSelector').value = currentWorkflow.id;
+  renderWorkflowGraph();
+  say(`?? import workflow: ${currentWorkflow.name}`);
+}
+
+async function exportCurrentWorkflow() {
+  const workflowId = currentWorkflow?.id || $('#wfSelector')?.value;
+  if (!workflowId) {
+    say('Ch?a c? workflow ch?n ?? xu?t');
+    return;
+  }
+
+  const response = await fetch(`/api/admin/workflows/export?workflow_id=${encodeURIComponent(workflowId)}`);
+  const blob = await response.blob();
+  if (!response.ok) {
+    const text = await blob.text().catch(() => '');
+    throw new Error(text || 'Xu?t workflow th?t b?i');
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${(currentWorkflow.name || 'workflow').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'workflow'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  say('?? xu?t workflow JSON th?nh c?ng');
+}
+
 function setZoom(lvl) {
   zoomLevel = Math.max(0.4, Math.min(1.8, lvl));
   updateCanvasTransform();
@@ -411,10 +629,14 @@ function renderWorkflowGraph() {
   currentWorkflow.nodes.forEach(node => {
     const schema = NODE_DEFS[node.type] || { title: node.title, icon: "??", inputs: [], outputs: [] };
     const el = document.createElement('div');
-    el.className = 'wf-node';
+    el.className = 'wf-node' + (selectedNodeId === node.id ? ' selected' : '');
     el.id = 'dom_' + node.id;
     el.style.left = node.x + 'px';
     el.style.top = node.y + 'px';
+    el.addEventListener('click', () => {
+      selectedNodeId = node.id;
+      renderWorkflowGraph();
+    });
 
     const head = document.createElement('div');
     head.className = 'wf-node-head';
@@ -590,10 +812,14 @@ function bindNodeDraggable(el, node) {
   let startX = 0, startY = 0, initialX = 0, initialY = 0;
 
   head.addEventListener('mousedown', e => {
+    selectedNodeId = node.id;
+    renderWorkflowGraph();
     startX = e.clientX;
     startY = e.clientY;
     initialX = node.x;
     initialY = node.y;
+    const nodeEl = e.currentTarget.closest('.wf-node');
+    if (nodeEl) nodeEl.classList.add('dragging');
 
     const onMove = ev => {
       const dx = (ev.clientX - startX) / zoomLevel;
@@ -608,6 +834,8 @@ function bindNodeDraggable(el, node) {
     const onUp = () => {
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
+      const nodeEl = document.getElementById('dom_' + node.id);
+      if (nodeEl) nodeEl.classList.remove('dragging');
     };
 
     document.addEventListener('mousemove', onMove);

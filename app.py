@@ -645,6 +645,26 @@ async def login(request: Request, response: Response):
     con.close()
     return {"ok": True, "role": u["role"]}
 
+@app.post("/api/admin/login")
+async def admin_login(request: Request, response: Response):
+    body = await request.json()
+    email = (body.get("email") or "").strip().lower()
+    password = body.get("password") or ""
+    if not email or not password:
+        raise HTTPException(400, "Thiếu email hoặc mật khẩu admin")
+    con = db()
+    u = con.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+    if not u or not verify_password(password, u["password_hash"]):
+        con.close()
+        raise HTTPException(401, "Sai email hoặc mật khẩu admin")
+    if u["role"] != "admin":
+        con.close()
+        raise HTTPException(403, "Tài khoản này không có quyền admin")
+    create_session(con, u["id"], response)
+    con.commit()
+    con.close()
+    return {"ok": True, "role": u["role"], "email": u["email"], "name": u["name"]}
+
 @app.post("/api/logout")
 def logout(request: Request, response: Response):
     token = request.cookies.get("mh_session")
