@@ -72,7 +72,7 @@ PUBLIC_SERVICE_CONFIG = {
     "video_generation": {
         "aspect_ratios": ["auto", "21:9", "16:9", "4:3", "1:1", "3:4", "9:16"],
         "durations": [
-            value.strip() for value in os.getenv("VIDEO_ALLOWED_DURATIONS", "5,10").split(",")
+            value.strip() for value in os.getenv("VIDEO_ALLOWED_DURATIONS", "10,15,20").split(",")
             if value.strip()
         ],
     },

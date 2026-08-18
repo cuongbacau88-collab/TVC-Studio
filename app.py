@@ -31,7 +31,7 @@ MAX_VIDEO_MB = 300
 JOB_SUBMIT_INFLIGHT_SECONDS = 600
 JOB_SUBMIT_COOLDOWN_SECONDS = 8
 RENDER_MODE = os.getenv("RENDER_MODE", "worker").strip().lower()
-MOCK_VIDEO_DURATION = os.getenv("MOCK_VIDEO_DURATION", "5").strip() or "5"
+MOCK_VIDEO_DURATION = os.getenv("MOCK_VIDEO_DURATION", "10").strip() or "10"
 
 WORKER_TOKEN = os.getenv("WORKER_TOKEN", "change-worker-token")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "cuongtv.bx92@gmail.com").lower()
