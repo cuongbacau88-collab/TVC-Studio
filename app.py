@@ -63,10 +63,10 @@ except ValueError:
     WORKER_HEARTBEAT_TIMEOUT_SECONDS = 90
 try:
     JOB_RENDER_TIMEOUT_SECONDS = max(
-        1, int(os.getenv("JOB_RENDER_TIMEOUT_SECONDS", "1800") or "1800")
+        1, int(os.getenv("JOB_RENDER_TIMEOUT_SECONDS", "180") or "1800")
     )
 except ValueError:
-    JOB_RENDER_TIMEOUT_SECONDS = 1800
+    JOB_RENDER_TIMEOUT_SECONDS = 180
 try:
     JOB_RECONCILE_INTERVAL_SECONDS = max(
         5, int(os.getenv("JOB_RECONCILE_INTERVAL_SECONDS", "30") or "30")

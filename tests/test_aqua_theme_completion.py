@@ -58,5 +58,5 @@ class AquaThemeCompletionTests(unittest.TestCase):
         self.assertTrue(pages)
         for page in pages:
             with self.subTest(page=page.name):
-                version = "20260818.6"
+                version = "20260818.15"
                 self.assertIn(f"theme-purple.css?v={version}", page.read_text(encoding="utf-8"))

@@ -1,0 +1,49 @@
+{
+  "3": {
+    "inputs": {
+      "model_name": "RealESRGAN_x4.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "Charger le modèle de mise à l'échelle"
+    }
+  },
+  "6": {
+    "inputs": {
+      "image": "z8055518447702_1a31c92a0f28820035bd0ea0ab6a3540.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Charger Image"
+    }
+  },
+  "9": {
+    "inputs": {
+      "upscale_model": [
+        "3",
+        0
+      ],
+      "image": [
+        "6",
+        0
+      ]
+    },
+    "class_type": "ImageUpscaleWithModel",
+    "_meta": {
+      "title": "Agrandir l'Image (à l'aide du Modèle)"
+    }
+  },
+  "10": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Enregistrer Image"
+    }
+  }
+}

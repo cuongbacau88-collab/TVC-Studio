@@ -266,11 +266,11 @@
           document.querySelector('[data-auth="login"]')?.click();
           document.querySelector('#authGate')?.scrollIntoView({behavior:'smooth'});
         } else {
-          location.href = targetUrl;
+          location.href=loginUrl();
           if(location.hash === '#login') location.reload();
         }
       } else {
-        location.href = targetUrl;
+        location.href=loginUrl();
       }
       return;
     }
