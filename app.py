@@ -1344,9 +1344,10 @@ def ledger(request: Request):
     return [dict(r) for r in rows]
 
 PACKAGES = {
-    "starter": (10_000, 3),
-    "creator": (60_000, 25),
-    "studio": (99_000, 50),
+    "starter": (20_000, 20),
+    "basic": (49_000, 50),
+    "creator": (199_000, 220),
+    "professional": (499_000, 575),
 }
 PAYOS_API_URL = "https://api-merchant.payos.vn/v2/payment-requests"
 PAYOS_CLIENT_ID = os.getenv("PAYOS_CLIENT_ID", "").strip()

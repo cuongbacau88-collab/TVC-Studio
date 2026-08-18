@@ -128,7 +128,7 @@ async function tvcSyncToolbarAccount(){
 
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const toast=$('#toast'); function say(t){toast.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2400)}
-let me=null, selectedPack='creator';
+let me=null, selectedPack='starter';
 
 
 
@@ -383,7 +383,8 @@ $('#jobsList').addEventListener('click',async e=>{
 });
 
 $$('.packs button').forEach(b=>b.onclick=()=>{
-  $$('.packs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');selectedPack=b.dataset.pack
+  $$('.packs button').forEach(x=>{x.classList.remove('active');x.setAttribute('aria-pressed','false')});
+  b.classList.add('active');b.setAttribute('aria-pressed','true');selectedPack=b.dataset.pack
 });
 $('#requestTopup').onclick=async()=>{
   try{
@@ -397,7 +398,7 @@ $('#requestTopup').onclick=async()=>{
     say('Đã tạo yêu cầu nạp #'+j.topup_id);loadWallet()
   }catch(e){say(e.message)}
 }
-function packageName(key){return {starter:'Trải nghiệm',creator:'Phổ biến',studio:'Tiết kiệm'}[key]||key}
+function packageName(key){return {starter:'Gói Thử',basic:'Gói Cơ bản',creator:'Gói Phổ biến',professional:'Gói Chuyên nghiệp'}[key]||key}
 async function loadWallet(){
   try{
     me=await api('/api/me');showDashboard();

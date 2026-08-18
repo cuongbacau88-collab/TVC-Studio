@@ -1557,6 +1557,54 @@ body.v3-liquid-theme #tab-wallet .packs button b{font-size:20px!important;color:
 body.v3-liquid-theme #tab-wallet #requestTopup{min-height:48px!important;border-radius:14px!important;background:linear-gradient(110deg,#0fbcc9,#4779f5)!important;color:#fff!important;box-shadow:0 14px 26px rgba(52,112,231,.20)!important}
 body.v3-liquid-theme #tab-wallet #topupNote{min-height:72px!important;border-radius:14px!important;background:rgba(247,253,255,.9)!important;color:#0f2436!important;border-color:rgba(17,143,168,.18)!important}
 
+/* Wallet package selector: light surface, no legacy black edges, unmistakable purple selection. */
+body.v3-liquid-theme #tab-wallet{
+  background:linear-gradient(145deg,#f2fdff,#d9f5fb)!important;
+  border:0!important;color:#123b4b!important;
+}
+body.v3-liquid-theme #tab-wallet .topup-pack-card,
+body.v3-liquid-theme #tab-wallet .video-balance-card,
+body.v3-liquid-theme #tab-wallet .simple-list{
+  background:rgba(255,255,255,.84)!important;
+  border:1px solid rgba(91,198,213,.28)!important;
+  outline:0!important;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button{
+  position:relative!important;min-height:132px!important;align-items:flex-start!important;
+  justify-content:center!important;gap:5px!important;padding:16px 13px!important;
+  border:1px solid rgba(112,153,177,.24)!important;border-radius:17px!important;
+  background:linear-gradient(145deg,#ffffff,#e9f8fc)!important;color:#123b4b!important;
+  box-shadow:0 8px 18px rgba(27,93,111,.08)!important;transform:none!important;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button:hover,
+body.v3-liquid-theme #tab-wallet .packs-v3339 button:focus-visible{
+  border-color:#ad65f2!important;box-shadow:0 0 0 3px rgba(173,101,242,.18),0 12px 24px rgba(117,70,189,.14)!important;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button.active{
+  border:2px solid #a855f7!important;
+  background:linear-gradient(145deg,#fbf3ff,#ead8ff)!important;
+  box-shadow:0 0 0 4px rgba(168,85,247,.18),0 16px 30px rgba(118,55,190,.20)!important;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button.active::after{
+  content:'✓ Đang chọn';position:absolute;right:10px;top:9px;
+  padding:3px 7px;border-radius:999px;background:#a855f7;color:#fff;
+  font-size:10px;font-weight:800;
+}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button :is(small,b,strong,span){color:#24566a!important}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button b{font-size:21px!important;color:#7843c5!important}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button strong{font-size:11px!important;color:#5d9b19!important}
+body.v3-liquid-theme #tab-wallet .packs-v3339 button span{font-size:12px!important}
+body.v3-liquid-theme #tab-wallet .topup-notice{
+  margin:14px 0;padding:12px 14px;border:1px solid rgba(221,155,22,.48);border-radius:13px;
+  background:rgba(255,248,224,.82);color:#72520c!important;font-size:12px;line-height:1.45;
+}
+body.v3-liquid-theme #tab-wallet .topup-notice b{color:#5e4305!important}
+@media(max-width:900px){body.v3-liquid-theme #tab-wallet .packs-v3339{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:480px){body.v3-liquid-theme #tab-wallet .packs-v3339 button{min-height:126px!important}body.v3-liquid-theme #tab-wallet .packs-v3339 button.active::after{font-size:9px;right:7px;top:7px}}
+
 /* Final homepage contrast pass: keep the offer band and footer in the Aqua light system. */
 body.model-home .home-credit-section,
 body.model-home .home-credit-section > div,
