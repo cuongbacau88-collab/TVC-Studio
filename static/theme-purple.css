@@ -1384,3 +1384,61 @@ body.public-page-v3343,body.v3-liquid-theme{
   border-top: 1.5px solid rgba(255, 255, 255, 0.95) !important;
   text-shadow: 0 1px 2px rgba(0, 86, 110, 0.22) !important;
 }
+
+
+/* =====================================================================
+   STATIC DEFAULT 3D AQUA ICE GLASS FOR ALL CARDS & ACCOUNT MENU POLISH
+   ===================================================================== */
+/* M?C ??NH T?NH: To?n b? Card lu?n s?ng K?nh G??ng 3D (Kh?ng c?n hover/touch) */
+.model-grid .model-card,
+.model-card,
+.panel-card,
+.service-card,
+.method-card,
+.service-navigation-card,
+article.model-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.85), rgba(212, 248, 252, 0.68)) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 16px 36px rgba(7, 103, 127, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  border-radius: 24px !important;
+}
+
+/* Th?n v? ph?n ch?n th? lu?n trong su?t, x?a ho?n to?n n?n t?i */
+.model-card .model-body,
+.model-card .motion-card-body,
+.model-card .model-footer,
+.model-card .model-visual {
+  background: transparent !important;
+}
+
+/* M?u ch? trong Card m?c ??nh lu?n r? n?t, t??ng ph?n cao */
+.model-card :is(h2, h3, .model-title, strong, b) {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+.model-card :is(p, span:not(.badge), .model-desc, small) {
+  color: #0e6074 !important;
+  font-weight: 500 !important;
+}
+
+/* M?u ch? Menu T?i Kho?n t??ng ph?n cao s?c n?t */
+:is(.account-popover, .account-popover-v2, .tvc-account-menu, .account-native-menu) :is(h1, h2, h3, p, span, small, label, a, button) {
+  color: #073e50 !important;
+  font-weight: 600 !important;
+}
+
+:is(.account-popover, .account-popover-v2, .tvc-account-menu) b,
+:is(.account-popover, .account-popover-v2, .tvc-account-menu) strong,
+.account-user-email,
+.account-user-name {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+
+/* Hi?u ?ng khi r? chu?t v?o c?c m?c Menu */
+:is(.account-popover, .account-popover-v2, .tvc-account-menu) a:hover {
+  background: rgba(36, 216, 238, 0.18) !important;
+  color: #053b49 !important;
+}
