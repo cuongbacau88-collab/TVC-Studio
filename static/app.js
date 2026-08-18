@@ -389,7 +389,12 @@ $('#requestTopup').onclick=async()=>{
   try{
     const j=await api('/api/topups',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({package:selectedPack,note:$('#topupNote').value})});
-    say('Đã gửi yêu cầu nạp #'+j.topup_id);loadWallet()
+    if(j.checkout_url){
+      sessionStorage.setItem('tvc_pending_topup',String(j.topup_id));
+      location.href=j.checkout_url;
+      return;
+    }
+    say('Đã tạo yêu cầu nạp #'+j.topup_id);loadWallet()
   }catch(e){say(e.message)}
 }
 function packageName(key){return {starter:'Trải nghiệm',creator:'Phổ biến',studio:'Tiết kiệm'}[key]||key}
@@ -399,8 +404,8 @@ async function loadWallet(){
     const videoTurns=Math.max(0,Number(me.usage_balance||me.credits||0));
     if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent=videoTurns;
     const [tops,led]=await Promise.all([api('/api/topups'),api('/api/ledger')]);
-    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} lượt</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
-    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} lượt</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
+    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} xu</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
+    $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} xu</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
   }catch(e){say(e.message)}
 }
 

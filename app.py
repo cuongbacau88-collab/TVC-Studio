@@ -1,5 +1,7 @@
 
 import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -259,6 +261,16 @@ def init_db():
         con.execute("ALTER TABLE users ADD COLUMN google_sub TEXT")
     if "avatar_url" not in cols:
         con.execute("ALTER TABLE users ADD COLUMN avatar_url TEXT")
+    topup_cols = {r["name"] for r in con.execute("PRAGMA table_info(topups)").fetchall()}
+    for column, definition in {
+        "order_code": "INTEGER",
+        "payment_link_id": "TEXT",
+        "checkout_url": "TEXT",
+        "paid_at": "TEXT",
+    }.items():
+        if column not in topup_cols:
+            con.execute(f"ALTER TABLE topups ADD COLUMN {column} {definition}")
+    con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_topups_order_code ON topups(order_code) WHERE order_code IS NOT NULL")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by_user_id)")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
@@ -1336,6 +1348,49 @@ PACKAGES = {
     "creator": (60_000, 25),
     "studio": (99_000, 50),
 }
+PAYOS_API_URL = "https://api-merchant.payos.vn/v2/payment-requests"
+PAYOS_CLIENT_ID = os.getenv("PAYOS_CLIENT_ID", "").strip()
+PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "").strip()
+PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "").strip()
+PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "https://tvcstudioai.info/app#wallet").strip()
+PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "https://tvcstudioai.info/app#wallet").strip()
+
+def payos_ready():
+    return all((PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY))
+
+def payos_signature(values: dict) -> str:
+    payload = "&".join(f"{key}={values[key]}" for key in sorted(values))
+    return hmac.new(PAYOS_CHECKSUM_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
+
+def payos_create_payment(order_code: int, amount: int, description: str) -> dict:
+    if not payos_ready():
+        raise HTTPException(503, "PayOS chưa được cấu hình trên máy chủ")
+    values = {
+        "amount": amount, "cancelUrl": PAYOS_CANCEL_URL,
+        "description": description[:25], "orderCode": order_code,
+        "returnUrl": PAYOS_RETURN_URL,
+    }
+    values["signature"] = payos_signature(values)
+    request = urllib.request.Request(
+        PAYOS_API_URL, data=json.dumps(values).encode(), method="POST",
+        headers={"Content-Type": "application/json", "x-client-id": PAYOS_CLIENT_ID, "x-api-key": PAYOS_API_KEY},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read().decode())
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        raise HTTPException(502, "Không thể kết nối PayOS") from exc
+    if not payload.get("code") == "00" or not payload.get("data", {}).get("checkoutUrl"):
+        raise HTTPException(502, payload.get("desc") or "PayOS không tạo được link thanh toán")
+    return payload["data"]
+
+def payos_webhook_valid(body: dict) -> bool:
+    signature = str(body.get("signature") or "")
+    data = body.get("data") if isinstance(body.get("data"), dict) else body
+    if not signature or not isinstance(data, dict):
+        return False
+    values = {key: data[key] for key in data if key != "signature" and data[key] is not None}
+    return hmac.compare_digest(signature.lower(), payos_signature(values).lower())
 
 @app.post("/api/topups")
 async def request_topup(request: Request):
@@ -1346,15 +1401,42 @@ async def request_topup(request: Request):
     if package not in PACKAGES:
         raise HTTPException(400, "Gói không hợp lệ")
     amount, credits = PACKAGES[package]
+    order_code = int(f"{int(time.time())}{secrets.randbelow(1000):03d}")
+    payment = payos_create_payment(order_code, amount, f"Nap xu {credits}")
     con = db()
     cur = con.execute("""
-        INSERT INTO topups(user_id,package,amount_vnd,credits,note,status,created_at)
-        VALUES(?,?,?,?,?,'pending',?)
-    """, (u["id"], package, amount, credits, note, now_iso()))
+        INSERT INTO topups(user_id,package,amount_vnd,credits,note,status,created_at,order_code,payment_link_id,checkout_url)
+        VALUES(?,?,?,?,?,'pending',?,?,?,?)
+    """, (u["id"], package, amount, credits, note, now_iso(), order_code,
+          payment.get("paymentLinkId"), payment.get("checkoutUrl")))
     con.commit()
     tid = cur.lastrowid
     con.close()
-    return {"ok": True, "topup_id": tid, "amount_vnd": amount, "credits": credits}
+    return {"ok": True, "topup_id": tid, "amount_vnd": amount, "credits": credits,
+            "order_code": order_code, "checkout_url": payment["checkoutUrl"]}
+
+@app.post("/api/payos/webhook")
+async def payos_webhook(request: Request):
+    body = await request.json()
+    if not payos_webhook_valid(body):
+        raise HTTPException(400, "Webhook PayOS không hợp lệ")
+    data = body.get("data") if isinstance(body.get("data"), dict) else body
+    if str(data.get("code", "00")) not in {"00", ""} or data.get("success") is False:
+        return {"success": True}
+    try:
+        order_code = int(data["orderCode"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise HTTPException(400, "Webhook thiếu orderCode") from exc
+    con = db()
+    topup = con.execute("SELECT id,status FROM topups WHERE order_code=?", (order_code,)).fetchone()
+    con.close()
+    if not topup:
+        raise HTTPException(404, "Không tìm thấy đơn nạp xu")
+    if topup["status"] == "paid":
+        return {"success": True}
+    # Reuse the same idempotent settlement path as admin approval.
+    approve_topup(topup["id"], request, True)
+    return {"success": True}
 
 @app.get("/api/topups")
 def my_topups(request: Request):
@@ -1589,8 +1671,9 @@ def admin_topups(request: Request):
     return [dict(r) for r in rows]
 
 @app.post("/api/admin/topups/{topup_id}/approve")
-def approve_topup(topup_id: int, request: Request):
-    require_admin(request)
+def approve_topup(topup_id: int, request: Request, _internal: bool = False):
+    if not _internal:
+        require_admin(request)
     con = db()
     con.execute("BEGIN IMMEDIATE")
     t = con.execute("SELECT * FROM topups WHERE id=?", (topup_id,)).fetchone()
@@ -1607,7 +1690,8 @@ def approve_topup(topup_id: int, request: Request):
     buyer_bonus = int(round(t["credits"] * REFERRAL_BUYER_BONUS_RATE)) if (LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]) else 0
 
     # Mark approved first so tier calculations include this transaction.
-    con.execute("UPDATE topups SET status='approved',reviewed_at=? WHERE id=?", (now_iso(), topup_id))
+    con.execute("UPDATE topups SET status=?,reviewed_at=?,paid_at=? WHERE id=?",
+                ("paid" if _internal else "approved", now_iso(), now_iso() if _internal else None, topup_id))
     con.execute(
         "UPDATE users SET credits=credits+? WHERE id=?",
         (t["credits"] + buyer_bonus, t["user_id"])

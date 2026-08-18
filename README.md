@@ -1,3 +1,14 @@
+# PayOS
+
+Để bật nạp xu tự động, cấu hình các biến môi trường trên Railway:
+
+- `PAYOS_CLIENT_ID`
+- `PAYOS_API_KEY`
+- `PAYOS_CHECKSUM_KEY`
+- `PAYOS_RETURN_URL=https://tvcstudioai.info/app#wallet`
+- `PAYOS_CANCEL_URL=https://tvcstudioai.info/app#wallet`
+
+Đặt webhook PayOS về `https://tvcstudioai.info/api/payos/webhook`. Webhook được kiểm tra chữ ký và cộng xu idempotent theo `orderCode`, nên PayOS gửi lại cùng một webhook cũng không cộng trùng.
 # TVC Studio AI Business V2.1
 
 Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credits, job queue, admin và Worker API.

@@ -1539,6 +1539,24 @@ article.model-card {
   color: #b91c1c !important;
 }
 
+/* Wallet / PayOS checkout surface. */
+body.model-home .wallet-grid,
+body.v3-liquid-theme #tab-wallet .wallet-grid{gap:18px!important}
+body.v3-liquid-theme #tab-wallet .video-balance-card,
+body.v3-liquid-theme #tab-wallet .topup-pack-card,
+body.v3-liquid-theme #tab-wallet .simple-list{background:rgba(255,255,255,.78)!important;border:1px solid rgba(13,157,179,.18)!important;box-shadow:0 18px 42px rgba(6,93,113,.10),inset 0 1px rgba(255,255,255,.9)!important;border-radius:20px!important;color:#0b4f63!important}
+body.v3-liquid-theme #tab-wallet .video-balance-card :is(span,strong,em,small),
+body.v3-liquid-theme #tab-wallet .topup-pack-card :is(h3,small,p,a),
+body.v3-liquid-theme #tab-wallet .simple-row :is(b,span){color:#416b7a!important}
+body.v3-liquid-theme #tab-wallet .video-balance-card strong{color:#0b4f63!important}
+body.v3-liquid-theme #tab-wallet .packs{gap:12px!important}
+body.v3-liquid-theme #tab-wallet .packs button{min-height:112px!important;border:1px solid rgba(13,157,179,.18)!important;border-radius:16px!important;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(216,248,252,.76))!important;color:#0b4f63!important;box-shadow:0 10px 22px rgba(6,93,113,.08)!important}
+body.v3-liquid-theme #tab-wallet .packs button.active{border-color:#2bc6d2!important;background:linear-gradient(145deg,#eaffff,#c8f3f6)!important;box-shadow:0 0 0 3px rgba(43,198,210,.16),0 16px 28px rgba(6,119,137,.13)!important}
+body.v3-liquid-theme #tab-wallet .packs button :is(b,span,small){color:#0b4f63!important}
+body.v3-liquid-theme #tab-wallet .packs button b{font-size:20px!important;color:#087f92!important}
+body.v3-liquid-theme #tab-wallet #requestTopup{min-height:48px!important;border-radius:14px!important;background:linear-gradient(110deg,#0fbcc9,#4779f5)!important;color:#fff!important;box-shadow:0 14px 26px rgba(52,112,231,.20)!important}
+body.v3-liquid-theme #tab-wallet #topupNote{min-height:72px!important;border-radius:14px!important;background:rgba(247,253,255,.9)!important;color:#0f2436!important;border-color:rgba(17,143,168,.18)!important}
+
 /* Final homepage contrast pass: keep the offer band and footer in the Aqua light system. */
 body.model-home .home-credit-section,
 body.model-home .home-credit-section > div,
