@@ -2,7 +2,7 @@
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>TVC Studio AI — Admin</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
 <link rel="stylesheet" href="/static/styles.css?v=20260815.4">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344">
-<link rel="stylesheet" href="/static/responsive.css?v=20260814.8"><link rel="stylesheet" href="/static/theme-purple.css?v=20260818.12">
+<link rel="stylesheet" href="/static/responsive.css?v=20260814.8"><link rel="stylesheet" href="/static/theme-purple.css?v=20260818.15">
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -13,16 +13,197 @@
 
 <div class="admin-wrap">
 <header class="admin-head"><a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI Admin</b></span></a><div><a class="dark" href="/app">Dashboard</a><button class="dark" id="logout">Đăng xuất</button></div></header>
-<section class="stats" id="stats"></section>
-<section class="admin-grid">
-<article class="panel-card"><div class="sectionbar"><h3>Yêu cầu nạp điểm</h3><button class="dark" id="refresh">↻</button></div><div id="topups" class="table-wrap"></div></article>
-<article class="panel-card"><h3>Người dùng</h3><div id="users" class="table-wrap"></div></article>
-<article class="panel-card full-span"><h3>Jobs gần đây</h3><div id="jobs" class="table-wrap"></div></article>
-<article class="panel-card full-span"><h3>💸 Yêu cầu rút Affiliate</h3><div id="affiliateWithdrawals" class="table-wrap"></div></article>
-<article class="panel-card full-span"><h3>🔗 Đối tác Affiliate</h3><div id="affiliateUsers" class="table-wrap"></div></article>
-</section>
+<div class="admin-tabs">
+  <button type="button" class="admin-tab-btn active" data-tab="overview">?? T?ng Quan & Qu?n Tr?</button>
+  <button type="button" class="admin-tab-btn" data-tab="workflow-studio">? Workflow Studio (Thi?t k? ?? th? AI)</button>
+</div>
+
+<div class="tab-pane" id="tab-overview">
+  <section class="stats" id="stats"></section>
+  <section class="admin-grid">
+    <article class="panel-card"><div class="sectionbar"><h3>Y?u c?u n?p ?i?m</h3><button class="dark" id="refresh">?</button></div><div id="topups" class="table-wrap"></div></article>
+    <article class="panel-card"><h3>Ng??i d?ng</h3><div id="users" class="table-wrap"></div></article>
+    <article class="panel-card full-span"><h3>Jobs g?n ??y</h3><div id="jobs" class="table-wrap"></div></article>
+    <article class="panel-card full-span"><h3>?? Y?u c?u r?t Affiliate</h3><div id="affiliateWithdrawals" class="table-wrap"></div></article>
+    <article class="panel-card full-span"><h3>?? ??i t?c Affiliate</h3><div id="affiliateUsers" class="table-wrap"></div></article>
+  </section>
+</div>
+
+<div class="tab-pane" id="tab-workflow-studio" style="display:none;">
+  <!-- Workflow Studio Toolbar -->
+  <div class="wf-toolbar">
+    <div class="wf-toolbar-left">
+      <label class="wf-select-label">
+        <span>Template:</span>
+        <select id="wfSelector" class="wf-select">
+          <option value="">-- Ch?n Workflow --</option>
+        </select>
+      </label>
+      <button type="button" class="wf-btn secondary" id="wfBtnNew">? M?i</button>
+      <button type="button" class="wf-btn secondary" id="wfBtnDuplicate">?? Nh?n b?n</button>
+    </div>
+    <div class="wf-toolbar-center">
+      <input type="text" id="wfTitleInput" class="wf-title-input" placeholder="T?n Workflow..." value="Wan 2.1 Video Motion Studio">
+    </div>
+    <div class="wf-toolbar-right">
+      <button type="button" class="wf-btn primary" id="wfBtnSave">?? L?u Workflow</button>
+      <button type="button" class="wf-btn run" id="wfBtnRun">? Ch?y Th? Nghi?m (Test Run)</button>
+      <button type="button" class="wf-btn publish" id="wfBtnPublish">?? Xu?t B?n M?u Ra Trang Ch?</button>
+    </div>
+  </div>
+
+  <!-- Main Workflow Studio Canvas Workspace -->
+  <div class="wf-workspace">
+    <!-- Left Sidebar: Node Palette -->
+    <aside class="wf-palette">
+      <div class="wf-palette-head">
+        <h4>Th? Vi?n Node AI</h4>
+        <small>K?o ho?c click ?? th?m v?o ?? th?</small>
+      </div>
+      <div class="wf-palette-list">
+        <div class="wf-node-item" draggable="true" data-type="input_image">
+          <span class="node-icon">??</span>
+          <div>
+            <b>Input Image</b>
+            <small>?nh nh?n v?t / tham chi?u</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="input_prompt">
+          <span class="node-icon">??</span>
+          <div>
+            <b>Input Prompt</b>
+            <small>C?u l?nh prompt m? t? AI</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="wan_video">
+          <span class="node-icon">??</span>
+          <div>
+            <b>Wan 2.1 Video</b>
+            <small>Sinh chuy?n ??ng video m?u</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="minimax_h3">
+          <span class="node-icon">?</span>
+          <div>
+            <b>MiniMax-H3</b>
+            <small>M? h?nh Video bi?u c?m s?ng ??ng</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="flux2_klein">
+          <span class="node-icon">??</span>
+          <div>
+            <b>FLUX.2 Klein</b>
+            <small>??i trang ph?c, ??i n?n, gi? m?t</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="realesrgan">
+          <span class="node-icon">??</span>
+          <div>
+            <b>RealESRGAN Upscale</b>
+            <small>N?ng 4x HD & ph?c h?i chi ti?t da</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+        <div class="wf-node-item" draggable="true" data-type="output_video">
+          <span class="node-icon">??</span>
+          <div>
+            <b>Output Video</b>
+            <small>K?t xu?t file video MP4 / WebM</small>
+          </div>
+          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+        </div>
+      </div>
+
+      <div class="wf-palette-footer">
+        <div class="wf-stats-chip">
+          <span>T?ng Nodes: <b id="wfNodeCount">0</b></span>
+          <span>D?y n?i: <b id="wfLinkCount">0</b></span>
+        </div>
+        <button type="button" class="wf-clear-btn" id="wfBtnClear">?? X?a ?? th?</button>
+      </div>
+    </aside>
+
+    <!-- Center Canvas Area -->
+    <main class="wf-canvas-container" id="wfCanvasContainer">
+      <div class="wf-canvas-controls">
+        <button type="button" id="wfZoomIn" title="Ph?ng to">?</button>
+        <button type="button" id="wfZoomOut" title="Thu nh?">?</button>
+        <button type="button" id="wfZoomReset" title="??t l?i g?c nh?n">?? 100%</button>
+      </div>
+
+      <div class="wf-canvas-stage" id="wfCanvasStage">
+        <!-- SVG Connections Layer -->
+        <svg class="wf-svg-layer" id="wfSvgLayer">
+          <defs>
+            <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00b8c8" />
+              <stop offset="100%" stop-color="#24d8ee" />
+            </linearGradient>
+            <filter id="wireGlow">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <g id="wfWiresGroup"></g>
+          <path id="wfTempWire" d="" class="wf-temp-wire" style="display:none;"></path>
+        </svg>
+
+        <!-- HTML Nodes Container -->
+        <div class="wf-nodes-layer" id="wfNodesLayer"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Bottom Panel: Execution Logs & Live Test Run Results -->
+  <div class="wf-log-panel" id="wfLogPanel">
+    <div class="wf-log-head">
+      <div class="wf-log-title">
+        <span class="pulse-dot"></span>
+        <b>Ti?n tr?nh Th?c thi Realtime (Realtime Workflow Execution Console)</b>
+        <span class="wf-badge-status" id="wfRunStatus">S?n s?ng</span>
+      </div>
+      <div class="wf-log-actions">
+        <button type="button" class="mini-btn" id="wfClearLogs">X?a Log</button>
+        <button type="button" class="mini-btn" id="wfToggleLogs">?n / Hi?n</button>
+      </div>
+    </div>
+
+    <div class="wf-log-body" id="wfLogBody">
+      <div class="wf-log-split">
+        <!-- Terminal Logs -->
+        <div class="wf-terminal" id="wfTerminal">
+          <div class="log-line info">[S?N S?NG] Workflow Studio ?? n?p xong engine ?? th? ComfyUI / Vast.ai.</div>
+          <div class="log-line dim">Nh?n 'Ch?y Th? Nghi?m (Test Run)' ?? bi?n d?ch ?? th? v? kh?i ch?y pipeline AI.</div>
+        </div>
+
+        <!-- Preview Result Container -->
+        <div class="wf-preview-pane" id="wfPreviewPane">
+          <div class="wf-preview-placeholder" id="wfPreviewPlaceholder">
+            <span>??</span>
+            <p>K?t qu? test run s? hi?n th? t?i ??y</p>
+          </div>
+          <div class="wf-preview-content" id="wfPreviewContent" style="display:none;">
+            <video id="wfPreviewVideo" controls autoplay loop playsinline></video>
+            <div class="wf-preview-meta">
+              <span id="wfPreviewTiming">? Th?i gian: 10.5s</span>
+              <a id="wfPreviewDownload" href="#" download="workflow_result.mp4" class="mini-btn">T?i video test</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div><div class="toast" id="toast"></div>
-<script src="/static/admin.js"></script>
+<script src="/static/admin.js?v=20260818.15"></script>
 <script>
 
 const TVC_I18N = {
