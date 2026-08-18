@@ -1584,6 +1584,32 @@ body.model-home .site-footer-bottom {
   border-top-color:rgba(11,137,158,.18)!important;
 }
 
+/* Keep footer links readable on every public page, including pricing and legal pages. */
+body :is(.site-footer,.footer){
+  background:linear-gradient(160deg,#e8fbff,#cdefef)!important;
+  color:#0b4f63!important;
+  border-top:1px solid rgba(11,137,158,.22)!important;
+}
+body :is(.site-footer,.footer) :is(.site-footer-inner,.site-footer-bottom){
+  background:transparent!important;
+}
+body :is(.site-footer,.footer) :is(a,p,span,small){
+  color:#416b7a!important;
+  font-size:13px!important;
+  line-height:1.6!important;
+}
+body :is(.site-footer,.footer) :is(.site-footer-links b,.site-footer-logo span,strong,b){
+  color:#0b4f63!important;
+  font-weight:750!important;
+}
+body :is(.site-footer,.footer) a:hover,
+body :is(.site-footer,.footer) a:focus-visible{
+  color:#057f91!important;
+}
+body :is(.site-footer,.footer) .site-footer-bottom{
+  border-top-color:rgba(11,137,158,.18)!important;
+}
+
 :is(.global-toolbar, body) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout:hover :is(span, b) {
   color: #b91c1c !important;
 }
