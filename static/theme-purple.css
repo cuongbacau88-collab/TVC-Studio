@@ -1104,3 +1104,30 @@ body.public-page-v3343,body.v3-liquid-theme{
   :is(.auth-tabs button,.secondary,.dark,.ghost,.mini-btn,.mini-copy,.service-panel,.share-box,
   .account-v2-menu a,.service-panel,.auth-card):is(:hover,:active,:focus){transform:none!important;filter:none!important}
 }
+
+/* =====================================================================
+   AQUA TEAL ICE GLASS — UNIFIED GLOBAL TOOLBAR ON ALL PAGES & CARDS
+   ===================================================================== */
+:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .global-toolbar.liquid-toolbar, .global-toolbar.is-scrolled, .global-toolbar.scrolled, .global-toolbar.sticky, .topbar, .app-topbar, .page-topbar, .service-nav, .legal-topbar, .nav) {
+  background: linear-gradient(110deg, rgba(8, 126, 151, 0.96), rgba(9, 171, 190, 0.94), rgba(27, 201, 198, 0.92)) !important;
+  border-color: rgba(196, 252, 255, 0.82) !important;
+  border-bottom: 1px solid rgba(196, 252, 255, 0.82) !important;
+  box-shadow: 0 10px 28px rgba(7, 103, 127, 0.20), inset 0 1px rgba(235, 255, 255, 0.74) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+}
+
+:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .app-topbar, .page-topbar, .service-nav, .legal-topbar, .nav) :is(.brand-text, .menu-header, a, button, h1, h2, h3, p, span, strong, b) {
+  color: #efffff !important;
+}
+
+:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .app-topbar, .page-topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary) {
+  color: #efffff !important;
+  background: rgba(226, 253, 255, 0.13) !important;
+  border: 1px solid rgba(220, 253, 255, 0.46) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(3, 80, 98, 0.15) !important;
+}
+
+:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary, a, button):is(:hover, :active, :focus, :focus-visible, .active, [aria-current=

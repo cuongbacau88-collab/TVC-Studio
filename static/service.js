@@ -16,7 +16,7 @@ async function api(url,options={}){
 }
 function requestKey(){return crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)}
 function fileField(name,label,required=false){
- return `<label class="service-field"><span>${label}${required?' *':''}</span><input type="file" name="${name}" accept="image/png,image/jpeg,image/webp" ${required?'required':''}><div class="file-preview" data-preview="${name}"><small>Chưa chọn ảnh</small></div></label>`;
+ return `<label class="service-field"><span>${label}${required?' *':''}</span><input type="file" name="${name}" accept="image/png,image/jpeg,image/webp" ${required?'required':''}><div class="file-preview" data-preview="${name}"><small>Chưa chọn ảnh</small></div><button type="button" class="remove-ref hidden" data-remove-file="${name}">Xóa ảnh</button></label>`;
 }
 function renderFields(){
  if(key==='video_generation'&&window.renderVideoCreator){window.renderVideoCreator(config);return}
@@ -36,13 +36,19 @@ function renderFields(){
  }
  $('dynamicFields').innerHTML=html;
  document.querySelectorAll('input[type=file]').forEach(input=>input.addEventListener('change',()=>{
-  const box=document.querySelector(`[data-preview="${input.name}"]`);
-  if(box.dataset.url)URL.revokeObjectURL(box.dataset.url);
-  if(!input.files[0]){box.innerHTML='<small>Chưa chọn ảnh</small>';return}
+  const box=document.querySelector(`[data-preview="${input.name}"]`),remove=document.querySelector(`[data-remove-file="${input.name}"]`);
+  if(box.dataset.url){URL.revokeObjectURL(box.dataset.url);delete box.dataset.url}
+  if(!input.files[0]){box.innerHTML='<small>Chưa chọn ảnh</small>';remove?.classList.add('hidden');return}
   const url=URL.createObjectURL(input.files[0]);box.dataset.url=url;
   box.innerHTML=`<img src="${url}" alt=""><small>${escapeHtml(input.files[0].name)}</small>`;
+  remove?.classList.remove('hidden');
+ }));
+ document.querySelectorAll('[data-remove-file]').forEach(button=>button.addEventListener('click',()=>{
+  const input=document.querySelector(`input[name="${button.dataset.removeFile}"]`);
+  if(!input)return;input.value='';input.dispatchEvent(new Event('change',{bubbles:true}));
  }));
 }
+window.addEventListener('pagehide',()=>document.querySelectorAll('[data-preview]').forEach(box=>{if(box.dataset.url){URL.revokeObjectURL(box.dataset.url);delete box.dataset.url}}));
 function setError(message=''){
  $('formError').textContent=message;$('formError').classList.toggle('hidden',!message);
 }

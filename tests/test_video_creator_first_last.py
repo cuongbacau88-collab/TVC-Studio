@@ -33,6 +33,21 @@ class VideoCreatorFirstLastFrontendTests(unittest.TestCase):
         self.assertIn("Cần chọn ảnh kết thúc.", self.creator)
         self.assertIn("!state.first||!state.last||!prompt||!ratio||!duration", self.creator)
 
+    def test_first_last_state_matrix_and_stale_error_sync(self):
+        self.assertIn("if(state.first&&state.last)return''", self.creator)
+        self.assertIn("if(!state.first&&!state.last)return FIRST_LAST_ERRORS[0]", self.creator)
+        self.assertIn("return state.first?FIRST_LAST_ERRORS[2]:FIRST_LAST_ERRORS[1]", self.creator)
+        self.assertIn("if(!message){if(isEndpointError){error.textContent='';error.classList.add('hidden')}}", self.creator)
+        self.assertIn("render();syncSubmit(true)", self.creator)
+        self.assertIn("state[slot]=null;render();syncSubmit(true)", self.creator)
+        self.assertIn("state.mode==='first_last'&&firstLastError()", self.creator)
+
+    def test_replace_and_remove_keep_validation_bound_to_file_state(self):
+        self.assertIn("revokeFile(state[slot]);state[slot]=file", self.creator)
+        self.assertIn("revokeFile(state[slot]);state[slot]=null", self.creator)
+        self.assertNotIn("querySelector('[name=first_frame]').files", self.creator)
+        self.assertNotIn("querySelector('[name=last_frame]').files", self.creator)
+
     def test_formdata_uses_backend_keys_and_preserves_double_submit_guard(self):
         self.assertIn("data.set('first_frame',event.currentTarget.__creatorFiles.first)", self.service)
         self.assertIn("data.set('last_frame',event.currentTarget.__creatorFiles.last)", self.service)

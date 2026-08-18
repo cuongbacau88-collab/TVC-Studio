@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, StreamingResponse
 
 from service_registry import SERVICES, PUBLIC_SERVICE_CONFIG, get_service
 from service_worker_adapters import WorkerAdapterError, normalize_status
+from runtime_readiness import runtime_preflight
 
 import video_upscale_pipeline
 router = APIRouter()
@@ -625,6 +626,13 @@ def cancel(service_key: str, job_id: int, request: Request):
     except WorkerAdapterError as error:
         raise worker_error(error)
     return public_job(refresh_job(user["id"], job_id))
+
+
+@router.get("/api/health/preflight")
+def health_preflight(request: Request):
+    app = core()
+    app.require_admin(request)
+    return runtime_preflight()
 
 
 @router.get("/api/health/workers")

@@ -360,6 +360,14 @@ class ServicePageRegressionTests(unittest.TestCase):
         self.assertIn('id="dynamicFields"', self.service_html)
         self.assertIn('id="submitButton"', self.service_html)
 
+    def test_shared_image_inputs_support_replace_remove_and_url_cleanup(self):
+        self.assertIn('data-remove-file="${name}"', self.service_js)
+        self.assertIn("input.value='';input.dispatchEvent(new Event('change',{bubbles:true}))", self.service_js)
+        self.assertIn("URL.revokeObjectURL(box.dataset.url)", self.service_js)
+        self.assertIn("window.addEventListener('pagehide'", self.service_js)
+        self.assertIn("remove?.classList.remove('hidden')", self.service_js)
+        self.assertIn("remove?.classList.add('hidden')", self.service_js)
+
     def test_offline_warning_does_not_prevent_form_render(self):
         warning = self.service_js.index("if(unavailable)")
         render = self.service_js.index("renderFields()", warning)

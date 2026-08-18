@@ -87,11 +87,11 @@ class VideoUpscalePipelineTests(unittest.TestCase):
         self.assertIn("seed failed", value["upscale_error"])
     def test_models_are_read_from_environment(self):
         values = {
-            "VIDEO_MODEL": "minimax-h3", "OUTFIT_MODEL": "flux-2-klein-4b",
+            "VIDEO_MODEL": "wan22-start-end", "OUTFIT_MODEL": "flux-2-klein-4b",
             "BACKGROUND_MODEL": "flux-2-klein-4b", "UPSCALE_MODEL": "real-esrgan",
         }
         with patch.dict(os.environ, values, clear=False):
-            self.assertEqual("minimax-h3", SERVICES["video_generation"].model)
+            self.assertEqual("wan22-start-end", SERVICES["video_generation"].model)
             self.assertEqual("flux-2-klein-4b", SERVICES["outfit_change"].model)
             self.assertEqual("flux-2-klein-4b", SERVICES["background_change"].model)
             self.assertEqual("real-esrgan", SERVICES["image_upscale"].model)
