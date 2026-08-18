@@ -43,14 +43,14 @@
       <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
     </nav>
     <section class="tvc-account-menu" id="toolbarAccountMenu" aria-label="Menu tài khoản" hidden>
-      <header><span class="tvc-account-avatar" id="toolbarAccountAvatar">T</span><div><small id="toolbarGreeting">Chào bạn,</small><strong id="toolbarAccountEmail"></strong></div></header>
+      <header><span class="tvc-account-avatar" id="toolbarAccountAvatar">T</span><div><small id="toolbarGreeting" class="text-slate-800 font-medium">Chào bạn,</small><strong id="toolbarAccountEmail" class="text-slate-800 font-medium"></strong></div></header>
       <nav>
-        <a href="/app#jobs"><span>◷</span><b data-account-label="history">Lịch Sử</b></a>
-        <a href="/app#wallet"><span>◇</span><b data-account-label="topup">Nạp Thêm Lượt</b></a>
-        <a href="/contact"><span>?</span><b data-account-label="support">Hỗ Trợ</b></a>
-        <a href="/app#account"><span>◎</span><b data-account-label="profile">Hồ Sơ Của Tôi</b></a>
-        <a href="/app#affiliate"><span>ⓢ</span><b data-account-label="commission">Giới Thiệu Nhận Hoa Hồng</b></a>
-        <button type="button" class="tvc-account-logout" id="toolbarLogout"><span>↪</span><b data-account-label="logout">Đăng Xuất</b></button>
+        <a href="/app#jobs" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◷</span><b data-account-label="history" class="text-slate-800 font-medium">Lịch Sử</b></a>
+        <a href="/app#wallet" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◇</span><b data-account-label="topup" class="text-slate-800 font-medium">Nạp Thêm Lượt</b></a>
+        <a href="/contact" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">?</span><b data-account-label="support" class="text-slate-800 font-medium">Hỗ Trợ</b></a>
+        <a href="/app#account" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◎</span><b data-account-label="profile" class="text-slate-800 font-medium">Hồ Sơ Của Tôi</b></a>
+        <a href="/app#affiliate" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">ⓢ</span><b data-account-label="commission" class="text-slate-800 font-medium">Giới Thiệu Nhận Hoa Hồng</b></a>
+        <button type="button" class="tvc-account-logout text-slate-800 font-medium" id="toolbarLogout"><span class="text-slate-800 font-medium">↪</span><b data-account-label="logout" class="text-slate-800 font-medium">Đăng Xuất</b></button>
       </nav>
     </section>
   </div>`;

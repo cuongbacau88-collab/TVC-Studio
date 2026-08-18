@@ -75,7 +75,7 @@
 }
 
 .service-image-visual{
-  background:#101827;
+  background:transparent;
 }
 .service-card-image{
   object-fit:contain;
