@@ -1,0 +1,166 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "model_id": "wan-animate-2",
+      "service_ids": [
+        "motion_studio"
+      ],
+      "provider_backend": "ComfyUI",
+      "component_type": "motion_generation",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": false,
+      "present": false,
+      "verified": false,
+      "status": "CONFIGURED_NOT_INSTALLED",
+      "source_of_truth": [
+        ".env.example:MOTION_GPU_MODEL",
+        ".env.example:MOTION_STUDIO_MODELS",
+        "worker_comfyui.py",
+        "README.md"
+      ]
+    },
+    {
+      "model_id": "scail-2",
+      "service_ids": [
+        "motion_studio"
+      ],
+      "provider_backend": "UNKNOWN",
+      "component_type": "motion_generation",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": true,
+      "present": false,
+      "verified": false,
+      "status": "DECISION_REQUIRED",
+      "source_of_truth": [
+        ".env.example:MOTION_STUDIO_MODELS"
+      ]
+    },
+    {
+      "model_id": "wan22-start-end",
+      "service_ids": [
+        "video_generation"
+      ],
+      "provider_backend": "ComfyUI",
+      "component_type": "start_end_video_generation",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": false,
+      "present": false,
+      "verified": false,
+      "status": "CONFIGURED_NOT_INSTALLED",
+      "source_of_truth": [
+        "LƯỢT 7 canonical decision",
+        "ComfyUI Wan2.2 FLF2V/Fun InP official documentation"
+      ]
+    },
+    {
+      "model_id": "flux-2-klein-4b",
+      "service_ids": [
+        "outfit_change",
+        "background_change"
+      ],
+      "provider_backend": "UNKNOWN",
+      "component_type": "image_generation",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": false,
+      "present": false,
+      "verified": false,
+      "status": "CONFIGURED_NOT_INSTALLED",
+      "source_of_truth": [
+        ".env.example:OUTFIT_MODEL",
+        ".env.example:BACKGROUND_MODEL",
+        "tests/test_video_upscale.py"
+      ]
+    },
+    {
+      "model_id": "birefnet",
+      "service_ids": [
+        "background_change"
+      ],
+      "provider_backend": "UNKNOWN",
+      "component_type": "background_mask",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": true,
+      "present": false,
+      "verified": false,
+      "status": "UNSUPPORTED",
+      "source_of_truth": [
+        ".env.example:BACKGROUND_MASK_MODEL",
+        "service_registry.py",
+        "LƯỢT 7: not required by v1 without a verified mask workflow"
+      ]
+    },
+    {
+      "model_id": "real-esrgan",
+      "service_ids": [
+        "image_upscale"
+      ],
+      "provider_backend": "UNKNOWN",
+      "component_type": "image_upscale",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "UNKNOWN",
+      "optional": false,
+      "present": false,
+      "verified": false,
+      "status": "CONFIGURED_NOT_INSTALLED",
+      "source_of_truth": [
+        ".env.example:UPSCALE_MODEL",
+        "tests/test_video_upscale.py"
+      ]
+    },
+    {
+      "model_id": "seedvr2-3b-fp8",
+      "service_ids": [
+        "video_upscale"
+      ],
+      "provider_backend": "UNKNOWN",
+      "component_type": "video_upscale",
+      "expected_weight_files": [],
+      "expected_paths": [],
+      "precision": "fp8",
+      "optional": true,
+      "present": false,
+      "verified": false,
+      "status": "CONFIGURED_NOT_INSTALLED",
+      "source_of_truth": [
+        ".env.example:VIDEO_UPSCALE_MODEL",
+        "service_worker_adapters.py"
+      ]
+    }
+  ],
+  "aliases": {},
+  "unsupported_ids": {
+    "seedvr2": "No source reference; seedvr2-3b-fp8 is configured only for video_upscale",
+    "minimax_h3": "No source reference; canonical configured ID is minimax-h3",
+    "wan22_ti2v": "No source reference",
+    "minimax-h3": "Replaced by canonical wan22-start-end decision for v1"
+  },
+  "component_weights": {
+    "transformer_or_unet": "UNKNOWN",
+    "vae": "UNKNOWN",
+    "text_encoder": "UNKNOWN",
+    "clip": "UNKNOWN",
+    "t5": "UNKNOWN",
+    "vision_encoder": "UNKNOWN",
+    "lora": "UNKNOWN",
+    "controlnet": "UNKNOWN",
+    "pose": "UNKNOWN",
+    "depth": "UNKNOWN",
+    "segmentation": "UNKNOWN",
+    "face_identity": "UNKNOWN",
+    "face_restore": "UNKNOWN",
+    "interpolation": "UNKNOWN",
+    "optical_flow": "UNKNOWN"
+  }
+}

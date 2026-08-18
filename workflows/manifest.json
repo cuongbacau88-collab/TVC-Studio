@@ -1,0 +1,264 @@
+{
+  "version": 2,
+  "services": {
+    "motion_studio": {
+      "workflow_id": "wan_animate_2_api",
+      "service_id": "motion_studio",
+      "model_id": "wan-animate-2",
+      "expected_filename": "wan_animate_2_api.json",
+      "workflow_type": "comfyui_api",
+      "required_inputs": [
+        "character_image",
+        "motion_video",
+        "aspect_ratio",
+        "model_id"
+      ],
+      "required_outputs": [
+        {
+          "semantic": "video",
+          "media_type": "video"
+        }
+      ],
+      "required_models": [
+        "wan-animate-2"
+      ],
+      "required_custom_nodes": null,
+      "node_mapping": {
+        "inputs": {
+          "character_image": {
+            "node_id": null,
+            "field_name": null
+          },
+          "motion_video": {
+            "node_id": null,
+            "field_name": null
+          },
+          "aspect_ratio": {
+            "node_id": null,
+            "field_name": null
+          },
+          "model_id": {
+            "node_id": null,
+            "field_name": null
+          }
+        },
+        "outputs": {
+          "video": {
+            "node_id": null
+          }
+        }
+      },
+      "present": false,
+      "ready": false,
+      "readiness_reason": "workflow missing; node mapping missing; custom nodes UNKNOWN"
+    },
+    "video_generation": {
+      "workflow_id": null,
+      "service_id": "video_generation",
+      "model_id": "wan22-start-end",
+      "expected_filename": "wan22_start_end_api.json",
+      "workflow_type": "comfyui_api",
+      "required_inputs": [
+        "first_frame",
+        "last_frame",
+        "prompt",
+        "duration",
+        "aspect_ratio",
+        "model_id"
+      ],
+      "required_outputs": [
+        {
+          "semantic": "video",
+          "media_type": "video"
+        }
+      ],
+      "required_models": [
+        "wan22-start-end"
+      ],
+      "required_custom_nodes": null,
+      "node_mapping": {
+        "inputs": {
+          "first_frame": {
+            "node_id": null,
+            "field_name": null
+          },
+          "last_frame": {
+            "node_id": null,
+            "field_name": null
+          },
+          "prompt": {
+            "node_id": null,
+            "field_name": null
+          },
+          "duration": {
+            "node_id": null,
+            "field_name": null
+          },
+          "aspect_ratio": {
+            "node_id": null,
+            "field_name": null
+          },
+          "model_id": {
+            "node_id": null,
+            "field_name": null
+          }
+        },
+        "outputs": {
+          "video": {
+            "node_id": null
+          }
+        }
+      },
+      "present": false,
+      "ready": false,
+      "readiness_reason": "official UI template identified; ComfyUI API export and node mapping still missing"
+    },
+    "outfit_change": {
+      "workflow_id": null,
+      "service_id": "outfit_change",
+      "model_id": "flux-2-klein-4b",
+      "expected_filename": null,
+      "workflow_type": "comfyui_api",
+      "required_inputs": [
+        "character_image",
+        "outfit_reference",
+        "model_id"
+      ],
+      "required_outputs": [
+        {
+          "semantic": "image",
+          "media_type": "image"
+        }
+      ],
+      "required_models": [
+        "flux-2-klein-4b"
+      ],
+      "required_custom_nodes": null,
+      "node_mapping": {
+        "inputs": {
+          "character_image": {
+            "node_id": null,
+            "field_name": null
+          },
+          "outfit_reference": {
+            "node_id": null,
+            "field_name": null
+          },
+          "model_id": {
+            "node_id": null,
+            "field_name": null
+          }
+        },
+        "outputs": {
+          "image": {
+            "node_id": null
+          }
+        }
+      },
+      "present": false,
+      "ready": false,
+      "readiness_reason": "DECISION REQUIRED: workflow/export and node mapping missing; custom nodes UNKNOWN"
+    },
+    "background_change": {
+      "workflow_id": null,
+      "service_id": "background_change",
+      "model_id": "flux-2-klein-4b",
+      "expected_filename": null,
+      "workflow_type": "comfyui_api",
+      "required_inputs": [
+        "source_image",
+        "background_image_or_prompt",
+        "model_id"
+      ],
+      "required_outputs": [
+        {
+          "semantic": "image",
+          "media_type": "image"
+        }
+      ],
+      "required_models": [
+        "flux-2-klein-4b"
+      ],
+      "required_custom_nodes": null,
+      "node_mapping": {
+        "inputs": {
+          "source_image": {
+            "node_id": null,
+            "field_name": null
+          },
+          "background_image": {
+            "node_id": null,
+            "field_name": null
+          },
+          "background_prompt": {
+            "node_id": null,
+            "field_name": null
+          },
+          "model_id": {
+            "node_id": null,
+            "field_name": null
+          }
+        },
+        "outputs": {
+          "image": {
+            "node_id": null
+          }
+        }
+      },
+      "present": false,
+      "ready": false,
+      "readiness_reason": "official FLUX.2 Klein image-edit UI template identified; API export and node mapping still missing"
+    },
+    "image_upscale": {
+      "workflow_id": null,
+      "service_id": "image_upscale",
+      "model_id": "real-esrgan",
+      "expected_filename": null,
+      "workflow_type": "comfyui_api",
+      "required_inputs": [
+        "source_image",
+        "scale",
+        "restore_face",
+        "model_id"
+      ],
+      "required_outputs": [
+        {
+          "semantic": "image",
+          "media_type": "image"
+        }
+      ],
+      "required_models": [
+        "real-esrgan"
+      ],
+      "required_custom_nodes": null,
+      "node_mapping": {
+        "inputs": {
+          "source_image": {
+            "node_id": null,
+            "field_name": null
+          },
+          "scale": {
+            "node_id": null,
+            "field_name": null
+          },
+          "restore_face": {
+            "node_id": null,
+            "field_name": null
+          },
+          "model_id": {
+            "node_id": null,
+            "field_name": null
+          }
+        },
+        "outputs": {
+          "image": {
+            "node_id": null
+          }
+        }
+      },
+      "present": false,
+      "ready": false,
+      "readiness_reason": "DECISION REQUIRED: workflow/export and node mapping missing; custom nodes UNKNOWN"
+    }
+  }
+}

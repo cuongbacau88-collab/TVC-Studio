@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "status": "UNKNOWN",
+  "entries": [],
+  "reason": "No exported ComfyUI API workflow exists, so custom node repositories, install commands and required flags cannot be verified without inventing data."
+}
