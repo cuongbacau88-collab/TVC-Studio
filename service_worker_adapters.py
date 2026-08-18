@@ -226,13 +226,18 @@ def build_video_upscale_adapter() -> ServiceWorkerAdapter:
 
 def build_adapters() -> dict[str, ServiceWorkerAdapter]:
     timeout = float(os.getenv("WORKER_REQUEST_TIMEOUT", "30") or "30")
+    
+    # Fallback to the unified GPU API if specific worker URLs are missing
+    fallback_url = os.getenv("GPU_API_BASE_URL", "").strip()
+    fallback_token = os.getenv("GPU_API_SERVICE_TOKEN", "").strip()
+    
     result = {}
     for key, service in SERVICES.items():
         prefix = service.worker_prefix
         adapter_class = ProductionUpscaleAdapter if key == "image_upscale" else ServiceWorkerAdapter
-        result[key] = adapter_class(service, WorkerConfig(
-            os.getenv(f"{prefix}_WORKER_URL", "").strip(),
-            os.getenv(f"{prefix}_WORKER_TOKEN", "").strip(),
-            timeout,
-        ))
+        
+        url = os.getenv(f"{prefix}_WORKER_URL", "").strip() or fallback_url
+        token = os.getenv(f"{prefix}_WORKER_TOKEN", "").strip() or fallback_token
+        
+        result[key] = adapter_class(service, WorkerConfig(url, token, timeout))
     return result
