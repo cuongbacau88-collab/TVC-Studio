@@ -53,7 +53,7 @@
           <h2 data-i18n="modelMotionTitle">AI Motion Studio</h2>
           <p data-i18n="modelMotionDesc">Sao chép chuyển động chân thực từ video mẫu, giữ trọn thần thái nhân vật.</p>
           <div class="model-footer">
-            <div class="credit-price"><b>◉ 1</b><span data-i18n="perVideo">lượt / video</span></div>
+            <div class="credit-price"><b>◉ 1</b><span data-i18n="perVideo">xu / video</span></div>
             <a class="model-button" href="/app?tool=motion">Mở dịch vụ</a>
           </div>
         </div>
@@ -68,7 +68,7 @@
           <h2 data-i18n="videoCreatorTitle">AI Video Creator</h2>
           <p data-i18n="videoCreatorDesc">Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.</p>
           <div class="model-footer">
-            <div class="credit-price"><b>CHỜ CẤU HÌNH</b><span>Mức lượt theo model</span></div>
+            <div class="credit-price"><b>CHỜ CẤU HÌNH</b><span>Mức xu theo model</span></div>
             <a class="model-button" href="/services/video_generation">Mở dịch vụ</a>
           </div>
         </div>
@@ -124,7 +124,7 @@
     <div>
       <span>GÓI VIDEO</span>
       <h2>Làm càng nhiều, giá mỗi video càng rẻ.</h2>
-      <p>Trải nghiệm 10K / 3 lượt • Phổ biến 60K / 25 lượt • Tiết kiệm 99K / 50 lượt. Không đăng ký theo tháng.</p>
+      <p>Trải nghiệm 10K / 3 xu • Phổ biến 60K / 25 xu • Tiết kiệm 99K / 50 xu. Không đăng ký theo tháng.</p>
     </div>
     <a class="primary big" href="/pricing">Xem bảng giá →</a>
   </section>
@@ -153,7 +153,7 @@
   <div class="modal">
     <button class="x" id="loginClose">×</button>
     <h2>Đăng nhập</h2>
-    <p>Đăng nhập để sử dụng lượt và theo dõi job.</p>
+    <p>Đăng nhập để sử dụng xu và theo dõi job.</p>
     <input id="email" placeholder="Email">
     <input id="password" type="password" placeholder="Mật khẩu">
     <button class="primary wide" id="loginBtn">Đăng nhập</button>
@@ -187,28 +187,28 @@ document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
 const TVC_I18N = {
   vi:{
     topup:"Nạp VIP", account:"Tài Khoản", balance:"Số dư", accountSettings:"Tài khoản", hello:"Xin chào", profile:"Hồ Sơ Của Tôi", affiliateMenu:"Giới Thiệu", addTVC:"Nạp thêm",
-    wallet:"Ví lượt", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
+    wallet:"Ví xu", earn:"Giới Thiệu", logout:"Đăng xuất", models:"Trang Chủ", history:"Lịch Sử",
     chooseModelEyebrow:"AI DỊCH VỤ", chooseToolSubtitle:"AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.", introKicker:"GIỚI THIỆU", introText:"Nền tảng cung cấp AI Motion Studio, giúp biến ảnh nhân vật thành video theo chuyển động từ video mẫu.", introVietnam:"Hoàng Sa và Trường Sa là của Việt Nam. 🇻🇳",
-    creditPayment:"Thanh toán bằng lượt", refundNote:"Job lỗi được hoàn lượt tự động",
+    creditPayment:"Thanh toán bằng xu", refundNote:"Job lỗi được hoàn xu tự động",
     modelMotionTitle:"AI Motion Studio", modelMotionDesc:"Sao chép chuyển động chân thực từ video mẫu, giữ trọn thần thái nhân vật.", mainService:"DỊCH VỤ CHÍNH", motionSubtitle:"AI MOTION STUDIO",
     videoCreatorTitle:"AI Video Creator", videoCreatorDesc:"Biến câu lệnh hoặc ảnh tham chiếu thành video chuyển động bằng AI — tương tự Veo 3.", promptVideoSubtitle:"TẠO VIDEO BẰNG PROMPT",
     outfitTitle:"AI Đổi Trang Phục", outfitDesc:"Thay trang phục cho nhân vật, ưu tiên giữ nguyên khuôn mặt và danh tính.", outfitSubtitle:"THAY TRANG PHỤC",
     sceneTitle:"AI Đổi Bối Cảnh", sceneDesc:"Thay bối cảnh phía sau nhưng giữ nguyên nhân vật.", sceneSubtitle:"THAY CẢNH",
     upscaleTitle:"AI Nâng Cấp Ảnh", upscaleDesc:"Nâng độ phân giải ảnh, ưu tiên giữ khuôn mặt và chi tiết.", upscaleSubtitle:"NÂNG CHẤT LƯỢNG ẢNH",
-    free:"MIỄN PHÍ", freeIdle:"Miễn phí • Xử lý khi GPU rảnh", comingFree:"Sắp mở • Miễn phí", perVideo:"lượt / video", createVideo:"Tạo Video",
+    free:"MIỄN PHÍ", freeIdle:"Miễn phí • Xử lý khi GPU rảnh", comingFree:"Sắp mở • Miễn phí", perVideo:"xu / video", createVideo:"Tạo Video",
     comingSoon:"Sắp mở", processKicker:"QUY TRÌNH", processTitle:"3 bước để khách tạo video.",
     process1Title:"Chọn model", process1Desc:"Khách chọn công cụ phù hợp với nhu cầu.",
     process2Title:"Tải dữ liệu", process2Desc:"Upload ảnh, video mẫu và nhập prompt nếu cần.",
     process3Title:"Nhận kết quả", process3Desc:"Job vào queue, GPU xử lý và trả file về tài khoản.",
-    creditsKicker:"HỆ THỐNG LƯỢT", creditsTitle:"Bán dịch vụ theo từng job.",
-    creditsDesc:"Bản backend hiện đã hỗ trợ tài khoản, lượt, job queue, hoàn lượt khi lỗi và admin duyệt nạp điểm.",
+    creditsKicker:"HỆ THỐNG XU", creditsTitle:"Dùng xu cho từng dịch vụ.",
+    creditsDesc:"Hệ thống hỗ trợ tài khoản, xu, hàng đợi job, hoàn xu khi lỗi và admin duyệt nạp.",
     dashboardCta:"Vào dashboard →", createVideoNav:"✨ Tạo video", myJobsNav:"▤ Job của tôi",
-    walletNav:"◈ Ví lượt", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
+    walletNav:"◈ Ví xu", earnNav:"🔗 Giới thiệu", accountNav:"⚙ Tài khoản",
     login:"Đăng nhập", register:"Đăng ký", welcomeBack:"Chào mừng quay lại", createAccount:"Tạo tài khoản",
     createVideoTitle:"Tạo video mới", characterImage:"Ảnh nhân vật", motionVideo:"Video chuyển động", model:"Model",
     aspect:"Tỷ lệ", quality:"Chất lượng", prompt:"Prompt", cost:"Chi phí", createVideo:"Tạo video",
     tips:"MẸO", betterVideo:"Để video ổn hơn", myJobs:"Job của tôi", topupRequest:"Tạo yêu cầu nạp điểm",
-    topupHistory:"Lịch sử nạp", creditLedger:"Biến động lượt", affiliateTitle:"Giới Thiệu Bạn Bè",
+    topupHistory:"Lịch sử nạp", creditLedger:"Biến động xu", affiliateTitle:"Giới Thiệu Bạn Bè",
     affiliateSubtitle:"Chia sẻ link hoặc mã giới thiệu của bạn",
     shareReward:"Chia Sẻ & Nhận Thưởng", enterReferral:"Nhập Mã Giới Thiệu",
   },

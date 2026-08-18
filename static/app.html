@@ -18,12 +18,12 @@
  <a class="zalo-community-link" href="https://zalo.me/g/zjsk2eclgz9dejbfsmgz" target="_blank" rel="noopener noreferrer" aria-label="Tham gia nhóm Zalo (mở trong tab mới)" title="Tham gia nhóm Zalo"><span class="zalo-community-icon" aria-hidden="true">Z</span><span>Tham gia nhóm Zalo</span></a>
  <button data-tab="create" class="side active" data-i18n="createVideoNav">✨ Tạo video</button>
  <button data-tab="jobs" class="side" data-i18n="myJobsNav">▤ Job của tôi</button>
- <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví lượt</button>
+ <button data-tab="wallet" class="side" data-i18n="walletNav">◈ Ví xu</button>
  <button data-tab="affiliate" class="side" data-i18n="earnNav">🔗 Giới thiệu</button>
  <div class="worker"><b><i class="green"></i>Worker API</b><small>Chờ RTX 5090 kết nối</small></div>
 </aside>
 <section class="workspace">
-<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> lượt</span></div></header>
+<header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> xu</span></div></header>
 
 <div id="authGate" class="auth-gate hidden">
  <div class="auth-card">
@@ -104,13 +104,13 @@
           <button class="simple-render-btn quick single-render-btn" type="submit" disabled aria-disabled="true">
             <span>
               <b>🎬 Tạo Video</b>
-              <small>1 lượt cho mỗi video</small>
+              <small>1 xu cho mỗi video</small>
             </span>
-            <em>1 lượt</em>
+            <em>1 xu</em>
           </button>
         </div>
 
-        <span id="cost" class="simple-hidden-cost">1 lượt</span>
+        <span id="cost" class="simple-hidden-cost">1 xu</span>
       </form>
     </article>
   </div>
@@ -121,12 +121,12 @@
 <section class="tab" id="tab-wallet">
   <div class="wallet-grid wallet-grid-v3339">
     <article class="balance video-balance-card">
-      <span>LƯỢT VIDEO CÒN LẠI</span>
-      <strong><b id="walletVideoRemaining">0</b> <em>lượt video</em></strong>
+      <span>SỐ XU CÒN LẠI</span>
+      <strong><b id="walletVideoRemaining">0</b> <em>xu video</em></strong>
       <div class="video-balance-meta single-video-balance-meta">
-        <span><b id="walletTVC">0</b> lượt</span>
+        <span><b id="walletTVC">0</b> xu</span>
       </div>
-      <small>1 lượt = 1 lần tạo video. Mọi video đều cùng một mức giá.</small>
+      <small>1 xu = 1 lần tạo video. Mỗi dịch vụ có thể có mức xu riêng.</small>
     </article>
 
     <article class="panel-card topup-pack-card">
@@ -135,17 +135,17 @@
         <a href="/pricing">Xem bảng giá</a>
       </div>
       <div class="packs packs-v3339">
-        <button data-pack="starter"><small>TRẢI NGHIỆM</small><b>3 lượt</b><span>10.000đ</span></button>
-        <button class="active" data-pack="creator"><small>PHỔ BIẾN ⭐</small><b>25 lượt</b><span>60.000đ</span></button>
-        <button data-pack="studio"><small>TIẾT KIỆM</small><b>50 lượt</b><span>99.000đ</span></button>
+        <button data-pack="starter"><small>TRẢI NGHIỆM</small><b>3 xu</b><span>10.000đ</span></button>
+        <button class="active" data-pack="creator"><small>PHỔ BIẾN ⭐</small><b>25 xu</b><span>60.000đ</span></button>
+        <button data-pack="studio"><small>TIẾT KIỆM</small><b>50 xu</b><span>99.000đ</span></button>
       </div>
       <textarea id="topupNote" placeholder="Mã giao dịch / ghi chú chuyển khoản"></textarea>
       <button class="primary wide" id="requestTopup">Gửi yêu cầu nạp</button>
-      <p class="muted">Admin duyệt thì lượt được cộng tự động. Không có lượt miễn phí mặc định cho tài khoản mới.</p>
+      <p class="muted">Admin duyệt thì xu được cộng tự động. Không có xu miễn phí mặc định cho tài khoản mới.</p>
     </article>
   </div>
   <h3 class="subhead" data-i18n="topupHistory">Lịch sử nạp</h3><div id="topupList" class="simple-list"></div>
-  <h3 class="subhead" data-i18n="creditLedger">Biến động lượt</h3><div id="ledgerList" class="simple-list"></div>
+  <h3 class="subhead" data-i18n="creditLedger">Biến động xu</h3><div id="ledgerList" class="simple-list"></div>
 </section>
 
 
@@ -155,15 +155,15 @@
       <div>
         <span class="affiliate-kicker">🔗 GIỚI THIỆU</span>
         <h2>Giới Thiệu Bạn Bè</h2>
-        <p>Chia sẻ link hoặc mã của bạn. Giai đoạn hiện tại ưu tiên ghi nhận đúng người giới thiệu trước khi bật hệ thống thưởng lượt.</p>
+        <p>Chia sẻ link hoặc mã của bạn. Giai đoạn hiện tại ưu tiên ghi nhận đúng người giới thiệu trước khi bật hệ thống thưởng xu.</p>
       </div>
       <button class="dark" id="refreshAffiliate">↻ Làm mới</button>
     </div>
 
     <div class="referral-stats">
       <article><small>ĐÃ GIỚI THIỆU</small><strong id="refDirectCount">0</strong><span>tài khoản</span></article>
-      <article><small>NGƯỜI GIỚI THIỆU</small><strong>+5 lượt</strong><span>cơ chế thưởng dự kiến</span></article>
-      <article><small>BẠN MỚI</small><strong>+1 lượt</strong><span>dùng thử qua giới thiệu</span></article>
+      <article><small>NGƯỜI GIỚI THIỆU</small><strong>+5 xu</strong><span>cơ chế thưởng dự kiến</span></article>
+      <article><small>BẠN MỚI</small><strong>+1 xu</strong><span>dùng thử qua giới thiệu</span></article>
     </div>
 
     <div class="referral-columns">
@@ -179,8 +179,8 @@
         </div>
         <div class="referral-note">
           <b>🎁 Cơ chế đã chốt</b>
-          <p>Khi hệ thống thưởng referral được kích hoạt: người giới thiệu nhận <strong>5 lượt</strong>, người được giới thiệu nhận <strong>1 lượt dùng thử</strong>.</p>
-          <small>Hiện tại chưa tự động cộng lượt thưởng; hệ thống chỉ ghi nhận quan hệ giới thiệu để phục vụ giai đoạn test.</small>
+          <p>Khi hệ thống thưởng referral được kích hoạt: người giới thiệu nhận <strong>5 xu</strong>, người được giới thiệu nhận <strong>1 xu dùng thử</strong>.</p>
+          <small>Hiện tại chưa tự động cộng xu thưởng; hệ thống chỉ ghi nhận quan hệ giới thiệu để phục vụ giai đoạn test.</small>
         </div>
       </article>
 

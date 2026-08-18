@@ -57,7 +57,7 @@ function setStatus(job){
  const labels={waiting:'Đang chờ',running:'Đang xử lý',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Thất bại',cancelled:'Đã hủy',uploading:'Đang gửi dữ liệu'};
  $('statusLabel').textContent=labels[job.status]||job.status;
  $('progressLabel').textContent=(job.progress||0)+'%';$('jobProgress').value=job.progress||0;
- $('jobMessage').textContent=job.error||({waiting:'Job đã vào hàng chờ.',running:'Máy chủ GPU đang xử lý.',upscaling:'Đang nâng cấp video lên HD. Không trừ thêm lượt.',done:job.upscale_fallback?'Nâng cấp HD không thành công; video gốc vẫn sẵn sàng để tải.':'Kết quả đã sẵn sàng.',failed:'Xử lý thất bại; lượt đã trừ sẽ được hoàn tự động.',cancelled:'Job đã được hủy.'}[job.status]||'');
+ $('jobMessage').textContent=job.error||({waiting:'Job đã vào hàng chờ.',running:'Máy chủ GPU đang xử lý.',upscaling:'Đang nâng cấp video lên HD. Không trừ thêm xu.',done:job.upscale_fallback?'Nâng cấp HD không thành công; video gốc vẫn sẵn sàng để tải.':'Kết quả đã sẵn sàng.',failed:'Xử lý thất bại; xu đã trừ sẽ được hoàn tự động.',cancelled:'Job đã được hủy.'}[job.status]||'');
  $('cancelButton').classList.toggle('hidden',!job.can_cancel);
  $('retryButton').classList.toggle('hidden',!['failed','cancelled'].includes(job.status));
  const done=job.status==='done',url=`/api/services/${key}/jobs/${job.id}/result`;

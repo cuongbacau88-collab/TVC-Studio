@@ -23,7 +23,7 @@
   document.body.classList.add('tvc-fixed-toolbar');
 
   const labels={
-    vi:{models:'Trang Chủ',history:'Lịch Sử',affiliate:'Giới Thiệu',wallet:'Nạp VIP',account:'Tài Khoản',login:'Đăng Nhập',greeting:'Chào bạn,',topup:'Nạp Thêm Lượt',support:'Hỗ Trợ',profile:'Hồ Sơ Của Tôi',commission:'Giới Thiệu Nhận Hoa Hồng',logout:'Đăng Xuất'},
+    vi:{models:'Trang Chủ',history:'Lịch Sử',affiliate:'Giới Thiệu',wallet:'Nạp VIP',account:'Tài Khoản',login:'Đăng Nhập',greeting:'Chào bạn,',topup:'Nạp Thêm Xu',support:'Hỗ Trợ',profile:'Hồ Sơ Của Tôi',commission:'Giới Thiệu Nhận Hoa Hồng',logout:'Đăng Xuất'},
     en:{models:'Home',history:'History',affiliate:'Referral',wallet:'Top Up',account:'Account',login:'Log In',greeting:'Hello,',topup:'Add Usage',support:'Support',profile:'My Profile',commission:'Referral Commission',logout:'Log Out'}
   };
   let signedIn=false;
@@ -46,7 +46,7 @@
       <header><span class="tvc-account-avatar" id="toolbarAccountAvatar">T</span><div><small id="toolbarGreeting" class="text-slate-800 font-medium">Chào bạn,</small><strong id="toolbarAccountEmail" class="text-slate-800 font-medium"></strong></div></header>
       <nav>
         <a href="/app#jobs" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◷</span><b data-account-label="history" class="text-slate-800 font-medium">Lịch Sử</b></a>
-        <a href="/app#wallet" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◇</span><b data-account-label="topup" class="text-slate-800 font-medium">Nạp Thêm Lượt</b></a>
+        <a href="/app#wallet" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◇</span><b data-account-label="topup" class="text-slate-800 font-medium">Nạp Thêm Xu</b></a>
         <a href="/contact" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">?</span><b data-account-label="support" class="text-slate-800 font-medium">Hỗ Trợ</b></a>
         <a href="/app#account" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">◎</span><b data-account-label="profile" class="text-slate-800 font-medium">Hồ Sơ Của Tôi</b></a>
         <a href="/app#affiliate" class="text-slate-800 font-medium"><span class="text-slate-800 font-medium">ⓢ</span><b data-account-label="commission" class="text-slate-800 font-medium">Giới Thiệu Nhận Hoa Hồng</b></a>
