@@ -145,16 +145,16 @@ body.public-page-v3343 {
 .model-card h2,
 .model-card h3,
 .platform-intro h1 {
-  color: #ffffff !important;
+  color: #064c61 !important;
   font-weight: 800 !important;
 }
 .model-card p {
-  color: #e9d5ff !important;
+  color: #0e6074 !important;
 }
 .badge.purple {
   background: rgba(147, 51, 234, 0.38) !important;
   border: 1px solid rgba(216, 180, 254, 0.45) !important;
-  color: #f5f3ff !important;
+  color: #077085 !important;
 }
 .platform-intro {
   padding: 16px 22px !important;
@@ -194,7 +194,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   border: 1px solid rgba(255, 255, 255, 0.28) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.55) !important;
   border-radius: 18px !important;
-  color: #f5f3ff !important;
+  color: #185d70 !important;
 }
 .global-toolbar .tool-pill:hover,
 .global-toolbar .liquid-pill:hover,
@@ -203,7 +203,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   border-color: rgba(255, 255, 255, 0.5) !important;
   border-top-color: rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 0 18px rgba(192, 132, 252, .5) !important;
-  color: #fff !important;
+  color: #064c61 !important;
 }
 .global-toolbar .tool-pill.active,
 .global-toolbar .tool-pill[aria-current="page"],
@@ -212,7 +212,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   border: 1px solid rgba(255, 255, 255, 0.45) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.85) !important;
   box-shadow: 0 0 22px rgba(168, 85, 247, .55), inset 0 1px 0 rgba(255,255,255,.45) !important;
-  color: #fff !important;
+  color: #f5f3ff !important;
 }
 
 /* 5. MENU TRƯỢT BÊN TRÁI (AI TOOLS DRAWER) */
@@ -282,7 +282,7 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   background: rgba(217, 70, 239, 0.25) !important;
   border: 1px solid rgba(255, 255, 255, 0.4) !important;
   border-radius: 999px !important;
-  color: #ffffff !important;
+  color: #077085 !important;
 }
 
 /* 6. POPUP MENU TÀI KHOẢN */
@@ -324,7 +324,7 @@ textarea {
   border: 1px solid rgba(255, 255, 255, 0.24) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.45) !important;
   border-radius: 16px !important;
-  color: #ffffff !important;
+  color: #073e50 !important;
 }
 input:focus,
 select:focus,
@@ -471,7 +471,7 @@ body,body.v3-liquid-theme,body.model-home,body.service-page,body.app-body,body.l
   box-shadow:inset 0 1px rgba(255,255,255,.55),0 5px 12px rgba(0,75,190,.30);
   font-size:14px;font-weight:900;color:#fff
 }
-.drawer-zalo-link{margin:0 0 10px!important}.zalo-external{margin-left:auto;color:rgba(255,255,255,.72)}
+.drawer-zalo-link{margin:0 0 10px!important}.zalo-external{margin-left:auto;color:#077085}
 @media (hover:hover) and (pointer:fine){
   .zalo-community-link:hover{transform:translateY(-2px);filter:brightness(1.12);
     box-shadow:0 14px 30px rgba(0,92,220,.32),0 0 20px rgba(115,87,255,.22)!important}
@@ -504,7 +504,7 @@ input:not([type="checkbox"]):not([type="radio"]),select,textarea,.simple-upload-
   box-shadow:inset 0 1px 8px rgba(2,7,28,.25),inset 0 1px rgba(255,255,255,.07)!important
 }
 input::placeholder,textarea::placeholder{color:rgba(204,214,242,.58)!important;opacity:1}
-select option{color:#fff;background:#101e4e}
+select option{color:#073e50;background:#e7fbff}
 .modal-wrap,.gallery-modal,.ai-tools-overlay{
   background:rgba(3,8,30,.70)!important;backdrop-filter:blur(10px)!important;
   -webkit-backdrop-filter:blur(10px)!important
@@ -877,9 +877,9 @@ body.model-home .global-toolbar.sticky{
   border-color:rgba(196,252,255,.82)!important;
   box-shadow:0 10px 28px rgba(7,103,127,.20),inset 0 1px rgba(235,255,255,.74)!important
 }
-body.model-home .global-toolbar :is(.brand-text,.menu-header,a,button){color:#efffff!important}
+body.model-home .global-toolbar :is(.brand-text,.menu-header,a,button){color:#185d70!important}
 body.model-home .global-toolbar :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch){
-  color:#efffff!important;
+  color:#185d70!important;
   background:rgba(226,253,255,.13)!important;
   border-color:rgba(220,253,255,.46)!important
 }
@@ -921,14 +921,14 @@ body.model-home .credit-price span{
   box-shadow:0 10px 28px rgba(7,103,127,.20),inset 0 1px rgba(239,255,255,.72)!important
 }
 :is(.global-toolbar,.topbar,.app-topbar,.page-topbar,.service-nav,.legal-topbar,.nav)
-:is(a,button,h1,h2,h3,h4,p,span,strong,b,.brand,.brand-text,.menu-header){color:#f3ffff!important}
+:is(a,button,h1,h2,h3,h4,p,span,strong,b,.brand,.brand-text,.menu-header){color:#185d70!important}
 :is(.global-toolbar,.topbar,.app-topbar,.page-topbar,.service-nav,.legal-topbar,.nav)
 :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch,.credit-pill,.avatar,.icon){
-  color:#f3ffff!important;background:rgba(225,253,255,.13)!important;border-color:rgba(221,254,255,.48)!important
+  color:#185d70!important;background:rgba(225,253,255,.13)!important;border-color:rgba(221,254,255,.48)!important
 }
 :is(.global-toolbar,.topbar,.service-nav,.legal-topbar,.nav)
 :is(.tool-pill,.liquid-pill,.credit-tool,.account-pill,.lang-switch,a,button):is(:hover,:active,:focus,:focus-visible,.active,[aria-current="page"]){
-  color:#fff!important;background:rgba(215,253,255,.20)!important;border-color:rgba(239,255,255,.88)!important;
+  color:#064c61!important;background:rgba(215,253,255,.20)!important;border-color:rgba(239,255,255,.88)!important;
   box-shadow:0 8px 20px rgba(3,93,113,.18),inset 0 1px rgba(255,255,255,.72)!important
 }
 .sidebar,.app-sidebar,.left-sidebar,.ai-tools-drawer,.tvc-account-menu,.account-popover,.account-popover-v2{
@@ -944,7 +944,7 @@ body.model-home .credit-price span{
 }
 :is(.side,.sidebar a,.sidebar button,.drawer-scroll nav a,.drawer-scroll nav button,.menu-group,.auth-tabs button,
 .method-card,.simple-aspect,.packs button,.reference-actions button,.small-action):is(:hover,:active,:focus,:focus-visible){
-  color:var(--stable-dark-text)!important;border-color:rgba(97,229,236,.92)!important;
+  color:#064c61!important;border-color:rgba(97,229,236,.92)!important;
   box-shadow:0 8px 20px rgba(0,167,187,.14)!important
 }
 :is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,.affiliate-card,
@@ -993,7 +993,7 @@ button.primary-btn,button.cta,.simple-upload-button,.zalo-community-link):is(:ho
   border-color:#efffff!important;filter:none!important
 }
 .badge,.badge.purple,.model-badges .badge,.drawer-scroll em,.counter,.chips .active{
-  color:#efffff!important;background:rgba(5,119,137,.88)!important;border-color:rgba(189,250,252,.78)!important
+  color:#077085!important;background:rgba(5,119,137,.88)!important;border-color:rgba(189,250,252,.78)!important
 }
 body :is(.model-title-row p,.service-heading p,.legal-hero p,.section-head p,.service-field>span,.service-field small,
 .creator-section p,.method-card span,.file-preview,.endpoint-preview small,.gallery-empty,.gallery-card small,
@@ -1121,11 +1121,11 @@ body.public-page-v3343,body.v3-liquid-theme{
 }
 
 :is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .app-topbar, .page-topbar, .service-nav, .legal-topbar, .nav) :is(.brand-text, .menu-header, a, button, h1, h2, h3, p, span, strong, b) {
-  color: #efffff !important;
+  color: #185d70 !important;
 }
 
 :is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .app-topbar, .page-topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary) {
-  color: #efffff !important;
+  color: #185d70 !important;
   background: rgba(226, 253, 255, 0.13) !important;
   border: 1px solid rgba(220, 253, 255, 0.46) !important;
   backdrop-filter: blur(8px) !important;
@@ -1134,7 +1134,7 @@ body.public-page-v3343,body.v3-liquid-theme{
 }
 
 :is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary, a, button):is(:hover, :active, :focus, :focus-visible, .active, [aria-current="page"]) {
-  color: #ffffff !important;
+  color: #064c61 !important;
   background: rgba(215, 253, 255, 0.20) !important;
   border-color: rgba(239, 255, 255, 0.88) !important;
   box-shadow: 0 8px 20px rgba(3, 93, 113, 0.18), inset 0 1px rgba(255, 255, 255, 0.72) !important;
