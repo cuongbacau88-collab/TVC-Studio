@@ -50,6 +50,7 @@ class ServiceWorkerAdapter:
             )
         headers = kwargs.pop("headers", {})
         headers["Authorization"] = f"Bearer {self.config.token}"
+        headers["X-Owner-ID"] = "tvc-frontend"
         try:
             response = requests.request(
                 method, self.config.url.rstrip("/") + path,
