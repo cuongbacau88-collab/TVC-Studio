@@ -1146,6 +1146,15 @@ body.model-home .site-footer-bottom{max-width:1232px!important;border-top-color:
   .account-v2-menu a,.service-panel,.auth-card):is(:hover,:active,:focus){transform:none!important;filter:none!important}
 }
 
+/* Service hero headings must remain readable on the light Aqua background. */
+body.service-page .service-heading h1,
+body.service-page .service-heading h2,
+body.service-page .service-heading p,
+body.service-page .service-heading .back-link{
+  color:#0b4f63!important;text-shadow:none!important
+}
+body.service-page .service-heading>span{color:#4d63e8!important}
+
 /* =====================================================================
    AQUA TEAL ICE GLASS — UNIFIED GLOBAL TOOLBAR ON ALL PAGES & CARDS
    ===================================================================== */
