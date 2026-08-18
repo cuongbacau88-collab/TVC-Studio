@@ -556,7 +556,7 @@ p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
 }
 .badge,label,.label,.field-label{font-weight:600!important}
 
-:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+:is(.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
 .affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
 .referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
 .credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
@@ -568,7 +568,7 @@ p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
   border-color:var(--card-teal-border)!important;
   box-shadow:var(--card-teal-shadow)!important
 }
-:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+:is(.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
 .affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
 .referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
 .credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
@@ -576,7 +576,7 @@ p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
 .add-reference,.modal,.auth-card,.motion-player-panel,.balance,.simple-row,.render-box,.queue,.tip-card,
 .table-wrap,.admin-grid>*,details)
 :is(h1,h2,h3,h4,strong,b,label){color:var(--text-heading-dark)!important}
-:is(.model-card,.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
+:is(.platform-intro,.panel-card,.result-panel,.method-card,.legal-card,
 .affiliate-card,.service-login-notice,.video-balance-card,.topup-pack-card,.referral-stats article,
 .referral-share-card,.referral-code-card,.referral-history-card,.home-credit-section,.home-process>div,
 .credit-note,.contact-cards>*,.public-pricing-grid section,.gallery-card,.job,.stat,.simple-create-card,
@@ -586,8 +586,8 @@ p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
 :is(p,small,span,li,em){color:var(--text-secondary-dark)!important}
 
 /* Card state never replaces the surface color. */
-:is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
-.reference-card,.simple-aspect,.packs button,.service-navigation-card):is(
+:is(.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+.reference-card,.simple-aspect,.packs button):is(
 :hover,:active,:focus,:focus-visible,.active,.selected,[aria-selected="true"],[aria-current="true"]
 ){
   color:var(--text-primary-dark)!important;
@@ -596,14 +596,14 @@ p,.model-body p,.panel-card p,.legal-card p,.tip-card li,.service-field small{
   box-shadow:0 20px 42px rgba(10,162,179,.22),inset 0 1px 0 rgba(255,255,255,.42)!important
 }
 @media (hover:hover) and (pointer:fine){
-  :is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
-  .reference-card,.simple-aspect,.packs button,.service-navigation-card):hover{
+  :is(.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+  .reference-card,.simple-aspect,.packs button):hover{
     transform:translateY(-3px)!important
   }
 }
 @media (hover:none),(pointer:coarse){
-  :is(.model-card,.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
-  .reference-card,.simple-aspect,.packs button,.service-navigation-card):is(:hover,:active,:focus,.active,.selected){
+  :is(.panel-card,.method-card,.gallery-card,.public-pricing-grid section,.job,.stat,
+  .reference-card,.simple-aspect,.packs button):is(:hover,:active,:focus,.active,.selected){
     transform:none!important;filter:none!important
   }
 }
@@ -663,7 +663,7 @@ input::placeholder,textarea::placeholder{color:#56818b!important;opacity:.88!imp
   --card-teal-border:rgba(218,253,255,.92);
   --card-teal-shadow:0 20px 42px rgba(7,111,139,.24),inset 0 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(31,205,211,.24)
 }
-.model-card,.platform-intro{
+.platform-intro{
   backdrop-filter:blur(24px) saturate(145%)!important;
   -webkit-backdrop-filter:blur(24px) saturate(145%)!important;
   box-shadow:var(--card-teal-shadow),0 0 0 1px rgba(91,229,238,.20)!important
@@ -692,7 +692,7 @@ input::placeholder,textarea::placeholder{color:#56818b!important;opacity:.88!imp
   --card-teal-border:rgba(218,253,255,.92);
   --card-teal-shadow:0 20px 42px rgba(7,111,139,.24),inset 0 1px 0 rgba(255,255,255,.72),inset 0 -1px 0 rgba(31,205,211,.24)
 }
-.model-card,.platform-intro{
+.platform-intro{
   backdrop-filter:blur(24px) saturate(145%)!important;
   -webkit-backdrop-filter:blur(24px) saturate(145%)!important;
   box-shadow:var(--card-teal-shadow),0 0 0 1px rgba(91,229,238,.20)!important
