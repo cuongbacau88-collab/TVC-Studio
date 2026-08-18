@@ -2096,3 +2096,123 @@ article.model-card {
   font-size: 11px;
   color: #9feaf2;
 }
+
+/* =====================================================================
+   DEFINITIVE OVERRIDE: DROPDOWN MENU TÀI KHOẢN (TEXT-SLATE-800 & ICONS)
+   ===================================================================== */
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2, .account-native-menu) {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.98), rgba(220, 250, 254, 0.96)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 20px 50px rgba(7, 103, 127, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2, .account-native-menu) :is(header, nav, a, button, span, b, small, strong, div, p, label, .text-slate-800) {
+  color: #1e293b !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) header small {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) header strong,
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) :is(.account-user-email, .account-user-name) {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav a,
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav button {
+  color: #1e293b !important;
+  font-weight: 500 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav span {
+  color: #0e7490 !important;
+  font-size: 16px !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav b {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav :is(a, button):hover {
+  background: rgba(36, 216, 238, 0.18) !important;
+  color: #0f172a !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout {
+  border-top: 1px solid rgba(14, 116, 144, 0.15) !important;
+  color: #dc2626 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout :is(span, b) {
+  color: #dc2626 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page, .app-body) :is(.global-toolbar, .topbar, header, nav, div, section, main, aside) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout:hover :is(span, b) {
+  color: #b91c1c !important;
+}
+
+/* =====================================================================
+   DEFINITIVE OVERRIDE: 3D AQUA ICE GLASS CHO TẤT CẢ CÁC THẺ CÔNG CỤ AI
+   ===================================================================== */
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card, article.model-card, article) {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.90), rgba(212, 248, 252, 0.78)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 16px 36px rgba(7, 103, 127, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border-radius: 24px !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card):hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 22px 48px rgba(7, 103, 127, 0.18), 0 0 24px rgba(36, 216, 238, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.98) !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) :is(.model-visual, .service-image-visual, .model-body, .model-footer) {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) :is(h2, h3, .model-title, .service-title) {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) :is(p, .model-desc, small) {
+  color: #0e6074 !important;
+  font-weight: 500 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) .credit-price b {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) .credit-price span {
+  color: #0e6074 !important;
+  font-weight: 500 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) :is(.badge, .model-badges .badge) {
+  background: rgba(36, 216, 238, 0.16) !important;
+  border: 1px solid rgba(36, 216, 238, 0.45) !important;
+  color: #077085 !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+}
+
+:is(html, body, .v3-liquid-theme, .model-home, .service-page) :is(.model-grid, .model-hero, main) :is(.model-card, .service-navigation-card) :is(.model-button, a.model-button, button.model-button) {
+  background: linear-gradient(135deg, #00b8c8, #24d8ee) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 18px rgba(0, 184, 200, 0.35) !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+}
+

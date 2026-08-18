@@ -35,7 +35,7 @@
 .credit-note{border:1px solid rgba(255,255,255,.09);background:rgba(19,14,30,.72);border-radius:15px;padding:12px 15px;display:flex;gap:10px;align-items:center;min-width:280px}
 .credit-note>span{font-size:22px;color:#62e6bb}.credit-note div{display:flex;flex-direction:column}.credit-note b{font-size:11px}.credit-note small{color:#81788f;font-size:9px;margin-top:3px}
 .model-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.model-card{border:1px solid rgba(255,255,255,.09);background:linear-gradient(180deg,#211334,#160c25);border-radius:22px;overflow:hidden;display:flex;flex-direction:column;min-height:520px;box-shadow:0 20px 50px rgba(0,0,0,.16);transition:.22s}
+.model-card{border:1px solid rgba(255,255,255,.95);background:linear-gradient(145deg,rgba(255,255,255,.90),rgba(212,248,252,.78));border-radius:24px;overflow:hidden;display:flex;flex-direction:column;min-height:520px;box-shadow:0 16px 36px rgba(7,103,127,.12);transition:.22s}
 .model-card:hover{transform:translateY(-4px);border-color:rgba(162,104,255,.38);box-shadow:0 28px 70px rgba(0,0,0,.25)}
 .model-card.live{border-color:rgba(91,224,180,.22)}
 .model-visual{height:285px;background:#f1ece8;position:relative;display:flex;align-items:stretch;justify-content:center;overflow:hidden}
