@@ -1539,6 +1539,33 @@ article.model-card {
   color: #b91c1c !important;
 }
 
+/* Final homepage contrast pass: keep the offer band and footer in the Aqua light system. */
+body.model-home .home-credit-section,
+body.model-home .home-credit-section > div,
+body.model-home .site-footer,
+body.model-home .site-footer-inner,
+body.model-home .site-footer-bottom {
+  background:transparent!important;
+}
+body.model-home .home-credit-section {
+  background:linear-gradient(110deg,rgba(255,255,255,.92),rgba(207,246,249,.86))!important;
+  color:#0b4f63!important;
+}
+body.model-home .site-footer {
+  background:linear-gradient(160deg,#e8fbff,#cdefef)!important;
+  color:#0b4f63!important;
+}
+body.model-home .site-footer :is(a,p,span,strong,b) {
+  color:#416b7a!important;
+}
+body.model-home .site-footer :is(.site-footer-links b,.site-footer-logo span) {
+  color:#0b4f63!important;
+}
+body.model-home .site-footer-bottom {
+  color:#5d7d87!important;
+  border-top-color:rgba(11,137,158,.18)!important;
+}
+
 :is(.global-toolbar, body) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout:hover :is(span, b) {
   color: #b91c1c !important;
 }
