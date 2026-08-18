@@ -33,7 +33,7 @@
   --tvc-toolbar-highlight: rgba(255, 255, 255, 0.35) !important;
 }
 
-/* 1. GLOBAL BACKGROUND (TẤT CẢ CÁC TRANG) */
+/* 1. CARD BACKGROUND (BRIGHT 3D AQUA ICE GLASS) */
 html, body,
 body.model-home,
 body.service-page,
@@ -134,7 +134,7 @@ body.public-page-v3343 {
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.35), 0 0 28px rgba(192, 132, 252, 0.45) !important;
 }
 
-/* 3. TRANG CHỦ (HOME PAGE) */
+/* 3. AQUA BADGES (FREE, AI VIDEO, OUTFIT CHANGE) */
 .model-card .model-visual {
   background: rgba(0, 0, 0, 0.20) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
@@ -161,7 +161,7 @@ body.public-page-v3343 {
   margin-bottom: 24px !important;
 }
 
-/* 4. THANH HEADER TOOLBAR (KÍNH MỜ TÍM) */
+/* 4. ACTION BUTTONS (CREATE VIDEO AND OPEN SERVICE) */
 .global-toolbar,
 .global-toolbar.liquid-toolbar,
 .global-toolbar.is-scrolled,
@@ -1130,4 +1130,203 @@ body.public-page-v3343,body.v3-liquid-theme{
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(3, 80, 98, 0.15) !important;
 }
 
-:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary, a, button):is(:hover, :active, :focus, :focus-visible, .active, [aria-current=
+:is(body, body.model-home, body.service-page, body.v3-liquid-theme, body.public-page-v3343) :is(.global-toolbar, .topbar, .service-nav, .legal-topbar, .nav) :is(.tool-pill, .liquid-pill, .credit-tool, .account-pill, .lang-switch, .account-native-menu > summary, a, button):is(:hover, :active, :focus, :focus-visible, .active, [aria-current="page"]) {
+  color: #ffffff !important;
+  background: rgba(215, 253, 255, 0.20) !important;
+  border-color: rgba(239, 255, 255, 0.88) !important;
+  box-shadow: 0 8px 20px rgba(3, 93, 113, 0.18), inset 0 1px rgba(255, 255, 255, 0.72) !important;
+}
+
+
+/* =====================================================================
+   AQUA ICE GLASS -- 3D MIRROR GLASS STYLE FOR SERVICE CARDS
+   ===================================================================== */
+
+/* 1. CARD BACKGROUND (BRIGHT 3D AQUA ICE GLASS) */
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .service-navigation-card
+) {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(212, 248, 252, 0.65)) !important;
+  backdrop-filter: blur(24px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 16px 36px rgba(7, 103, 127, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  border-radius: 24px !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
+  overflow: hidden !important;
+}
+
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .service-navigation-card
+):hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(255, 255, 255, 1) !important;
+  box-shadow: 0 22px 48px rgba(7, 103, 127, 0.18), 0 0 24px rgba(36, 216, 238, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.98) !important;
+}
+
+/* Remove legacy dark pseudo overlays */
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .service-navigation-card
+)::before,
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .service-navigation-card
+)::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Media visual & inner bodies */
+.model-card .model-visual,
+.service-image-visual,
+.motion-video-shell {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.75) !important;
+  border-radius: 23px 23px 0 0 !important;
+  overflow: hidden !important;
+}
+
+.model-card .model-body,
+.panel-card .panel-body {
+  background: transparent !important;
+}
+
+/* 2. HIGH-CONTRAST CARD TYPOGRAPHY (TITLES AND DESCRIPTIONS) */
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .model-body
+) :is(h2, h3, .model-title, .service-title),
+.model-card h2,
+.model-card h3,
+.model-title,
+.service-title {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item,
+  .model-body
+) :is(.model-desc, p, span, small, label, .credit-price span),
+.model-card p,
+.model-card .model-desc,
+.model-desc,
+.credit-price span {
+  color: #0e6074 !important;
+  font-weight: 500 !important;
+}
+
+:is(
+  .model-card,
+  .gallery-card,
+  .panel-card,
+  .service-card,
+  .simple-create-card,
+  .method-card,
+  .model-item,
+  .service-item
+) .credit-price b,
+.model-card .credit-price b,
+.credit-price b {
+  color: #064c61 !important;
+  font-weight: 700 !important;
+}
+
+/* 3. AQUA BADGES (FREE, AI VIDEO, OUTFIT CHANGE) */
+:is(
+  .badge,
+  .model-badges .badge,
+  .badge.purple,
+  .service-badges .badge,
+  .badge-tag
+) {
+  background: rgba(36, 216, 238, 0.15) !important;
+  border: 1px solid rgba(36, 216, 238, 0.45) !important;
+  color: #077085 !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+}
+
+/* 4. ACTION BUTTONS (CREATE VIDEO AND OPEN SERVICE) */
+:is(
+  .model-button,
+  .motion-cta-button,
+  .service-submit,
+  .simple-render-btn,
+  .service-btn,
+  .card-btn,
+  a.model-button,
+  button.model-button,
+  .model-card .model-button
+) {
+  background: linear-gradient(135deg, #00b8c8, #24d8ee) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 6px 18px rgba(0, 184, 200, 0.35) !important;
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.70) !important;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.95) !important;
+  text-shadow: 0 1px 2px rgba(0, 86, 110, 0.22) !important;
+  transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+:is(
+  .model-button,
+  .motion-cta-button,
+  .service-submit,
+  .simple-render-btn,
+  .service-btn,
+  .card-btn,
+  a.model-button,
+  button.model-button,
+  .model-card .model-button
+):is(:hover, :focus-visible) {
+  filter: brightness(1.06) saturate(1.1) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 24px rgba(0, 184, 200, 0.45), 0 0 16px rgba(36, 216, 238, 0.35) !important;
+}
