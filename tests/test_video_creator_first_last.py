@@ -54,6 +54,11 @@ class VideoCreatorFirstLastFrontendTests(unittest.TestCase):
         self.assertIn("if(submitting)return", self.service)
         self.assertIn("first:state.first,last:state.last", self.creator)
 
+    def test_prompt_uses_creator_validation_instead_of_native_required_block(self):
+        self.assertIn('name="prompt" maxlength="2000" placeholder=', self.creator)
+        self.assertNotIn('name="prompt" maxlength="2000" placeholder="${esc(defaultPrompt)}" required', self.creator)
+        self.assertIn("if(!state.prompt.trim())", self.creator)
+
     def test_mobile_preview_is_bounded_without_scroll_override(self):
         self.assertIn(".first-last-grid{grid-template-columns:1fr}", self.css)
         self.assertIn("width:100%;height:220px;object-fit:contain", self.css)
