@@ -97,6 +97,12 @@ class GPUAPIClient:
         if model_id:
             payload["model_id"] = model_id
 
+    def workflow_test_run(self, owner_id: str, workflow: dict) -> dict:
+        """Execute an admin workflow through the GPU service's workflow contract."""
+        return self._json(self._request(
+            "POST", "/v1/workflows/test-run", owner_id, json={"workflow": workflow}
+        ))
+
     def status(self, owner_id: str, gpu_job_id: str) -> dict:
         return self._json(self._request("GET", f"/v1/jobs/{quote(gpu_job_id, safe='')}", owner_id))
 

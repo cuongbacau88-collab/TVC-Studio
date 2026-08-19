@@ -53,7 +53,7 @@ async function load() {
   ].map(x => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
 
   $('#topups').innerHTML = table(['ID', 'Khách', 'Gói', 'Tiền', 'Xu', 'Trạng thái', ''], t.map(x => [
-    x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + '?', x.credits, x.status,
+    x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + ' đ', x.credits, x.status,
     x.status === 'pending' ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button> <button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
   ]));
 
@@ -66,8 +66,8 @@ async function load() {
   ]));
 
   $('#affiliateWithdrawals').innerHTML = table(['ID', 'Khách', 'Xu', 'VND', 'Phương thức', 'Tài khoản', 'Trạng thái', ''], aw.map(x => [
-    x.id, x.email, x.amount_credits, Number(x.amount_vnd).toLocaleString('vi-VN') + '?', x.method, x.account, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">?? tr?</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">T? ch?i</button>` : ''
+    x.id, x.email, x.amount_credits, Number(x.amount_vnd).toLocaleString('vi-VN') + ' đ', x.method, x.account, x.status,
+    x.status === 'pending' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">Đã trả</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">Từ chối</button>` : ''
   ]));
 
   $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'Mã', 'Hạng', 'Tỷ lệ', 'Giới thiệu', 'Doanh số', 'Thưởng', 'Có thể rút', 'Người GT'], au.map(x => [
@@ -141,7 +141,7 @@ window.approve = async id => {
   if (!confirm('Duyệt giao dịch và cộng Xu cho tài khoản này?')) return;
   try {
     const j = await api(`/api/admin/topups/${id}/approve`, { method: 'POST' });
-    say(`?? duy?t ? bonus ${j.buyer_bonus || 0} ? commission ${j.direct_commission || 0}`);
+    say(`Đã duyệt • bonus ${j.buyer_bonus || 0} • commission ${j.direct_commission || 0}`);
     load();
   } catch (e) { say(e.message); }
 };
@@ -150,7 +150,7 @@ window.rejectT = async id => {
   if (!confirm('Từ chối giao dịch này?')) return;
   try {
     await api(`/api/admin/topups/${id}/reject`, { method: 'POST' });
-    say('?? t? ch?i');
+    say('Đã từ chối');
     load();
   } catch (e) { say(e.message); }
 };
@@ -170,7 +170,7 @@ window.addCredits = async (id, email) => {
     await api(`/api/admin/users/${id}/credits`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ delta: Number(d), reason: 'Admin ?i?u ch?nh' })
+      body: JSON.stringify({ delta: Number(d), reason: 'Admin điều chỉnh' })
     });
     say('Đã cập nhật Xu');
     load();
@@ -178,47 +178,57 @@ window.addCredits = async (id, email) => {
 };
 
 window.payWithdrawal = async id => {
-  const note = prompt('Ghi ch? thanh to?n (tu? ch?n):') || '';
+  const note = prompt('Ghi chú thanh toán (tuỳ chọn):') || '';
   try {
     await api(`/api/admin/affiliate/withdrawals/${id}/paid`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ admin_note: note })
     });
-    say('?? ??nh d?u thanh to?n');
+    say('Đã đánh dấu thanh toán');
     load();
   } catch (e) { say(e.message); }
 };
 
 window.rejectWithdrawal = async id => {
-  const note = prompt('L? do t? ch?i:') || '';
+  const note = prompt('Lý do từ chối:') || '';
   try {
     await api(`/api/admin/affiliate/withdrawals/${id}/reject`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ admin_note: note })
     });
-    say('?? t? ch?i y?u c?u r?t');
+    say('Đã từ chối yêu cầu rút');
     load();
   } catch (e) { say(e.message); }
 };
 
 let wfInitialized = false;
+const ADMIN_TABS = ['overview', 'users-admin', 'transactions-admin', 'jobs-admin', 'tools-admin', 'workflow-studio'];
+
+function activateAdminTab(tab, { updateUrl = true } = {}) {
+  const nextTab = ADMIN_TABS.includes(tab) ? tab : 'overview';
+  $$('.admin-tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === nextTab));
+  $$('.tab-pane').forEach(pane => {
+    const active = pane.id === `tab-${nextTab}`;
+    pane.style.display = active ? 'block' : 'none';
+    pane.classList.toggle('active', active);
+  });
+  if (updateUrl) history.replaceState(null, '', `#${nextTab}`);
+  if (nextTab === 'workflow-studio' && !wfInitialized) {
+    wfInitialized = true;
+    initWorkflowStudio();
+  }
+}
+
 function initAdminTabs() {
   $$('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      $$('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const tab = btn.dataset.tab;
-      $$('.tab-pane').forEach(pane => { pane.style.display = 'none'; });
-      const target = $(`#tab-${tab}`);
-      if (target) target.style.display = 'block';
-      if (tab === 'workflow-studio' && !wfInitialized) {
-        initWorkflowStudio();
-        wfInitialized = true;
-      }
+      activateAdminTab(btn.dataset.tab);
     });
   });
+  window.addEventListener('hashchange', () => activateAdminTab(location.hash.slice(1), { updateUrl: false }));
+  activateAdminTab(location.hash.slice(1), { updateUrl: false });
 
   $('#adminUserSearch')?.addEventListener('input', async e => {
     const users = await api(`/api/admin/users?q=${encodeURIComponent(e.target.value)}`);
@@ -252,49 +262,49 @@ function initAdminTabs() {
 const NODE_DEFS = {
   input_image: {
     title: "Input Image",
-    icon: "??",
+    icon: "▣",
     inputs: [],
     outputs: [{ id: "image", name: "Image Out", type: "IMAGE" }],
-    defaultParams: { slot: "character_image", label: "?nh nh?n v?t" }
+    defaultParams: { slot: "character_image", label: "Ảnh nhân vật" }
   },
   input_prompt: {
     title: "Input Prompt",
-    icon: "??",
+    icon: "✎",
     inputs: [],
     outputs: [{ id: "text", name: "Prompt Out", type: "STRING" }],
     defaultParams: { prompt: "A young woman smiling naturally in cinematic lighting, 4k ultra realistic" }
   },
   wan_video: {
     title: "Wan 2.1 Video",
-    icon: "??",
+    icon: "▶",
     inputs: [{ id: "image", name: "Image", type: "IMAGE" }, { id: "prompt", name: "Prompt", type: "STRING" }],
     outputs: [{ id: "video", name: "Video", type: "VIDEO" }],
     defaultParams: { steps: 30, cfg: 6.5, seed: 1337, denoise: 0.85, duration: 5.0 }
   },
   minimax_h3: {
     title: "MiniMax-H3",
-    icon: "?",
+    icon: "◈",
     inputs: [{ id: "image", name: "Image", type: "IMAGE" }, { id: "prompt", name: "Prompt", type: "STRING" }],
     outputs: [{ id: "video", name: "Video", type: "VIDEO" }],
     defaultParams: { steps: 40, cfg: 7.0, seed: 42000, motion_intensity: 1.2 }
   },
   flux2_klein: {
     title: "FLUX.2 Klein",
-    icon: "??",
+    icon: "◉",
     inputs: [{ id: "image", name: "Base Image", type: "IMAGE" }, { id: "reference", name: "Reference", type: "IMAGE" }, { id: "prompt", name: "Prompt", type: "STRING" }],
     outputs: [{ id: "image", name: "Image", type: "IMAGE" }],
     defaultParams: { steps: 28, cfg: 4.5, denoise: 0.75, preserve_face: true }
   },
   realesrgan: {
     title: "RealESRGAN Upscale",
-    icon: "??",
+    icon: "↗",
     inputs: [{ id: "input", name: "Input", type: "ANY" }],
     outputs: [{ id: "output", name: "Upscaled", type: "ANY" }],
     defaultParams: { scale: 4, restore_face: true, denoise: 0.3 }
   },
   output_video: {
     title: "Output Video",
-    icon: "??",
+    icon: "□",
     inputs: [{ id: "video", name: "Video In", type: "VIDEO" }, { id: "image", name: "Image In", type: "IMAGE" }],
     outputs: [],
     defaultParams: { codec: "h264", bitrate: "12M", format: "mp4" }
@@ -468,7 +478,7 @@ function bindStudioEvents() {
       currentWorkflow = JSON.parse(JSON.stringify(w));
       $('#wfTitleInput').value = currentWorkflow.name || '';
       renderWorkflowGraph();
-      say(`?? n?p: ${w.name}`);
+      say(`Đã nạp: ${w.name}`);
     }
   });
 
@@ -479,13 +489,13 @@ function bindStudioEvents() {
   $('#wfBtnNew').addEventListener('click', () => {
     currentWorkflow = {
       id: "wf_" + Math.random().toString(36).substring(2, 8),
-      name: "Workflow M?i " + new Date().toLocaleTimeString('vi-VN'),
-      description: "Quy tr?nh AI t?y ch?nh",
+      name: "Workflow Mới " + new Date().toLocaleTimeString('vi-VN'),
+      description: "Quy trình AI tùy chỉnh",
       nodes: [
-        { id: "node_1", type: "input_image", title: "?nh ??u V?o", x: 60, y: 120, params: { slot: "character_image" } },
-        { id: "node_2", type: "input_prompt", title: "Prompt ??u V?o", x: 60, y: 340, params: { prompt: "Cinematic portrait, 4k" } },
+        { id: "node_1", type: "input_image", title: "Ảnh Đầu Vào", x: 60, y: 120, params: { slot: "character_image" } },
+        { id: "node_2", type: "input_prompt", title: "Prompt Đầu Vào", x: 60, y: 340, params: { prompt: "Cinematic portrait, 4k" } },
         { id: "node_3", type: "wan_video", title: "Wan 2.1 Video", x: 420, y: 180, params: { steps: 30, cfg: 6.5, seed: 1234, denoise: 0.85 } },
-        { id: "node_4", type: "output_video", title: "Xu?t Video", x: 800, y: 180, params: { codec: "h264", format: "mp4" } }
+        { id: "node_4", type: "output_video", title: "Xuất Video", x: 800, y: 180, params: { codec: "h264", format: "mp4" } }
       ],
       links: [
         { id: "link_1", from_node: "node_1", from_port: "image", to_node: "node_3", to_port: "image" },
@@ -495,17 +505,17 @@ function bindStudioEvents() {
     };
     $('#wfTitleInput').value = currentWorkflow.name;
     renderWorkflowGraph();
-    say("?? t?o ?? th? m?i");
+    say("Đã tạo đồ thị mới");
   });
 
   $('#wfBtnDuplicate').addEventListener('click', () => {
     const clone = JSON.parse(JSON.stringify(currentWorkflow));
     clone.id = "wf_" + Math.random().toString(36).substring(2, 8);
-    clone.name += " (B?n sao)";
+    clone.name += " (Bản sao)";
     currentWorkflow = clone;
     $('#wfTitleInput').value = currentWorkflow.name;
     renderWorkflowGraph();
-    say("?? nh?n b?n workflow");
+    say("Đã nhân bản workflow");
   });
 
   $('#wfBtnImport').addEventListener('click', () => $('#wfImportFile').click());
@@ -515,7 +525,7 @@ function bindStudioEvents() {
     try {
       await importWorkflowFile(file);
     } catch (e) {
-      say('L?i import workflow: ' + e.message);
+      say('Lỗi import workflow: ' + e.message);
     } finally {
       event.target.value = '';
     }
@@ -523,7 +533,7 @@ function bindStudioEvents() {
   $('#wfBtnExport').addEventListener('click', exportCurrentWorkflow);
 
   $('#wfBtnClear').addEventListener('click', () => {
-    if (confirm('X?a to?n b? nodes v? k?t n?i hi?n t?i?')) {
+    if (confirm('Xóa toàn bộ node và kết nối hiện tại?')) {
       currentWorkflow.nodes = [];
       currentWorkflow.links = [];
       renderWorkflowGraph();
@@ -619,7 +629,7 @@ function bindStudioEvents() {
   });
 
   $('#wfClearLogs').addEventListener('click', () => {
-    $('#wfTerminal').innerHTML = '<div class="log-line dim">Log console ?? ???c x?a.</div>';
+    $('#wfTerminal').innerHTML = '<div class="log-line dim">Log console đã được xóa.</div>';
   });
 
   $('#wfToggleLogs').addEventListener('click', () => {
@@ -648,12 +658,12 @@ async function importWorkflowFile(file) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload.detail || 'Import workflow thất b?i');
+    throw new Error(payload.detail || 'Import workflow thất bại');
   }
 
   const imported = Array.isArray(payload.workflow) ? payload.workflow[0] : payload.workflow;
   if (!imported) {
-    throw new Error('Không tìm th?y workflow ?? import');
+    throw new Error('Không tìm thấy workflow để import');
   }
 
   currentWorkflow = JSON.parse(JSON.stringify(imported));
@@ -661,13 +671,13 @@ async function importWorkflowFile(file) {
   await loadWorkflowsList();
   $('#wfSelector').value = currentWorkflow.id;
   renderWorkflowGraph();
-  say(`?? import workflow: ${currentWorkflow.name}`);
+  say(`Đã import workflow: ${currentWorkflow.name}`);
 }
 
 async function exportCurrentWorkflow() {
   const workflowId = currentWorkflow?.id || $('#wfSelector')?.value;
   if (!workflowId) {
-    say('Ch?a c? workflow ch?n ?? xu?t');
+    say('Chưa có workflow chọn để xuất');
     return;
   }
 
@@ -675,7 +685,7 @@ async function exportCurrentWorkflow() {
   const blob = await response.blob();
   if (!response.ok) {
     const text = await blob.text().catch(() => '');
-    throw new Error(text || 'Xu?t workflow th?t b?i');
+    throw new Error(text || 'Xuất workflow thất bại');
   }
 
   const url = URL.createObjectURL(blob);
@@ -686,7 +696,7 @@ async function exportCurrentWorkflow() {
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
-  say('?? xu?t workflow JSON th?nh c?ng');
+  say('Đã xuất workflow JSON thành công');
 }
 
 function setZoom(lvl) {
@@ -720,7 +730,7 @@ function renderWorkflowGraph() {
   nodesContainer.innerHTML = '';
 
   currentWorkflow.nodes.forEach(node => {
-    const schema = NODE_DEFS[node.type] || { title: node.title, icon: "??", inputs: [], outputs: [] };
+    const schema = NODE_DEFS[node.type] || { title: node.title, icon: "•", inputs: [], outputs: [] };
     const el = document.createElement('div');
     el.className = 'wf-node' + (selectedNodeId === node.id ? ' selected' : '');
     el.id = 'dom_' + node.id;
@@ -735,7 +745,7 @@ function renderWorkflowGraph() {
     head.className = 'wf-node-head';
     head.innerHTML = `
       <div class="wf-node-title"><span>${schema.icon}</span> <span>${node.title || schema.title}</span></div>
-      <button type="button" class="wf-node-close" title="X?a Node">?</button>
+      <button type="button" class="wf-node-close" title="Xóa Node">×</button>
     `;
     head.querySelector('.wf-node-close').addEventListener('click', e => {
       e.stopPropagation();
@@ -873,7 +883,7 @@ function renderNodeParams(container, node) {
   } else if (node.type === 'realesrgan') {
     container.innerHTML = `
       <div class="wf-node-param">
-        <label>T? l? ph?ng to:</label>
+        <label>Tỷ lệ phóng to:</label>
         <select>
           <option value="2" ${node.params.scale == 2 ? 'selected' : ''}>2x HD</option>
           <option value="4" ${node.params.scale == 4 ? 'selected' : ''}>4x Ultra HD</option>
@@ -886,11 +896,11 @@ function renderNodeParams(container, node) {
   } else if (node.type === 'input_image') {
     container.innerHTML = `
       <div class="wf-node-param">
-        <label>M?c ??ch ?nh:</label>
+        <label>Mục đích ảnh:</label>
         <select>
-          <option value="character_image">?nh nh?n v?t ch?nh</option>
-          <option value="outfit_reference">?nh trang ph?c</option>
-          <option value="background_image">?nh b?i c?nh</option>
+          <option value="character_image">Ảnh nhân vật chính</option>
+          <option value="outfit_reference">Ảnh trang phục</option>
+          <option value="background_image">Ảnh bối cảnh</option>
         </select>
       </div>
     `;
@@ -983,12 +993,12 @@ function renderWires() {
       path.setAttribute('d', createBezierPath(x1, y1, x2, y2));
       path.className.baseVal = 'wf-wire';
       path.setAttribute('data-link-id', link.id);
-      path.title = 'Click ?? x?a ???ng n?i n?y';
+      path.title = 'Click để xóa đường nối này';
 
       path.addEventListener('click', e => {
         e.stopPropagation();
         deleteLink(link.id);
-        say('?? x?a ???ng li?n k?t');
+        say('Đã xóa đường liên kết');
       });
 
       group.appendChild(path);
@@ -1009,13 +1019,13 @@ async function runWorkflowTest() {
   const status = $('#wfRunStatus');
 
   btn.disabled = true;
-  btn.textContent = '? ?ang Ch?y Pipeline...';
-  status.textContent = '?ang x? l?';
+  btn.textContent = 'Đang chạy pipeline...';
+  status.textContent = 'Đang xử lý';
   status.style.background = 'rgba(245, 158, 11, 0.2)';
   status.style.borderColor = 'rgba(245, 158, 11, 0.5)';
   status.style.color = '#fbbf24';
 
-  term.innerHTML = '<div class="log-line info">?? Kh?i ??ng pipeline ?? th?: ' + (currentWorkflow.name || 'Workflow') + '...</div>';
+  term.innerHTML = '<div class="log-line info">Đang khởi động pipeline đồ thị: ' + (currentWorkflow.name || 'Workflow') + '...</div>';
 
   try {
     const res = await api('/api/admin/workflows/test-run', {
@@ -1035,7 +1045,10 @@ async function runWorkflowTest() {
       term.scrollTop = term.scrollHeight;
     }
 
-    status.textContent = 'Th?nh c?ng';
+    if (!res.preview_url || res.status !== 'success') {
+      throw new Error(res.message || 'GPU chưa trả về kết quả thật');
+    }
+    status.textContent = 'Thành công';
     status.style.background = 'rgba(16, 185, 129, 0.2)';
     status.style.borderColor = 'rgba(16, 185, 129, 0.5)';
     status.style.color = '#6ee7b7';
@@ -1043,26 +1056,26 @@ async function runWorkflowTest() {
     $('#wfPreviewPlaceholder').style.display = 'none';
     $('#wfPreviewContent').style.display = 'flex';
     const video = $('#wfPreviewVideo');
-    video.src = res.preview_url || '/static/videos/card_motion.mp4';
-    video.poster = res.poster_url || '/static/images/card_motion.png';
+    video.src = res.preview_url;
+    video.poster = res.poster_url || '';
     video.load();
     video.play().catch(() => {});
 
-    $('#wfPreviewTiming').textContent = `? Th?i gian x? l?: ${res.execution_time_sec || 10.5}s`;
-    $('#wfPreviewDownload').href = res.preview_url || '/static/videos/card_motion.mp4';
+    $('#wfPreviewTiming').textContent = `Thời gian xử lý: ${res.execution_time_sec || '—'}s`;
+    $('#wfPreviewDownload').href = res.preview_url;
 
-    say('Ch?y test run ho?n t?t th?nh c?ng!');
+    say('Chạy thử workflow thành công');
   } catch (e) {
     const errLine = document.createElement('div');
     errLine.className = 'log-line export';
-    errLine.textContent = `[ERROR] Th?c thi th?t b?i: ${e.message}`;
+    errLine.textContent = `[ERROR] Thực thi thất bại: ${e.message}`;
     term.appendChild(errLine);
-    status.textContent = 'L?i';
+    status.textContent = 'Lỗi';
     status.style.color = '#ff7583';
-    say('L?i test run: ' + e.message);
+    say('Lỗi test run: ' + e.message);
   } finally {
     btn.disabled = false;
-    btn.textContent = '? Ch?y Th? Nghi?m (Test Run)';
+    btn.textContent = 'Chạy Thử Nghiệm (Test Run)';
   }
 }
 

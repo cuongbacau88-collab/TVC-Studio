@@ -858,26 +858,11 @@ def publish_admin_workflow(workflow_id: str, request: Request):
 @router.post("/api/admin/workflows/test-run")
 async def test_run_workflow(request: Request):
     app = core()
-    app.require_admin(request)
+    admin = app.require_admin(request)
     payload = await request.json()
-    wf_name = payload.get("name", "Custom Workflow Pipeline")
-    nodes = payload.get("nodes", [])
-    links = payload.get("links", [])
-    
-    logs = [
-        {"time": "00:00.120", "level": "INFO", "msg": f"?? Initializing execution graph for '{wf_name}' ({len(nodes)} nodes, {len(links)} connections)..."},
-        {"time": "00:00.350", "level": "SYSTEM", "msg": "?? Validating node parameters & topological dependency resolution... OK."},
-        {"time": "00:01.020", "level": "GPU", "msg": "? Allocating GPU Worker [Vast.ai RTX 4090 / CUDA 12.4]... Ready."},
-        {"time": "00:02.180", "level": "STAGE", "msg": "?? Stage 1: Loading input tensors & applying prompt conditioning..."},
-        {"time": "00:04.650", "level": "STAGE", "msg": "?? Stage 2: K-Diffusion iterative sampling in progress (Steps: 30, CFG: 6.5, Denoise: 0.85)..."},
-        {"time": "00:07.410", "level": "STAGE", "msg": "?? Stage 3: RealESRGAN high-fidelity upscale pass & facial mesh fidelity preservation..."},
-        {"time": "00:09.120", "level": "EXPORT", "msg": "?? Stage 4: Compiling video buffer into H.264 MP4 container..."},
-        {"time": "00:10.500", "level": "SUCCESS", "msg": "? Workflow executed successfully in 10.50s with zero errors."}
-    ]
-    return {
-        "status": "success",
-        "execution_time_sec": 10.5,
-        "preview_url": "/static/videos/card_motion.mp4",
-        "poster_url": "/static/images/card_motion.png",
-        "logs": logs
-    }
+    if not isinstance(payload, dict) or not isinstance(payload.get("nodes"), list):
+        raise HTTPException(400, "Workflow không hợp lệ")
+    try:
+        return app.gpu_api.workflow_test_run(str(admin["id"]), payload)
+    except app.GPUAPIError as error:
+        raise worker_error(error) from error

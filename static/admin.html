@@ -6,6 +6,17 @@
 <style>
 .admin-management-pane{display:grid;gap:16px}.admin-search{min-width:240px;padding:9px 12px;border:1px solid rgba(13,137,158,.25);border-radius:10px;background:rgba(255,255,255,.72);color:#174b62}.admin-muted,.admin-detail-empty{color:#4b6d7f}.admin-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.admin-tool-card{display:grid;gap:10px;padding:16px;border:1px solid rgba(13,137,158,.18);border-radius:16px;background:rgba(255,255,255,.56)}.admin-tool-card label{display:grid;gap:4px;color:#174b62;font-weight:600}.admin-tool-card input,.admin-tool-card textarea{box-sizing:border-box;width:100%;padding:8px 10px;border:1px solid rgba(13,137,158,.22);border-radius:8px;background:rgba(255,255,255,.78);color:#174b62}.admin-tool-card textarea{min-height:62px;resize:vertical}.admin-detail-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:16px;color:#174b62}.admin-detail-grid h4{margin:0 0 8px}.admin-detail-grid p{color:#4b6d7f;line-height:1.6}@media(max-width:760px){.admin-tabs{overflow-x:auto;justify-content:flex-start}.admin-search{min-width:0;width:100%}.sectionbar{flex-wrap:wrap}.admin-tools-grid,.admin-detail-grid{grid-template-columns:1fr}.table-wrap{overflow-x:auto}}
 .admin-page{background:linear-gradient(145deg,#e9fbff,#c8f0f5)!important;color:#174b62!important;min-height:100vh;overflow-x:hidden}.admin-page .v3-bg-orbs{display:none!important}.admin-page *{transition:none!important;animation:none!important}.admin-page .admin-wrap{max-width:1400px!important;padding:22px!important}.admin-page .admin-head{background:rgba(255,255,255,.62)!important;border:1px solid rgba(255,255,255,.86)!important;border-radius:18px!important;box-shadow:0 12px 30px rgba(31,93,115,.10)!important;padding:14px 18px!important}.admin-page .admin-head .brand-text,.admin-page .admin-head .brand-text b{color:#16475d!important}.admin-page .admin-head .dark{background:#0bb6c8!important;color:#fff!important;border:0!important;border-radius:10px!important}.admin-page .admin-tabs{background:rgba(255,255,255,.62)!important;border:1px solid rgba(255,255,255,.86)!important;border-radius:16px!important;box-shadow:0 10px 26px rgba(31,93,115,.08)!important;padding:6px!important}.admin-page .admin-tab-btn{color:#365f73!important;background:transparent!important;border:0!important;border-radius:10px!important;font-weight:700!important}.admin-page .admin-tab-btn.active{color:#fff!important;background:#0bb6c8!important;box-shadow:none!important}.admin-page .stats{gap:12px!important}.admin-page .stat,.admin-page .panel-card,.admin-page .admin-tool-card{background:rgba(255,255,255,.72)!important;color:#174b62!important;border:1px solid rgba(255,255,255,.88)!important;border-radius:18px!important;box-shadow:0 12px 30px rgba(31,93,115,.10)!important}.admin-page .stat span,.admin-page .panel-card h3,.admin-page .panel-card h4{color:#174b62!important}.admin-page .stat b{color:#0b647e!important}.admin-page .table{background:rgba(255,255,255,.68)!important;color:#365f73!important}.admin-page .table th{background:rgba(123,224,232,.34)!important;color:#174b62!important}.admin-page .table td{color:#365f73!important;border-bottom-color:rgba(45,112,135,.14)!important}.admin-page .dark,.admin-page .mini-btn{color:#fff!important;background:#0b9eb2!important;border:0!important;border-radius:8px!important}.admin-page .admin-management-pane{opacity:1!important;visibility:visible!important}.admin-page .wf-toolbar,.admin-page .wf-palette,.admin-page .wf-canvas-container,.admin-page .wf-log-panel,.admin-page .wf-template-card{background:rgba(255,255,255,.76)!important;color:#174b62!important;border-color:rgba(45,112,135,.18)!important;box-shadow:0 12px 30px rgba(31,93,115,.08)!important}.admin-page .wf-toolbar *,.admin-page .wf-palette *,.admin-page .wf-log-panel *{color:#365f73!important}.admin-page .wf-btn{background:#0bb6c8!important;color:#fff!important;border:0!important;box-shadow:none!important}.admin-page .wf-btn.secondary{background:#d8f6f8!important;color:#174b62!important}.admin-page .wf-node{background:#fff!important;border-color:rgba(13,137,158,.28)!important;box-shadow:0 8px 20px rgba(31,93,115,.10)!important}.admin-page .wf-node *{color:#174b62!important}@media(max-width:760px){.admin-page .admin-wrap{padding:12px!important}.admin-page .admin-head{gap:10px;flex-wrap:wrap}.admin-page .admin-tabs{white-space:nowrap}.admin-page .stats{grid-template-columns:1fr 1fr!important}.admin-page .admin-management-pane{gap:12px!important}}
+/* Admin content is intentionally taller than the viewport. */
+html:has(body.admin-page),body.admin-page{height:auto!important;min-height:100%;overflow-x:hidden!important;overflow-y:auto!important}
+body.admin-page .admin-wrap{min-height:calc(100vh - 70px);overflow:visible!important}
+body.admin-page .admin-tabs{position:sticky;top:10px;z-index:20;overflow-x:auto;white-space:nowrap}
+body.admin-page .admin-tab-btn{flex:0 0 auto}
+body.admin-page .tab-pane{min-width:0;margin-top:16px}
+body.admin-page .table-wrap{min-width:0;overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch}
+body.admin-page .admin-grid,body.admin-page .stats{min-width:0}
+body.admin-page .wf-workspace{min-height:680px}
+body.admin-page .wf-canvas-container{min-height:600px}
+@media(max-width:760px){body.admin-page .admin-wrap{padding:12px!important}body.admin-page .admin-head{gap:10px;align-items:flex-start;flex-wrap:wrap}body.admin-page .admin-head>div{width:100%;display:flex;gap:8px}body.admin-page .admin-head>div>*{flex:1;text-align:center}body.admin-page .admin-tabs{top:6px;justify-content:flex-start}body.admin-page .tab-pane{margin-top:12px}body.admin-page .wf-toolbar{grid-template-columns:1fr!important}body.admin-page .wf-toolbar-left,body.admin-page .wf-toolbar-right{flex-wrap:wrap}body.admin-page .wf-toolbar-left>*,body.admin-page .wf-toolbar-right>*{flex:1 1 140px}body.admin-page .wf-template-strip{overflow-x:auto}body.admin-page .wf-workspace{grid-template-columns:1fr!important;min-height:900px}body.admin-page .wf-palette{max-height:360px}body.admin-page .wf-canvas-container{min-height:560px}}
 </style>
 </head>
 <body class="app-body admin-page has-global-toolbar v3-liquid-theme">
@@ -64,17 +75,17 @@
       <label class="wf-select-label">
         <span>Template:</span>
         <select id="wfSelector" class="wf-select">
-          <option value="">-- Ch?n Workflow --</option>
+          <option value="">-- Chọn Workflow --</option>
         </select>
       </label>
-      <button type="button" class="wf-btn secondary" id="wfBtnNew">? M?i</button>
-      <button type="button" class="wf-btn secondary" id="wfBtnDuplicate">?? Nh?n b?n</button>
+      <button type="button" class="wf-btn secondary" id="wfBtnNew">＋ Mới</button>
+      <button type="button" class="wf-btn secondary" id="wfBtnDuplicate">⧉ Nhân bản</button>
       <button type="button" class="wf-btn import" id="wfBtnImport">⇩ Import JSON</button>
       <button type="button" class="wf-btn export" id="wfBtnExport">⇪ Export JSON</button>
       <input type="file" id="wfImportFile" accept="application/json,.json" hidden>
     </div>
     <div class="wf-toolbar-center">
-      <input type="text" id="wfTitleInput" class="wf-title-input" placeholder="T?n Workflow..." value="Wan 2.1 Video Motion Studio">
+      <input type="text" id="wfTitleInput" class="wf-title-input" placeholder="Tên Workflow..." value="Wan 2.1 Video Motion Studio">
     </div>
     <div class="wf-toolbar-right">
       <button type="button" class="wf-btn primary" id="wfBtnSave">💾 Lưu Workflow</button>
@@ -90,83 +101,83 @@
     <!-- Left Sidebar: Node Palette -->
     <aside class="wf-palette">
       <div class="wf-palette-head">
-        <h4>Th? Vi?n Node AI</h4>
-        <small>K?o ho?c click ?? th?m v?o ?? th?</small>
+        <h4>Thư Viện Node AI</h4>
+        <small>Kéo hoặc click để thêm vào đồ thị</small>
       </div>
       <div class="wf-palette-list">
         <div class="wf-node-item" draggable="true" data-type="input_image">
-          <span class="node-icon">??</span>
+          <span class="node-icon">▣</span>
           <div>
             <b>Input Image</b>
-            <small>?nh nh?n v?t / tham chi?u</small>
+            <small>Ảnh nhân vật / tham chiếu</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="input_prompt">
-          <span class="node-icon">??</span>
+          <span class="node-icon">✎</span>
           <div>
             <b>Input Prompt</b>
-            <small>C?u l?nh prompt m? t? AI</small>
+            <small>Câu lệnh prompt mô tả AI</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="wan_video">
-          <span class="node-icon">??</span>
+          <span class="node-icon">▶</span>
           <div>
             <b>Wan 2.1 Video</b>
-            <small>Sinh chuy?n ??ng video m?u</small>
+            <small>Sinh chuyển động video mẫu</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="minimax_h3">
-          <span class="node-icon">?</span>
+          <span class="node-icon">◈</span>
           <div>
             <b>MiniMax-H3</b>
-            <small>M? h?nh Video bi?u c?m s?ng ??ng</small>
+            <small>Mô hình Video biểu cảm sống động</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="flux2_klein">
-          <span class="node-icon">??</span>
+          <span class="node-icon">◉</span>
           <div>
             <b>FLUX.2 Klein</b>
-            <small>??i trang ph?c, ??i n?n, gi? m?t</small>
+            <small>Đổi trang phục, đổi nền, giữ mặt</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="realesrgan">
-          <span class="node-icon">??</span>
+          <span class="node-icon">↗</span>
           <div>
             <b>RealESRGAN Upscale</b>
-            <small>N?ng 4x HD & ph?c h?i chi ti?t da</small>
+            <small>Nâng 4x HD & phục hồi chi tiết da</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
         <div class="wf-node-item" draggable="true" data-type="output_video">
-          <span class="node-icon">??</span>
+          <span class="node-icon">□</span>
           <div>
             <b>Output Video</b>
-            <small>K?t xu?t file video MP4 / WebM</small>
+            <small>Kết xuất file video MP4 / WebM</small>
           </div>
-          <button type="button" class="add-node-btn" title="Th?m Node">+</button>
+          <button type="button" class="add-node-btn" title="Thêm Node">+</button>
         </div>
       </div>
 
       <div class="wf-palette-footer">
         <div class="wf-stats-chip">
-          <span>T?ng Nodes: <b id="wfNodeCount">0</b></span>
-          <span>D?y n?i: <b id="wfLinkCount">0</b></span>
+          <span>Tổng Node: <b id="wfNodeCount">0</b></span>
+          <span>Dây nối: <b id="wfLinkCount">0</b></span>
         </div>
-        <button type="button" class="wf-clear-btn" id="wfBtnClear">?? X?a ?? th?</button>
+        <button type="button" class="wf-clear-btn" id="wfBtnClear">⌫ Xóa đồ thị</button>
       </div>
     </aside>
 
     <!-- Center Canvas Area -->
     <main class="wf-canvas-container" id="wfCanvasContainer">
       <div class="wf-canvas-controls">
-        <button type="button" id="wfZoomIn" title="Ph?ng to">?</button>
-        <button type="button" id="wfZoomOut" title="Thu nh?">?</button>
-        <button type="button" id="wfZoomReset" title="??t l?i g?c nh?n">?? 100%</button>
+        <button type="button" id="wfZoomIn" title="Phóng to">＋</button>
+        <button type="button" id="wfZoomOut" title="Thu nhỏ">−</button>
+        <button type="button" id="wfZoomReset" title="Đặt lại góc nhìn">↺ 100%</button>
       </div>
 
       <div class="wf-canvas-stage" id="wfCanvasStage">
@@ -200,12 +211,12 @@
     <div class="wf-log-head">
       <div class="wf-log-title">
         <span class="pulse-dot"></span>
-        <b>Ti?n tr?nh Th?c thi Realtime (Realtime Workflow Execution Console)</b>
-        <span class="wf-badge-status" id="wfRunStatus">S?n s?ng</span>
+        <b>Tiến trình Thực thi Realtime (Realtime Workflow Execution Console)</b>
+        <span class="wf-badge-status" id="wfRunStatus">Sẵn sàng</span>
       </div>
       <div class="wf-log-actions">
-        <button type="button" class="mini-btn" id="wfClearLogs">X?a Log</button>
-        <button type="button" class="mini-btn" id="wfToggleLogs">?n / Hi?n</button>
+        <button type="button" class="mini-btn" id="wfClearLogs">Xóa Log</button>
+        <button type="button" class="mini-btn" id="wfToggleLogs">Ẩn / Hiện</button>
       </div>
     </div>
 
@@ -213,21 +224,21 @@
       <div class="wf-log-split">
         <!-- Terminal Logs -->
         <div class="wf-terminal" id="wfTerminal">
-          <div class="log-line info">[S?N S?NG] Workflow Studio ?? n?p xong engine ?? th? ComfyUI / Vast.ai.</div>
-          <div class="log-line dim">Nh?n 'Ch?y Th? Nghi?m (Test Run)' ?? bi?n d?ch ?? th? v? kh?i ch?y pipeline AI.</div>
+          <div class="log-line info">[SẴN SÀNG] Workflow Studio đã nạp engine đồ thị ComfyUI / Vast.ai.</div>
+          <div class="log-line dim">Nhấn 'Chạy Thử Nghiệm' để kiểm tra workflow khi GPU đã kết nối.</div>
         </div>
 
         <!-- Preview Result Container -->
         <div class="wf-preview-pane" id="wfPreviewPane">
           <div class="wf-preview-placeholder" id="wfPreviewPlaceholder">
-            <span>??</span>
-            <p>K?t qu? test run s? hi?n th? t?i ??y</p>
+            <span>▶</span>
+            <p>Kết quả chạy thử sẽ hiển thị tại đây</p>
           </div>
           <div class="wf-preview-content" id="wfPreviewContent" style="display:none;">
             <video id="wfPreviewVideo" controls autoplay loop playsinline></video>
             <div class="wf-preview-meta">
-              <span id="wfPreviewTiming">? Th?i gian: 10.5s</span>
-              <a id="wfPreviewDownload" href="#" download="workflow_result.mp4" class="mini-btn">T?i video test</a>
+              <span id="wfPreviewTiming">Thời gian: —</span>
+              <a id="wfPreviewDownload" href="#" download="workflow_result.mp4" class="mini-btn">Tải video test</a>
             </div>
           </div>
         </div>

@@ -163,6 +163,7 @@ async function boot(){
   currentTab=targetTab;
   if(targetTab!=='create') goto(targetTab,{source:'boot'});
   else updateMobileToolState('create');
+  pollPendingTopup();
 
   if(initialHash === '#login' || initialHash === '#register'){
     showAuth();
@@ -513,6 +514,22 @@ async function refreshAll(){
   if(!me) return;
   await loadJobs();await loadWallet();
   $('#accountInfo').innerHTML=`<p><b>${me.name}</b></p><p>${me.email}</p><p>Vai trò: ${me.role}</p><p>Ngày tạo: ${new Date(me.created_at).toLocaleString('vi-VN')}</p>`
+}
+async function pollPendingTopup(){
+  const topupId=sessionStorage.getItem('tvc_pending_topup');
+  if(!topupId||!me)return;
+  say('Thanh toán thành công. Đang xác nhận giao dịch...');
+  for(let attempt=0;attempt<8;attempt++){
+    try{
+      const topup=await api(`/api/topups/${encodeURIComponent(topupId)}`);
+      if(['approved','paid','completed'].includes(topup.status)){
+        sessionStorage.removeItem('tvc_pending_topup');
+        say(`✅ Nạp xu thành công: +${topup.credits} xu đã được cộng vào tài khoản.`);
+        me=await api('/api/me');showDashboard();loadWallet();return;
+      }
+    }catch(error){say(error.message);return}
+    await new Promise(resolve=>setTimeout(resolve,3000));
+  }
 }
 setInterval(()=>{if(me&&document.querySelector('#tab-jobs.active'))loadJobs()},5000);
 boot();
