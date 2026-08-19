@@ -8798,6 +8798,10 @@ body.v3-liquid-theme .tvc-login-modal-content .tvc-login-terms a{
 body.v3-liquid-theme .tvc-login-modal-content .tvc-login-terms a{
   color:#74e8f2!important;
 }
+body.v3-liquid-theme #authGate .tvc-login-badge span,
+body.v3-liquid-theme #loginModal .tvc-login-badge span{
+  color:#b8ff84!important;
+}
 @media(max-width:480px){
   .tvc-login-modal-content{padding:25px 20px 21px!important}
   .tvc-login-modal-content h2{font-size:21px!important}
