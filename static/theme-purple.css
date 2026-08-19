@@ -1783,6 +1783,36 @@ body :is(.site-footer,.footer) a:focus-visible{
 body :is(.site-footer,.footer) .site-footer-bottom{
   border-top-color:rgba(11,137,158,.18)!important;
 }
+
+/* Admin stays on the same light surface while tabs and data refresh. */
+body.admin-page,
+body.admin-page .admin-wrap{
+  background:linear-gradient(145deg,#e9fbff,#c8f0f5)!important;
+  color:#174b62!important;
+}
+body.admin-page .v3-bg-orbs{display:none!important}
+body.admin-page :is(.admin-head,.admin-tabs,.panel-card,.stat,.admin-tool-card,.wf-toolbar,.wf-palette,.wf-canvas-container,.wf-log-panel,.wf-template-card){
+  background:rgba(255,255,255,.76)!important;
+  color:#174b62!important;
+  border-color:rgba(255,255,255,.9)!important;
+  box-shadow:0 12px 30px rgba(31,93,115,.10)!important;
+}
+body.admin-page :is(.admin-tab-btn,.panel-card h3,.panel-card h4,.stat span,.stat b,.wf-toolbar *,.wf-palette *,.wf-log-panel *){
+  color:#174b62!important;
+}
+body.admin-page .admin-tab-btn.active,
+body.admin-page :is(.admin-head .dark,.dark,.mini-btn,.wf-btn){
+  background:#0bb6c8!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+body.admin-page :is(.admin-tab-btn,.admin-head,.panel-card,.stat,.admin-tool-card,.wf-toolbar,.wf-palette,.wf-canvas-container,.wf-log-panel,.wf-template-card){
+  transition:none!important;
+  animation:none!important;
+}
+body.admin-page .table{background:rgba(255,255,255,.72)!important;color:#365f73!important}
+body.admin-page .table th{background:rgba(123,224,232,.34)!important;color:#174b62!important}
+body.admin-page .table td{color:#365f73!important;border-bottom-color:rgba(45,112,135,.14)!important}
 body :is(.site-footer,.footer) .site-footer-links a,
 body :is(.site-footer,.footer) .site-footer-contact a{
   color:#185d70!important;
