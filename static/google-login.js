@@ -142,6 +142,7 @@
 
   function renderGoogleButtons(){
     if(!googleInitialized||!window.google?.accounts?.id) return;
+    const buttonWidth=Math.max(200,Math.min(280,window.innerWidth-84));
     document.querySelectorAll('[data-google-button]').forEach(box=>{
       if(box.dataset.rendered==='1') return;
       box.dataset.rendered='1';
@@ -151,7 +152,7 @@
         size:'large',
         shape:'pill',
         text:'continue_with',
-        width:280
+        width:buttonWidth
       });
     });
   }

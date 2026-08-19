@@ -8748,7 +8748,6 @@ body.public-page-v3343 .global-toolbar-inner{
 .tvc-google-login-wrapper iframe,
 .tvc-google-login-wrapper .google-signin-button iframe{
   display:block!important;
-  width:100%!important;
   max-width:100%!important;
   box-sizing:border-box!important;
 }
@@ -8788,6 +8787,16 @@ body.public-page-v3343 .global-toolbar-inner{
   color:#fff!important;
   background:rgba(31,105,137,.82)!important;
   transform:none!important;
+}
+body.v3-liquid-theme .tvc-login-modal-content h2{
+  color:#fff!important;
+}
+body.v3-liquid-theme .tvc-login-modal-content .tvc-login-terms,
+body.v3-liquid-theme .tvc-login-modal-content .tvc-login-terms a{
+  color:rgba(226,241,250,.72)!important;
+}
+body.v3-liquid-theme .tvc-login-modal-content .tvc-login-terms a{
+  color:#74e8f2!important;
 }
 @media(max-width:480px){
   .tvc-login-modal-content{padding:25px 20px 21px!important}
