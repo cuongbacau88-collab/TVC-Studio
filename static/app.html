@@ -4,6 +4,7 @@
 
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/motion-form.css?v=20260816.1"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.6">
+<style>.referral-stats{grid-template-columns:repeat(4,minmax(0,1fr))}.affiliate-heading p{max-width:820px}@media(max-width:760px){.referral-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}</style>
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -184,15 +185,16 @@
       <div>
         <span class="affiliate-kicker">🔗 GIỚI THIỆU</span>
         <h2>Giới Thiệu Bạn Bè</h2>
-        <p>Chia sẻ link hoặc mã của bạn. Giai đoạn hiện tại ưu tiên ghi nhận đúng người giới thiệu trước khi bật hệ thống thưởng xu.</p>
+        <p>Chia sẻ link hoặc mã của bạn để nhận hoa hồng theo doanh số Xu của người được giới thiệu.</p>
       </div>
       <button class="dark" id="refreshAffiliate">↻ Làm mới</button>
     </div>
 
     <div class="referral-stats">
+      <article><small>HẠNG HIỆN TẠI</small><strong id="refCurrentTier">Bạc</strong><span id="refCommissionRate">Hoa hồng 10%</span></article>
+      <article><small>CÓ THỂ RÚT</small><strong id="refAvailableRewards">0</strong><span id="refAvailableVnd">0 VND</span></article>
+      <article><small>TỔNG THƯỞNG</small><strong id="refTotalRewards">0</strong><span>credits tích lũy</span></article>
       <article><small>ĐÃ GIỚI THIỆU</small><strong id="refDirectCount">0</strong><span>tài khoản</span></article>
-      <article><small>NGƯỜI GIỚI THIỆU</small><strong>+5 xu</strong><span>cơ chế thưởng dự kiến</span></article>
-      <article><small>BẠN MỚI</small><strong>+1 xu</strong><span>dùng thử qua giới thiệu</span></article>
     </div>
 
     <div class="referral-columns">
@@ -207,9 +209,10 @@
           <div><b id="affCode">—</b><button class="mini-copy" id="copyAffCode">Copy</button></div>
         </div>
         <div class="referral-note">
-          <b>🎁 Cơ chế đã chốt</b>
-          <p>Khi hệ thống thưởng referral được kích hoạt: người giới thiệu nhận <strong>5 xu</strong>, người được giới thiệu nhận <strong>1 xu dùng thử</strong>.</p>
-          <small>Hiện tại chưa tự động cộng xu thưởng; hệ thống chỉ ghi nhận quan hệ giới thiệu để phục vụ giai đoạn test.</small>
+          <b>🎁 Bảng phần thưởng theo hạng</b>
+          <p>Hạng Bạc nhận <strong id="refSilverRule">10%</strong> doanh số Xu từ khách hàng được giới thiệu.</p>
+          <p>Hạng Vàng nhận <strong id="refGoldRule">15%</strong> khi doanh số trực tiếp đạt <strong id="refGoldThreshold">1.000 Xu</strong>.</p>
+          <small>Phần thưởng được ghi nhận tự động khi giao dịch topup hoàn tất.</small>
         </div>
       </article>
 
@@ -221,6 +224,7 @@
           <button class="primary" id="applyReferralBtn">Lưu mã</button>
         </div>
         <div id="referrerState" class="referrer-state"></div>
+        <div class="referral-note"><b>Tiến độ lên hạng</b><p id="refTierProgress">Đang tải tiến độ...</p></div>
       </article>
     </div>
 

@@ -16,6 +16,7 @@ body.admin-page.v3-liquid-theme .admin-tool-card textarea{min-height:72px!import
 body.admin-page.v3-liquid-theme input:not([type="checkbox"]):not([type="radio"]),body.admin-page.v3-liquid-theme select,body.admin-page.v3-liquid-theme textarea{background:#f4ffff!important;color:#073e50!important;border-color:rgba(13,137,158,.28)!important}
 body.admin-page.v3-liquid-theme input:not([type="checkbox"]):not([type="radio"]):focus,body.admin-page.v3-liquid-theme select:focus,body.admin-page.v3-liquid-theme textarea:focus{background:#fff!important;color:#073e50!important;border-color:#0bb6c8!important;outline:2px solid rgba(11,182,200,.18)!important}
 body.admin-page.v3-liquid-theme option{background:#f4ffff!important;color:#073e50!important}
+body.admin-page .affiliate-settings-card{margin:16px 0}body.admin-page .affiliate-settings-card label{display:grid;gap:6px;color:#174b62;font-weight:700}body.admin-page .affiliate-settings-actions{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.affiliate-toggle{display:flex!important;align-items:center;gap:8px!important}
 body.admin-page .admin-tabs{position:sticky;top:10px;z-index:20;overflow-x:auto;white-space:nowrap}
 body.admin-page .admin-tab-btn{flex:0 0 auto}
 body.admin-page .tab-pane{min-width:0;margin-top:16px}
@@ -46,6 +47,17 @@ body.admin-page .wf-canvas-container{min-height:600px}
 
 <div class="tab-pane" id="tab-overview">
   <section class="stats" id="stats"></section>
+  <article class="panel-card affiliate-settings-card">
+    <div class="sectionbar"><div><h3>Quản lý hoa hồng Affiliate</h3><span class="admin-muted">Tỷ lệ áp dụng cho giao dịch topup mới</span></div><label class="affiliate-toggle"><input id="affiliateEnabled" type="checkbox"> Bật chương trình</label></div>
+    <form id="affiliateSettingsForm" class="admin-tools-grid">
+      <label>Tỷ lệ Bạc (%)<input id="affiliateSilverRate" type="number" min="0" max="100" step="0.1"></label>
+      <label>Tỷ lệ Vàng (%)<input id="affiliateGoldRate" type="number" min="0" max="100" step="0.1"></label>
+      <label>Thưởng người mua (%)<input id="affiliateBuyerBonus" type="number" min="0" max="100" step="0.1"></label>
+      <label>Mốc lên Vàng (Xu)<input id="affiliateGoldThreshold" type="number" min="1" max="100000000"></label>
+      <label>Override tầng trên (%)<input id="affiliateParentOverride" type="number" min="0" max="100" step="0.1"></label>
+      <div class="affiliate-settings-actions"><button class="dark" type="submit">Lưu cấu hình hoa hồng</button><span id="affiliateSettingsStatus" class="admin-muted"></span></div>
+    </form>
+  </article>
   <section class="admin-grid">
     <article class="panel-card"><div class="sectionbar"><h3>Yêu cầu nạp Xu</h3><button class="dark" id="refresh">Làm mới</button></div><div id="topups" class="table-wrap"></div></article>
     <article class="panel-card"><h3>Người dùng</h3><div id="users" class="table-wrap"></div></article>

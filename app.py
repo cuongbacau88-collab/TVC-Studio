@@ -235,7 +235,21 @@ def init_db():
         reviewed_at TEXT,
         admin_note TEXT
     );
+    CREATE TABLE IF NOT EXISTS affiliate_settings(
+        id INTEGER PRIMARY KEY CHECK(id=1),
+        enabled INTEGER NOT NULL DEFAULT 1,
+        silver_rate_percent REAL NOT NULL DEFAULT 10,
+        gold_rate_percent REAL NOT NULL DEFAULT 15,
+        buyer_bonus_percent REAL NOT NULL DEFAULT 10,
+        gold_threshold_credits INTEGER NOT NULL DEFAULT 1000,
+        parent_override_percent REAL NOT NULL DEFAULT 50,
+        updated_at TEXT NOT NULL
+    );
     """)
+    con.execute("""INSERT OR IGNORE INTO affiliate_settings(
+        id,enabled,silver_rate_percent,gold_rate_percent,buyer_bonus_percent,
+        gold_threshold_credits,parent_override_percent,updated_at
+    ) VALUES(1,1,10,15,10,1000,50,?)""", (now_iso(),))
 
     # Safe schema migration for databases created by older versions.
     job_cols = {r["name"] for r in con.execute("PRAGMA table_info(jobs)").fetchall()}
@@ -403,7 +417,17 @@ AFFILIATE_VND_PER_CREDIT = 2500
 AFFILIATE_GOLD_SALES_CREDITS = 1000
 DEFAULT_SIGNUP_CREDITS = int(os.environ.get("DEFAULT_SIGNUP_CREDITS", "1000"))
 REFERRAL_BUYER_BONUS_RATE = 0.10
-LEGACY_AFFILIATE_REWARDS_ENABLED = False
+LEGACY_AFFILIATE_REWARDS_ENABLED = True
+
+def affiliate_settings(con):
+    row = con.execute("SELECT * FROM affiliate_settings WHERE id=1").fetchone()
+    if not row:
+        return {
+            "enabled": True, "silver_rate_percent": 10.0, "gold_rate_percent": 15.0,
+            "buyer_bonus_percent": 10.0, "gold_threshold_credits": 1000,
+            "parent_override_percent": 50.0,
+        }
+    return dict(row)
 
 def affiliate_sales_credits(con, user_id: int):
     row = con.execute("""
@@ -415,17 +439,18 @@ def affiliate_sales_credits(con, user_id: int):
     return float(row["total"] or 0)
 
 def affiliate_tier(con, user_id: int):
+    settings = affiliate_settings(con)
     sales = affiliate_sales_credits(con, user_id)
-    if sales >= AFFILIATE_GOLD_SALES_CREDITS:
+    if sales >= settings["gold_threshold_credits"]:
         return {
-            "key": "gold", "name": "Vàng", "rate": 0.15,
-            "rate_percent": 15, "override_percent": 50,
+            "key": "gold", "name": "Vàng", "rate": settings["gold_rate_percent"] / 100,
+            "rate_percent": settings["gold_rate_percent"], "override_percent": settings["parent_override_percent"],
             "sales_credits": sales, "next_sales_credits": None,
         }
     return {
-        "key": "silver", "name": "Bạc", "rate": 0.10,
-        "rate_percent": 10, "override_percent": 0,
-        "sales_credits": sales, "next_sales_credits": AFFILIATE_GOLD_SALES_CREDITS,
+        "key": "silver", "name": "Bạc", "rate": settings["silver_rate_percent"] / 100,
+        "rate_percent": settings["silver_rate_percent"], "override_percent": 0,
+        "sales_credits": sales, "next_sales_credits": settings["gold_threshold_credits"],
     }
 
 def affiliate_totals(con, user_id: int):
@@ -1772,6 +1797,7 @@ def affiliate_summary(request: Request):
         WHERE child.referred_by_user_id=?
     """, (u["id"],)).fetchone()["c"]
     tier = affiliate_tier(con, u["id"])
+    settings = affiliate_settings(con)
     totals = affiliate_totals(con, u["id"])
     referrer = None
     if user_row["referred_by_user_id"]:
@@ -1805,8 +1831,15 @@ def affiliate_summary(request: Request):
         "credits_to_gold": remaining,
         "referrer": dict(referrer) if referrer else None,
         "can_apply_code": not bool(user_row["referred_by_user_id"]),
-        "buyer_bonus_percent": int(REFERRAL_BUYER_BONUS_RATE * 100) if LEGACY_AFFILIATE_REWARDS_ENABLED else 0,
-        "reward_program_active": False,
+        "buyer_bonus_percent": settings["buyer_bonus_percent"] if settings["enabled"] else 0,
+        "reward_program_active": bool(settings["enabled"]),
+        "commission_rates": {
+            "silver_percent": settings["silver_rate_percent"],
+            "gold_percent": settings["gold_rate_percent"],
+            "buyer_bonus_percent": settings["buyer_bonus_percent"],
+            "gold_threshold_credits": settings["gold_threshold_credits"],
+            "parent_override_percent": settings["parent_override_percent"],
+        },
     }
 
 @app.get("/api/referrals")
@@ -2112,7 +2145,9 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
     buyer = con.execute(
         "SELECT id,referred_by_user_id FROM users WHERE id=?", (t["user_id"],)
     ).fetchone()
-    buyer_bonus = int(round(t["credits"] * REFERRAL_BUYER_BONUS_RATE)) if (LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]) else 0
+    settings = affiliate_settings(con)
+    buyer_bonus_rate = float(settings["buyer_bonus_percent"]) / 100
+    buyer_bonus = int(round(t["credits"] * buyer_bonus_rate)) if (settings["enabled"] and buyer["referred_by_user_id"]) else 0
 
     # Mark approved first so tier calculations include this transaction.
     settlement_status = "paid" if _internal else "approved"
@@ -2134,13 +2169,13 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
             VALUES(?,?,?,?,?,?)
         """, (
             t["user_id"], buyer_bonus,
-            f"Thưởng +{int(REFERRAL_BUYER_BONUS_RATE*100)}% từ mã giới thiệu",
+            f"Thưởng +{settings['buyer_bonus_percent']}% từ mã giới thiệu",
             "referral_bonus", topup_id, now_iso()
         ))
 
     direct_commission = 0.0
     override_commission = 0.0
-    if LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]:
+    if settings["enabled"] and buyer["referred_by_user_id"]:
         referrer_id = buyer["referred_by_user_id"]
         tier = affiliate_tier(con, referrer_id)
         direct_commission = round(t["credits"] * tier["rate"], 2)
@@ -2161,14 +2196,14 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
             parent_id = parent["referred_by_user_id"]
             parent_tier = affiliate_tier(con, parent_id)
             if parent_tier["key"] == "gold":
-                override_commission = round(direct_commission * 0.50, 2)
+                override_commission = round(direct_commission * float(settings["parent_override_percent"]) / 100, 2)
                 con.execute("""
                     INSERT OR IGNORE INTO affiliate_rewards(
                         user_id,source_user_id,topup_id,reward_type,amount_credits,rate,created_at
                     ) VALUES(?,?,?,?,?,?,?)
                 """, (
                     parent_id, referrer_id, topup_id, "tier_override",
-                    override_commission, 0.50, now_iso()
+                    override_commission, float(settings["parent_override_percent"]) / 100, now_iso()
                 ))
 
     con.commit()
@@ -2252,6 +2287,42 @@ def admin_affiliate_withdrawals(request: Request):
     """).fetchall()
     con.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/admin/affiliate/settings")
+def admin_affiliate_settings(request: Request):
+    require_admin(request)
+    con = db()
+    settings = affiliate_settings(con)
+    con.close()
+    return settings
+
+@app.put("/api/admin/affiliate/settings")
+async def update_admin_affiliate_settings(request: Request):
+    require_admin(request)
+    body = await request.json()
+    try:
+        values = {
+            "enabled": 1 if body.get("enabled", True) else 0,
+            "silver_rate_percent": float(body.get("silver_rate_percent")),
+            "gold_rate_percent": float(body.get("gold_rate_percent")),
+            "buyer_bonus_percent": float(body.get("buyer_bonus_percent")),
+            "gold_threshold_credits": int(body.get("gold_threshold_credits")),
+            "parent_override_percent": float(body.get("parent_override_percent")),
+        }
+    except (TypeError, ValueError):
+        raise HTTPException(400, "Cấu hình hoa hồng không hợp lệ")
+    if any(not 0 <= values[key] <= 100 for key in ("silver_rate_percent", "gold_rate_percent", "buyer_bonus_percent", "parent_override_percent")):
+        raise HTTPException(400, "Tỷ lệ hoa hồng phải từ 0 đến 100%")
+    if values["gold_threshold_credits"] < 1:
+        raise HTTPException(400, "Mốc lên Vàng phải lớn hơn 0")
+    con = db()
+    con.execute("""UPDATE affiliate_settings SET enabled=?,silver_rate_percent=?,gold_rate_percent=?,
+        buyer_bonus_percent=?,gold_threshold_credits=?,parent_override_percent=?,updated_at=? WHERE id=1""",
+        (*values.values(), now_iso()))
+    con.commit()
+    settings = affiliate_settings(con)
+    con.close()
+    return {"ok": True, "settings": settings}
 
 @app.post("/api/admin/affiliate/withdrawals/{withdrawal_id}/paid")
 async def admin_affiliate_withdrawal_paid(withdrawal_id: int, request: Request):

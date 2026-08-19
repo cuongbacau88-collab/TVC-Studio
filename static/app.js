@@ -481,6 +481,15 @@ async function loadAffiliate(){
   try{
     const [summary,refs]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals')]);
     if($('#refDirectCount')) $('#refDirectCount').textContent=summary.direct_referrals||0;
+    if($('#refCurrentTier')) $('#refCurrentTier').textContent=summary.tier?.name||'Bạc';
+    if($('#refCommissionRate')) $('#refCommissionRate').textContent=`Hoa hồng ${summary.tier?.rate_percent||0}%`;
+    if($('#refAvailableRewards')) $('#refAvailableRewards').textContent=Number(summary.available||0).toLocaleString('vi-VN');
+    if($('#refAvailableVnd')) $('#refAvailableVnd').textContent=`${Number(summary.available_vnd||0).toLocaleString('vi-VN')} VND`;
+    if($('#refTotalRewards')) $('#refTotalRewards').textContent=Number(summary.total_rewards||0).toLocaleString('vi-VN');
+    if($('#refSilverRule')) $('#refSilverRule').textContent=`${summary.commission_rates?.silver_percent||10}%`;
+    if($('#refGoldRule')) $('#refGoldRule').textContent=`${summary.commission_rates?.gold_percent||15}%`;
+    if($('#refGoldThreshold')) $('#refGoldThreshold').textContent=Number(summary.commission_rates?.gold_threshold_credits||1000).toLocaleString('vi-VN')+' Xu';
+    if($('#refTierProgress')) $('#refTierProgress').textContent=summary.tier?.next_sales_credits ? `${Number(summary.tier.sales_credits||0).toLocaleString('vi-VN')} / ${Number(summary.tier.next_sales_credits).toLocaleString('vi-VN')} Xu • còn ${Number(summary.credits_to_gold||0).toLocaleString('vi-VN')} Xu` : 'Đã đạt hạng Vàng';
     $('#affLink').textContent=summary.referral_link||'—';
     $('#affCode').textContent=summary.referral_code||'—';
 

@@ -42,10 +42,12 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
-    api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview')
+    api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
+    api('/api/admin/affiliate/settings')
   ]);
+  renderAffiliateSettings(affiliateSettings);
   $('#stats').innerHTML = [
     ['Người dùng', overview.users_total], ['User mới hôm nay', overview.new_users.today], ['User mới 7 ngày', overview.new_users.seven_days], ['User mới 30 ngày', overview.new_users.thirty_days],
     ['Xu đang lưu hành', overview.credits_circulating], ['Doanh thu nạp Xu', Number(overview.topup_revenue_vnd || 0).toLocaleString('vi-VN') + ' đ'], ['Tổng job AI', overview.jobs_total],
@@ -74,6 +76,16 @@ async function load() {
     x.id, x.email, x.referral_code, x.tier, x.rate_percent + '%', x.direct_referrals, x.sales_credits, x.total_rewards, x.available, x.referrer?.email || ''
   ]));
   await loadAdminManagement();
+}
+
+function renderAffiliateSettings(settings) {
+  if (!settings) return;
+  $('#affiliateEnabled').checked = Boolean(settings.enabled);
+  $('#affiliateSilverRate').value = settings.silver_rate_percent;
+  $('#affiliateGoldRate').value = settings.gold_rate_percent;
+  $('#affiliateBuyerBonus').value = settings.buyer_bonus_percent;
+  $('#affiliateGoldThreshold').value = settings.gold_threshold_credits;
+  $('#affiliateParentOverride').value = settings.parent_override_percent;
 }
 setInterval(()=>{if(document.visibilityState==='visible')load().catch(()=>{})},15000);
 
@@ -256,6 +268,23 @@ function initAdminTabs() {
     data.price_credits = Number(data.price_credits || 0);
     await api(`/api/admin/tools/${form.dataset.toolKey}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
     say('Đã lưu cấu hình công cụ');
+  });
+  $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const payload = {
+      enabled: $('#affiliateEnabled').checked,
+      silver_rate_percent: Number($('#affiliateSilverRate').value),
+      gold_rate_percent: Number($('#affiliateGoldRate').value),
+      buyer_bonus_percent: Number($('#affiliateBuyerBonus').value),
+      gold_threshold_credits: Number($('#affiliateGoldThreshold').value),
+      parent_override_percent: Number($('#affiliateParentOverride').value),
+    };
+    try {
+      const result = await api('/api/admin/affiliate/settings', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
+      renderAffiliateSettings(result.settings);
+      $('#affiliateSettingsStatus').textContent = 'Đã lưu ' + new Date().toLocaleTimeString('vi-VN');
+      say('Đã cập nhật tỷ lệ hoa hồng Affiliate');
+    } catch (error) { say(error.message); }
   });
 }
 
