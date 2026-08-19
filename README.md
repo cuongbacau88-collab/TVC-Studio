@@ -1,4 +1,4 @@
-# PayOS
+# PayOS auto top-up
 
 Để bật nạp xu tự động, cấu hình các biến môi trường trên Railway:
 
@@ -9,6 +9,8 @@
 - `PAYOS_CANCEL_URL=https://tvcstudioai.info/app#wallet`
 
 Đặt webhook PayOS về `https://tvcstudioai.info/api/payos/webhook`. Webhook được kiểm tra chữ ký và cộng xu idempotent theo `orderCode`, nên PayOS gửi lại cùng một webhook cũng không cộng trùng.
+
+`returnUrl` chỉ đưa khách quay lại ví và hiển thị trạng thái đang xác nhận. Xu chỉ được cộng sau khi backend xác thực webhook, đối chiếu `orderCode`, số tiền và giao dịch pending trong database. Admin sync/approve chỉ là fallback cho giao dịch cần đối soát.
 # TVC Studio AI Business V2.1
 
 Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credits, job queue, admin và Worker API.
@@ -24,15 +26,16 @@ Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credi
 - Download output
 - Hoàn credits tự động nếu worker báo lỗi
 - Yêu cầu nạp credits
-- Admin duyệt / từ chối topup
+- PayOS webhook tự động settlement topup và ghi credit ledger
+- Admin sync/duyệt topup pending cho trường hợp cần đối soát
 - Admin cộng/trừ credits thủ công
 - Admin xem users / jobs / stats
 - Worker API để RTX 5090 claim job
 - Worker demo để test end-to-end
 
-## Chưa phải production hoàn chỉnh
-- Chưa nối cổng thanh toán thật
-- Chưa object storage/S3
+## Ghi chú production
+- Railway cần giữ database trong `PERSISTENT_DATA_DIR` hoặc `RAILWAY_VOLUME_MOUNT_PATH`.
+- Không đưa `PAYOS_API_KEY` hoặc `PAYOS_CHECKSUM_KEY` xuống frontend hay ghi vào log.
 - Chưa email/OTP/reset password
 - Chưa rate limit/WAF
 - Chưa HTTPS/domain reverse proxy

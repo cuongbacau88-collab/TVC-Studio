@@ -295,6 +295,8 @@ def init_db():
         "payment_link_id": "TEXT",
         "checkout_url": "TEXT",
         "paid_at": "TEXT",
+        "payment_reference": "TEXT",
+        "needs_review": "INTEGER NOT NULL DEFAULT 0",
     }.items():
         if column not in topup_cols:
             con.execute(f"ALTER TABLE topups ADD COLUMN {column} {definition}")
@@ -408,7 +410,7 @@ def affiliate_sales_credits(con, user_id: int):
         SELECT COALESCE(SUM(t.credits),0) AS total
         FROM topups t
         JOIN users child ON child.id=t.user_id
-        WHERE child.referred_by_user_id=? AND t.status='approved'
+        WHERE child.referred_by_user_id=? AND t.status IN ('approved','paid','completed')
     """, (user_id,)).fetchone()
     return float(row["total"] or 0)
 
@@ -1123,15 +1125,6 @@ def api_version():
 @app.get("/api/me")
 def me(request: Request):
     u = current_user(request)
-    con = db()
-    pending = con.execute(
-        "SELECT id,status,order_code FROM topups WHERE user_id=? AND status='pending' ORDER BY id DESC LIMIT 20",
-        (u["id"],)
-    ).fetchall()
-    con.close()
-    reconcile_pending_topups(pending)
-    if pending:
-        u = current_user(request)
     result = {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id","avatar_url","google_sub")}
     result["usage_balance"] = result["credits"]
     result["usage_unit"] = "lượt"
@@ -1464,7 +1457,7 @@ def payos_signature(values: dict) -> str:
     payload = "&".join(f"{key}={values[key]}" for key in sorted(values) if values[key] is not None)
     return hmac.new(PAYOS_CHECKSUM_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
-def payos_payment_status(order_code: int) -> str | None:
+def payos_payment_status(order_code: int) -> dict | None:
     """Read a payment link status for reconciliation when webhook delivery lags."""
     if not payos_ready():
         return None
@@ -1484,7 +1477,8 @@ def payos_payment_status(order_code: int) -> str | None:
             return None
         status = str(data.get("status") or data.get("paymentStatus") or data.get("transactionStatus") or "").upper()
         logging.info("PayOS reconciliation order %s status=%s", order_code, status or "UNKNOWN")
-        return status or None
+        return {"status": status or None, "amount": _webhook_amount(data),
+                "reference": data.get("reference"), "payment_link_id": data.get("paymentLinkId")}
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
         logging.warning("PayOS reconciliation failed for order %s: %s", order_code, exc)
         return None
@@ -1492,9 +1486,11 @@ def payos_payment_status(order_code: int) -> str | None:
 def reconcile_pending_topups(rows) -> None:
     pending_rows = [row for row in rows if row["status"] == "pending" and row["order_code"]][:20]
     for row in pending_rows:
-        if payos_payment_status(row["order_code"]) == "PAID":
+        payment = payos_payment_status(row["order_code"])
+        if payment and payment["status"] == "PAID" and payment["amount"] == int(row["amount_vnd"]):
             try:
-                approve_topup(row["id"], None, _internal=True)
+                approve_topup(row["id"], None, _internal=True, verified_amount=payment["amount"],
+                              payment_reference=payment["reference"], payment_link_id=payment["payment_link_id"])
             except HTTPException as exc:
                 if exc.status_code != 409:
                     logging.warning("Could not auto-approve topup %s: %s", row["id"], exc.detail)
@@ -1580,6 +1576,17 @@ def payos_webhook_valid(body: dict) -> bool:
     values = {key: data[key] for key in data if key != "signature" and data[key] is not None}
     return hmac.compare_digest(signature.lower(), payos_signature(values).lower())
 
+def _webhook_data(body: dict) -> dict:
+    data = body.get("data") if isinstance(body.get("data"), dict) else body
+    return data if isinstance(data, dict) else {}
+
+def _webhook_amount(data: dict):
+    value = data.get("amount")
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
 @app.post("/api/payments/create-link")
 @app.post("/api/topups")
 async def create_payment_link(request: Request):
@@ -1589,7 +1596,7 @@ async def create_payment_link(request: Request):
     amount = body.get("amount")
     credits = body.get("credits")
     note = (body.get("note") or "")[:300]
-    user_id = body.get("user_id") or body.get("userId") or u["id"]
+    user_id = u["id"]
 
     if package in PACKAGES:
         pkg_amount, pkg_credits = PACKAGES[package]
@@ -1603,20 +1610,34 @@ async def create_payment_link(request: Request):
         raise HTTPException(400, "Gói không hợp lệ")
 
     order_code = int(f"{int(time.time())}{secrets.randbelow(1000):03d}")
-    payment = payos_create_payment(
-        order_code, amount, f"Nap xu {credits}",
-        items=[{"name": f"Goi {credits} xu", "quantity": 1, "price": amount}]
-    )
-    checkout_url = payment.get("checkoutUrl") or payment.get("checkout_url")
-
     con = db()
     cur = con.execute("""
         INSERT INTO topups(user_id,package,amount_vnd,credits,note,status,created_at,order_code,payment_link_id,checkout_url)
         VALUES(?,?,?,?,?,'pending',?,?,?,?)
-    """, (user_id, package, amount, credits, note, now_iso(), order_code,
-          payment.get("paymentLinkId"), checkout_url))
+    """, (user_id, package, amount, credits, note, now_iso(), order_code, None, None))
     con.commit()
     tid = cur.lastrowid
+    con.close()
+
+    try:
+        payment = payos_create_payment(
+            order_code, amount, f"Nap xu {credits}",
+            items=[{"name": f"Goi {credits} xu", "quantity": 1, "price": amount}]
+        )
+    except Exception:
+        con = db()
+        con.execute("DELETE FROM topups WHERE id=? AND status='pending'", (tid,))
+        con.commit()
+        con.close()
+        raise
+
+    checkout_url = payment.get("checkoutUrl") or payment.get("checkout_url")
+    con = db()
+    con.execute(
+        "UPDATE topups SET payment_link_id=?,checkout_url=? WHERE id=? AND status='pending'",
+        (payment.get("paymentLinkId"), checkout_url, tid)
+    )
+    con.commit()
     con.close()
     return {
         "ok": True,
@@ -1649,19 +1670,22 @@ async def payos_webhook(request: Request):
     if isinstance(body, dict) and ("webhookUrl" in body or "webhook_url" in body):
         return {"success": True, "message": "Webhook URL confirmed"}
 
+    data = _webhook_data(body)
+    raw_order_code = data.get("orderCode") or data.get("order_code")
+    logging.info("PAYOS_WEBHOOK_RECEIVED orderCode=%s", raw_order_code or "unknown")
     if not payos_webhook_valid(body):
+        logging.warning("PAYOS_WEBHOOK_INVALID_SIGNATURE orderCode=%s", raw_order_code or "unknown")
         if isinstance(body, dict) and body.get("data") is None and not body.get("signature"):
             return {"success": True, "message": "Test ping received"}
         raise HTTPException(400, "Webhook PayOS không hợp lệ hoặc sai chữ ký")
+    logging.info("PAYOS_WEBHOOK_VERIFIED orderCode=%s", raw_order_code or "unknown")
 
-    data = body.get("data") if isinstance(body.get("data"), dict) else body
     if not isinstance(data, dict):
         return {"success": True}
 
     if str(data.get("code", "00")) not in {"00", ""} or data.get("success") is False:
         return {"success": True}
 
-    raw_order_code = data.get("orderCode") or data.get("order_code")
     if not raw_order_code:
         return {"success": True, "message": "Ping received without orderCode"}
 
@@ -1671,18 +1695,39 @@ async def payos_webhook(request: Request):
         raise HTTPException(400, "Webhook thiếu orderCode") from exc
 
     con = db()
-    topup = con.execute("SELECT id,status FROM topups WHERE order_code=?", (order_code,)).fetchone()
+    topup = con.execute("SELECT * FROM topups WHERE order_code=?", (order_code,)).fetchone()
     con.close()
 
     if not topup:
         # For test webhook verification from PayOS dashboard or test order codes
+        logging.warning("PAYOS_UNKNOWN_ORDER orderCode=%s", order_code)
         return {"success": True, "message": f"Order {order_code} acknowledged"}
 
-    if topup["status"] in {"approved", "paid"}:
+    if topup["status"] in {"approved", "paid", "completed"}:
+        logging.info("PAYOS_WEBHOOK_DUPLICATE orderCode=%s", order_code)
         return {"success": True}
 
+    webhook_amount = _webhook_amount(data)
+    webhook_link_id = data.get("paymentLinkId") or data.get("payment_link_id")
+    if topup["payment_link_id"] and webhook_link_id and str(topup["payment_link_id"]) != str(webhook_link_id):
+        logging.warning("PAYOS_PAYMENT_LINK_MISMATCH orderCode=%s topup_id=%s", order_code, topup["id"])
+        con = db(); con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status='pending'", (topup["id"],)); con.commit(); con.close()
+        return {"success": True, "message": "Payment link mismatch requires review"}
+    if webhook_amount is None or webhook_amount != int(topup["amount_vnd"]):
+        logging.warning("PAYOS_AMOUNT_MISMATCH orderCode=%s topup_id=%s expected=%s received=%s",
+                        order_code, topup["id"], topup["amount_vnd"], webhook_amount)
+        con = db()
+        con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status='pending'", (topup["id"],))
+        con.commit(); con.close()
+        return {"success": True, "message": "Amount mismatch requires review"}
+
     # Reuse the same idempotent settlement path as admin approval.
-    approve_topup(topup["id"], request, _internal=True)
+    approve_topup(topup["id"], request, _internal=True,
+                  verified_amount=webhook_amount,
+                  payment_reference=data.get("reference"),
+                  payment_link_id=webhook_link_id)
+    logging.info("TOPUP_AUTO_CREDITED topup_id=%s user_id=%s credits=%s",
+                 topup["id"], topup["user_id"], topup["credits"])
     return {"success": True}
 
 @app.get("/api/topups")
@@ -1691,12 +1736,21 @@ def my_topups(request: Request):
     con = db()
     rows = con.execute("SELECT * FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
     con.close()
-    reconcile_pending_topups(rows)
-    if any(row["status"] == "pending" and row["order_code"] for row in rows):
-        con = db()
-        rows = con.execute("SELECT * FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
-        con.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/topups/{topup_id}")
+def my_topup_status(topup_id: int, request: Request):
+    u = current_user(request)
+    con = db()
+    row = con.execute("SELECT * FROM topups WHERE id=? AND user_id=?", (topup_id, u["id"])).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(404, "Không tìm thấy giao dịch")
+    return {
+        "id": row["id"], "status": row["status"], "credits": row["credits"],
+        "amount_vnd": row["amount_vnd"], "paid_at": row["paid_at"],
+        "payment_reference": row["payment_reference"],
+    }
 
 
 # ---------- AFFILIATE / REFERRAL ----------
@@ -1714,7 +1768,7 @@ def affiliate_summary(request: Request):
     paying_count = con.execute("""
         SELECT COUNT(DISTINCT child.id) c
         FROM users child
-        JOIN topups t ON t.user_id=child.id AND t.status='approved'
+        JOIN topups t ON t.user_id=child.id AND t.status IN ('approved','paid','completed')
         WHERE child.referred_by_user_id=?
     """, (u["id"],)).fetchone()["c"]
     tier = affiliate_tier(con, u["id"])
@@ -2024,16 +2078,21 @@ def sync_admin_topup(topup_id: int, request: Request):
     con.close()
     if not row:
         raise HTTPException(404, "Không tìm thấy giao dịch")
-    if row["status"] in {"approved", "paid"}:
+    if row["status"] in {"approved", "paid", "completed"}:
         return {"ok": True, "status": row["status"], "settled": True}
-    status = payos_payment_status(row["order_code"]) if row["order_code"] else None
-    if status == "PAID":
-        approve_topup(topup_id, request, _internal=True)
-        return {"ok": True, "status": "approved", "settled": True}
-    return {"ok": True, "status": row["status"], "payos_status": status, "settled": False}
+    payment = payos_payment_status(row["order_code"]) if row["order_code"] else None
+    status = payment["status"] if payment else None
+    if payment and status == "PAID" and payment["amount"] == int(row["amount_vnd"]):
+        approve_topup(topup_id, request, _internal=True, verified_amount=payment["amount"],
+                      payment_reference=payment["reference"], payment_link_id=payment["payment_link_id"])
+        return {"ok": True, "status": "paid", "settled": True}
+    return {"ok": True, "status": row["status"], "payos_status": status,
+            "payos_amount": payment["amount"] if payment else None, "settled": False}
 
 @app.post("/api/admin/topups/{topup_id}/approve")
-def approve_topup(topup_id: int, request: Request, _internal: bool = False):
+def approve_topup(topup_id: int, request: Request, _internal: bool = False,
+                  verified_amount: int | None = None, payment_reference: str | None = None,
+                  payment_link_id: str | None = None):
     if not _internal:
         require_admin(request)
     con = db()
@@ -2045,6 +2104,10 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False):
     if t["status"] != "pending":
         con.rollback(); con.close()
         raise HTTPException(409, "Yêu cầu đã xử lý")
+    if _internal and (verified_amount is None or int(verified_amount) != int(t["amount_vnd"])):
+        con.execute("UPDATE topups SET needs_review=1 WHERE id=?", (topup_id,))
+        con.commit(); con.close()
+        raise HTTPException(400, "Số tiền thanh toán không khớp")
 
     buyer = con.execute(
         "SELECT id,referred_by_user_id FROM users WHERE id=?", (t["user_id"],)
@@ -2052,8 +2115,10 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False):
     buyer_bonus = int(round(t["credits"] * REFERRAL_BUYER_BONUS_RATE)) if (LEGACY_AFFILIATE_REWARDS_ENABLED and buyer["referred_by_user_id"]) else 0
 
     # Mark approved first so tier calculations include this transaction.
-    con.execute("UPDATE topups SET status=?,reviewed_at=?,paid_at=? WHERE id=?",
-                ("approved", now_iso(), now_iso(), topup_id))
+    settlement_status = "paid" if _internal else "approved"
+    con.execute("""UPDATE topups SET status=?,reviewed_at=?,paid_at=?,payment_reference=? ,
+                   payment_link_id=COALESCE(?,payment_link_id),needs_review=0 WHERE id=?""",
+                (settlement_status, now_iso(), now_iso(), payment_reference, payment_link_id, topup_id))
     con.execute(
         "UPDATE users SET credits=credits+? WHERE id=?",
         (t["credits"] + buyer_bonus, t["user_id"])
