@@ -1451,6 +1451,36 @@ def payos_signature(values: dict) -> str:
     payload = "&".join(f"{key}={values[key]}" for key in sorted(values) if values[key] is not None)
     return hmac.new(PAYOS_CHECKSUM_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
+def payos_payment_status(order_code: int) -> str | None:
+    """Read a payment link status for reconciliation when webhook delivery lags."""
+    if not payos_ready():
+        return None
+    url = f"https://api-merchant.payos.vn/v2/payment-requests/{int(order_code)}"
+    request = urllib.request.Request(
+        url, method="GET",
+        headers={"Content-Type": "application/json", "x-client-id": PAYOS_CLIENT_ID, "x-api-key": PAYOS_API_KEY},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=10) as response:
+            payload = json.loads(response.read().decode())
+        data = payload.get("data") if isinstance(payload.get("data"), dict) else payload
+        if str(payload.get("code", "00")) not in {"00", ""}:
+            return None
+        return str(data.get("status") or "").upper() or None
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        logging.warning("PayOS reconciliation failed for order %s: %s", order_code, exc)
+        return None
+
+def reconcile_pending_topups(rows) -> None:
+    pending_rows = [row for row in rows if row["status"] == "pending" and row["order_code"]][:20]
+    for row in pending_rows:
+        if payos_payment_status(row["order_code"]) == "PAID":
+            try:
+                approve_topup(row["id"], None, _internal=True)
+            except HTTPException as exc:
+                if exc.status_code != 409:
+                    logging.warning("Could not auto-approve topup %s: %s", row["id"], exc.detail)
+
 def payos_create_payment(order_code: int, amount: int, description: str, items: Optional[list] = None) -> dict:
     if not payos_ready():
         raise HTTPException(503, "PayOS chưa được cấu hình trên máy chủ")
@@ -1643,6 +1673,11 @@ def my_topups(request: Request):
     con = db()
     rows = con.execute("SELECT * FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
     con.close()
+    reconcile_pending_topups(rows)
+    if any(row["status"] == "pending" and row["order_code"] for row in rows):
+        con = db()
+        rows = con.execute("SELECT * FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
+        con.close()
     return [dict(r) for r in rows]
 
 
@@ -1956,6 +1991,11 @@ def admin_topups(request: Request):
         SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200
     """).fetchall()
     con.close()
+    reconcile_pending_topups(rows)
+    if any(row["status"] == "pending" and row["order_code"] for row in rows):
+        con = db()
+        rows = con.execute("SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200").fetchall()
+        con.close()
     return [dict(r) for r in rows]
 
 @app.post("/api/admin/topups/{topup_id}/approve")
