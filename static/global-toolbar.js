@@ -317,6 +317,7 @@
           window.scrollTo({top:0,behavior:'smooth'});
         } else {
           location.href='/about';
+        }
       } else if(tool==='wallet'){
         if(location.pathname==='/pricing'||location.pathname==='/nap-vip'||location.pathname==='/bang-gia'){
           e.preventDefault();
