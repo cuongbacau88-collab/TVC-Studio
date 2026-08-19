@@ -1,5 +1,5 @@
 
-import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging
+import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging, subprocess
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -38,6 +38,7 @@ OUTPUTS.mkdir(parents=True, exist_ok=True)
 SESSION_DAYS = 30
 MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
+MAX_MOTION_DURATION_SECONDS = 20.0
 JOB_SUBMIT_INFLIGHT_SECONDS = 600
 JOB_SUBMIT_COOLDOWN_SECONDS = 8
 RENDER_MODE = os.getenv("RENDER_MODE", "worker").strip().lower()
@@ -1037,6 +1038,24 @@ async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: 
     try:
         await save_upload(image, image_dest, {".png",".jpg",".jpeg",".webp"}, MAX_IMAGE_MB)
         await save_upload(motion, motion_dest, {".mp4",".mov",".webm"}, MAX_VIDEO_MB)
+        ffprobe = shutil.which("ffprobe")
+        if not ffprobe:
+            raise HTTPException(503, "Không thể kiểm tra thời lượng video chuyển động")
+        try:
+            probe = subprocess.run(
+                [ffprobe, "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(motion_dest)],
+                capture_output=True, text=True, timeout=20, check=False,
+            )
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise HTTPException(503, "Không thể kiểm tra thời lượng video chuyển động") from error
+        try:
+            motion_duration = float(probe.stdout.strip())
+        except (TypeError, ValueError):
+            motion_duration = None
+        if probe.returncode != 0 or motion_duration is None:
+            raise HTTPException(400, "Không đọc được thời lượng video chuyển động")
+        if motion_duration > MAX_MOTION_DURATION_SECONDS:
+            raise HTTPException(400, "Video chuyển động tối đa 20 giây. Vui lòng chọn video ngắn hơn.")
         with image_dest.open("rb") as source:
             gpu_image = gpu_api.upload(owner_id, image_dest.name, image.content_type or mimetypes.guess_type(image_dest.name)[0] or "application/octet-stream", source)
         with motion_dest.open("rb") as source:

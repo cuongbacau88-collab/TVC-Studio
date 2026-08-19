@@ -6,7 +6,6 @@ const IMAGE_TYPES=new Set(['image/png','image/jpeg','image/webp']);
 const VIDEO_TYPES=new Set(['video/mp4','video/quicktime','video/webm']);
 const MAX_IMAGE_BYTES=25*1024*1024;
 const MAX_VIDEO_BYTES=300*1024*1024;
-const MIN_DURATION=10;
 const MAX_DURATION=20;
 
 const extension=file=>(file?.name?.split('.').pop()||'').toLowerCase();
@@ -69,7 +68,7 @@ function create(form,{onValidityChange=()=>{}}={}){
     const token=++validationToken,file=motionInput.files?.[0],basicError=fileError(file,'motion');
     motionName.textContent=file?.name||'Chưa chọn video';
     motionValid=false;motionDuration=null;showError(motionError,basicError);clearPreview('motion');
-    durationNote.textContent='⏱ Video chuyển động phải có thời lượng từ 10s đến 20s.';
+    durationNote.textContent='⏱ Video chuyển động tối đa 20 giây.';
     update();
     if(basicError)return false;
     durationNote.textContent='⏱ Đang kiểm tra thời lượng video…';
@@ -77,9 +76,9 @@ function create(form,{onValidityChange=()=>{}}={}){
       const duration=await readVideoDuration(file);
       if(token!==validationToken)return false;
       motionDuration=duration;
-      if(duration<MIN_DURATION||duration>MAX_DURATION){
+      if(duration>MAX_DURATION){
         const shown=duration.toLocaleString('vi-VN',{maximumFractionDigits:1});
-        showError(motionError,'Video dài '+shown+' giây. Vui lòng chọn video từ 10 đến 20 giây.');
+        showError(motionError,'Video chuyển động tối đa 20 giây. Vui lòng chọn video ngắn hơn.');
         durationNote.textContent='⏱ Thời lượng không hợp lệ: '+shown+' giây.';
         update();return false;
       }
@@ -120,5 +119,5 @@ function create(form,{onValidityChange=()=>{}}={}){
     reset:()=>{validationToken++;revoke('image');revoke('motion');imageValid=false;motionValid=false;motionDuration=null;showError(imageError,'');showError(motionError,'');imagePreview.replaceChildren();motionPreview.replaceChildren();imagePreview.hidden=true;motionPreview.hidden=true;imageName.textContent='Chưa chọn ảnh';motionName.textContent='Chưa chọn video';update()}
   };
 }
-window.TVCMotionForm={create,fileError,readVideoDuration,limits:{MAX_IMAGE_BYTES,MAX_VIDEO_BYTES,MIN_DURATION,MAX_DURATION}};
+window.TVCMotionForm={create,fileError,readVideoDuration,limits:{MAX_IMAGE_BYTES,MAX_VIDEO_BYTES,MAX_DURATION}};
 })();

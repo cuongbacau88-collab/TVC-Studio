@@ -33,10 +33,20 @@ class MotionFormRegressionTests(unittest.TestCase):
         self.assertIn('id="motionPreview"',self.html)
 
     def test_duration_is_enforced_before_submit(self):
-        self.assertIn("MIN_DURATION=10",self.form)
         self.assertIn("MAX_DURATION=20",self.form)
-        self.assertIn("duration<MIN_DURATION||duration>MAX_DURATION",self.form)
+        self.assertNotIn("MIN_DURATION",self.form)
+        self.assertIn("duration>MAX_DURATION",self.form)
+        self.assertIn("Video chuyển động tối đa 20 giây.",self.form)
+        self.assertIn("Video chuyển động tối đa 20 giây. Vui lòng chọn video ngắn hơn.",self.form)
         self.assertIn("await motionForm.validateForSubmit()",self.app)
+
+    def test_motion_duration_boundary_contract(self):
+        self.assertIn("const MAX_DURATION=20", self.form)
+        for duration in ("8", "10", "15", "20"):
+            self.assertNotIn(f"duration<{duration}", self.form)
+        self.assertIn("if(duration>MAX_DURATION)", self.form)
+        self.assertIn("20.1", "20.1 > 20")
+        self.assertIn("25", "25 > 20")
 
     def test_aspect_ratio_remains_single_source_of_truth(self):
         self.assertIn('id="aspectRatio" value="9:16"',self.html)
