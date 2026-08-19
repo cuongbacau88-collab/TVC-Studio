@@ -8277,6 +8277,56 @@ textarea::placeholder{
     max-height:58px !important;
   }
 
+/* --- Desktop: larger motion preview & play button --- */
+@media (min-width: 1100px) {
+  /* Make the whole preview area taller to match desktop layout */
+  .model-visual {
+    height: 340px; /* increase from default for desktop */
+    min-height: 320px;
+  }
+
+  /* Make the preview video fill the area nicely */
+  .motion-video-shell .motion-preview-video,
+  .motion-video-shell .motion-video-fallback,
+  .model-visual.motion .model-preview-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+  }
+
+  /* Larger play button for desktop */
+  .motion-open-player {
+    width: 92px;
+    height: 92px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border-width: 2px;
+    font-size: 28px;
+    background: linear-gradient(180deg, rgba(5,140,160,0.98), rgba(30,200,220,0.9));
+    box-shadow: 0 24px 48px rgba(10,30,60,0.55);
+  }
+
+  .motion-open-player span {
+    font-size: 28px;
+    transform: translateX(2px);
+  }
+
+  /* Slightly enlarge on hover and add strong ring on keyboard focus */
+  .motion-video-shell.is-clickable:hover .motion-open-player,
+  .motion-open-player:focus-visible {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 28px 60px rgba(10,30,60,0.65), 0 0 0 8px rgba(0,160,180,0.12);
+  }
+
+  /* Make model-card taller so footer text doesn't overlap */
+  .model-card {
+    min-height: 560px;
+  }
+}
+
+
   .account-native-menu[open],
   .account-native-menu[open] > summary{
     height:58px !important;
