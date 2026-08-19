@@ -293,6 +293,21 @@ const form=$('#jobForm');
 const renderBtns=$$('.simple-render-btn');
 const renderBtnHTML=new Map(renderBtns.map(btn=>[btn,btn.innerHTML]));
 let jobSubmitLocked=false;
+let motionPriceCredits=null;
+async function syncMotionPrice(){
+  try{
+    const response=await fetch('/api/tools',{cache:'no-store'});
+    if(!response.ok)return;
+    const tool=(await response.json()).find(item=>item.service_key==='motion_studio');
+    if(!tool)return;
+    motionPriceCredits=Number(tool.is_free?0:tool.price_credits||0);
+    const label=motionPriceCredits===0?'Miễn phí cho mỗi video':`Tạo video AI chỉ từ ${motionPriceCredits} Xu / 1 video`;
+    document.querySelectorAll('[data-motion-price-label]').forEach(node=>node.textContent=label);
+    document.querySelectorAll('[data-motion-price]').forEach(node=>node.textContent=motionPriceCredits===0?'Miễn phí':`${motionPriceCredits} Xu`);
+    if($('#cost'))$('#cost').textContent=motionPriceCredits===0?'Miễn phí':`${motionPriceCredits} Xu`;
+    renderBtns.forEach(btn=>{renderBtnHTML.set(btn,btn.innerHTML)});
+  }catch(_){ }
+}
 const motionForm=window.TVCMotionForm?.create(form,{onValidityChange:valid=>{
   if(!jobSubmitLocked)renderBtns.forEach(btn=>{
     btn.disabled=!valid;
@@ -341,7 +356,7 @@ form.onsubmit=async e=>{
   const submitter=e.submitter || renderBtns[0];
   setJobSubmitLocked(true,submitter);
   // One public render mode: backend also enforces one TVC per job.
-  if($('#cost')) $('#cost').textContent='1 lượt';
+  if($('#cost')) $('#cost').textContent=motionPriceCredits===0?'Miễn phí':`${motionPriceCredits ?? '—'} Xu`;
   const fd=new FormData(form);
   fd.set('request_key',jobRequestKey());
   try{
@@ -353,7 +368,9 @@ form.onsubmit=async e=>{
   }finally{
     setJobSubmitLocked(false);
   }
+
 }
+syncMotionPrice();
 function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Render thất bại',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 function jobResultUrl(j){return (j.service && j.service !== 'motion_studio')?`/api/services/${encodeURIComponent(j.service)}/jobs/${j.id}/result`:`/api/jobs/${j.id}/output`}
 function jobOpenUrl(j){return (j.service && j.service !== 'motion_studio')?`/services/${encodeURIComponent(j.service)}?job=${j.id}`:null}
