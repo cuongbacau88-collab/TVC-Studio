@@ -2886,6 +2886,13 @@ body.app-body .motion-file-preview video { background: #e6faff !important; }
 
 /* Final mobile light coverage for legacy upload, history and ledger surfaces. */
 @media (max-width: 760px) {
+  body.tvc-fixed-toolbar .ai-tools-drawer,
+  body.app-body .ai-tools-drawer {
+    top: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    padding: 0 !important;
+  }
   body.app-body #tab-create,
   body.app-body #tab-jobs,
   body.app-body #tab-wallet,
