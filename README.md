@@ -645,7 +645,7 @@ Thanh công cụ được thêm vào trang chủ, dashboard khách hàng và tra
 - Thêm ghi chú “Video chuyển động nên có thời lượng từ 10s đến 20s.” gần ô tải video mẫu.
 
 
-## V3.3.45 — Toolbar glass 70/20/10
+## V3.3.46 — Toolbar glass 70/20/10
 - Thanh trên cùng đổi sang palette 70% navy + 20% xanh lam + 10% tím.
 - Giữ hiệu ứng gương trong suốt, không chuyển sang nền đen đặc khi đổi trang hoặc scroll.
 - Áp dụng đồng nhất cho Trang Chủ và toàn bộ trang public/chính sách.
