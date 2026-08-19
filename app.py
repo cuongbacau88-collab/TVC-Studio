@@ -193,6 +193,19 @@ def init_db():
         ref_id INTEGER,
         created_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS admin_tools(
+        service_key TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        thumbnail TEXT NOT NULL DEFAULT '',
+        badge TEXT NOT NULL DEFAULT '',
+        price_credits INTEGER NOT NULL DEFAULT 0,
+        is_free INTEGER NOT NULL DEFAULT 0,
+        cta_text TEXT NOT NULL DEFAULT 'Tạo ngay',
+        enabled INTEGER NOT NULL DEFAULT 1,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        updated_at TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS affiliate_rewards(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -259,6 +272,8 @@ def init_db():
     con.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_guards_until ON job_submit_guards(locked_until)")
 
     cols = {r["name"] for r in con.execute("PRAGMA table_info(users)").fetchall()}
+    if "is_locked" not in cols:
+        con.execute("ALTER TABLE users ADD COLUMN is_locked INTEGER NOT NULL DEFAULT 0")
     if "referral_code" not in cols:
         con.execute("ALTER TABLE users ADD COLUMN referral_code TEXT")
     if "referred_by_user_id" not in cols:
@@ -284,6 +299,17 @@ def init_db():
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_rewards_user ON affiliate_rewards(user_id)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_withdrawals_user ON affiliate_withdrawals(user_id)")
+
+    tool_defaults = [
+        ("motion_studio", "AI Motion Studio", "Sao chép chuyển động từ video mẫu", "/static/images/card_motion.png", "DỊCH VỤ CHÍNH", 2, 0, "Tạo video", 1, 1),
+        ("video_generation", "AI Video Creator", "Tạo video AI từ prompt hoặc ảnh", "/static/images/services/ai-tao-video.png", "AI VIDEO", 2, 0, "Tạo video", 1, 2),
+        ("outfit_change", "AI Đổi Trang Phục", "Thay trang phục, giữ nguyên nhân vật", "/static/images/services/ai-doi-trang-phuc.png", "MIỄN PHÍ", 0, 1, "Tạo ảnh", 1, 3),
+        ("background_change", "AI Đổi Bối Cảnh", "Thay cảnh nhân vật", "/static/images/services/ai-doi-boi-canh.png", "MIỄN PHÍ", 0, 1, "Tạo ảnh", 1, 4),
+        ("image_upscale", "AI Nâng Cấp Ảnh", "Tăng độ nét và chất lượng ảnh", "/static/images/services/ai-nang-cap-anh.png", "MIỄN PHÍ", 0, 1, "Nâng cấp ảnh", 1, 5),
+    ]
+    con.executemany("""INSERT OR IGNORE INTO admin_tools(
+        service_key,name,description,thumbnail,badge,price_credits,is_free,cta_text,enabled,sort_order,updated_at
+    ) VALUES(?,?,?,?,?,?,?,?,?,?,?)""", [(*tool, now_iso()) for tool in tool_defaults])
 
     row = con.execute("SELECT id FROM users WHERE email=?", (ADMIN_EMAIL,)).fetchone()
     if not row:
@@ -347,6 +373,8 @@ def current_user(request: Request, required=True):
         WHERE s.token=? AND s.expires_at>?
     """, (token, now_iso())).fetchone()
     con.close()
+    if row and row["role"] != "admin" and row["is_locked"]:
+        raise HTTPException(403, "Tài khoản đã bị khóa")
     if not row and required:
         raise HTTPException(401, "Phiên đăng nhập đã hết hạn")
     return dict(row) if row else None
@@ -1773,13 +1801,95 @@ def admin_stats(request: Request):
     con.close()
     return stats
 
+@app.get("/api/admin/overview")
+def admin_overview(request: Request):
+    require_admin(request)
+    con = db()
+    now = datetime.now(timezone.utc)
+    ranges = {}
+    for label, days in (("today", 1), ("seven_days", 7), ("thirty_days", 30)):
+        since = (now - timedelta(days=days)).isoformat()
+        ranges[label] = con.execute("SELECT COUNT(*) c FROM users WHERE created_at>=?", (since,)).fetchone()["c"]
+    status_rows = con.execute("SELECT status,COUNT(*) c FROM jobs GROUP BY status").fetchall()
+    tool_rows = con.execute("SELECT COALESCE(NULLIF(service,''), 'motion_studio') service,COUNT(*) c FROM jobs GROUP BY service ORDER BY c DESC").fetchall()
+    revenue = con.execute("SELECT COALESCE(SUM(amount_vnd),0) total FROM topups WHERE status IN ('approved','paid')").fetchone()["total"]
+    result = {
+        "users_total": con.execute("SELECT COUNT(*) c FROM users WHERE role!='admin'").fetchone()["c"],
+        "new_users": ranges,
+        "credits_circulating": con.execute("SELECT COALESCE(SUM(credits),0) total FROM users WHERE role!='admin'").fetchone()["total"],
+        "topup_revenue_vnd": revenue,
+        "jobs_total": con.execute("SELECT COUNT(*) c FROM jobs").fetchone()["c"],
+        "job_status": {row["status"]: row["c"] for row in status_rows},
+        "top_tools": [dict(row) for row in tool_rows[:5]],
+    }
+    con.close()
+    return result
+
 @app.get("/api/admin/users")
 def admin_users(request: Request):
     require_admin(request)
     con = db()
-    rows = con.execute("SELECT id,email,name,credits,role,created_at FROM users ORDER BY id DESC LIMIT 200").fetchall()
+    q = (request.query_params.get("q") or "").strip()[:120]
+    if q:
+        like = f"%{q}%"
+        rows = con.execute("SELECT id,email,name,credits,role,is_locked,created_at FROM users WHERE CAST(id AS TEXT)=? OR email LIKE ? OR name LIKE ? ORDER BY id DESC LIMIT 200", (q, like, like)).fetchall()
+    else:
+        rows = con.execute("SELECT id,email,name,credits,role,is_locked,created_at FROM users ORDER BY id DESC LIMIT 200").fetchall()
     con.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/admin/users/{user_id}")
+def admin_user_detail(user_id: int, request: Request):
+    require_admin(request)
+    con = db()
+    user = con.execute("SELECT id,email,name,credits,role,is_locked,created_at FROM users WHERE id=?", (user_id,)).fetchone()
+    if not user:
+        con.close(); raise HTTPException(404, "Không tìm thấy người dùng")
+    ledger = con.execute("SELECT id,delta,reason,ref_type,ref_id,created_at FROM credit_ledger WHERE user_id=? ORDER BY id DESC LIMIT 100", (user_id,)).fetchall()
+    jobs = con.execute("SELECT id,service,model,cost,status,progress,error,created_at,updated_at,input_json,output_path FROM jobs WHERE user_id=? ORDER BY id DESC LIMIT 100", (user_id,)).fetchall()
+    con.close()
+    return {"user": dict(user), "ledger": [dict(x) for x in ledger], "jobs": [dict(x) for x in jobs]}
+
+@app.post("/api/admin/users/{user_id}/lock")
+async def admin_lock_user(user_id: int, request: Request):
+    require_admin(request)
+    body = await request.json()
+    locked = 1 if body.get("locked", True) else 0
+    con = db()
+    changed = con.execute("UPDATE users SET is_locked=? WHERE id=? AND role!='admin'", (locked, user_id)).rowcount
+    con.commit(); con.close()
+    if not changed: raise HTTPException(404, "Không thể khóa tài khoản này")
+    return {"ok": True, "is_locked": bool(locked)}
+
+@app.get("/api/admin/transactions")
+def admin_transactions(request: Request):
+    require_admin(request)
+    con = db()
+    rows = con.execute("""SELECT t.id,t.user_id,u.email,u.name,t.package,t.amount_vnd,t.credits,t.order_code,t.status,t.created_at,t.reviewed_at
+        FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 300""").fetchall()
+    con.close()
+    return [dict(r) for r in rows]
+
+@app.get("/api/admin/tools")
+def admin_tools(request: Request):
+    require_admin(request)
+    con = db(); rows = con.execute("SELECT * FROM admin_tools ORDER BY sort_order,service_key").fetchall(); con.close()
+    return [dict(r) for r in rows]
+
+@app.put("/api/admin/tools/{service_key}")
+async def update_admin_tool(service_key: str, request: Request):
+    require_admin(request)
+    body = await request.json()
+    allowed = {"name","description","thumbnail","badge","price_credits","is_free","cta_text","enabled","sort_order"}
+    updates = {key: body[key] for key in allowed if key in body}
+    if not updates: raise HTTPException(400, "Không có thay đổi")
+    updates["updated_at"] = now_iso()
+    con = db()
+    assignments = ",".join(f"{key}=?" for key in updates)
+    changed = con.execute(f"UPDATE admin_tools SET {assignments} WHERE service_key=?", (*updates.values(), service_key)).rowcount
+    con.commit(); row = con.execute("SELECT * FROM admin_tools WHERE service_key=?", (service_key,)).fetchone(); con.close()
+    if not changed or not row: raise HTTPException(404, "Không tìm thấy công cụ")
+    return {"ok": True, "tool": dict(row)}
 
 @app.get("/api/admin/jobs")
 def admin_jobs(request: Request):

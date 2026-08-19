@@ -42,13 +42,14 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au] = await Promise.all([
+  const [s, t, u, j, aw, au, overview] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
-    api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users')
+    api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview')
   ]);
   $('#stats').innerHTML = [
-    ['Ng??i d?ng', s.users], ['Waiting', s.waiting], ['Running', s.running], ['Done', s.done],
-    ['Topup ch?', s.pending_topups], ['R?t ch?', s.pending_withdrawals], ['Affiliate th??ng', s.affiliate_rewards]
+    ['Người dùng', overview.users_total], ['User mới hôm nay', overview.new_users.today], ['User mới 7 ngày', overview.new_users.seven_days], ['User mới 30 ngày', overview.new_users.thirty_days],
+    ['Xu đang lưu hành', overview.credits_circulating], ['Doanh thu nạp Xu', Number(overview.topup_revenue_vnd || 0).toLocaleString('vi-VN') + ' đ'], ['Tổng job AI', overview.jobs_total],
+    ['Waiting / Running', `${overview.job_status.waiting || 0} / ${overview.job_status.running || 0}`], ['Success / Failed', `${overview.job_status.done || 0} / ${overview.job_status.failed || 0}`]
   ].map(x => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
 
   $('#topups').innerHTML = table(['ID', 'Kh?ch', 'G?i', 'Ti?n', 'L??t', 'Tr?ng th?i', ''], t.map(x => [
@@ -72,6 +73,63 @@ async function load() {
   $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'M?', 'H?ng', 'Rate', 'Refs', 'Doanh s?', 'Th??ng', 'C? th? r?t', 'Ng??i GT'], au.map(x => [
     x.id, x.email, x.referral_code, x.tier, x.rate_percent + '%', x.direct_referrals, x.sales_credits, x.total_rewards, x.available, x.referrer?.email || ''
   ]));
+  await loadAdminManagement();
+}
+
+async function loadAdminManagement() {
+  try {
+    const [users, transactions, jobs, tools] = await Promise.all([
+      api('/api/admin/users'), api('/api/admin/transactions'), api('/api/admin/jobs'), api('/api/admin/tools')
+    ]);
+    renderAdminUsers(users);
+    renderAdminTransactions(transactions);
+    renderAdminJobs(jobs);
+    renderAdminTools(tools);
+  } catch (e) { say('Không tải được dữ liệu quản trị: ' + e.message); }
+}
+
+function renderAdminUsers(users) {
+  const root = $('#adminUsersTable'); if (!root) return;
+  root.innerHTML = table(['ID','Tên','Email','Xu','VIP/Role','Trạng thái',''], users.map(user => [
+    user.id, user.name || '—', user.email, user.credits, user.role === 'admin' ? 'Admin' : 'User', user.is_locked ? 'Đã khóa' : 'Đang hoạt động',
+    `<button class="mini-btn" data-admin-user="${user.id}">Chi tiết</button> <button class="mini-btn" data-admin-lock="${user.id}" data-locked="${user.is_locked ? 0 : 1}">${user.is_locked ? 'Mở khóa' : 'Khóa'}</button> <button class="mini-btn" onclick="addCredits(${user.id},'${String(user.email).replace(/'/g, '')}')">Cộng / trừ Xu</button>`
+  ]));
+}
+
+function renderAdminTransactions(rows) {
+  const root = $('#adminTransactionsTable'); if (!root) return;
+  root.innerHTML = table(['ID','User','Gói','Số tiền','Xu','Mã GD','Trạng thái','Thời gian',''], rows.map(row => [
+    row.id, row.email, row.package, Number(row.amount_vnd).toLocaleString('vi-VN') + ' đ', row.credits, row.order_code || '—', row.status, row.created_at,
+    row.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${row.id})">Từ chối</button>` : ''
+  ]));
+}
+
+function renderAdminJobs(rows) {
+  const root = $('#adminJobsTable'); if (!root) return;
+  const status = $('#adminJobStatus')?.value || '';
+  const filtered = status ? rows.filter(row => row.status === status) : rows;
+  root.innerHTML = table(['ID','User','Công cụ','Xu','Trạng thái','Tiến độ','Tạo lúc','Error'], filtered.map(row => [
+    row.id, row.email, jobDisplayName(row), row.cost, row.status, (row.progress || 0) + '%', row.created_at, row.error || '—'
+  ]));
+}
+
+async function showAdminUser(userId) {
+  const root = $('#adminUserDetail'); if (!root) return;
+  root.textContent = 'Đang tải...';
+  try {
+    const data = await api(`/api/admin/users/${userId}`);
+    root.innerHTML = `<div class="admin-detail-grid"><div><b>${data.user.name || '—'}</b><p>${data.user.email}<br>Xu: ${data.user.credits}<br>Trạng thái: ${data.user.is_locked ? 'Đã khóa' : 'Đang hoạt động'}</p></div><div><h4>Lịch sử Xu</h4>${table(['Delta','Lý do','Thời gian'], data.ledger.slice(0,20).map(x => [x.delta, x.reason, x.created_at]))}</div><div><h4>Lịch sử AI Jobs</h4>${table(['ID','Công cụ','Status','Xu'], data.jobs.slice(0,20).map(x => [x.id, jobDisplayName(x), x.status, x.cost]))}</div></div>`;
+  } catch (e) { root.textContent = e.message; }
+}
+
+function renderAdminTools(tools) {
+  const root = $('#adminToolsGrid'); if (!root) return;
+  root.innerHTML = tools.map(tool => `<form class="admin-tool-card" data-tool-key="${tool.service_key}">
+    <div class="sectionbar"><h4>${tool.name}</h4><label><input name="enabled" type="checkbox" ${tool.enabled ? 'checked' : ''}> Bật</label></div>
+    <label>Tên<input name="name" value="${tool.name}"></label><label>Mô tả<textarea name="description">${tool.description}</textarea></label>
+    <label>Badge<input name="badge" value="${tool.badge}"></label><label>Giá Xu<input name="price_credits" type="number" min="0" value="${tool.price_credits}"></label>
+    <label>CTA<input name="cta_text" value="${tool.cta_text}"></label><button class="mini-btn approve" type="submit">Lưu công cụ</button>
+  </form>`).join('');
 }
 
 function table(headers, rows) {
@@ -141,18 +199,41 @@ function initAdminTabs() {
       $$('.admin-tab-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const tab = btn.dataset.tab;
-      if (tab === 'overview') {
-        $('#tab-overview').style.display = 'block';
-        $('#tab-workflow-studio').style.display = 'none';
-      } else if (tab === 'workflow-studio') {
-        $('#tab-overview').style.display = 'none';
-        $('#tab-workflow-studio').style.display = 'block';
-        if (!wfInitialized) {
-          initWorkflowStudio();
-          wfInitialized = true;
-        }
+      $$('.tab-pane').forEach(pane => { pane.style.display = 'none'; });
+      const target = $(`#tab-${tab}`);
+      if (target) target.style.display = 'block';
+      if (tab === 'workflow-studio' && !wfInitialized) {
+        initWorkflowStudio();
+        wfInitialized = true;
       }
     });
+  });
+
+  $('#adminUserSearch')?.addEventListener('input', async e => {
+    const users = await api(`/api/admin/users?q=${encodeURIComponent(e.target.value)}`);
+    renderAdminUsers(users);
+  });
+  $('#adminJobStatus')?.addEventListener('change', async () => renderAdminJobs(await api('/api/admin/jobs')));
+  $('#adminTransactionsRefresh')?.addEventListener('click', async () => renderAdminTransactions(await api('/api/admin/transactions')));
+  $('#adminUsersTable')?.addEventListener('click', async e => {
+    const detail = e.target.closest('[data-admin-user]');
+    const lock = e.target.closest('[data-admin-lock]');
+    if (detail) await showAdminUser(detail.dataset.adminUser);
+    if (lock) {
+      if (!confirm(lock.dataset.locked === '1' ? 'Khóa tài khoản này?' : 'Mở khóa tài khoản này?')) return;
+      await api(`/api/admin/users/${lock.dataset.adminLock}/lock`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ locked: lock.dataset.locked === '1' }) });
+      say('Đã cập nhật trạng thái tài khoản');
+      renderAdminUsers(await api('/api/admin/users'));
+    }
+  });
+  $('#adminToolsGrid')?.addEventListener('submit', async e => {
+    const form = e.target.closest('[data-tool-key]'); if (!form) return;
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    data.enabled = form.elements.enabled.checked ? 1 : 0;
+    data.price_credits = Number(data.price_credits || 0);
+    await api(`/api/admin/tools/${form.dataset.toolKey}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    say('Đã lưu cấu hình công cụ');
   });
 }
 

@@ -3,6 +3,9 @@
 <link rel="stylesheet" href="/static/styles.css?v=20260815.4">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344">
 <link rel="stylesheet" href="/static/responsive.css?v=20260814.8"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.2">
+<style>
+.admin-management-pane{display:grid;gap:16px}.admin-search{min-width:240px;padding:9px 12px;border:1px solid rgba(13,137,158,.25);border-radius:10px;background:rgba(255,255,255,.72);color:#174b62}.admin-muted,.admin-detail-empty{color:#4b6d7f}.admin-tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.admin-tool-card{display:grid;gap:10px;padding:16px;border:1px solid rgba(13,137,158,.18);border-radius:16px;background:rgba(255,255,255,.56)}.admin-tool-card label{display:grid;gap:4px;color:#174b62;font-weight:600}.admin-tool-card input,.admin-tool-card textarea{box-sizing:border-box;width:100%;padding:8px 10px;border:1px solid rgba(13,137,158,.22);border-radius:8px;background:rgba(255,255,255,.78);color:#174b62}.admin-tool-card textarea{min-height:62px;resize:vertical}.admin-detail-grid{display:grid;grid-template-columns:180px 1fr 1fr;gap:16px;color:#174b62}.admin-detail-grid h4{margin:0 0 8px}.admin-detail-grid p{color:#4b6d7f;line-height:1.6}@media(max-width:760px){.admin-tabs{overflow-x:auto;justify-content:flex-start}.admin-search{min-width:0;width:100%}.sectionbar{flex-wrap:wrap}.admin-tools-grid,.admin-detail-grid{grid-template-columns:1fr}.table-wrap{overflow-x:auto}}
+</style>
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -14,8 +17,12 @@
 <div class="admin-wrap">
 <header class="admin-head"><a class="brand" href="/"><img class="brand-img" src="/static/images/logo-tvc.png" alt="TVC logo"><span class="brand-text">TVC Studio <b>AI Admin</b></span></a><div><a class="dark" href="/app">Dashboard</a><button class="dark" id="logout">Đăng xuất</button></div></header>
 <div class="admin-tabs">
-  <button type="button" class="admin-tab-btn active" data-tab="overview">?? T?ng Quan & Qu?n Tr?</button>
-  <button type="button" class="admin-tab-btn" data-tab="workflow-studio">? Workflow Studio (Thi?t k? ?? th? AI)</button>
+  <button type="button" class="admin-tab-btn active" data-tab="overview">Tổng quan</button>
+  <button type="button" class="admin-tab-btn" data-tab="users-admin">Người dùng</button>
+  <button type="button" class="admin-tab-btn" data-tab="transactions-admin">Giao dịch &amp; Xu</button>
+  <button type="button" class="admin-tab-btn" data-tab="jobs-admin">AI Jobs</button>
+  <button type="button" class="admin-tab-btn" data-tab="tools-admin">Công cụ &amp; Giá</button>
+  <button type="button" class="admin-tab-btn" data-tab="workflow-studio">Workflow Studio</button>
 </div>
 
 <div class="tab-pane" id="tab-overview">
@@ -27,6 +34,26 @@
     <article class="panel-card full-span"><h3>?? Y?u c?u r?t Affiliate</h3><div id="affiliateWithdrawals" class="table-wrap"></div></article>
     <article class="panel-card full-span"><h3>?? ??i t?c Affiliate</h3><div id="affiliateUsers" class="table-wrap"></div></article>
   </section>
+</div>
+
+<div class="tab-pane admin-management-pane" id="tab-users-admin" style="display:none;">
+  <article class="panel-card full-span">
+    <div class="sectionbar"><h3>Người dùng</h3><input id="adminUserSearch" class="admin-search" type="search" placeholder="Tìm theo tên, email hoặc ID"></div>
+    <div id="adminUsersTable" class="table-wrap"></div>
+  </article>
+  <article class="panel-card full-span"><h3>Chi tiết người dùng</h3><div id="adminUserDetail" class="admin-detail-empty">Chọn một người dùng để xem ledger và lịch sử job.</div></article>
+</div>
+
+<div class="tab-pane admin-management-pane" id="tab-transactions-admin" style="display:none;">
+  <article class="panel-card full-span"><div class="sectionbar"><h3>Giao dịch &amp; Xu</h3><button class="dark" id="adminTransactionsRefresh" type="button">Làm mới</button></div><div id="adminTransactionsTable" class="table-wrap"></div></article>
+</div>
+
+<div class="tab-pane admin-management-pane" id="tab-jobs-admin" style="display:none;">
+  <article class="panel-card full-span"><div class="sectionbar"><h3>AI Jobs</h3><select id="adminJobStatus" class="admin-search"><option value="">Tất cả trạng thái</option><option value="waiting">Waiting</option><option value="running">Running</option><option value="done">Success</option><option value="failed">Failed</option></select></div><div id="adminJobsTable" class="table-wrap"></div></article>
+</div>
+
+<div class="tab-pane admin-management-pane" id="tab-tools-admin" style="display:none;">
+  <article class="panel-card full-span"><div class="sectionbar"><h3>Công cụ &amp; Giá</h3><span class="admin-muted">Cấu hình được lưu trong SQLite</span></div><div id="adminToolsGrid" class="admin-tools-grid"></div></article>
 </div>
 
 <div class="tab-pane" id="tab-workflow-studio" style="display:none;">
@@ -208,7 +235,7 @@
   </div>
 </div>
 </div><div class="toast" id="toast"></div>
-<script src="/static/admin.js?v=20260818.15"></script>
+<script src="/static/admin.js?v=20260820.2"></script>
 <script>
 
 const TVC_I18N = {
