@@ -232,19 +232,25 @@ function goto(tab,opts={}){
   if(!meta[tab]) return;
 
   const target=$('#tab-'+tab);
-  const old=$('.tab.active');
-  const same=old===target;
+  if(!target) return;
   currentTab=tab;
   const token=++tabSwitchToken;
 
   $$('.side').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));
   updateMobileToolState(tab);
 
-  $('#pageTitle').textContent=meta[tab][0];
-  $('#pageSub').textContent=meta[tab][1];
+  if($('#pageTitle')) $('#pageTitle').textContent=meta[tab][0];
+  if($('#pageSub')) $('#pageSub').textContent=meta[tab][1];
 
   const hash=tab==='create'?'#create':'#'+tab;
   history.replaceState(null,'',location.pathname+location.search+hash);
+
+  $$('.tab').forEach(x=>{
+    if(x!==target){
+      x.classList.remove('active','tab-leaving','tab-entering','tab-entered','tab-refresh');
+    }
+  });
+  target.classList.add('active','tab-entered');
 
   // Start data loading after the UI has already reacted to the tap.
   requestAnimationFrame(()=>{
@@ -253,38 +259,9 @@ function goto(tab,opts={}){
     if(tab==='affiliate') loadAffiliate();
   });
 
-  if(same){
-    target?.classList.remove('tab-refresh');
-    requestAnimationFrame(()=>target?.classList.add('tab-refresh'));
-    setTimeout(()=>target?.classList.remove('tab-refresh'),220);
-    return;
-  }
-
-  // Fast fade/slide on mobile, softer fade on desktop.
-  if(old){
-    old.classList.add('tab-leaving');
-  }
-
-  target.classList.add('active','tab-entering');
-
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      if(token!==tabSwitchToken) return;
-      target.classList.add('tab-entered');
-      target.classList.remove('tab-entering');
-    });
-  });
-
-  setTimeout(()=>{
-    if(token!==tabSwitchToken) return;
-    $$('.tab').forEach(x=>{
-      if(x!==target){
-        x.classList.remove('active','tab-leaving','tab-entering','tab-entered','tab-refresh');
-      }
-    });
-    target.classList.add('active','tab-entered');
-  },190);
+  window.scrollTo({top:0,behavior:'smooth'});
 }
+window.tvcGotoTab=goto;
 
 $$('.side').forEach(b=>b.onclick=()=>goto(b.dataset.tab));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));

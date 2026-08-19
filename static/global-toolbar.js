@@ -38,8 +38,8 @@
       <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
       <a href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
-      <a href="/app#affiliate" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
-      <a href="/app#wallet" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
+      <a href="/about" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
+      <a href="/pricing" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
       <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
     </nav>
     <section class="tvc-account-menu" id="toolbarAccountMenu" aria-label="Menu tài khoản" hidden>
@@ -302,8 +302,39 @@
     tab.addEventListener('click',e=>{
       closeMenu(false);
       setActive(tab.dataset.tool);
-      if(tab.dataset.tool === 'models' && (location.pathname === '/' || location.pathname === '/index.html')){
-        window.scrollTo({top:0,behavior:'smooth'});
+      const tool=tab.dataset.tool;
+      if(tool==='models'){
+        if(location.pathname==='/' || location.pathname==='/index.html'){
+          e.preventDefault();
+          window.scrollTo({top:0,behavior:'smooth'});
+        } else {
+          location.href='/';
+        }
+      } else if(tool==='affiliate'){
+        if(location.pathname==='/about'){
+          e.preventDefault();
+          window.scrollTo({top:0,behavior:'smooth'});
+        } else {
+          location.href='/about';
+        }
+      } else if(tool==='wallet'){
+        if(location.pathname==='/pricing'){
+          e.preventDefault();
+          window.scrollTo({top:0,behavior:'smooth'});
+        } else {
+          location.href='/pricing';
+        }
+      } else if(tool==='history'){
+        if(location.pathname==='/app'){
+          e.preventDefault();
+          if(typeof window.tvcGotoTab==='function'){
+            window.tvcGotoTab('jobs');
+          } else {
+            location.hash='#jobs';
+          }
+        } else {
+          location.href='/app#jobs';
+        }
       }
     });
   });

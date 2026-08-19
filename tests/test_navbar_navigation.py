@@ -34,10 +34,10 @@ class NavbarNavigationAndOverlayTests(unittest.TestCase):
         self.assertIn('href="/" class="tool-pill liquid-pill home-tab" data-tool="models"', self.toolbar_js)
         # Lich Su -> href="/app#jobs"
         self.assertIn('href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"', self.toolbar_js)
-        # Gioi Thieu -> href="/app#affiliate"
-        self.assertIn('href="/app#affiliate" class="tool-pill liquid-pill about-tab" data-tool="affiliate"', self.toolbar_js)
-        # Nap VIP -> href="/app#wallet"
-        self.assertIn('href="/app#wallet" class="tool-pill liquid-pill vip-tab" data-tool="wallet"', self.toolbar_js)
+        # Gioi Thieu -> href="/about"
+        self.assertIn('href="/about" class="tool-pill liquid-pill about-tab" data-tool="affiliate"', self.toolbar_js)
+        # Nap VIP -> href="/pricing"
+        self.assertIn('href="/pricing" class="tool-pill liquid-pill vip-tab" data-tool="wallet"', self.toolbar_js)
         # Dang Nhap -> trigger with tvcOpenLoginModal call
         self.assertIn("window.tvcOpenLoginModal(location.pathname + location.search + location.hash)", self.toolbar_js)
 
