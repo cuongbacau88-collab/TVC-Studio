@@ -1454,8 +1454,12 @@ def payos_signature(values: dict) -> str:
 def payos_create_payment(order_code: int, amount: int, description: str, items: Optional[list] = None) -> dict:
     if not payos_ready():
         raise HTTPException(503, "PayOS chưa được cấu hình trên máy chủ")
-    
-    payos_inst = get_payos_client()
+
+    try:
+        payos_inst = get_payos_client()
+    except Exception as exc:
+        logging.warning("PayOS SDK client initialization failed: %s", exc)
+        payos_inst = None
     if payos_inst and PaymentData:
         try:
             payos_items = None
@@ -1478,7 +1482,7 @@ def payos_create_payment(order_code: int, amount: int, description: str, items: 
             if checkout_url:
                 return {"checkoutUrl": checkout_url, "paymentLinkId": payment_link_id}
         except Exception as exc:
-            pass
+            logging.warning("PayOS SDK payment-link request failed: %s", exc)
 
     values = {
         "amount": amount, "cancelUrl": PAYOS_CANCEL_URL,
@@ -1495,7 +1499,15 @@ def payos_create_payment(order_code: int, amount: int, description: str, items: 
     try:
         with urllib.request.urlopen(request, timeout=20) as response:
             payload = json.loads(response.read().decode())
+    except urllib.error.HTTPError as exc:
+        try:
+            detail = json.loads(exc.read().decode()).get("desc")
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            detail = None
+        logging.warning("PayOS HTTP error %s: %s", exc.code, detail or exc.reason)
+        raise HTTPException(502, detail or "PayOS từ chối yêu cầu thanh toán") from exc
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        logging.warning("PayOS connection error: %s", exc)
         raise HTTPException(502, "Không thể kết nối PayOS") from exc
     if not payload.get("code") == "00" or not payload.get("data", {}).get("checkoutUrl"):
         raise HTTPException(502, payload.get("desc") or "PayOS không tạo được link thanh toán")
@@ -1618,7 +1630,7 @@ async def payos_webhook(request: Request):
         # For test webhook verification from PayOS dashboard or test order codes
         return {"success": True, "message": f"Order {order_code} acknowledged"}
 
-    if topup["status"] == "paid":
+    if topup["status"] in {"approved", "paid"}:
         return {"success": True}
 
     # Reuse the same idempotent settlement path as admin approval.
@@ -1967,7 +1979,7 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False):
 
     # Mark approved first so tier calculations include this transaction.
     con.execute("UPDATE topups SET status=?,reviewed_at=?,paid_at=? WHERE id=?",
-                ("paid" if _internal else "approved", now_iso(), now_iso() if _internal else None, topup_id))
+                ("approved", now_iso(), now_iso(), topup_id))
     con.execute(
         "UPDATE users SET credits=credits+? WHERE id=?",
         (t["credits"] + buyer_bonus, t["user_id"])
