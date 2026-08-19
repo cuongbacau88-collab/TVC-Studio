@@ -90,7 +90,7 @@ video_upscale_adapter = build_video_upscale_adapter()
 storage = build_storage(DATA)
 WORKER_POLL_INTERVAL = max(1.0, float(os.getenv("WORKER_POLL_INTERVAL", "4") or "4"))
 
-app = FastAPI(title="TVC Studio AI Business V3.3.45")
+app = FastAPI(title="TVC Studio AI Business V3.3.46")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 
 def now_iso():
@@ -1085,7 +1085,7 @@ async def create_job(
         raise HTTPException(400, "Tỷ lệ không hợp lệ")
     if GPU_BACKEND_ENABLED:
         return await create_gpu_job(u, image, motion, model, aspect_ratio, prompt, request_key)
-    # V3.3.45: one public render mode / one price.
+    # V3.3.46: one public render mode / one price.
     # The client no longer sends a quality field. Extra legacy form fields are
     # ignored by FastAPI, while the server always uses one internal profile.
     # This removes the old "Chất lượng không hợp lệ" path permanently.

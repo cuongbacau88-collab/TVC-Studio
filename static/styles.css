@@ -3498,35 +3498,44 @@ body > .account-popover{
   position:absolute;
   left:50%;
   top:50%;
-  z-index:8;
-  width:54px;
-  height:54px;
+  z-index:90;
+  width:60px;
+  height:60px;
   transform:translate(-50%,-50%);
   display:grid;
   place-items:center;
   border-radius:50%;
-  border:1px solid rgba(255,255,255,.46);
+  border:2px solid rgba(255,255,255,.24);
   color:#fff;
-  background:linear-gradient(180deg,rgba(38,61,132,.70),rgba(31,47,105,.54));
+  background:linear-gradient(180deg, rgba(10,135,160,0.95), rgba(32,200,220,0.85));
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.42),
-    0 12px 28px rgba(52,64,140,.30),
-    0 0 22px rgba(134,151,255,.20);
-  backdrop-filter:blur(18px) saturate(150%);
-  -webkit-backdrop-filter:blur(18px) saturate(150%);
+    inset 0 1px 0 rgba(255,255,255,.32),
+    0 10px 30px rgba(20,40,80,.45);
+  backdrop-filter:blur(8px) saturate(140%);
+  -webkit-backdrop-filter:blur(8px) saturate(140%);
   cursor:pointer;
-  transition:.18s ease;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  font-weight:700;
 }
 
 .motion-open-player span{
-  font-size:20px;
+  font-size:22px;
   transform:translateX(2px);
+  line-height:1;
 }
 
-.motion-video-shell:hover .motion-open-player{
-  transform:translate(-50%,-50%) scale(1.08);
-  background:linear-gradient(135deg,rgba(104,174,255,.82),rgba(155,141,255,.76),rgba(235,150,212,.72));
+.motion-video-shell.is-clickable:hover .motion-open-player,
+.motion-open-player:focus,
+.motion-open-player:focus-visible{
+  transform:translate(-50%,-50%) scale(1.1);
+  box-shadow:0 18px 36px rgba(20,40,80,.55);
+  outline: none;
 }
+
+.motion-open-player:focus-visible{
+  box-shadow:0 0 0 6px rgba(0,180,200,0.16), 0 18px 36px rgba(20,40,80,.55);
+}
+
 
 .motion-player-modal{
   position:fixed;
@@ -8268,6 +8277,56 @@ textarea::placeholder{
     max-height:58px !important;
   }
 
+/* --- Desktop: larger motion preview & play button --- */
+@media (min-width: 1100px) {
+  /* Make the whole preview area taller to match desktop layout */
+  .model-visual {
+    height: 340px; /* increase from default for desktop */
+    min-height: 320px;
+  }
+
+  /* Make the preview video fill the area nicely */
+  .motion-video-shell .motion-preview-video,
+  .motion-video-shell .motion-video-fallback,
+  .model-visual.motion .model-preview-image {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover;
+  }
+
+  /* Larger play button for desktop */
+  .motion-open-player {
+    width: 92px;
+    height: 92px;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border-width: 2px;
+    font-size: 28px;
+    background: linear-gradient(180deg, rgba(5,140,160,0.98), rgba(30,200,220,0.9));
+    box-shadow: 0 24px 48px rgba(10,30,60,0.55);
+  }
+
+  .motion-open-player span {
+    font-size: 28px;
+    transform: translateX(2px);
+  }
+
+  /* Slightly enlarge on hover and add strong ring on keyboard focus */
+  .motion-video-shell.is-clickable:hover .motion-open-player,
+  .motion-open-player:focus-visible {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 28px 60px rgba(10,30,60,0.65), 0 0 0 8px rgba(0,160,180,0.12);
+  }
+
+  /* Make model-card taller so footer text doesn't overlap */
+  .model-card {
+    min-height: 560px;
+  }
+}
+
+
   .account-native-menu[open],
   .account-native-menu[open] > summary{
     height:58px !important;
@@ -8385,7 +8444,7 @@ textarea::placeholder{
 
 
 /* =====================================================================
-   V3.3.45 — TOP TOOLBAR GLASS PALETTE
+   V3.3.46 — TOP TOOLBAR GLASS PALETTE
    70% navy + 20% blue + 10% purple.
    Giữ cùng một màu ở default / active / sticky / public pages.
    ===================================================================== */
