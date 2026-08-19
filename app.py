@@ -472,12 +472,19 @@ def admin_page():
     return FileResponse(BASE / "static" / "admin.html")
 
 @app.get("/pricing")
+@app.get("/nap-vip")
+@app.get("/bang-gia")
 def pricing_page():
     return FileResponse(BASE / "static" / "pricing.html")
 
 @app.get("/about")
+@app.get("/gioi-thieu")
 def about_page():
     return FileResponse(BASE / "static" / "about.html")
+
+@app.get("/tools")
+def tools_redirect():
+    return RedirectResponse(url="/app", status_code=302)
 
 @app.get("/contact")
 def contact_page():

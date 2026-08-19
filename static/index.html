@@ -399,19 +399,59 @@
 <script>
 const loginModal=document.getElementById('loginModal');
 const loginOpen=document.getElementById('loginOpen');
+
+function openLoginModal(returnUrl) {
+  if(loginModal) {
+    if(returnUrl) {
+      try { sessionStorage.setItem('authReturnTo', returnUrl); } catch(_) {}
+    }
+    loginModal.classList.add('open');
+    if(typeof window.tvcRenderGoogleButtons === 'function') {
+      window.tvcRenderGoogleButtons();
+    }
+  }
+}
+window.tvcOpenLoginModal = openLoginModal;
+
 if(loginOpen) {
   loginOpen.onclick=()=>{
-    if(loginModal) {
-      loginModal.classList.add('open');
-      document.getElementById('email')?.focus();
-      if(typeof window.tvcRenderGoogleButtons === 'function') {
-        window.tvcRenderGoogleButtons();
-      }
-    }
+    openLoginModal(location.pathname + location.search + location.hash);
   };
 }
 document.getElementById('loginClose')?.addEventListener('click', ()=>{
   if(loginModal) loginModal.classList.remove('open');
+});
+loginModal?.addEventListener('click', (e)=>{
+  if(e.target === loginModal) loginModal.classList.remove('open');
+});
+
+async function checkUserSignedIn() {
+  if (window.TVCSignedIn === true) return true;
+  if (window.TVCSignedIn === false) return false;
+  try {
+    const r = await fetch('/api/me', { credentials: 'same-origin' });
+    if (r.ok) {
+      window.TVCSignedIn = true;
+      return true;
+    }
+  } catch(_) {}
+  window.TVCSignedIn = false;
+  return false;
+}
+
+// CTA buttons check auth ONLY on click
+document.querySelectorAll('.model-button, #motionPlayerCreateBtn').forEach(function(btn) {
+  btn.addEventListener('click', async function(e) {
+    const targetUrl = btn.getAttribute('href') || '/app';
+    const signedIn = await checkUserSignedIn();
+    if (!signedIn) {
+      e.preventDefault();
+      if (typeof window.tvcClosePlayerModal === 'function') {
+        window.tvcClosePlayerModal();
+      }
+      openLoginModal(targetUrl);
+    }
+  });
 });
 
 document.getElementById('loginBtn')?.addEventListener('click', async () => {
@@ -450,8 +490,20 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
       localStorage.setItem('token', j.token);
     }
     
-    // Tải lại trang ngay lập tức để cập nhật trạng thái đã đăng nhập
-    window.location.reload();
+    let returnUrl = '';
+    try {
+      returnUrl = sessionStorage.getItem('authReturnTo') || sessionStorage.getItem('tvc_login_return_to') || '';
+      sessionStorage.removeItem('authReturnTo');
+      sessionStorage.removeItem('tvc_login_return_to');
+    } catch(_) {}
+
+    if (j.role === 'admin') {
+      window.location.href = '/admin';
+    } else if (returnUrl && returnUrl !== '/' && returnUrl !== location.pathname + location.search + location.hash) {
+      window.location.href = returnUrl;
+    } else {
+      window.location.reload();
+    }
   } catch (err) {
     btn.disabled = false;
     btn.textContent = 'Đăng nhập';

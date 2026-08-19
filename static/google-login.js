@@ -126,7 +126,19 @@
       let j={}; try{j=await r.json();}catch{}
       if(!r.ok) throw new Error(j.detail||'Google Login thất bại');
       if(j.token) localStorage.setItem('token', j.token);
-      window.location.reload();
+      let returnUrl = '';
+      try {
+        returnUrl = sessionStorage.getItem('authReturnTo') || sessionStorage.getItem('tvc_login_return_to') || '';
+        sessionStorage.removeItem('authReturnTo');
+        sessionStorage.removeItem('tvc_login_return_to');
+      } catch(_) {}
+      if (j.role === 'admin') {
+        window.location.href = '/admin';
+      } else if (returnUrl && returnUrl !== '/' && returnUrl !== location.pathname + location.search + location.hash) {
+        window.location.href = returnUrl;
+      } else {
+        window.location.reload();
+      }
     }catch(err){
       showGoogleError(err.message||'Google Login thất bại');
     }
