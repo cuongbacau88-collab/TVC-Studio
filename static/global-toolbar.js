@@ -37,7 +37,7 @@
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
       <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
-      <a href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
+      <a href="/history" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
       <a href="/about" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
       <a href="/pricing" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
       <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
@@ -168,13 +168,14 @@
   }
 
   function routeTool(){
+    if(location.pathname==='/history'||location.pathname==='/lich-su')return'history';
     if(location.pathname==='/app'){
       const exact={jobs:'history',affiliate:'affiliate',wallet:'wallet',account:'account'};
       return exact[location.hash.slice(1)]||(location.hash==='#login'||location.hash==='#register'?'account':'models');
     }
-    if(location.pathname==='/')return'models';
-    if(location.pathname==='/about')return'affiliate';
-    if(location.pathname==='/pricing')return'wallet';
+    if(location.pathname==='/'||location.pathname==='/index.html')return'models';
+    if(location.pathname==='/about'||location.pathname==='/gioi-thieu')return'affiliate';
+    if(location.pathname==='/pricing'||location.pathname==='/nap-vip'||location.pathname==='/bang-gia')return'wallet';
     return null;
   }
 
@@ -316,24 +317,24 @@
           window.scrollTo({top:0,behavior:'smooth'});
         } else {
           location.href='/about';
-        }
       } else if(tool==='wallet'){
-        if(location.pathname==='/pricing'){
+        if(location.pathname==='/pricing'||location.pathname==='/nap-vip'||location.pathname==='/bang-gia'){
           e.preventDefault();
           window.scrollTo({top:0,behavior:'smooth'});
         } else {
           location.href='/pricing';
         }
       } else if(tool==='history'){
-        if(location.pathname==='/app'){
+        if(location.pathname==='/history'||location.pathname==='/lich-su'||location.pathname==='/app'){
           e.preventDefault();
           if(typeof window.tvcGotoTab==='function'){
             window.tvcGotoTab('jobs');
           } else {
             location.hash='#jobs';
           }
+          window.scrollTo({top:0,behavior:'smooth'});
         } else {
-          location.href='/app#jobs';
+          location.href='/history';
         }
       }
     });

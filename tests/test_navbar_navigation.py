@@ -32,8 +32,8 @@ class NavbarNavigationAndOverlayTests(unittest.TestCase):
     def test_navbar_routing_elements_and_click_handlers(self):
         # Trang Chu -> href="/"
         self.assertIn('href="/" class="tool-pill liquid-pill home-tab" data-tool="models"', self.toolbar_js)
-        # Lich Su -> href="/app#jobs"
-        self.assertIn('href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"', self.toolbar_js)
+        # Lich Su -> href="/history"
+        self.assertIn('href="/history" class="tool-pill liquid-pill history-tab" data-tool="history"', self.toolbar_js)
         # Gioi Thieu -> href="/about"
         self.assertIn('href="/about" class="tool-pill liquid-pill about-tab" data-tool="affiliate"', self.toolbar_js)
         # Nap VIP -> href="/pricing"

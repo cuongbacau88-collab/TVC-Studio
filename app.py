@@ -464,6 +464,8 @@ def home():
     return FileResponse(BASE / "static" / "index.html")
 
 @app.get("/app")
+@app.get("/history")
+@app.get("/lich-su")
 def app_page():
     return FileResponse(BASE / "static" / "app.html")
 

@@ -154,10 +154,14 @@ async function boot(){
   }catch{
     me=null;showDashboard();
   }
+  const initialPath=location.pathname;
   const initialHash=location.hash;
   const hashMap={'#affiliate':'affiliate','#jobs':'jobs','#wallet':'wallet','#account':'account','#create':'create'};
-  currentTab=hashMap[initialHash]||'create';
-  if(hashMap[initialHash]) goto(hashMap[initialHash],{source:'boot'});
+  let targetTab='create';
+  if(initialPath==='/history'||initialPath==='/lich-su') targetTab='jobs';
+  else if(hashMap[initialHash]) targetTab=hashMap[initialHash];
+  currentTab=targetTab;
+  if(targetTab!=='create') goto(targetTab,{source:'boot'});
   else updateMobileToolState('create');
 
   if(initialHash === '#login' || initialHash === '#register'){
