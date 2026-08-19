@@ -80,6 +80,31 @@ function setStatus(job){
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=setTimeout(poll,Number(window.workerPollMs||4000))}
 async function poll(){if(!currentJob)return;try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`))}catch(e){$('jobMessage').textContent=e.message;schedulePoll()}}
  if(key==='video_generation'){$('serviceGuide').textContent='Chọn phương thức phù hợp, cung cấp nội dung tham chiếu và mô tả video bạn muốn tạo. AI sẽ tạo một video hoàn toàn mới dựa trên yêu cầu của bạn.';$('serviceGuide').classList.remove('hidden')}
+function openLoginModal(returnUrl){
+ const modal=$('loginModal');
+ if(modal){
+  if(returnUrl){
+   try{sessionStorage.setItem('authReturnTo',returnUrl)}catch(_){}
+  }
+  modal.classList.add('open');
+  if(typeof window.tvcRenderGoogleButtons==='function'){
+   window.tvcRenderGoogleButtons();
+  }
+ }
+}
+window.tvcOpenLoginModal=openLoginModal;
+
+function closeLoginModal(){
+ $('loginModal')?.classList.remove('open');
+}
+$('loginClose')?.addEventListener('click',closeLoginModal);
+$('loginModal')?.addEventListener('click',e=>{
+ if(e.target===$('loginModal'))closeLoginModal();
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&$('loginModal')?.classList.contains('open'))closeLoginModal();
+});
+
 async function init(){
  const def=definitions[key];if(!def){location.href='/';return}
  $('serviceTitle').textContent=def.title;$('serviceDescription').textContent=def.desc;$('submitButton').textContent=def.button;
@@ -87,22 +112,27 @@ async function init(){
  try{const catalog=await api('/api/services');config=catalog.find(v=>v.key===key);window.workerPollMs=Number(config?.poll_interval||4)*1000}
  catch(e){setError(e.message);return}
  if(!config){setError('Dịch vụ không tồn tại');return}
- try{const me=await api('/api/me');authenticated=true;document.getElementById('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
- catch(e){const notice=$('authNotice'),link=$('serviceLoginCta');notice.classList.remove('hidden');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}
+ try{const me=await api('/api/me');authenticated=true;window.TVCSignedIn=true;document.getElementById('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
+ catch(e){authenticated=false;window.TVCSignedIn=false}
  $('serviceCost').textContent=config.free?'Miễn phí • xử lý khi GPU rảnh':config.usage==null?'Mức lượt chưa được cấu hình':`${config.usage} lượt / job`;
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));
  if(unavailable){$('configNotice').textContent='Cấu hình dịch vụ chưa đầy đủ.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}
  else if(config.render_mode==='worker'&&!config.worker_configured){$('configNotice').textContent='GPU worker hiện chưa online. Bạn vẫn có thể tạo job; job sẽ chờ worker và tự thất bại/hoàn lượt nếu quá thời gian.';$('configNotice').classList.remove('hidden')}
  renderFields();$('requestKey').value=requestKey();
- if(!authenticated){$('submitButton').disabled=true;$('submitButton').classList.add('hidden')}
  const requestedJob=new URLSearchParams(location.search).get('job');
  if(requestedJob&&/^\d+$/.test(requestedJob)){try{setStatus(await api(`/api/services/${key}/jobs/${requestedJob}`))}catch(e){setError(e.message)}}
 }
 $('serviceForm').addEventListener('submit',async event=>{
- event.preventDefault();if(submitting)return;submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
+ event.preventDefault();
+ if(submitting)return;
+ if(!window.TVCSignedIn){
+  openLoginModal(location.pathname+location.search+location.hash);
+  return;
+ }
+ submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
  try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f));if(event.currentTarget.__creatorFiles.first)data.set('first_frame',event.currentTarget.__creatorFiles.first);if(event.currentTarget.__creatorFiles.last)data.set('last_frame',event.currentTarget.__creatorFiles.last)}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
  catch(e){setError(e.message)}
- finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key].button}
+ finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key]?.button||'Bắt đầu xử lý'}
 });
 $('cancelButton').onclick=async()=>{try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`,{method:'DELETE'}))}catch(e){setError(e.message)}};
 $('retryButton').onclick=()=>{clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError()};

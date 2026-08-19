@@ -150,33 +150,63 @@ async function boot(){
   const ref=referralFromUrl();
   try{
     me=await api('/api/me');showDashboard();await refreshAll();
-    const initialHash=location.hash;
-    const hashMap={'#affiliate':'affiliate','#jobs':'jobs','#wallet':'wallet','#account':'account','#create':'create'};
-    currentTab=hashMap[initialHash]||'create';
-    if(hashMap[initialHash]) goto(hashMap[initialHash],{source:'boot'});
-    else updateMobileToolState('create');
   }catch{
+    me=null;showDashboard();
+  }
+  const initialHash=location.hash;
+  const hashMap={'#affiliate':'affiliate','#jobs':'jobs','#wallet':'wallet','#account':'account','#create':'create'};
+  currentTab=hashMap[initialHash]||'create';
+  if(hashMap[initialHash]) goto(hashMap[initialHash],{source:'boot'});
+  else updateMobileToolState('create');
+
+  if(initialHash === '#login' || initialHash === '#register'){
     showAuth();
   }
 }
-function showAuth(){
-  $('#authGate')?.classList.remove('hidden');
-  $('#dashboard')?.classList.add('hidden');
-  if(typeof window.tvcRenderGoogleButtons === 'function'){
-    window.tvcRenderGoogleButtons();
+function showAuth(returnUrl){
+  const modal=$('#authGate')||$('#loginModal');
+  if(modal){
+    modal.classList.remove('hidden');
+    modal.classList.add('open');
+    if(returnUrl){
+      try{sessionStorage.setItem('authReturnTo',returnUrl)}catch(_){}
+    }
+    if(typeof window.tvcRenderGoogleButtons === 'function'){
+      window.tvcRenderGoogleButtons();
+    }
   }
 }
 window.showAuth = showAuth;
+window.tvcOpenLoginModal = showAuth;
+
+function closeAuth(){
+  const modal=$('#authGate')||$('#loginModal');
+  if(modal){
+    modal.classList.remove('open');
+  }
+}
+$('#loginClose')?.addEventListener('click', closeAuth);
+$('#authGate')?.addEventListener('click', e=>{
+  if(e.target===$('#authGate')) closeAuth();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'&&$('#authGate')?.classList.contains('open')) closeAuth();
+});
+
 window.addEventListener('hashchange', () => {
   if(location.hash === '#login' || location.hash === '#register'){
     showAuth();
   }
 });
 function showDashboard(){
-  $('#authGate')?.classList.add('hidden');
+  $('#authGate')?.classList.remove('open');
   $('#dashboard')?.classList.remove('hidden');
-  $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
-  if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
+  if(me){
+    $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
+    if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount();
+  }else{
+    $('#TVC').textContent='—';$('#walletTVC').textContent='—';
+  }
 }
 async function logout(){await fetch('/api/logout',{method:'POST'});location.reload()}
 if($('#logout')) $('#logout').onclick=logout;if($('#logout2')) $('#logout2').onclick=logout;
@@ -318,6 +348,10 @@ function setJobSubmitLocked(locked,activeBtn=null){
 form.onsubmit=async e=>{
   e.preventDefault();
   if(jobSubmitLocked) return;
+  if(!me && !window.TVCSignedIn){
+    showAuth(location.pathname + location.search + location.hash);
+    return;
+  }
   if(!motionForm||!await motionForm.validateForSubmit()){
     say(motionForm?.firstError()||'Vui lòng kiểm tra lại ảnh và video mẫu');
     return;
@@ -344,6 +378,10 @@ function jobOpenUrl(j){return (j.service && j.service !== 'motion_studio')?`/ser
 function jobDisplayName(j){return {motion_studio:'AI Motion Studio',video_generation:'AI Video Creator',outfit_change:'AI Đổi Trang Phục',background_change:'AI Đổi Bối Cảnh',image_upscale:'AI Nâng Cấp Ảnh'}[j.service]||(!j.service?'AI Motion Studio':j.model)}
 function jobOutputExtension(j){return ['outfit_change','background_change','image_upscale'].includes(j.service)?'png':'mp4'}
 async function loadJobs(){
+  if(!me){
+    $('#jobsList').innerHTML='<div class="panel-card">Vui lòng đăng nhập để xem danh sách job của bạn.</div>';
+    return;
+  }
   try{
     const jobs=await api('/api/jobs');
     $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
@@ -389,6 +427,12 @@ $('#requestTopup').onclick=async()=>{
 }
 function packageName(key){return {starter:'Gói Thử',basic:'Gói Cơ bản',creator:'Gói Phổ biến',professional:'Gói Chuyên nghiệp'}[key]||key}
 async function loadWallet(){
+  if(!me){
+    if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent='0';
+    $('#topupList').innerHTML='<div class="simple-row">Vui lòng đăng nhập để nạp xu và xem lịch sử.</div>';
+    $('#ledgerList').innerHTML='<div class="simple-row">Chưa có giao dịch.</div>';
+    return;
+  }
   try{
     me=await api('/api/me');showDashboard();
     const videoTurns=Math.max(0,Number(me.usage_balance||me.credits||0));
@@ -404,6 +448,14 @@ function referralDate(value){
 }
 
 async function loadAffiliate(){
+  if(!me){
+    if($('#refDirectCount')) $('#refDirectCount').textContent='0';
+    $('#affLink').textContent='—';
+    $('#affCode').textContent='—';
+    $('#referrerState').innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
+    $('#referralUserList').innerHTML='<div class="simple-row">Chưa có người được giới thiệu.</div>';
+    return;
+  }
   try{
     const [summary,refs]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals')]);
     if($('#refDirectCount')) $('#refDirectCount').textContent=summary.direct_referrals||0;
@@ -437,6 +489,7 @@ $('#applyReferralBtn').onclick=async()=>{
 }
 
 async function refreshAll(){
+  if(!me) return;
   await loadJobs();await loadWallet();
   $('#accountInfo').innerHTML=`<p><b>${me.name}</b></p><p>${me.email}</p><p>Vai trò: ${me.role}</p><p>Ngày tạo: ${new Date(me.created_at).toLocaleString('vi-VN')}</p>`
 }

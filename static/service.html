@@ -55,6 +55,40 @@
       </aside>
     </section>
   </main>
+  <div class="modal-wrap" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+    <div class="modal tvc-login-modal-glass relative overflow-hidden bg-white/94 backdrop-blur-2xl border border-cyan-100/90 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-[92vw] text-center flex flex-col items-center">
+      <div class="pointer-events-none absolute -top-10 -left-10 w-44 h-44 rounded-full bg-cyan-300/25 blur-2xl" aria-hidden="true"></div>
+      <div class="pointer-events-none absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-blue-300/20 blur-2xl" aria-hidden="true"></div>
+
+      <button class="x absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xl font-bold transition-all border border-slate-200/60" id="loginClose" aria-label="Đóng">×</button>
+
+      <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-cyan-50 to-blue-50 border border-cyan-200/70 shadow-sm flex items-center justify-center p-2 mb-3 mt-1">
+        <img src="/static/images/logo-tvc.png" alt="TVC Studio AI" class="w-full h-full object-contain">
+      </div>
+
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1" id="loginModalTitle">
+        Chào mừng đến TVC Studio AI
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 font-medium mb-3.5" id="loginModalDesc">
+        Đăng nhập để bắt đầu sáng tạo nội dung bằng AI
+      </p>
+
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200/80 text-cyan-800 font-bold text-xs shadow-sm mb-6" id="loginModalBadge">
+        <span>✨ Video AI chỉ từ 2 Xu/lượt</span>
+      </div>
+
+      <div class="w-full flex justify-center mb-3 min-h-[48px]">
+        <div class="google-signin-shell w-full flex justify-center">
+          <div class="google-signin-button" data-google-button></div>
+        </div>
+      </div>
+      <div id="googleModalError" class="account-google-error text-xs text-rose-600 font-semibold mb-2" hidden></div>
+
+      <p class="text-[11px] sm:text-xs text-slate-400 font-normal leading-relaxed mt-2 max-w-xs">
+        Bằng việc tiếp tục, bạn đồng ý với <a href="/terms" class="text-cyan-700 hover:underline font-medium">Điều khoản dịch vụ</a> của TVC Studio AI.
+      </p>
+    </div>
+  </div>
   <script src="/static/service-metadata.js?v=20260816.1"></script>
   <script src="/static/video-creator.js?v=20260816.3"></script>
   <section class="reference-gallery" id="serviceReferenceGallery" aria-labelledby="galleryTitle">
@@ -69,7 +103,9 @@
       <button type="button" class="service-submit" id="galleryUseIdea">Dùng ý tưởng này</button>
     </div>
   </div>
+  <script src="https://accounts.google.com/gsi/client" async></script>
+  <script src="/static/google-login.js?v=20260814.8"></script>
   <script src="/static/service.js?v=20260816.4"></script>
+  <script src="/static/video-gallery.js"></script>
 </body>
 </html>
-  <script src="/static/video-gallery.js"></script>

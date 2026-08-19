@@ -25,19 +25,21 @@
 <section class="workspace">
 <header class="topbar"><div><h2 id="pageTitle" data-i18n="createVideoTitle">Tạo video mới</h2><p id="pageSub">Ảnh nhân vật + video chuyển động</p></div><div class="topright"><span class="credit-pill">◈ <b id="TVC">—</b> xu</span></div></header>
 
-<div id="authGate" class="auth-gate hidden">
- <div class="auth-card tvc-login-modal-glass relative overflow-hidden bg-white/94 backdrop-blur-2xl border border-cyan-100/90 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-[92vw] text-center flex flex-col items-center">
+<div id="authGate" class="modal-wrap" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+ <div class="modal tvc-login-modal-glass relative overflow-hidden bg-white/94 backdrop-blur-2xl border border-cyan-100/90 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-[92vw] text-center flex flex-col items-center">
   <div class="pointer-events-none absolute -top-10 -left-10 w-44 h-44 rounded-full bg-cyan-300/25 blur-2xl" aria-hidden="true"></div>
   <div class="pointer-events-none absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-blue-300/20 blur-2xl" aria-hidden="true"></div>
+
+  <button class="x absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xl font-bold transition-all border border-slate-200/60" id="loginClose" aria-label="Đóng">×</button>
 
   <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-cyan-50 to-blue-50 border border-cyan-200/70 shadow-sm flex items-center justify-center p-2 mb-3 mt-1">
     <img src="/static/images/logo-tvc.png" alt="TVC Studio AI" class="w-full h-full object-contain">
   </div>
 
-  <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1">Chào mừng đến TVC Studio AI</h2>
-  <p class="text-xs sm:text-sm text-slate-600 font-medium mb-3.5">Đăng nhập để bắt đầu sáng tạo nội dung bằng AI</p>
+  <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1" id="loginModalTitle">Chào mừng đến TVC Studio AI</h2>
+  <p class="text-xs sm:text-sm text-slate-600 font-medium mb-3.5" id="loginModalDesc">Đăng nhập để bắt đầu sáng tạo nội dung bằng AI</p>
 
-  <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200/80 text-cyan-800 font-bold text-xs shadow-sm mb-6">
+  <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200/80 text-cyan-800 font-bold text-xs shadow-sm mb-6" id="loginModalBadge">
     <span>✨ Video AI chỉ từ 2 Xu/lượt</span>
   </div>
 
