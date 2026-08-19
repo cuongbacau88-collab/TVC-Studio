@@ -1503,31 +1503,55 @@ async def create_payment_link(request: Request):
         "checkoutUrl": checkout_url
     }
 
+@app.get("/api/payments/webhook")
+@app.get("/api/payos/webhook")
+async def payos_webhook_health():
+    return {"success": True, "status": "active", "message": "PayOS Webhook endpoint is active and ready"}
+
 @app.post("/api/payments/webhook")
 @app.post("/api/payos/webhook")
 async def payos_webhook(request: Request):
     try:
         body = await request.json()
     except Exception:
-        raise HTTPException(400, "Webhook JSON không hợp lệ")
+        return {"success": True, "message": "Empty or non-JSON request received"}
+
+    # Handle webhook URL confirmation from PayOS
+    if isinstance(body, dict) and ("webhookUrl" in body or "webhook_url" in body):
+        return {"success": True, "message": "Webhook URL confirmed"}
 
     if not payos_webhook_valid(body):
+        if isinstance(body, dict) and body.get("data") is None and not body.get("signature"):
+            return {"success": True, "message": "Test ping received"}
         raise HTTPException(400, "Webhook PayOS không hợp lệ hoặc sai chữ ký")
 
     data = body.get("data") if isinstance(body.get("data"), dict) else body
+    if not isinstance(data, dict):
+        return {"success": True}
+
     if str(data.get("code", "00")) not in {"00", ""} or data.get("success") is False:
         return {"success": True}
+
+    raw_order_code = data.get("orderCode") or data.get("order_code")
+    if not raw_order_code:
+        return {"success": True, "message": "Ping received without orderCode"}
+
     try:
-        order_code = int(data["orderCode"])
+        order_code = int(raw_order_code)
     except (KeyError, TypeError, ValueError) as exc:
         raise HTTPException(400, "Webhook thiếu orderCode") from exc
+
     con = db()
     topup = con.execute("SELECT id,status FROM topups WHERE order_code=?", (order_code,)).fetchone()
     con.close()
+
     if not topup:
-        raise HTTPException(404, "Không tìm thấy đơn nạp xu")
+        # For test webhook verification from PayOS dashboard or test order codes
+        return {"success": True, "message": f"Order {order_code} acknowledged"}
+
     if topup["status"] == "paid":
         return {"success": True}
+
     # Reuse the same idempotent settlement path as admin approval.
     approve_topup(topup["id"], request, _internal=True)
     return {"success": True}
