@@ -45,8 +45,14 @@
 
     <div class="model-grid">
       <article class="model-card coming service-navigation-card" data-service-href="/app?tool=motion" role="link" tabindex="0" aria-label="Mở AI Motion Studio">
-        <div class="model-visual service-image-visual">
-          <img class="model-preview-image service-card-image" src="/static/images/card_motion.png" alt="AI Motion Studio">
+        <div class="model-visual service-image-visual motion">
+          <div class="motion-video-shell is-clickable" role="button" tabindex="0">
+            <video class="motion-preview-video" muted playsinline preload="metadata" loop>
+              <source src="/static/videos/card_motion.mp4" type="video/mp4">
+            </video>
+            <img class="motion-video-fallback model-preview-image service-card-image" src="/static/images/card_motion.png" alt="AI Motion Studio">
+            <button type="button" class="motion-open-player" aria-label="Xem video demo"><span>▶</span></button>
+          </div>
         </div>
         <div class="model-body">
           <div class="model-badges"><span class="badge purple" data-i18n="mainService">DỊCH VỤ CHÍNH</span><span class="badge" data-i18n="motionSubtitle">AI MOTION STUDIO</span></div>
