@@ -488,8 +488,11 @@ async function loadAffiliate(){
     if($('#refTotalRewards')) $('#refTotalRewards').textContent=Number(summary.total_rewards||0).toLocaleString('vi-VN');
     if($('#refSilverRule')) $('#refSilverRule').textContent=`${summary.commission_rates?.silver_percent||10}%`;
     if($('#refGoldRule')) $('#refGoldRule').textContent=`${summary.commission_rates?.gold_percent||15}%`;
+    if($('#refSilverRuleInline')) $('#refSilverRuleInline').textContent=`${summary.commission_rates?.silver_percent||10}%`;
+    if($('#refGoldRuleInline')) $('#refGoldRuleInline').textContent=`${summary.commission_rates?.gold_percent||15}%`;
     if($('#refGoldThreshold')) $('#refGoldThreshold').textContent=Number(summary.commission_rates?.gold_threshold_credits||1000).toLocaleString('vi-VN')+' Xu';
     if($('#refTierProgress')) $('#refTierProgress').textContent=summary.tier?.next_sales_credits ? `${Number(summary.tier.sales_credits||0).toLocaleString('vi-VN')} / ${Number(summary.tier.next_sales_credits).toLocaleString('vi-VN')} Xu • còn ${Number(summary.credits_to_gold||0).toLocaleString('vi-VN')} Xu` : 'Đã đạt hạng Vàng';
+    if($('#refTierProgressBar')) $('#refTierProgressBar').style.width=`${Math.min(100, Number(summary.progress_percent||0))}%`;
     $('#affLink').textContent=summary.referral_link||'—';
     $('#affCode').textContent=summary.referral_code||'—';
 
