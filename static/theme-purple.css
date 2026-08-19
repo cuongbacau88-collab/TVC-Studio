@@ -1817,8 +1817,8 @@ body :is(.site-footer,.footer) .site-footer-contact :is(span,a){
 }
 body :is(.site-footer,.footer) .site-footer-contact a,
 body :is(.site-footer,.footer) .site-footer-links a{
-  color:#1687a7!important;
-  font-weight:600!important;
+  color:#365f73!important;
+  font-weight:500!important;
   transition:color .2s ease,transform .2s ease!important;
 }
 body :is(.site-footer,.footer) .site-footer-links b{
@@ -1827,7 +1827,7 @@ body :is(.site-footer,.footer) .site-footer-links b{
 }
 body :is(.site-footer,.footer) .site-footer-links a:hover,
 body :is(.site-footer,.footer) .site-footer-contact a:hover{
-  color:#0b647e!important;
+  color:#0891a8!important;
   transform:translateX(2px);
   text-decoration:underline!important;
 }
