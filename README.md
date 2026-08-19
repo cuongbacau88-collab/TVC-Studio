@@ -689,6 +689,18 @@ sách thời lượng model hỗ trợ, ví dụ `VIDEO_ALLOWED_DURATIONS=5,10`.
 
 ### Storage
 
+Production must use persistent storage. Railway's container filesystem is
+ephemeral and is replaced on deploy, so mount a Railway Volume (for example at
+`/data`) and set:
+
+```env
+PERSISTENT_DATA_DIR=/data
+```
+
+The application stores `motionhub.db`, uploaded inputs, and generated outputs
+under that directory. Without this variable and a mounted volume, users,
+credits, ledgers, top-ups, and jobs can be lost when Railway redeploys.
+
 `StorageBackend` tách lưu trữ khỏi API. Adapter `local` dùng cho development
 qua `STORAGE_BACKEND=local` và `STORAGE_LOCAL_ROOT`. Railway production
 

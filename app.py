@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form, HTTPException, Header
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
 try:
@@ -27,7 +27,11 @@ from storage_backend import build_storage
 
 import video_upscale_pipeline
 BASE = Path(__file__).resolve().parent
-DATA = BASE / "data"
+# Railway's container filesystem is ephemeral. Set PERSISTENT_DATA_DIR to the
+# mounted volume path in production so the database and uploaded outputs survive deploys.
+PERSISTENT_DATA_DIR = os.getenv("PERSISTENT_DATA_DIR", "").strip()
+RAILWAY_VOLUME_PATH = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", "").strip()
+DATA = Path(RAILWAY_VOLUME_PATH or PERSISTENT_DATA_DIR).expanduser() if (RAILWAY_VOLUME_PATH or PERSISTENT_DATA_DIR) else BASE / "data"
 UPLOADS = DATA / "uploads"
 OUTPUTS = DATA / "outputs"
 DB_PATH = DATA / "motionhub.db"
