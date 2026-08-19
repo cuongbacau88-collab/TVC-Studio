@@ -372,6 +372,27 @@
   <div class="site-footer-bottom"><span>© 2026 TVC Studio AI. All rights reserved.</span><span>Dịch vụ AI vận hành bởi cá nhân.</span></div>
 </footer>
 
+<script>
+(async function syncPublicToolCatalog(){
+  try{
+    const response=await fetch('/api/tools',{cache:'no-store'});
+    if(!response.ok)return;
+    const tools=await response.json();
+    const cards=[...document.querySelectorAll('.model-grid .model-card')];
+    tools.forEach(tool=>{
+      const card=cards.find(item=>tool.service_key==='motion_studio'?(item.dataset.serviceHref||'').includes('/app?tool=motion'):(item.dataset.serviceHref||'').includes(tool.service_key));
+      if(!card)return;
+      const title=card.querySelector('h2'),desc=card.querySelector('.model-body p'),badge=card.querySelector('.model-badges .badge'),cta=card.querySelector('.model-button'),price=card.querySelector('.credit-price');
+      if(title)title.textContent=tool.name;
+      if(desc)desc.textContent=tool.description;
+      if(badge&&tool.badge)badge.textContent=tool.badge;
+      if(cta)cta.textContent=tool.cta_text;
+      if(price){price.innerHTML=tool.is_free?'<b>MIỄN PHÍ</b><span>Miễn phí</span>':`<span class="video-credit-price">Tạo video AI chỉ từ ${tool.price_credits} Xu / 1 video</span>`;}
+    });
+  }catch(_){ }
+})();
+</script>
+
 <div class="modal-wrap" id="loginModal">
   <div class="modal tvc-login-modal-glass tvc-login-modal-content">
     <!-- Ambient glowing blur orbs -->

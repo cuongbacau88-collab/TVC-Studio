@@ -127,7 +127,7 @@ function renderAdminTools(tools) {
   root.innerHTML = tools.map(tool => `<form class="admin-tool-card" data-tool-key="${tool.service_key}">
     <div class="sectionbar"><h4>${tool.name}</h4><label><input name="enabled" type="checkbox" ${tool.enabled ? 'checked' : ''}> Bật</label></div>
     <label>Tên<input name="name" value="${tool.name}"></label><label>Mô tả<textarea name="description">${tool.description}</textarea></label>
-    <label>Badge<input name="badge" value="${tool.badge}"></label><label>Giá Xu<input name="price_credits" type="number" min="0" value="${tool.price_credits}"></label>
+    <label>Badge<input name="badge" value="${tool.badge}"></label><label>Giá Xu<input name="price_credits" type="number" min="0" value="${tool.price_credits}"></label><label><input name="is_free" type="checkbox" ${tool.is_free ? 'checked' : ''}> Miễn phí</label>
     <label>CTA<input name="cta_text" value="${tool.cta_text}"></label><button class="mini-btn approve" type="submit">Lưu công cụ</button>
   </form>`).join('');
 }
@@ -231,6 +231,7 @@ function initAdminTabs() {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     data.enabled = form.elements.enabled.checked ? 1 : 0;
+    data.is_free = form.elements.is_free.checked ? 1 : 0;
     data.price_credits = Number(data.price_credits || 0);
     await api(`/api/admin/tools/${form.dataset.toolKey}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
     say('Đã lưu cấu hình công cụ');

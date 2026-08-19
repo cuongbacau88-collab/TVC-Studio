@@ -347,7 +347,10 @@ async def create_job(
     mock_mode = app.RENDER_MODE == "mock"
     if not mock_mode and service.usage_cost is None:
         raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
-    effective_cost = service.usage_cost if service.usage_cost is not None else 0
+    configured_tool = app.get_tool_config(service_key)
+    effective_cost = int(configured_tool["price_credits"]) if configured_tool else (service.usage_cost if service.usage_cost is not None else 0)
+    if configured_tool and configured_tool.get("is_free"):
+        effective_cost = 0
     if mock_mode and service_key == "video_generation" and not duration:
         duration = app.MOCK_VIDEO_DURATION
     prompt = prompt.strip()[:2000]

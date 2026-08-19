@@ -385,6 +385,12 @@ def require_admin(request: Request):
         raise HTTPException(403, "Không có quyền admin")
     return u
 
+def get_tool_config(service_key: str):
+    con = db()
+    row = con.execute("SELECT * FROM admin_tools WHERE service_key=?", (service_key,)).fetchone()
+    con.close()
+    return dict(row) if row else None
+
 
 AFFILIATE_VND_PER_CREDIT = 2500
 AFFILIATE_GOLD_SALES_CREDITS = 1000
@@ -986,7 +992,10 @@ async def create_gpu_job(u: dict, image: UploadFile, motion: UploadFile, model: 
     owner_id = str(u["id"])
     request_key = (request_key or secrets.token_urlsafe(24)).strip()[:128]
     client_job_id = f"tvc-{owner_id}-{request_key}"
-    cost = 1
+    configured_motion = get_tool_config("motion_studio")
+    cost = int(configured_motion["price_credits"]) if configured_motion else 1
+    if configured_motion and configured_motion.get("is_free"):
+        cost = 0
     con = db()
     try:
         con.execute("BEGIN IMMEDIATE")
@@ -1875,6 +1884,13 @@ def admin_tools(request: Request):
     require_admin(request)
     con = db(); rows = con.execute("SELECT * FROM admin_tools ORDER BY sort_order,service_key").fetchall(); con.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/tools")
+def public_tools():
+    con = db()
+    rows = con.execute("SELECT service_key,name,description,thumbnail,badge,price_credits,is_free,cta_text,enabled,sort_order FROM admin_tools WHERE enabled=1 ORDER BY sort_order,service_key").fetchall()
+    con.close()
+    return [dict(row) for row in rows]
 
 @app.put("/api/admin/tools/{service_key}")
 async def update_admin_tool(service_key: str, request: Request):
