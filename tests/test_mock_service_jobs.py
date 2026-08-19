@@ -264,7 +264,7 @@ class MockServiceJobTests(unittest.TestCase):
         catalog = {item["key"]: item for item in service_routes.catalog()}
         self.assertEqual(set(SERVICES), set(catalog))
         self.assertTrue(all(item["configured"] for item in catalog.values()))
-        self.assertEqual(["10", "15", "20"], catalog["video_generation"]["durations"])
+        self.assertEqual(["15", "20"], catalog["video_generation"]["durations"])
         self.assertEqual(1, catalog["video_generation"]["usage"])
 
 

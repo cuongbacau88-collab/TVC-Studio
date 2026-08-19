@@ -2867,4 +2867,20 @@ body.app-body .job-highlight {
   border-color: #16bfd0 !important;
   box-shadow: 0 0 0 2px rgba(22, 191, 208, .20), 0 12px 30px rgba(20, 105, 160, .16) !important;
 }
+body.app-body .simple-upload-row,
+body.app-body .motion-file-preview {
+  color: #15596d !important;
+  background: rgba(245, 254, 255, .92) !important;
+  border-color: rgba(83, 196, 213, .58) !important;
+  box-shadow: 0 8px 18px rgba(17, 111, 135, .08) !important;
+}
+body.app-body .simple-file-name,
+body.app-body .simple-duration-note,
+body.app-body .motion-file-error,
+body.app-body .simple-field > label:first-child {
+  color: #15596d !important;
+  font-weight: 700 !important;
+}
+body.app-body .motion-file-preview img,
+body.app-body .motion-file-preview video { background: #e6faff !important; }
 
