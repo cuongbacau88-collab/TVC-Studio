@@ -1885,6 +1885,36 @@ body.about-page .about-team-card .about-team-mission{
   font-weight:500!important;
   opacity:1!important;
 }
+body.legal-body .legal-hero h1{
+  color:#12384d!important;
+  font-weight:700!important;
+}
+body.legal-body .legal-hero>span{
+  color:#174b62!important;
+  font-weight:700!important;
+}
+body.legal-body .legal-card{
+  background:rgba(255,255,255,.52)!important;
+  border:1px solid rgba(255,255,255,.8)!important;
+  box-shadow:0 16px 40px rgba(31,93,115,.08)!important;
+}
+body.legal-body .legal-card h2{
+  color:#174b62!important;
+  font-weight:700!important;
+}
+body.legal-body .legal-card p{
+  color:#4b6d7f!important;
+  opacity:1!important;
+}
+body.legal-body .legal-card a{
+  color:#1687a7!important;
+  font-weight:600!important;
+}
+body.legal-body .legal-card a:hover,
+body.legal-body .legal-card a:focus-visible{
+  color:#0b647e!important;
+  text-decoration:underline!important;
+}
 @media(max-width:700px){
   body.about-page .legal-main{padding-left:20px!important;padding-right:20px!important}
   body.about-page .legal-card{padding:22px 20px!important}
