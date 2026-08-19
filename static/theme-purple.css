@@ -1795,6 +1795,102 @@ body :is(.site-footer,.footer) .site-footer-contact a:focus-visible{
   text-decoration:underline!important;
 }
 
+/* Readable aqua footer and About page finish. */
+body :is(.site-footer,.footer){
+  color:#3f6578!important;
+  background:linear-gradient(160deg,rgba(232,251,255,.94),rgba(205,243,249,.96))!important;
+  border-top:1px solid rgba(45,112,135,.18)!important;
+}
+body :is(.site-footer,.footer) .site-footer-logo span{
+  color:#16475d!important;
+  font-weight:700!important;
+}
+body :is(.site-footer,.footer) .site-footer-logo b{color:#16475d!important}
+body :is(.site-footer,.footer) .site-footer-brand>p{
+  color:#476b7d!important;
+  opacity:1!important;
+}
+body :is(.site-footer,.footer) .site-footer-contact :is(span,a){
+  color:#3f6578!important;
+  font-weight:500!important;
+  opacity:1!important;
+}
+body :is(.site-footer,.footer) .site-footer-contact a,
+body :is(.site-footer,.footer) .site-footer-links a{
+  color:#1687a7!important;
+  font-weight:600!important;
+  transition:color .2s ease,transform .2s ease!important;
+}
+body :is(.site-footer,.footer) .site-footer-links b{
+  color:#173f53!important;
+  font-weight:700!important;
+}
+body :is(.site-footer,.footer) .site-footer-links a:hover,
+body :is(.site-footer,.footer) .site-footer-contact a:hover{
+  color:#0b647e!important;
+  transform:translateX(2px);
+  text-decoration:underline!important;
+}
+body :is(.site-footer,.footer) .site-footer-bottom{
+  color:#527487!important;
+  border-top:1px solid rgba(45,112,135,.18)!important;
+}
+
+body.about-page .legal-hero h1{
+  color:#12384d!important;
+  font-weight:700!important;
+}
+body.about-page .legal-hero>span{color:#174b62!important;font-weight:700!important}
+body.about-page .legal-card{
+  background:rgba(255,255,255,.52)!important;
+  border:1px solid rgba(255,255,255,.8)!important;
+  backdrop-filter:blur(18px)!important;
+  -webkit-backdrop-filter:blur(18px)!important;
+  box-shadow:0 16px 40px rgba(31,93,115,.08)!important;
+}
+body.about-page .legal-card h2{
+  color:#174b62!important;
+  font-weight:700!important;
+}
+body.about-page .legal-card p{
+  color:#4b6d7f!important;
+  opacity:1!important;
+}
+body.about-page .legal-card strong,
+body.about-page .about-team-names,
+body.about-page .about-team-names span,
+body.about-page .about-team-operator{
+  color:#15546d!important;
+  font-weight:600!important;
+}
+body.about-page .legal-card a{
+  color:#1687a7!important;
+  font-weight:600!important;
+  text-decoration:none!important;
+  transition:color .2s ease!important;
+}
+body.about-page .legal-card a:hover,
+body.about-page .legal-card a:focus-visible{
+  color:#0b647e!important;
+  text-decoration:underline!important;
+}
+body.about-page .about-team-card .about-team-operator{
+  color:#41697c!important;
+  font-weight:500!important;
+}
+body.about-page .about-team-card .about-team-mission{
+  color:#55798c!important;
+  font-weight:500!important;
+  opacity:1!important;
+}
+@media(max-width:700px){
+  body.about-page .legal-main{padding-left:20px!important;padding-right:20px!important}
+  body.about-page .legal-card{padding:22px 20px!important}
+  body :is(.site-footer,.footer) .site-footer-inner{padding-left:20px!important;padding-right:20px!important;grid-template-columns:1fr!important;gap:26px!important}
+  body :is(.site-footer,.footer) .site-footer-links{grid-template-columns:1fr 1fr!important;gap:22px!important}
+  body :is(.site-footer,.footer) .site-footer-bottom{padding-left:20px!important;padding-right:20px!important;flex-direction:column!important}
+}
+
 :is(.global-toolbar, body) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout:hover :is(span, b) {
   color: #b91c1c !important;
 }
