@@ -389,22 +389,120 @@
 <script>
 const loginModal=document.getElementById('loginModal');
 const loginOpen=document.getElementById('loginOpen');
-if(loginOpen) loginOpen.onclick=()=>{window.TVCReturnNavigation?.storeReturn(location.pathname+location.search+location.hash);loginModal.classList.add('open')};
-document.getElementById('loginClose').onclick=()=>loginModal.classList.remove('open');
-document.getElementById('loginBtn').onclick=async()=>{
+if(loginOpen) {
+  loginOpen.onclick=()=>{
+    sessionStorage.removeItem('tvc_login_return_to');
+    if(loginModal) {
+      loginModal.classList.add('open');
+      document.getElementById('email')?.focus();
+    }
+  };
+}
+document.getElementById('loginClose')?.addEventListener('click', ()=>{
+  if(loginModal) loginModal.classList.remove('open');
+});
+
+function isUserSignedIn() {
+  if (typeof window.TVCSignedIn === 'boolean') return window.TVCSignedIn;
+  const trigger = document.getElementById('toolbarAccountTrigger') || document.querySelector('[data-auth-state]');
+  if (trigger && trigger.dataset.authState === 'signed-in') return true;
+  if (localStorage.getItem('token')) return true;
+  return false;
+}
+
+function attachCtaAuthGuards() {
+  const ctaLinks = document.querySelectorAll('.model-button, .home-credit-section a.primary, #motionPlayerCreateBtn, [data-require-auth]');
+  ctaLinks.forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      if (!isUserSignedIn()) {
+        e.preventDefault();
+        const dest = link.getAttribute('href');
+        if (dest && dest !== '#' && !dest.startsWith('#')) {
+          sessionStorage.setItem('tvc_login_return_to', dest);
+        }
+        if (typeof window.tvcClosePlayerModal === 'function') {
+          window.tvcClosePlayerModal();
+        }
+        if (loginModal) {
+          loginModal.classList.add('open');
+          const emailInput = document.getElementById('email');
+          if (emailInput) emailInput.focus();
+        }
+      }
+    });
+  });
+}
+
+document.getElementById('loginBtn')?.addEventListener('click', async () => {
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
   const msgEl = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
   if (msgEl) msgEl.textContent = '';
-  const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({email:document.getElementById('email').value,password:document.getElementById('password').value})});
-  let j={}; try{j=await r.json()}catch{}
-  if(r.ok) {
-    loginModal.classList.remove('open');
-    const target = j.role === 'admin' ? '/admin' : (window.TVCReturnNavigation?.consumeReturn() || '/app');
-    window.location.href = (target && target !== '/') ? target : '/app';
-  } else {
-    if (msgEl) msgEl.textContent = j.detail || 'Đăng nhập thất bại';
+
+  const email = (emailInput?.value || '').trim();
+  const password = passwordInput?.value || '';
+
+  if (!email || !password) {
+    if (msgEl) msgEl.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu';
+    return;
   }
-};
+
+  btn.disabled = true;
+  btn.textContent = 'Đang đăng nhập...';
+
+  try {
+    const r = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email, password })
+    });
+    let j = {};
+    try { j = await r.json(); } catch (_) {}
+
+    if (!r.ok) {
+      throw new Error(j.detail || 'Đăng nhập thất bại');
+    }
+
+    if (j.token) {
+      localStorage.setItem('token', j.token);
+    }
+    window.TVCSignedIn = true;
+
+    // Đóng Modal ngay lập tức
+    if (loginModal) loginModal.classList.remove('open');
+
+    // Lấy returnUrl thông minh
+    const returnUrl = sessionStorage.getItem('tvc_login_return_to') || window.TVCReturnNavigation?.consumeReturn();
+    sessionStorage.removeItem('tvc_login_return_to');
+
+    if (j.role === 'admin') {
+      window.location.href = '/admin';
+    } else if (returnUrl && returnUrl !== '/' && returnUrl !== window.location.pathname && returnUrl !== window.location.href) {
+      window.location.href = returnUrl;
+    } else {
+      // Tải lại chính trang hiện tại để cập nhật Navbar/Avatar ngay lập tức
+      window.location.reload();
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'Đăng nhập';
+    if (msgEl) msgEl.textContent = err.message || 'Đăng nhập thất bại';
+  }
+});
+
+['email', 'password'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      document.getElementById('loginBtn')?.click();
+    }
+  });
+});
+
+document.addEventListener('DOMContentLoaded', attachCtaAuthGuards);
+
 const t=document.getElementById('homeToast');
 document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
   t.textContent=btn.dataset.coming+' đang chuẩn bị worker AI.';
@@ -665,6 +763,7 @@ document.addEventListener('DOMContentLoaded', function () {
       pv.play().catch(function(){});
     });
   }
+  window.tvcClosePlayerModal = closePlayer;
 
   document.querySelectorAll('[data-player-close]').forEach(function(btn) {
     btn.addEventListener('click', closePlayer);
@@ -675,6 +774,10 @@ document.addEventListener('DOMContentLoaded', function () {
       closePlayer();
     }
   });
+
+  if (typeof attachCtaAuthGuards === 'function') {
+    attachCtaAuthGuards();
+  }
 });
 </script>
 

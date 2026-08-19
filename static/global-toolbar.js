@@ -213,6 +213,8 @@
 
   function applySignedOut(){
     signedIn=false;
+    window.TVCSignedIn=false;
+    window.TVCCurrentUser=null;
     closeMenu(false);
     host.dataset.authState='signed-out';
     trigger.dataset.authState='signed-out';
@@ -232,6 +234,8 @@
 
   function applySignedIn(me){
     signedIn=true;
+    window.TVCSignedIn=true;
+    window.TVCCurrentUser=me;
     host.dataset.authState='signed-in';
     trigger.dataset.authState='signed-in';
     const initial=(me.name||me.email||'T').trim().slice(0,1).toUpperCase();
@@ -257,6 +261,7 @@
       applySignedOut();
     }
   }
+  window.tvcSyncAccount = syncAccount;
 
   trigger.addEventListener('click',()=>{
     if(!signedIn){

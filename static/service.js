@@ -9,7 +9,11 @@ const prompts={
 function language(){return localStorage.getItem('tvc_lang')==='en'?'en':'vi'}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 async function api(url,options={}){
- const response=await fetch(url,options),type=response.headers.get('content-type')||'';
+ const token=localStorage.getItem('token');
+ const headers=Object.assign({}, options.headers||{});
+ if(token && !headers['Authorization']) headers['Authorization']='Bearer '+token;
+ const opts=Object.assign({credentials:'same-origin'}, options, {headers});
+ const response=await fetch(url,opts),type=response.headers.get('content-type')||'';
  const body=type.includes('json')?await response.json():{};
  if(!response.ok)throw new Error(body.detail||'Không thể kết nối máy chủ');
  return body;

@@ -334,6 +334,10 @@ init_db()
 def current_user(request: Request, required=True):
     token = request.cookies.get("mh_session")
     if not token:
+        auth_header = request.headers.get("Authorization") or ""
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+    if not token:
         if required:
             raise HTTPException(401, "Chưa đăng nhập")
         return None
@@ -602,10 +606,10 @@ async def google_login(request: Request, response: Response):
                      "test_google_signup", user_id, now_iso())
                 )
 
-        create_session(con, user_id, response)
+        token = create_session(con, user_id, response)
         con.commit()
         user = con.execute("SELECT role FROM users WHERE id=?", (user_id,)).fetchone()
-        return {"ok": True, "role": user["role"], "new_user": by_sub is None and by_email is None}
+        return {"ok": True, "token": token, "role": user["role"], "new_user": by_sub is None and by_email is None}
     except HTTPException:
         con.rollback()
         raise
@@ -660,10 +664,10 @@ async def login(request: Request, response: Response):
     if not u or not verify_password(password, u["password_hash"]):
         con.close()
         raise HTTPException(401, "Sai email hoặc mật khẩu")
-    create_session(con, u["id"], response)
+    token = create_session(con, u["id"], response)
     con.commit()
     con.close()
-    return {"ok": True, "role": u["role"]}
+    return {"ok": True, "token": token, "role": u["role"]}
 
 @app.post("/api/admin/login")
 async def admin_login(request: Request, response: Response):

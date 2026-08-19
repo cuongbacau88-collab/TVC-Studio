@@ -134,7 +134,11 @@ let me=null, selectedPack='starter';
 
 
 async function api(url,opt={}){
-  const r=await fetch(url,opt);let j={};try{j=await r.json()}catch{};
+  const token=localStorage.getItem('token');
+  const headers=Object.assign({}, opt.headers||{});
+  if(token && !headers['Authorization']) headers['Authorization']='Bearer '+token;
+  const opts=Object.assign({credentials:'same-origin'}, opt, {headers});
+  const r=await fetch(url,opts);let j={};try{j=await r.json()}catch{};
   if(!r.ok)throw new Error(j.detail||'Có lỗi xảy ra');return j
 }
 function referralFromUrl(){
@@ -182,8 +186,17 @@ $('#doLogin').onclick=async()=>{
   try{
     const res = await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:$('#lEmail').value,password:$('#lPass').value})});
-    const target = res?.role === 'admin' ? '/admin' : (window.TVCReturnNavigation?.consumeReturn() || '/app');
-    window.location.href = (target && target !== '/') ? target : '/app';
+    if (res?.token) localStorage.setItem('token', res.token);
+    window.TVCSignedIn = true;
+    const returnUrl = sessionStorage.getItem('tvc_login_return_to') || window.TVCReturnNavigation?.consumeReturn();
+    sessionStorage.removeItem('tvc_login_return_to');
+    if (res?.role === 'admin') {
+      window.location.href = '/admin';
+    } else if (returnUrl && returnUrl !== '/' && returnUrl !== '/app' && !returnUrl.startsWith('/app#login') && !returnUrl.startsWith('/app#register')) {
+      window.location.href = returnUrl;
+    } else {
+      location.href = '/app';
+    }
   }catch(e){$('#authMsg').textContent=e.message}
 }
 $('#doRegister').onclick=async()=>{
