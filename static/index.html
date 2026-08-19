@@ -71,33 +71,33 @@
     <div class="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-cyan-300/30 blur-3xl" aria-hidden="true"></div>
     <div class="pointer-events-none absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-blue-300/25 blur-3xl" aria-hidden="true"></div>
 
-    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
       
       <!-- PHẦN 1: CỘT BÊN TRÁI (Văn bản & Nút bấm) -->
-      <div class="flex flex-col justify-center space-y-6 text-left">
+      <div class="flex flex-col justify-center space-y-3 sm:space-y-4 md:space-y-6 text-left">
         
         <!-- 1. Dòng trên cùng: Sparkles + TVC STUDIO AI -->
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-700 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-sm w-fit backdrop-blur-md">
-          <svg class="w-4 h-4 text-cyan-600 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
+        <div class="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-700 font-bold text-xs sm:text-sm tracking-wider uppercase shadow-sm w-fit backdrop-blur-md">
+          <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-cyan-600 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 2l2.4 7.2h7.6l-6.1 4.5 2.3 7.3-6.2-4.6-6.2 4.6 2.3-7.3-6.1-4.5h7.6z"/>
           </svg>
           <span>TVC STUDIO AI</span>
         </div>
 
         <!-- 2. Tiêu đề chính -->
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-slate-900">
+        <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] md:leading-[1.1] text-slate-900">
           <span class="bg-gradient-to-r from-cyan-600 via-teal-500 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
             TVC Studio AI
           </span>
         </h1>
 
         <!-- 3. Đoạn mô tả -->
-        <p class="text-slate-600 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-xl" data-i18n="chooseToolSubtitle">
+        <p class="text-slate-800 text-sm sm:text-base md:text-lg lg:text-xl font-medium leading-relaxed max-w-xl" data-i18n="chooseToolSubtitle">
           AI không khiến bạn tụt lại – Người biết dùng AI mới khiến bạn tụt lại.
         </p>
 
-        <!-- 4. Hai nút bấm (dàn ngang) -->
-        <div class="flex flex-wrap items-center gap-4 pt-2">
+        <!-- 4. Hai nút bấm (Ẩn trên mobile, hiện từ màn hình tablet/PC md:flex) -->
+        <div class="hidden md:flex flex-wrap items-center gap-4 pt-2">
           <!-- Nút 1: Tạo video ngay -->
           <a href="/app?tool=motion" class="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-base shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/50 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200 group">
             <span class="flex items-center justify-center w-6 h-6 rounded-full bg-white/20 group-hover:bg-white/30 transition-colors">
