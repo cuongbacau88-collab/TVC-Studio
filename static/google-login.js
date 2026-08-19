@@ -21,9 +21,6 @@
           </div>
         </div>
         <div class="google-signin-shell"><div class="google-signin-button" data-google-button></div></div>
-        <div class="account-login-or"><span></span><b>hoặc</b><span></span></div>
-        <a class="account-email-login" href="/app#login" data-email-login>Đăng nhập bằng Email</a>
-        <a class="account-register-link" href="/app#register" data-register-link>Chưa có tài khoản? <b>Đăng ký</b></a>
         <div class="account-google-error" data-google-error hidden></div>
       </div>`;
   }
@@ -69,13 +66,9 @@
       label.textContent=lang==='en'?'Log in':'Đăng nhập';
     }
     if(icon) icon.textContent='⌾';
-    const title=qs('[data-login-title]',panel), sub=qs('[data-login-sub]',panel), email=qs('[data-email-login]',panel), reg=qs('[data-register-link]',panel);
+    const title=qs('[data-login-title]',panel), sub=qs('[data-login-sub]',panel);
     if(title) title.textContent=lang==='en'?'Log in':'Đăng nhập';
     if(sub) sub.textContent=lang==='en'?'Continue to TVC Studio AI':'Tiếp tục với TVC Studio AI';
-    if(email) email.textContent=lang==='en'?'Log in with Email':'Đăng nhập bằng Email';
-    if(reg) reg.innerHTML=lang==='en'?'No account? <b>Sign up</b>':'Chưa có tài khoản? <b>Đăng ký</b>';
-    if(email&&window.TVCReturnNavigation)email.href=window.TVCReturnNavigation.loginUrl();
-    if(reg&&window.TVCReturnNavigation){const target=window.TVCReturnNavigation.resolveReturn();window.TVCReturnNavigation.storeReturn(target);reg.href=`/app?return_to=${encodeURIComponent(target)}#register`;}
   }
 
   function setToolbarLoggedIn(me){
@@ -155,8 +148,8 @@
         theme:'outline',
         size:'large',
         shape:'pill',
-        text:'signin_with',
-        width:260
+        text:'continue_with',
+        width:280
       });
     });
   }
@@ -211,24 +204,6 @@
     }
   }
 
-  function bindLocalLinks(){
-    document.addEventListener('click',e=>{
-      const email=e.target.closest?.('[data-email-login]');
-      const reg=e.target.closest?.('[data-register-link]');
-      if(!email&&!reg) return;
-      if(location.pathname==='/app'){
-        e.preventDefault();
-        qs('#accountMenuDetails')?.removeAttribute('open');
-        const gate=qs('#authGate'); if(gate) gate.classList.remove('hidden');
-        const dash=qs('#dashboard'); if(dash) dash.classList.add('hidden');
-        const target=reg?'register':'login';
-        qs(`[data-auth="${target}"]`)?.click();
-        const returnTo=window.TVCReturnNavigation?.resolveReturn()||'/';window.TVCReturnNavigation?.storeReturn(returnTo);
-        history.replaceState(null,'',`/app?return_to=${encodeURIComponent(returnTo)}#${target}`);
-      }
-    });
-  }
-
   async function syncAuthState(){
     ensureSignedOutPanel();
     injectGateGoogle();
@@ -244,7 +219,6 @@
   }
 
   document.addEventListener('DOMContentLoaded',()=>{
-    bindLocalLinks();
     syncAuthState();
     document.querySelectorAll('.lang-switch button').forEach(btn=>{
       btn.addEventListener('click',()=>setTimeout(syncAuthState,0));

@@ -148,7 +148,6 @@ function referralFromUrl(){
 async function boot(){
   tvcInitToolbar();
   const ref=referralFromUrl();
-  if(ref && $('#rReferral')) $('#rReferral').value=ref;
   try{
     me=await api('/api/me');showDashboard();await refreshAll();
     const initialHash=location.hash;
@@ -158,56 +157,26 @@ async function boot(){
     else updateMobileToolState('create');
   }catch{
     showAuth();
-    const authHash=location.hash;
-    if(authHash==='#register') document.querySelector('[data-auth="register"]')?.click();
-    else if(authHash==='#login') document.querySelector('[data-auth="login"]')?.click();
   }
 }
-function showAuth(){$('#authGate').classList.remove('hidden');$('#dashboard').classList.add('hidden')}
+function showAuth(){
+  $('#authGate')?.classList.remove('hidden');
+  $('#dashboard')?.classList.add('hidden');
+  if(typeof window.tvcRenderGoogleButtons === 'function'){
+    window.tvcRenderGoogleButtons();
+  }
+}
 window.showAuth = showAuth;
 window.addEventListener('hashchange', () => {
   if(location.hash === '#login' || location.hash === '#register'){
     showAuth();
-    if(location.hash === '#register') document.querySelector('[data-auth="register"]')?.click();
-    else document.querySelector('[data-auth="login"]')?.click();
   }
 });
 function showDashboard(){
-  $('#authGate').classList.add('hidden');$('#dashboard').classList.remove('hidden');
+  $('#authGate')?.classList.add('hidden');
+  $('#dashboard')?.classList.remove('hidden');
   $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
   if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount()
-}
-$$('[data-auth]').forEach(b=>b.onclick=()=>{
-  $$('[data-auth]').forEach(x=>x.classList.remove('active'));b.classList.add('active');
-  $('#loginForm').classList.toggle('hidden',b.dataset.auth!=='login');
-  $('#registerForm').classList.toggle('hidden',b.dataset.auth!=='register')
-});
-$('#doLogin').onclick=async()=>{
-  try{
-    const res = await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({email:$('#lEmail').value,password:$('#lPass').value})});
-    if (res?.token) localStorage.setItem('token', res.token);
-    window.TVCSignedIn = true;
-    const returnUrl = sessionStorage.getItem('tvc_login_return_to') || window.TVCReturnNavigation?.consumeReturn();
-    sessionStorage.removeItem('tvc_login_return_to');
-    if (res?.role === 'admin') {
-      window.location.href = '/admin';
-    } else if (returnUrl && returnUrl !== '/' && returnUrl !== '/app' && !returnUrl.startsWith('/app#login') && !returnUrl.startsWith('/app#register')) {
-      window.location.href = returnUrl;
-    } else {
-      location.href = '/app';
-    }
-  }catch(e){$('#authMsg').textContent=e.message}
-}
-$('#doRegister').onclick=async()=>{
-  try{
-    await api('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        name:$('#rName').value,email:$('#rEmail').value,password:$('#rPass').value,
-        referral_code:$('#rReferral').value
-      })});
-    say('Đăng ký thành công, hãy đăng nhập');document.querySelector('[data-auth="login"]').click()
-  }catch(e){$('#authMsg').textContent=e.message}
 }
 async function logout(){await fetch('/api/logout',{method:'POST'});location.reload()}
 if($('#logout')) $('#logout').onclick=logout;if($('#logout2')) $('#logout2').onclick=logout;

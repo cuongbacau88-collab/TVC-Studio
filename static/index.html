@@ -373,25 +373,44 @@
 </footer>
 
 <div class="modal-wrap" id="loginModal">
-  <div class="modal">
-    <button class="x" id="loginClose">×</button>
-    <h2>Đăng nhập</h2>
-    <p>Đăng nhập để sử dụng xu và theo dõi job.</p>
-    
-    <div class="google-signin-shell" style="margin-bottom: 12px; display: flex; justify-content: center;">
-      <div class="google-signin-button" data-google-button></div>
-    </div>
-    <div class="account-login-or" style="display:flex;align-items:center;margin:12px 0;gap:10px;">
-      <span style="flex:1;height:1px;background:rgba(0,0,0,0.1);"></span>
-      <b style="font-size:12px;color:#888;">hoặc bằng email</b>
-      <span style="flex:1;height:1px;background:rgba(0,0,0,0.1);"></span>
+  <div class="modal tvc-login-modal-glass relative overflow-hidden bg-white/94 backdrop-blur-2xl border border-cyan-100/90 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-[92vw] text-center flex flex-col items-center">
+    <!-- Ambient glowing blur orbs -->
+    <div class="pointer-events-none absolute -top-10 -left-10 w-44 h-44 rounded-full bg-cyan-300/25 blur-2xl" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-blue-300/20 blur-2xl" aria-hidden="true"></div>
+
+    <!-- Close button positioned at top right -->
+    <button class="x absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xl font-bold transition-all border border-slate-200/60" id="loginClose" aria-label="Đóng">×</button>
+
+    <!-- TVC Studio AI Logo -->
+    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-cyan-50 to-blue-50 border border-cyan-200/70 shadow-sm flex items-center justify-center p-2 mb-3 mt-1">
+      <img src="/static/images/logo-tvc.png" alt="TVC Studio AI" class="w-full h-full object-contain">
     </div>
 
-    <input id="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Mật khẩu">
-    <button class="primary wide" id="loginBtn">Đăng nhập</button>
-    <a href="/app" class="text-link">Chưa có tài khoản? Đăng ký</a>
-    <div id="loginMsg" class="msg"></div>
+    <!-- Title & Subtitle -->
+    <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1">
+      Chào mừng đến TVC Studio AI
+    </h2>
+    <p class="text-xs sm:text-sm text-slate-600 font-medium mb-3.5" id="loginModalDesc">
+      Đăng nhập để bắt đầu sáng tạo nội dung bằng AI
+    </p>
+
+    <!-- Dynamic Promo Badge -->
+    <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200/80 text-cyan-800 font-bold text-xs shadow-sm mb-6" id="loginModalBadge">
+      <span>✨ Video AI chỉ từ 2 Xu/lượt</span>
+    </div>
+
+    <!-- Google Button Only -->
+    <div class="w-full flex justify-center mb-3 min-h-[48px]">
+      <div class="google-signin-shell w-full flex justify-center">
+        <div class="google-signin-button" data-google-button></div>
+      </div>
+    </div>
+    <div id="googleModalError" class="account-google-error text-xs text-rose-600 font-semibold mb-2" hidden></div>
+
+    <!-- Terms Footer -->
+    <p class="text-[11px] sm:text-xs text-slate-400 font-normal leading-relaxed mt-2 max-w-xs">
+      Bằng việc tiếp tục, bạn đồng ý với <a href="/terms" class="text-cyan-700 hover:underline font-medium">Điều khoản dịch vụ</a> của TVC Studio AI.
+    </p>
   </div>
 </div>
 
@@ -454,77 +473,14 @@ document.querySelectorAll('.model-button, #motionPlayerCreateBtn').forEach(funct
   });
 });
 
-document.getElementById('loginBtn')?.addEventListener('click', async () => {
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const msgEl = document.getElementById('loginMsg');
-  const btn = document.getElementById('loginBtn');
-  if (msgEl) msgEl.textContent = '';
-
-  const email = (emailInput?.value || '').trim();
-  const password = passwordInput?.value || '';
-
-  if (!email || !password) {
-    if (msgEl) msgEl.textContent = 'Vui lòng nhập đầy đủ email và mật khẩu';
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Đang đăng nhập...';
-
-  try {
-    const r = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({ email, password })
-    });
-    let j = {};
-    try { j = await r.json(); } catch (_) {}
-
-    if (!r.ok) {
-      throw new Error(j.detail || 'Đăng nhập thất bại');
-    }
-
-    if (j.token) {
-      localStorage.setItem('token', j.token);
-    }
-    
-    let returnUrl = '';
-    try {
-      returnUrl = sessionStorage.getItem('authReturnTo') || sessionStorage.getItem('tvc_login_return_to') || '';
-      sessionStorage.removeItem('authReturnTo');
-      sessionStorage.removeItem('tvc_login_return_to');
-    } catch(_) {}
-
-    if (j.role === 'admin') {
-      window.location.href = '/admin';
-    } else if (returnUrl && returnUrl !== '/' && returnUrl !== location.pathname + location.search + location.hash) {
-      window.location.href = returnUrl;
-    } else {
-      window.location.reload();
-    }
-  } catch (err) {
-    btn.disabled = false;
-    btn.textContent = 'Đăng nhập';
-    if (msgEl) msgEl.textContent = err.message || 'Đăng nhập thất bại';
-  }
-});
-
-['email', 'password'].forEach(id => {
-  document.getElementById(id)?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      document.getElementById('loginBtn')?.click();
-    }
-  });
-});
 const t=document.getElementById('homeToast');
 document.querySelectorAll('[data-coming]').forEach(btn=>btn.onclick=()=>{
   t.textContent=btn.dataset.coming+' đang chuẩn bị worker AI.';
   t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200);
 });
 </script>
+
+
 
 <script>
 
