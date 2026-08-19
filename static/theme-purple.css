@@ -1781,6 +1781,19 @@ body :is(.site-footer,.footer) a:focus-visible{
 body :is(.site-footer,.footer) .site-footer-bottom{
   border-top-color:rgba(11,137,158,.18)!important;
 }
+body :is(.site-footer,.footer) .site-footer-links a,
+body :is(.site-footer,.footer) .site-footer-contact a{
+  color:#185d70!important;
+  font-weight:600!important;
+  text-decoration:none!important;
+}
+body :is(.site-footer,.footer) .site-footer-links a:hover,
+body :is(.site-footer,.footer) .site-footer-contact a:hover,
+body :is(.site-footer,.footer) .site-footer-links a:focus-visible,
+body :is(.site-footer,.footer) .site-footer-contact a:focus-visible{
+  color:#007f91!important;
+  text-decoration:underline!important;
+}
 
 :is(.global-toolbar, body) :is(.tvc-account-menu, #toolbarAccountMenu, .account-popover, .account-popover-v2) nav .tvc-account-logout:hover :is(span, b) {
   color: #b91c1c !important;
