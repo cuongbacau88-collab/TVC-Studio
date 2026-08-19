@@ -54,7 +54,7 @@ async function load() {
 
   $('#topups').innerHTML = table(['ID', 'Khách', 'Gói', 'Tiền', 'Xu', 'Trạng thái', ''], t.map(x => [
     x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + '?', x.credits, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${x.id})">Duy?t</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">T? ch?i</button>` : ''
+    x.status === 'pending' ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button> <button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
   ]));
 
   $('#users').innerHTML = table(['ID', 'Email', 'Tên', 'Xu', 'Role', ''], u.map(x => [
@@ -150,6 +150,14 @@ window.rejectT = async id => {
   try {
     await api(`/api/admin/topups/${id}/reject`, { method: 'POST' });
     say('?? t? ch?i');
+    load();
+  } catch (e) { say(e.message); }
+};
+
+window.syncTopup = async id => {
+  try {
+    const result = await api(`/api/admin/topups/${id}/sync`, { method: 'POST' });
+    say(result.settled ? 'Đã tự động duyệt và cộng Xu' : `PayOS chưa xác nhận thanh toán${result.payos_status ? ` (${result.payos_status})` : ''}`);
     load();
   } catch (e) { say(e.message); }
 };

@@ -1464,9 +1464,14 @@ def payos_payment_status(order_code: int) -> str | None:
         with urllib.request.urlopen(request, timeout=10) as response:
             payload = json.loads(response.read().decode())
         data = payload.get("data") if isinstance(payload.get("data"), dict) else payload
+        if isinstance(data.get("data"), dict):
+            data = data["data"]
         if str(payload.get("code", "00")) not in {"00", ""}:
+            logging.warning("PayOS reconciliation order %s returned code %s", order_code, payload.get("code"))
             return None
-        return str(data.get("status") or "").upper() or None
+        status = str(data.get("status") or data.get("paymentStatus") or data.get("transactionStatus") or "").upper()
+        logging.info("PayOS reconciliation order %s status=%s", order_code, status or "UNKNOWN")
+        return status or None
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
         logging.warning("PayOS reconciliation failed for order %s: %s", order_code, exc)
         return None
@@ -1997,6 +2002,22 @@ def admin_topups(request: Request):
         rows = con.execute("SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200").fetchall()
         con.close()
     return [dict(r) for r in rows]
+
+@app.post("/api/admin/topups/{topup_id}/sync")
+def sync_admin_topup(topup_id: int, request: Request):
+    require_admin(request)
+    con = db()
+    row = con.execute("SELECT id,status,order_code FROM topups WHERE id=?", (topup_id,)).fetchone()
+    con.close()
+    if not row:
+        raise HTTPException(404, "Không tìm thấy giao dịch")
+    if row["status"] in {"approved", "paid"}:
+        return {"ok": True, "status": row["status"], "settled": True}
+    status = payos_payment_status(row["order_code"]) if row["order_code"] else None
+    if status == "PAID":
+        approve_topup(topup_id, request, _internal=True)
+        return {"ok": True, "status": "approved", "settled": True}
+    return {"ok": True, "status": row["status"], "payos_status": status, "settled": False}
 
 @app.post("/api/admin/topups/{topup_id}/approve")
 def approve_topup(topup_id: int, request: Request, _internal: bool = False):
