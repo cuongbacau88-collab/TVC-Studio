@@ -30,7 +30,7 @@
     }
   }
 </script>
-<link rel="stylesheet" href="/static/styles.css?v=20260815.4">
+<link rel="stylesheet" href="/static/styles.css?v=20260819.5">
 
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344">
@@ -373,43 +373,43 @@
 </footer>
 
 <div class="modal-wrap" id="loginModal">
-  <div class="modal tvc-login-modal-glass relative overflow-hidden bg-white/94 backdrop-blur-2xl border border-cyan-100/90 rounded-3xl shadow-2xl p-6 sm:p-8 max-w-md w-[92vw] text-center flex flex-col items-center">
+  <div class="modal tvc-login-modal-glass tvc-login-modal-content">
     <!-- Ambient glowing blur orbs -->
     <div class="pointer-events-none absolute -top-10 -left-10 w-44 h-44 rounded-full bg-cyan-300/25 blur-2xl" aria-hidden="true"></div>
     <div class="pointer-events-none absolute -bottom-10 -right-10 w-44 h-44 rounded-full bg-blue-300/20 blur-2xl" aria-hidden="true"></div>
 
     <!-- Close button positioned at top right -->
-    <button class="x absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100/80 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center text-xl font-bold transition-all border border-slate-200/60" id="loginClose" aria-label="Đóng">×</button>
+    <button class="x" id="loginClose" aria-label="Đóng">×</button>
 
     <!-- TVC Studio AI Logo -->
-    <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-cyan-50 to-blue-50 border border-cyan-200/70 shadow-sm flex items-center justify-center p-2 mb-3 mt-1">
-      <img src="/static/images/logo-tvc.png" alt="TVC Studio AI" class="w-full h-full object-contain">
+    <div class="tvc-login-logo">
+      <img src="/static/images/logo-tvc.png" alt="TVC Studio AI">
     </div>
 
     <!-- Title & Subtitle -->
-    <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-1">
+    <h2 id="loginModalTitle">
       Chào mừng đến TVC Studio AI
     </h2>
-    <p class="text-xs sm:text-sm text-slate-600 font-medium mb-3.5" id="loginModalDesc">
-      Đăng nhập để bắt đầu sáng tạo nội dung bằng AI
+    <p id="loginModalDesc">
+      Đăng nhập để bắt đầu sáng tạo hình ảnh và video bằng AI nhanh chóng, dễ dàng.
     </p>
 
     <!-- Dynamic Promo Badge -->
-    <div class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-cyan-50/90 border border-cyan-200/80 text-cyan-800 font-bold text-xs shadow-sm mb-6" id="loginModalBadge">
+    <div class="tvc-login-badge" id="loginModalBadge">
       <span>✨ Video AI chỉ từ 2 Xu/lượt</span>
     </div>
 
     <!-- Google Button Only -->
-    <div class="w-full flex justify-center mb-3 min-h-[48px]">
-      <div class="google-signin-shell w-full flex justify-center">
+    <div class="tvc-google-login-wrapper">
+      <div class="google-signin-shell">
         <div class="google-signin-button" data-google-button></div>
       </div>
     </div>
     <div id="googleModalError" class="account-google-error text-xs text-rose-600 font-semibold mb-2" hidden></div>
 
     <!-- Terms Footer -->
-    <p class="text-[11px] sm:text-xs text-slate-400 font-normal leading-relaxed mt-2 max-w-xs">
-      Bằng việc tiếp tục, bạn đồng ý với <a href="/terms" class="text-cyan-700 hover:underline font-medium">Điều khoản dịch vụ</a> của TVC Studio AI.
+    <p class="tvc-login-terms">
+      Bằng việc tiếp tục, bạn đồng ý với <a href="/terms">Điều khoản dịch vụ</a> và <a href="/privacy">Chính sách quyền riêng tư</a> của TVC Studio AI.
     </p>
   </div>
 </div>
