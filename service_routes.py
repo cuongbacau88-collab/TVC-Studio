@@ -49,7 +49,7 @@ def public_job(row):
     return {
         "id": data["id"], "service": data["service"], "title": data["model"],
         "status": data["status"], "progress": data["progress"], "error": data["error"],
-        "usage": data["cost"], "usage_unit": "lượt", "free": data["cost"] == 0,
+        "usage": data["cost"], "usage_unit": "xu", "free": data["cost"] == 0,
         "created_at": data["created_at"], "updated_at": data["updated_at"],
         "has_result": data["status"] == "done", "can_cancel": data["status"] == "waiting",
         "upscale_fallback": bool(data.get("video_upscale_error")),
@@ -208,12 +208,17 @@ def catalog():
     result = []
     for key, definition in SERVICES.items():
         public = dict(PUBLIC_SERVICE_CONFIG.get(key, {}))
+        configured_tool = app.get_tool_config(key)
         if mock_mode and key == "video_generation" and not public.get("durations"):
             public["durations"] = [app.MOCK_VIDEO_DURATION]
-        usage = definition.usage_cost if definition.usage_cost is not None else (0 if mock_mode else None)
+        usage = (int(configured_tool["price_credits"]) if configured_tool else definition.usage_cost)
+        if configured_tool and configured_tool.get("is_free"):
+            usage = 0
+        if usage is None and mock_mode:
+            usage = 0
         result.append({
             "key": key, "title": definition.title, "output_kind": definition.output_kind,
-            "free": usage == 0, "usage": usage, "usage_unit": "lượt",
+            "free": usage == 0, "usage": usage, "usage_unit": "xu",
             "configured": usage is not None and (
                 key != "video_generation" or bool(public.get("durations"))
             ),
@@ -345,12 +350,12 @@ async def create_job(
         raise HTTPException(404, "Dịch vụ không tồn tại")
     adapter = app.service_adapters[service_key]
     mock_mode = app.RENDER_MODE == "mock"
-    if not mock_mode and service.usage_cost is None:
-        raise HTTPException(503, "Dịch vụ chưa được cấu hình mức lượt sử dụng")
     configured_tool = app.get_tool_config(service_key)
     effective_cost = int(configured_tool["price_credits"]) if configured_tool else (service.usage_cost if service.usage_cost is not None else 0)
     if configured_tool and configured_tool.get("is_free"):
         effective_cost = 0
+    if not mock_mode and configured_tool is None and service.usage_cost is None:
+        raise HTTPException(503, "Dịch vụ chưa được cấu hình giá xu")
     if mock_mode and service_key == "video_generation" and not duration:
         duration = app.MOCK_VIDEO_DURATION
     prompt = prompt.strip()[:2000]
@@ -396,7 +401,7 @@ async def create_job(
                 (user["id"],)
             ).fetchone()["total"]
             if not balance or balance["credits"] - reserved < effective_cost:
-                raise HTTPException(402, "Không đủ lượt")
+                raise HTTPException(402, "Không đủ xu")
         client_job_id = f"tvc-{user['id']}-{service_key}-{request_key}"
         cursor = con.execute(
             """INSERT INTO jobs(
@@ -495,7 +500,7 @@ async def create_job(
                 (effective_cost, user["id"], effective_cost)
             )
             if charged.rowcount != 1:
-                raise HTTPException(402, "Không đủ lượt")
+                raise HTTPException(402, "Không đủ xu")
             con.execute(
                 """INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
                    VALUES(?,?,?,?,?,?)""",

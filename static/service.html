@@ -7,8 +7,18 @@
   <link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
   <link rel="stylesheet" href="/static/styles.css?v=20260819.7">
 
-  <link rel="stylesheet" href="/static/service.css?v=20260819.1">
+  <link rel="stylesheet" href="/static/service.css?v=20260820.3">
 <link rel="stylesheet" href="/static/responsive.css?v=20260815.2"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.2">
+<style>
+.service-page{background:radial-gradient(circle at top left,rgba(255,255,255,.96),transparent 24%),radial-gradient(circle at right top,rgba(76,205,234,.2),transparent 28%),linear-gradient(180deg,#f5fdff 0%,#eaf8ff 42%,#ebf6fc 100%)!important;color:#0f2436!important}
+.service-page .service-field textarea,.service-page .service-field select,.service-page .reference-card select{background:#f8feff!important;color:#12384d!important;font-weight:600!important;border-color:rgba(13,137,158,.28)!important}
+.service-page .service-field textarea::placeholder{color:#58798a!important;opacity:1!important}
+.service-page .service-field textarea:focus,.service-page .service-field select:focus{background:#fff!important;color:#12384d!important}
+.service-page .prompt-help,.service-page .service-field small{color:#4b6d7f!important;font-weight:500!important}
+.service-page .method-card,.service-page .reference-card,.service-page .upload-tile,.service-page .add-reference,.service-page details{background:rgba(255,255,255,.62)!important;color:#174b62!important;border-color:rgba(13,137,158,.22)!important}
+.service-page .method-card span,.service-page .creator-section p,.service-page .service-field small{color:#4b6d7f!important}
+.service-page .method-card b,.service-page .creator-section h3,.service-page .method-section h2{color:#174b62!important}
+</style>
 </head>
 <body class="service-page v3-liquid-theme">
   <div class="global-toolbar liquid-toolbar" data-global-toolbar></div>
@@ -107,5 +117,13 @@
   <script src="/static/google-login.js?v=20260819.3"></script>
   <script src="/static/service.js?v=20260816.4"></script>
   <script src="/static/video-gallery.js"></script>
+  <script>
+  document.addEventListener('focusin',event=>{
+    const prompt=event.target.closest?.('textarea[name="prompt"]');
+    if(!prompt)return;
+    const hint=prompt.closest('.service-field')?.querySelector('small');
+    if(hint)hint.hidden=true;
+  });
+  </script>
 </body>
 </html>
