@@ -75,6 +75,7 @@ async function load() {
   ]));
   await loadAdminManagement();
 }
+setInterval(()=>{if(document.visibilityState==='visible')load().catch(()=>{})},15000);
 
 async function loadAdminManagement() {
   try {

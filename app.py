@@ -1123,6 +1123,15 @@ def api_version():
 @app.get("/api/me")
 def me(request: Request):
     u = current_user(request)
+    con = db()
+    pending = con.execute(
+        "SELECT id,status,order_code FROM topups WHERE user_id=? AND status='pending' ORDER BY id DESC LIMIT 20",
+        (u["id"],)
+    ).fetchall()
+    con.close()
+    reconcile_pending_topups(pending)
+    if pending:
+        u = current_user(request)
     result = {k: u.get(k) for k in ("id","email","name","credits","role","created_at","referral_code","referred_by_user_id","avatar_url","google_sub")}
     result["usage_balance"] = result["credits"]
     result["usage_unit"] = "lượt"
