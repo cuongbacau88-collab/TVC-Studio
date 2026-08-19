@@ -12,7 +12,7 @@ async function api(url, opt = {}) {
   const r = await fetch(url, opt);
   let j = {};
   try { j = await r.json(); } catch {}
-  if (!r.ok) throw new Error(j.detail || 'L?i h? th?ng');
+  if (!r.ok) throw new Error(j.detail || 'Lỗi hệ thống');
   return j;
 }
 
@@ -28,11 +28,11 @@ function redirectToLogin() {
 async function boot() {
   try {
     const me = await api('/api/me');
-    if (me.role !== 'admin') throw new Error('Kh?ng c? quy?n admin');
+    if (me.role !== 'admin') throw new Error('Không có quyền admin');
     initAdminTabs();
     await load();
   } catch (e) {
-    if (e && e.message === 'Kh?ng c? quy?n admin') {
+    if (e && e.message === 'Không có quyền admin') {
       alert('Tài khoản hiện tại không phải admin.');
       location.href = '/';
       return;
@@ -52,25 +52,25 @@ async function load() {
     ['Waiting / Running', `${overview.job_status.waiting || 0} / ${overview.job_status.running || 0}`], ['Success / Failed', `${overview.job_status.done || 0} / ${overview.job_status.failed || 0}`]
   ].map(x => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
 
-  $('#topups').innerHTML = table(['ID', 'Kh?ch', 'G?i', 'Ti?n', 'L??t', 'Tr?ng th?i', ''], t.map(x => [
+  $('#topups').innerHTML = table(['ID', 'Khách', 'Gói', 'Tiền', 'Xu', 'Trạng thái', ''], t.map(x => [
     x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + '?', x.credits, x.status,
     x.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${x.id})">Duy?t</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">T? ch?i</button>` : ''
   ]));
 
-  $('#users').innerHTML = table(['ID', 'Email', 'T?n', 'L??t', 'Role', ''], u.map(x => [
-    x.id, x.email, x.name, x.credits, x.role, `<button class="mini-btn" onclick="addCredits(${x.id},'${x.email}')">? L??t</button>`
+  $('#users').innerHTML = table(['ID', 'Email', 'Tên', 'Xu', 'Role', ''], u.map(x => [
+    x.id, x.email, x.name, x.credits, x.role, `<button class="mini-btn" onclick="addCredits(${x.id},'${x.email}')">Cộng / trừ Xu</button>`
   ]));
 
-  $('#jobs').innerHTML = table(['ID', 'Kh?ch', 'Model', 'Quality', 'Cost', 'Status', 'Progress', 'Error'], j.map(x => [
+  $('#jobs').innerHTML = table(['ID', 'Khách', 'Công cụ', 'Quality', 'Xu', 'Trạng thái', 'Tiến độ', 'Lỗi'], j.map(x => [
     x.id, x.email, jobDisplayName(x), x.quality + 'p', x.cost, x.status, x.progress + '%', x.error || ''
   ]));
 
-  $('#affiliateWithdrawals').innerHTML = table(['ID', 'Kh?ch', 'L??t', 'VND', 'Method', 'Account', 'Status', ''], aw.map(x => [
+  $('#affiliateWithdrawals').innerHTML = table(['ID', 'Khách', 'Xu', 'VND', 'Phương thức', 'Tài khoản', 'Trạng thái', ''], aw.map(x => [
     x.id, x.email, x.amount_credits, Number(x.amount_vnd).toLocaleString('vi-VN') + '?', x.method, x.account, x.status,
     x.status === 'pending' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">?? tr?</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">T? ch?i</button>` : ''
   ]));
 
-  $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'M?', 'H?ng', 'Rate', 'Refs', 'Doanh s?', 'Th??ng', 'C? th? r?t', 'Ng??i GT'], au.map(x => [
+  $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'Mã', 'Hạng', 'Tỷ lệ', 'Giới thiệu', 'Doanh số', 'Thưởng', 'Có thể rút', 'Người GT'], au.map(x => [
     x.id, x.email, x.referral_code, x.tier, x.rate_percent + '%', x.direct_referrals, x.sales_credits, x.total_rewards, x.available, x.referrer?.email || ''
   ]));
   await loadAdminManagement();
@@ -137,6 +137,7 @@ function table(headers, rows) {
 }
 
 window.approve = async id => {
+  if (!confirm('Duyệt giao dịch và cộng Xu cho tài khoản này?')) return;
   try {
     const j = await api(`/api/admin/topups/${id}/approve`, { method: 'POST' });
     say(`?? duy?t ? bonus ${j.buyer_bonus || 0} ? commission ${j.direct_commission || 0}`);
@@ -145,6 +146,7 @@ window.approve = async id => {
 };
 
 window.rejectT = async id => {
+  if (!confirm('Từ chối giao dịch này?')) return;
   try {
     await api(`/api/admin/topups/${id}/reject`, { method: 'POST' });
     say('?? t? ch?i');
@@ -153,7 +155,7 @@ window.rejectT = async id => {
 };
 
 window.addCredits = async (id, email) => {
-  const d = prompt(`C?ng/tr? l??t cho ${email}. V? d? 100 ho?c -20:`);
+  const d = prompt(`Cộng/trừ Xu cho ${email}. Ví dụ 100 hoặc -20:`);
   if (!d) return;
   try {
     await api(`/api/admin/users/${id}/credits`, {
@@ -161,7 +163,7 @@ window.addCredits = async (id, email) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ delta: Number(d), reason: 'Admin ?i?u ch?nh' })
     });
-    say('?? c?p nh?t l??t');
+    say('Đã cập nhật Xu');
     load();
   } catch (e) { say(e.message); }
 };
