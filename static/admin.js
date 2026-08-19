@@ -912,6 +912,7 @@ function renderNodeParams(container, node) {
 
 function bindNodeDraggable(el, node) {
   const head = el.querySelector('.wf-node-head');
+  if (!head) return;
   let startX = 0, startY = 0, initialX = 0, initialY = 0;
 
   head.addEventListener('mousedown', e => {
