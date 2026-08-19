@@ -37,9 +37,9 @@
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
       <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
-      <a href="/history" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
-      <a href="/about" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
-      <a href="/pricing" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
+      <a href="/app#jobs" class="tool-pill liquid-pill history-tab" data-tool="history"><span class="mobile-tool-icon">◷</span><span class="mobile-tool-label" data-toolbar-label="history">Lịch Sử</span></a>
+      <a href="/app#affiliate" class="tool-pill liquid-pill about-tab" data-tool="affiliate"><span class="mobile-tool-icon">ⓢ</span><span class="mobile-tool-label" data-toolbar-label="affiliate">Giới Thiệu</span></a>
+      <a href="/app#wallet" class="tool-pill liquid-pill vip-tab" data-tool="wallet"><span class="mobile-tool-icon mobile-credit-icon"><b id="mobileToolbarCredits">0</b></span><span class="mobile-tool-label" data-toolbar-label="wallet">Nạp VIP</span></a>
       <button type="button" class="tool-pill liquid-pill tvc-account-trigger account-tab login-tab" data-tool="account" id="toolbarAccountTrigger" aria-expanded="false" aria-controls="toolbarAccountMenu"><span class="mobile-tool-icon mobile-account-icon" id="toolbarAccountIcon">↪</span><span class="mobile-tool-label" id="toolbarAccountLabel">Đăng Nhập</span></button>
     </nav>
     <section class="tvc-account-menu" id="toolbarAccountMenu" aria-label="Menu tài khoản" hidden>
@@ -312,30 +312,27 @@
           location.href='/';
         }
       } else if(tool==='affiliate'){
-        if(location.pathname==='/about'){
+        if(location.pathname==='/app'){
           e.preventDefault();
-          window.scrollTo({top:0,behavior:'smooth'});
+          if(typeof window.tvcGotoTab==='function') window.tvcGotoTab('affiliate',{source:'toolbar'});
         } else {
-          location.href='/about';
+          location.href='/app#affiliate';
         }
       } else if(tool==='wallet'){
-        if(location.pathname==='/pricing'||location.pathname==='/nap-vip'||location.pathname==='/bang-gia'){
+        if(location.pathname==='/app'){
           e.preventDefault();
-          window.scrollTo({top:0,behavior:'smooth'});
+          if(typeof window.tvcGotoTab==='function') window.tvcGotoTab('wallet',{source:'toolbar'});
         } else {
-          location.href='/pricing';
+          location.href='/app#wallet';
         }
       } else if(tool==='history'){
-        if(location.pathname==='/history'||location.pathname==='/lich-su'||location.pathname==='/app'){
+        if(location.pathname==='/app'){
           e.preventDefault();
           if(typeof window.tvcGotoTab==='function'){
             window.tvcGotoTab('jobs');
-          } else {
-            location.hash='#jobs';
           }
-          window.scrollTo({top:0,behavior:'smooth'});
         } else {
-          location.href='/history';
+          location.href='/app#jobs';
         }
       }
     });
