@@ -126,21 +126,7 @@
       let j={}; try{j=await r.json();}catch{}
       if(!r.ok) throw new Error(j.detail||'Google Login thất bại');
       if(j.token) localStorage.setItem('token', j.token);
-      window.TVCSignedIn = true;
-
-      const loginModal = qs('#loginModal');
-      if(loginModal) loginModal.classList.remove('open');
-
-      const returnUrl = sessionStorage.getItem('tvc_login_return_to') || window.TVCReturnNavigation?.consumeReturn();
-      sessionStorage.removeItem('tvc_login_return_to');
-
-      if (j.role === 'admin') {
-        window.location.href = '/admin';
-      } else if (returnUrl && returnUrl !== '/' && returnUrl !== location.pathname) {
-        window.location.href = returnUrl;
-      } else {
-        window.location.reload();
-      }
+      window.location.reload();
     }catch(err){
       showGoogleError(err.message||'Google Login thất bại');
     }
@@ -162,6 +148,7 @@
       });
     });
   }
+  window.tvcRenderGoogleButtons=renderGoogleButtons;
 
   function injectGateGoogle(){
     const card=qs('#authGate .auth-card');
