@@ -33,7 +33,7 @@
   host.dataset.globalToolbar='';
   host.innerHTML=`<div class="global-toolbar-inner">
     <div class="toolbar-left"><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
-    <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI"><span class="brand-glass-orb"><img src="/static/images/logo-tvc.png" alt="TVC Studio"></span><strong>TVC Studio <b>AI</b></strong></a>
+    <a class="global-brand centered-brand" href="/" aria-label="TVC Studio AI"><span class="brand-glass-orb"><img src="/static/images/logo-tvc.png" alt="TVC logo"></span><strong>Studio <b>AI</b></strong></a>
     <nav class="global-actions liquid-nav" aria-label="Điều hướng chính">
       <button type="button" class="tool-pill liquid-pill mobile-menu-tool menu-tab" data-tool="menu" id="aiToolsTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span class="mobile-tool-icon" aria-hidden="true">☰</span><span class="mobile-tool-label">Menu</span></button>
       <a href="/" class="tool-pill liquid-pill home-tab" data-tool="models"><span class="mobile-tool-icon">✦</span><span class="mobile-tool-label" data-toolbar-label="models">Trang Chủ</span></a>
@@ -70,7 +70,7 @@
   host.querySelector('.toolbar-left').insertAdjacentHTML('afterbegin','<button type="button" class="ai-tools-trigger desktop-ai-tools-trigger liquid-pill" id="aiToolsDesktopTrigger" aria-expanded="false" aria-controls="aiToolsDrawer"><span aria-hidden="true">☰</span><span>Công cụ AI</span></button>');
   host.insertAdjacentHTML('beforeend',`<div class="ai-tools-overlay" id="aiToolsOverlay" hidden></div><aside class="ai-tools-drawer flex flex-col h-full" id="aiToolsDrawer" aria-label="Công cụ AI" aria-hidden="true">
     <div class="drawer-scroll flex flex-col h-full overflow-y-auto w-full">
-      <header class="drawer-header"><a href="/" class="drawer-brand"><img src="/static/images/logo-tvc.png" alt=""><b>TVC Studio AI</b></a><button type="button" id="aiToolsClose" aria-label="Đóng menu">×</button></header>
+      <header class="drawer-header"><a href="/" class="drawer-brand"><img src="/static/images/logo-tvc.png" alt="TVC logo"><b>Studio AI</b></a><button type="button" id="aiToolsClose" aria-label="Đóng menu">×</button></header>
       <div class="drawer-account"><span class="tvc-account-avatar" id="drawerAvatar">T</span><div class="drawer-account-text"><b id="drawerEmail">Chưa đăng nhập</b><small><span id="drawerCredits">0</span> lượt</small></div><a id="drawerLogin" href="/app#login">Đăng Nhập</a></div>
       <div class="drawer-language"><span>Ngôn ngữ</span><div class="lang-switch liquid-pill" aria-label="Language"><button data-lang="vi">VN</button><span>|</span><button data-lang="en">EN</button></div></div>
       <a class="zalo-community-link drawer-zalo-link" href="https://zalo.me/g/zjsk2eclgz9dejbfsmgz" target="_blank" rel="noopener noreferrer" aria-label="Tham gia nhóm Zalo (mở trong tab mới)" title="Tham gia nhóm Zalo"><span class="zalo-community-icon" aria-hidden="true">Z</span><span>Tham gia nhóm Zalo</span><span class="zalo-external" aria-hidden="true">↗</span></a>

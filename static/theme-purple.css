@@ -2884,3 +2884,55 @@ body.app-body .simple-field > label:first-child {
 body.app-body .motion-file-preview img,
 body.app-body .motion-file-preview video { background: #e6faff !important; }
 
+/* Final mobile light coverage for legacy upload, history and ledger surfaces. */
+@media (max-width: 760px) {
+  body.app-body #tab-create,
+  body.app-body #tab-jobs,
+  body.app-body #tab-wallet,
+  body.app-body .simple-create-card,
+  body.app-body .jobs,
+  body.app-body .simple-list {
+    background: rgba(245, 254, 255, .72) !important;
+    color: #15596d !important;
+  }
+  body.app-body .simple-upload-row,
+  body.app-body .motion-file-preview,
+  body.app-body .job,
+  body.app-body .simple-row,
+  body.app-body #tab-wallet .simple-list,
+  body.app-body #tab-jobs .job {
+    background: linear-gradient(145deg, rgba(251, 255, 255, .97), rgba(222, 248, 252, .92)) !important;
+    color: #15596d !important;
+    border: 1px solid rgba(83, 196, 213, .52) !important;
+    box-shadow: 0 8px 18px rgba(17, 111, 135, .10) !important;
+  }
+  body.app-body .simple-upload-row .simple-file-name,
+  body.app-body .simple-row span,
+  body.app-body .simple-row b,
+  body.app-body .job b,
+  body.app-body .job small,
+  body.app-body .job .state,
+  body.app-body #tab-wallet .simple-row,
+  body.app-body #tab-jobs .job {
+    color: #15596d !important;
+    font-weight: 700 !important;
+  }
+  body.app-body .job .thumb {
+    background: linear-gradient(145deg, #d9f8fc, #b6eaf2) !important;
+    color: #08788b !important;
+    border: 1px solid rgba(83, 196, 213, .42) !important;
+  }
+  body.app-body .job progress {
+    background: #d7f1f5 !important;
+    accent-color: #0db7c5 !important;
+  }
+  body.app-body .job .state.failed {
+    color: #c33e58 !important;
+    font-weight: 800 !important;
+  }
+  body.app-body .simple-upload-button {
+    color: #fff !important;
+    background: linear-gradient(135deg, #0db7c5, #4779f5) !important;
+  }
+}
+
