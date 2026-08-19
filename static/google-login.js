@@ -125,7 +125,8 @@
       });
       let j={}; try{j=await r.json();}catch{}
       if(!r.ok) throw new Error(j.detail||'Google Login thất bại');
-      if(location.pathname==='/app')location.href=window.TVCReturnNavigation?.consumeReturn()||'/';else location.reload();
+      const target = j.role==='admin'?'/admin':(window.TVCReturnNavigation?.consumeReturn()||'/app');
+      window.location.href = (target && target !== '/') ? target : '/app';
     }catch(err){
       showGoogleError(err.message||'Google Login thất bại');
     }

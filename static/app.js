@@ -180,9 +180,10 @@ $$('[data-auth]').forEach(b=>b.onclick=()=>{
 });
 $('#doLogin').onclick=async()=>{
   try{
-    await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    const res = await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({email:$('#lEmail').value,password:$('#lPass').value})});
-    location.href=window.TVCReturnNavigation?.consumeReturn()||'/'
+    const target = res?.role === 'admin' ? '/admin' : (window.TVCReturnNavigation?.consumeReturn() || '/app');
+    window.location.href = (target && target !== '/') ? target : '/app';
   }catch(e){$('#authMsg').textContent=e.message}
 }
 $('#doRegister').onclick=async()=>{

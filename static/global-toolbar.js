@@ -7,9 +7,9 @@
   }
   function currentReturn(){return safeInternalReturn(location.pathname+location.search+location.hash)||'/'}
   function storeReturn(value){const safe=safeInternalReturn(value);if(safe)sessionStorage.setItem(RETURN_KEY,safe);return safe}
-  function loginUrl(value=(location.pathname==='/app'&&['#login','#register'].includes(location.hash)?resolveReturn():currentReturn())){const safe=storeReturn(value)||'/';return `/app?return_to=${encodeURIComponent(safe)}#login`}
-  function resolveReturn(){const query=safeInternalReturn(new URLSearchParams(location.search).get('return_to'));if(query)return query;const saved=safeInternalReturn(sessionStorage.getItem(RETURN_KEY));if(saved)return saved;if(location.pathname==='/app'&&['#jobs','#affiliate','#wallet','#account','#create'].includes(location.hash))return currentReturn();return '/'}
-  function consumeReturn(){const target=resolveReturn();sessionStorage.removeItem(RETURN_KEY);return target}
+  function loginUrl(value=(location.pathname==='/app'&&['#login','#register'].includes(location.hash)?resolveReturn():currentReturn())){const safe=storeReturn(value)||'/app';return `/app?return_to=${encodeURIComponent(safe)}#login`}
+  function resolveReturn(){const query=safeInternalReturn(new URLSearchParams(location.search).get('return_to'));if(query&&query!=='/')return query;const saved=safeInternalReturn(sessionStorage.getItem(RETURN_KEY));if(saved&&saved!=='/')return saved;if(location.pathname==='/app'&&['#jobs','#affiliate','#wallet','#account','#create'].includes(location.hash))return currentReturn();return '/app'}
+  function consumeReturn(){const target=resolveReturn();sessionStorage.removeItem(RETURN_KEY);return (target&&target!=='/')?target:'/app'}
   window.TVCReturnNavigation={safeInternalReturn,currentReturn,storeReturn,loginUrl,resolveReturn,consumeReturn};
 
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
