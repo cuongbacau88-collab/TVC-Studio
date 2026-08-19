@@ -217,34 +217,136 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
 
 /* 5. MENU TRƯỢT BÊN TRÁI (AI TOOLS DRAWER) */
 .ai-tools-drawer {
-  background: rgba(25, 7, 55, 0.85) !important;
+  background: rgba(25, 7, 55, 0.92) !important;
   backdrop-filter: blur(30px) saturate(180%) !important;
   -webkit-backdrop-filter: blur(30px) saturate(180%) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.4) !important;
   box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.2), 24px 0 65px rgba(5, 1, 15, 0.65) !important;
   border-radius: 0 28px 28px 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.ai-tools-drawer .drawer-scroll {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  padding: max(12px, env(safe-area-inset-top, 0px)) 12px max(16px, env(safe-area-inset-bottom, 0px)) !important;
+  gap: 0 !important;
 }
 .ai-tools-overlay {
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
   background: rgba(6, 1, 15, 0.65) !important;
 }
+.ai-tools-drawer header,
+.ai-tools-drawer .drawer-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 2px 2px 8px !important;
+  margin-bottom: 2px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .1) !important;
+  flex: 0 0 auto !important;
+}
 .drawer-account {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.5) !important;
-  border-radius: 20px !important;
-  padding: 12px 14px !important;
-  margin: 10px 0 !important;
+  border-radius: 16px !important;
+  padding: 8px 10px !important;
+  margin: 4px 0 6px !important;
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-height: unset !important;
+  flex: 0 0 auto !important;
+}
+.drawer-account .tvc-account-avatar {
+  width: 38px !important;
+  height: 38px !important;
+  min-width: 38px !important;
+  min-height: 38px !important;
+  font-size: 15px !important;
+  border-radius: 50% !important;
+}
+.drawer-account div,
+.drawer-account .drawer-account-text {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  min-width: 0 !important;
+  line-height: 1.15 !important;
+}
+.drawer-account b {
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  line-height: 1.2 !important;
+  margin: 0 !important;
+}
+.drawer-account small {
+  font-size: 11.5px !important;
+  color: #a5b4fc !important;
+  line-height: 1.1 !important;
+  margin: 0 !important;
+}
+.drawer-account a {
+  padding: 5px 10px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  background: rgba(168, 85, 247, 0.3) !important;
+  border: 1px solid rgba(216, 180, 254, 0.4) !important;
+  color: #f5f3ff !important;
+  text-decoration: none !important;
+  flex: 0 0 auto !important;
+}
+.drawer-language {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 4px 4px !important;
+  margin: 2px 0 6px !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  flex: 0 0 auto !important;
+}
+.drawer-language > span {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #cbd5e1 !important;
+}
+.drawer-zalo-link {
+  margin: 2px 0 8px !important;
+  padding: 7px 12px !important;
+  min-height: 38px !important;
+  position: static !important;
+  flex: 0 0 auto !important;
+}
+.drawer-menu-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  padding-bottom: 12px !important;
 }
 .menu-group {
-  margin-bottom: 10px !important;
-  border-radius: 18px !important;
+  margin-bottom: 6px !important;
+  border-radius: 16px !important;
   background: rgba(255, 255, 255, 0.06) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;
   border-top: 1.5px solid rgba(255, 255, 255, 0.35) !important;
-  padding: 8px 12px !important;
+  padding: 6px 10px !important;
   transition: all .2s ease !important;
 }
 .menu-group.active,
@@ -260,9 +362,17 @@ body.public-page-v3343 .global-toolbar.liquid-toolbar {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
+.menu-group summary,
+.menu-group .menu-header {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #aebee1 !important;
+  padding: 2px 0 !important;
+}
 .menu-group .submenu nav,
 .menu-group .submenu {
   display: block !important;
+  gap: 4px !important;
   padding-top: 6px !important;
 }
 .drawer-scroll nav a,
@@ -529,7 +639,7 @@ p,small,.muted,.model-body p,.tip-card li,.legal-card p{color:var(--text-seconda
     box-shadow:0 12px 28px rgba(3,8,34,.26),inset 0 1px rgba(255,255,255,.18)!important
   }
   button,.side,.zalo-community-link,.drawer-scroll nav a,.drawer-scroll nav button{min-height:44px}
-  .drawer-zalo-link{position:sticky;top:0;z-index:2}
+  .drawer-zalo-link{position:static!important}
 }
 /* =====================================================================
    AQUA LIQUID GLASS — final typography, card and mobile drawer polish
@@ -633,14 +743,11 @@ input::placeholder,textarea::placeholder{color:#56818b!important;opacity:.88!imp
     --drawer-top-offset:max(var(--header-height,0px),env(safe-area-inset-top,0px));
     top:var(--drawer-top-offset)!important;
     height:calc(100dvh - var(--drawer-top-offset))!important;
-    padding-top:10px!important;
-    padding-bottom:max(14px,env(safe-area-inset-bottom,0px))!important
+    padding:0!important;
   }
-  .ai-tools-drawer>header{flex:0 0 auto}
-  .drawer-account{flex:0 0 auto;min-height:64px}
+  .drawer-account{min-height:unset!important}
   .drawer-account b,.drawer-account small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .drawer-language{flex:0 0 auto}
-  .drawer-scroll{flex:1 1 auto;min-height:0!important}
+  .drawer-scroll{height:100%!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch}
   body{overflow-x:hidden}
 }
 @media(max-width:760px){

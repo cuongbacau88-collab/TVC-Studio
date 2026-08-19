@@ -449,10 +449,10 @@ body.tvc-fixed-toolbar .global-toolbar,body.tvc-fixed-toolbar .global-toolbar.li
   overflow:hidden!important
 }
 .ai-tools-overlay{background:rgba(3,10,27,.58)!important;pointer-events:auto!important}
-.drawer-language{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(255,255,255,.09)}
+.drawer-language{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.09)}
 .drawer-language>span{font-size:12px;font-weight:750;color:#b9c8e8}
 .drawer-language .lang-switch{display:flex!important;align-items:center!important;gap:5px!important}
-.drawer-scroll{min-height:0;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain}
+.drawer-scroll{min-height:0;height:100%;display:flex;flex-direction:column;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 @media(max-width:768px){
   body.tvc-fixed-toolbar .global-toolbar-inner{
     display:grid!important;
