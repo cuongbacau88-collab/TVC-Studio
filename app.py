@@ -1,14 +1,22 @@
 
-import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys
+import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging
 import urllib.error
 import urllib.request
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import Optional, Any
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form, HTTPException, Header
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+
+try:
+    from payos import PayOS
+    from payos.type import PaymentData, ItemData
+except ImportError:
+    PayOS = None
+    PaymentData = None
+    ItemData = None
 
 from google.oauth2 import id_token as google_id_token
 from google.auth.transport import requests as google_requests
@@ -1356,21 +1364,60 @@ PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "").strip()
 PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "https://tvcstudioai.info/app#wallet").strip()
 PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "https://tvcstudioai.info/app#wallet").strip()
 
-def payos_ready():
-    return all((PAYOS_CLIENT_ID, PAYOS_API_KEY, PAYOS_CHECKSUM_KEY))
+def payos_ready() -> bool:
+    return bool(PAYOS_CLIENT_ID and PAYOS_API_KEY and PAYOS_CHECKSUM_KEY)
+
+def get_payos_client() -> Optional[Any]:
+    if not payos_ready():
+        return None
+    if PayOS is None:
+        return None
+    return PayOS(
+        client_id=PAYOS_CLIENT_ID,
+        api_key=PAYOS_API_KEY,
+        checksum_key=PAYOS_CHECKSUM_KEY
+    )
 
 def payos_signature(values: dict) -> str:
-    payload = "&".join(f"{key}={values[key]}" for key in sorted(values))
+    payload = "&".join(f"{key}={values[key]}" for key in sorted(values) if values[key] is not None)
     return hmac.new(PAYOS_CHECKSUM_KEY.encode(), payload.encode(), hashlib.sha256).hexdigest()
 
-def payos_create_payment(order_code: int, amount: int, description: str) -> dict:
+def payos_create_payment(order_code: int, amount: int, description: str, items: Optional[list] = None) -> dict:
     if not payos_ready():
         raise HTTPException(503, "PayOS chưa được cấu hình trên máy chủ")
+    
+    payos_inst = get_payos_client()
+    if payos_inst and PaymentData:
+        try:
+            payos_items = None
+            if items and ItemData:
+                payos_items = [
+                    ItemData(name=it.get("name", description), quantity=int(it.get("quantity", 1)), price=int(it.get("price", amount)))
+                    for it in items
+                ]
+            payment_data = PaymentData(
+                orderCode=order_code,
+                amount=amount,
+                description=description[:25],
+                cancelUrl=PAYOS_CANCEL_URL,
+                returnUrl=PAYOS_RETURN_URL,
+                items=payos_items
+            )
+            res = payos_inst.createPaymentLink(payment_data)
+            checkout_url = getattr(res, "checkoutUrl", None) or (res.get("checkoutUrl") if isinstance(res, dict) else None)
+            payment_link_id = getattr(res, "paymentLinkId", None) or (res.get("paymentLinkId") if isinstance(res, dict) else None)
+            if checkout_url:
+                return {"checkoutUrl": checkout_url, "paymentLinkId": payment_link_id}
+        except Exception as exc:
+            pass
+
     values = {
         "amount": amount, "cancelUrl": PAYOS_CANCEL_URL,
         "description": description[:25], "orderCode": order_code,
         "returnUrl": PAYOS_RETURN_URL,
     }
+    if items:
+        values["items"] = items
     values["signature"] = payos_signature(values)
     request = urllib.request.Request(
         PAYOS_API_URL, data=json.dumps(values).encode(), method="POST",
@@ -1386,6 +1433,17 @@ def payos_create_payment(order_code: int, amount: int, description: str) -> dict
     return payload["data"]
 
 def payos_webhook_valid(body: dict) -> bool:
+    payos_inst = get_payos_client()
+    if payos_inst:
+        try:
+            payos_inst.webhooks.verify(body)
+            return True
+        except Exception:
+            try:
+                payos_inst.verifyPaymentWebhookData(body)
+                return True
+            except Exception:
+                pass
     signature = str(body.get("signature") or "")
     data = body.get("data") if isinstance(body.get("data"), dict) else body
     if not signature or not isinstance(data, dict):
@@ -1393,34 +1451,69 @@ def payos_webhook_valid(body: dict) -> bool:
     values = {key: data[key] for key in data if key != "signature" and data[key] is not None}
     return hmac.compare_digest(signature.lower(), payos_signature(values).lower())
 
+@app.post("/api/payments/create-link")
 @app.post("/api/topups")
-async def request_topup(request: Request):
+async def create_payment_link(request: Request):
     u = current_user(request)
     body = await request.json()
     package = body.get("package")
+    amount = body.get("amount")
+    credits = body.get("credits")
     note = (body.get("note") or "")[:300]
-    if package not in PACKAGES:
+    user_id = body.get("user_id") or body.get("userId") or u["id"]
+
+    if package in PACKAGES:
+        pkg_amount, pkg_credits = PACKAGES[package]
+        amount = pkg_amount
+        credits = pkg_credits
+    elif amount is not None and int(amount) > 0:
+        amount = int(amount)
+        credits = int(credits) if credits is not None else int(amount // 1000)
+        package = package or f"custom_{amount}"
+    else:
         raise HTTPException(400, "Gói không hợp lệ")
-    amount, credits = PACKAGES[package]
+
     order_code = int(f"{int(time.time())}{secrets.randbelow(1000):03d}")
-    payment = payos_create_payment(order_code, amount, f"Nap xu {credits}")
+    payment = payos_create_payment(
+        order_code, amount, f"Nap xu {credits}",
+        items=[{"name": f"Goi {credits} xu", "quantity": 1, "price": amount}]
+    )
+    checkout_url = payment.get("checkoutUrl") or payment.get("checkout_url")
+
     con = db()
     cur = con.execute("""
         INSERT INTO topups(user_id,package,amount_vnd,credits,note,status,created_at,order_code,payment_link_id,checkout_url)
         VALUES(?,?,?,?,?,'pending',?,?,?,?)
-    """, (u["id"], package, amount, credits, note, now_iso(), order_code,
-          payment.get("paymentLinkId"), payment.get("checkoutUrl")))
+    """, (user_id, package, amount, credits, note, now_iso(), order_code,
+          payment.get("paymentLinkId"), checkout_url))
     con.commit()
     tid = cur.lastrowid
     con.close()
-    return {"ok": True, "topup_id": tid, "amount_vnd": amount, "credits": credits,
-            "order_code": order_code, "checkout_url": payment["checkoutUrl"]}
+    return {
+        "ok": True,
+        "success": True,
+        "topup_id": tid,
+        "topupId": tid,
+        "amount_vnd": amount,
+        "amount": amount,
+        "credits": credits,
+        "order_code": order_code,
+        "orderCode": order_code,
+        "checkout_url": checkout_url,
+        "checkoutUrl": checkout_url
+    }
 
+@app.post("/api/payments/webhook")
 @app.post("/api/payos/webhook")
 async def payos_webhook(request: Request):
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(400, "Webhook JSON không hợp lệ")
+
     if not payos_webhook_valid(body):
-        raise HTTPException(400, "Webhook PayOS không hợp lệ")
+        raise HTTPException(400, "Webhook PayOS không hợp lệ hoặc sai chữ ký")
+
     data = body.get("data") if isinstance(body.get("data"), dict) else body
     if str(data.get("code", "00")) not in {"00", ""} or data.get("success") is False:
         return {"success": True}
@@ -1436,7 +1529,7 @@ async def payos_webhook(request: Request):
     if topup["status"] == "paid":
         return {"success": True}
     # Reuse the same idempotent settlement path as admin approval.
-    approve_topup(topup["id"], request, True)
+    approve_topup(topup["id"], request, _internal=True)
     return {"success": True}
 
 @app.get("/api/topups")

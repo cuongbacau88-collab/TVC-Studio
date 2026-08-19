@@ -387,16 +387,22 @@ $$('.packs button').forEach(b=>b.onclick=()=>{
   b.classList.add('active');b.setAttribute('aria-pressed','true');selectedPack=b.dataset.pack
 });
 $('#requestTopup').onclick=async()=>{
+  const btn=$('#requestTopup');
   try{
-    const j=await api('/api/topups',{method:'POST',headers:{'Content-Type':'application/json'},
+    if(btn){btn.disabled=true;btn.textContent='Đang kết nối PayOS...';}
+    const j=await api('/api/payments/create-link',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({package:selectedPack,note:$('#topupNote').value})});
-    if(j.checkout_url){
-      sessionStorage.setItem('tvc_pending_topup',String(j.topup_id));
-      location.href=j.checkout_url;
+    const checkoutUrl=j.checkoutUrl||j.checkout_url;
+    if(checkoutUrl){
+      sessionStorage.setItem('tvc_pending_topup',String(j.topup_id||j.topupId||j.order_code||j.orderCode));
+      window.location.href=checkoutUrl;
       return;
     }
-    say('Đã tạo yêu cầu nạp #'+j.topup_id);loadWallet()
+    say('Đã tạo yêu cầu nạp #'+(j.topup_id||j.order_code||''));loadWallet();
   }catch(e){say(e.message)}
+  finally{
+    if(btn){btn.disabled=false;btn.textContent='Thanh toán qua PayOS';}
+  }
 }
 function packageName(key){return {starter:'Gói Thử',basic:'Gói Cơ bản',creator:'Gói Phổ biến',professional:'Gói Chuyên nghiệp'}[key]||key}
 async function loadWallet(){
