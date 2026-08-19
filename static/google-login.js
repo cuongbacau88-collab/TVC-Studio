@@ -121,7 +121,9 @@
       if(j.token) localStorage.setItem('token', j.token);
       let returnUrl = '';
       try {
-        returnUrl = sessionStorage.getItem('authReturnTo') || sessionStorage.getItem('tvc_login_return_to') || '';
+        const returnTo = window.TVCReturnNavigation?.consumeReturn() || sessionStorage.getItem('authReturnTo') || sessionStorage.getItem('tvc_login_return_to') || '';
+        returnUrl = returnTo;
+        const returnQuery = returnTo ? `return_to=${encodeURIComponent(returnTo)}` : '';
         sessionStorage.removeItem('authReturnTo');
         sessionStorage.removeItem('tvc_login_return_to');
       } catch(_) {}

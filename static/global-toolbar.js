@@ -9,7 +9,7 @@
   function storeReturn(value){const safe=safeInternalReturn(value);if(safe)sessionStorage.setItem(RETURN_KEY,safe);return safe}
   function loginUrl(value=(location.pathname==='/app'&&['#login','#register'].includes(location.hash)?resolveReturn():currentReturn())){const safe=storeReturn(value)||'/app';return `/app?return_to=${encodeURIComponent(safe)}#login`}
   function resolveReturn(){const query=safeInternalReturn(new URLSearchParams(location.search).get('return_to'));if(query&&query!=='/')return query;const saved=safeInternalReturn(sessionStorage.getItem(RETURN_KEY));if(saved&&saved!=='/')return saved;if(location.pathname==='/app'&&['#jobs','#affiliate','#wallet','#account','#create'].includes(location.hash))return currentReturn();return '/app'}
-  function consumeReturn(){const target=resolveReturn();sessionStorage.removeItem(RETURN_KEY);return (target&&target!=='/')?target:'/app'}
+  function consumeReturn(){const target=resolveReturn();sessionStorage.removeItem(RETURN_KEY);if(!target||target==='/')return '/';return target}
   window.TVCReturnNavigation={safeInternalReturn,currentReturn,storeReturn,loginUrl,resolveReturn,consumeReturn};
 
   const host=document.querySelector('[data-global-toolbar],.global-toolbar');
@@ -85,11 +85,14 @@
   const toolsDrawer=host.querySelector('#aiToolsDrawer'),toolsOverlay=host.querySelector('#aiToolsOverlay');
   document.body.append(toolsOverlay,toolsDrawer);
   toolsDrawer.dataset.toolbarPortal='true';toolsOverlay.dataset.toolbarPortal='true';
+  toolsOverlay.hidden=true;toolsOverlay.style.display='none';toolsOverlay.style.pointerEvents='none';
   let overlayTimer=0,gesture=null,drawerClosing=false,closeAnimationDone=false,backdropSequenceActive=false;
   function resetDrag(){gesture=null;toolsDrawer.classList.remove('dragging');toolsDrawer.style.removeProperty('transform')}
   function finalizeClose(){
     if(!drawerClosing||!closeAnimationDone||backdropSequenceActive)return;
-    drawerClosing=false;clearTimeout(overlayTimer);toolsOverlay.hidden=true;document.body.classList.remove('ai-tools-open');
+    drawerClosing=false;clearTimeout(overlayTimer);
+    toolsOverlay.hidden=true;toolsOverlay.style.display='none';toolsOverlay.style.pointerEvents='none';
+    document.body.classList.remove('ai-tools-open');
   }
   function closeTools(){
     if(drawerClosing||!toolsDrawer.classList.contains('open'))return;
@@ -103,7 +106,7 @@
   }
   function openTools(focusClose=true){
     drawerClosing=false;closeAnimationDone=false;backdropSequenceActive=false;clearTimeout(overlayTimer);resetDrag();closeMenu(false);
-    toolsOverlay.hidden=false;document.body.classList.add('ai-tools-open');
+    toolsOverlay.hidden=false;toolsOverlay.style.display='';toolsOverlay.style.pointerEvents='';document.body.classList.add('ai-tools-open');
     requestAnimationFrame(()=>toolsDrawer.classList.add('open'));toolsDrawer.setAttribute('aria-hidden','false');
     toolsTrigger.setAttribute('aria-expanded','true');desktopToolsTrigger.setAttribute('aria-expanded','true');setActive('menu');
     if(focusClose)toolsDrawer.querySelector('#aiToolsClose').focus({preventScroll:true});
@@ -120,7 +123,7 @@
   listen(toolsDrawer.querySelector('#aiToolsClose'),'click',closeTools);toolsDrawer.querySelectorAll('a').forEach(link=>listen(link,'click',closeTools));
   function blockedGestureTarget(target){
     if(!(target instanceof Element))return false;
-    if(target.closest('input,textarea,select,button,video,[data-no-drawer-gesture],[draggable="true"],.carousel,.video-gallery-carousel,.upload-tile,.add-reference,.reference-actions'))return true;
+    if(target.closest('input,textarea,select,button,a,video,[data-no-drawer-gesture],[draggable="true"],.carousel,.video-gallery-carousel,.upload-tile,.add-reference,.reference-actions,.global-toolbar,.liquid-toolbar,.global-actions,.tool-pill'))return true;
     for(let node=target;node&&node!==document.body;node=node.parentElement){const style=getComputedStyle(node);if(['auto','scroll'].includes(style.overflowX)&&node.scrollWidth>node.clientWidth)return true}
     return false;
   }
@@ -263,19 +266,14 @@
   }
   window.tvcSyncAccount = syncAccount;
 
-  trigger.addEventListener('click',()=>{
+  trigger.addEventListener('click',e=>{
+    e.preventDefault();
     if(!signedIn){
       closeMenu(false);
-      const targetUrl = loginUrl();
-      if(location.pathname === '/app'){
-        if(typeof window.showAuth === 'function'){
-          window.showAuth();
-          document.querySelector('[data-auth="login"]')?.click();
-          document.querySelector('#authGate')?.scrollIntoView({behavior:'smooth'});
-        } else {
-          location.href=loginUrl();
-          if(location.hash === '#login') location.reload();
-        }
+      if(typeof window.tvcOpenLoginModal === 'function'){
+        window.tvcOpenLoginModal(location.pathname + location.search + location.hash);
+      } else if(typeof window.showAuth === 'function'){
+        window.showAuth(location.pathname + location.search + location.hash);
       } else {
         location.href=loginUrl();
       }
@@ -297,11 +295,18 @@
       toolsTrigger.focus({preventScroll:true});
     }
   });
-  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('pointerdown',()=>{
-    setActive(tab.dataset.tool);
-  }));
-  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('click',()=>setActive(tab.dataset.tool)));
-  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>tab.addEventListener('click',()=>closeMenu(false)));
+  host.querySelectorAll('.global-actions [data-tool]:not([data-tool="account"])').forEach(tab=>{
+    tab.addEventListener('pointerdown',()=>{
+      setActive(tab.dataset.tool);
+    });
+    tab.addEventListener('click',e=>{
+      closeMenu(false);
+      setActive(tab.dataset.tool);
+      if(tab.dataset.tool === 'models' && (location.pathname === '/' || location.pathname === '/index.html')){
+        window.scrollTo({top:0,behavior:'smooth'});
+      }
+    });
+  });
   menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>closeMenu(false)));
   host.querySelector('#toolbarLogout').addEventListener('click',async()=>{
     closeMenu(false);

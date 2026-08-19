@@ -150,6 +150,7 @@ async function boot(){
   const ref=referralFromUrl();
   try{
     me=await api('/api/me');showDashboard();await refreshAll();
+    const returnTarget=window.TVCReturnNavigation?.consumeReturn()||'/';
   }catch{
     me=null;showDashboard();
   }

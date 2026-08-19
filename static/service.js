@@ -113,7 +113,7 @@ async function init(){
  catch(e){setError(e.message);return}
  if(!config){setError('Dịch vụ không tồn tại');return}
  try{const me=await api('/api/me');authenticated=true;window.TVCSignedIn=true;document.getElementById('mobileToolbarCredits').textContent=Number(me.usage_balance||0).toLocaleString('vi-VN')}
- catch(e){authenticated=false;window.TVCSignedIn=false}
+ catch(e){authenticated=false;window.TVCSignedIn=false;const notice=$('authNotice'),link=$('serviceLoginCta');if(link&&window.TVCReturnNavigation)link.href=window.TVCReturnNavigation.loginUrl()}
  $('serviceCost').textContent=config.free?'Miễn phí • xử lý khi GPU rảnh':config.usage==null?'Mức lượt chưa được cấu hình':`${config.usage} lượt / job`;
  const unavailable=!config.configured||(key==='video_generation'&&(!config.durations.length||config.usage==null));
  if(unavailable){$('configNotice').textContent='Cấu hình dịch vụ chưa đầy đủ.';$('configNotice').classList.remove('hidden');$('submitButton').disabled=true}

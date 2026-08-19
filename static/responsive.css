@@ -513,7 +513,9 @@ body.tvc-fixed-toolbar .global-toolbar,body.tvc-fixed-toolbar .global-toolbar.li
   body.tvc-fixed-toolbar .global-actions>[data-tool]{height:50px!important;min-height:50px!important}
 }
 /* Drawer gesture and backdrop event-isolation contract. */
-.ai-tools-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:100000!important;pointer-events:auto!important;touch-action:none!important;overscroll-behavior:contain!important}
+.ai-tools-overlay{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;touch-action:none!important;overscroll-behavior:contain!important}
+.ai-tools-overlay:not([hidden]){display:block!important;pointer-events:auto!important;visibility:visible!important;z-index:100000!important}
+.ai-tools-overlay[hidden],.ai-tools-overlay:not(.open):not(:not([hidden])){display:none!important;pointer-events:none!important;visibility:hidden!important}
 .ai-tools-drawer{z-index:100001!important}
 .ai-tools-drawer{touch-action:pan-y;overscroll-behavior-y:contain}
 .ai-tools-drawer.dragging{transition:none!important;will-change:transform}
