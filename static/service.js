@@ -15,7 +15,7 @@ async function api(url,options={}){
  const opts=Object.assign({credentials:'same-origin'}, options, {headers});
  const response=await fetch(url,opts),type=response.headers.get('content-type')||'';
  const body=type.includes('json')?await response.json():{};
- if(!response.ok)throw new Error(body.detail||'Không thể kết nối máy chủ');
+ if(!response.ok){const messages={400:'Dữ liệu gửi lên chưa hợp lệ. Vui lòng kiểm tra lại.',422:'Dữ liệu gửi lên chưa hợp lệ. Vui lòng kiểm tra lại.',401:'Phiên đăng nhập hoặc quyền truy cập không hợp lệ.',403:'Phiên đăng nhập hoặc quyền truy cập không hợp lệ.',429:'Hệ thống đang có nhiều tác vụ. Vui lòng thử lại sau.',500:'Có lỗi xảy ra khi xử lý tác vụ.',503:'GPU hiện chưa sẵn sàng. Vui lòng thử lại.'};const error=new Error(messages[response.status]||body.detail||'Không thể kết nối dịch vụ xử lý.');error.status=response.status;throw error}
  return body;
 }
 function requestKey(){return crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2)}
@@ -77,6 +77,15 @@ function setStatus(job){
  }
  if(['waiting','running','upscaling'].includes(job.status))schedulePoll();else clearTimeout(pollTimer);
 }
+function showQueuedJob(job){
+ clearTimeout(pollTimer);currentJob=job;$('jobState').classList.remove('hidden');$('resultPlaceholder').classList.add('hidden');
+ $('statusLabel').textContent='Đã gửi vào hàng chờ';$('progressLabel').textContent='0%';$('jobProgress').value=0;
+ $('jobMessage').textContent=`Job #${job.id} đang chờ xử lý. Bạn có thể tiếp tục sử dụng TVC Studio AI trong khi video được xử lý.`;
+ $('cancelButton').classList.toggle('hidden',!job.can_cancel);$('retryButton').classList.add('hidden');
+ $('regenerateButton').classList.add('hidden');$('reuseButton').classList.add('hidden');$('continueButton').classList.remove('hidden');$('downloadButton').classList.add('hidden');
+ $('historyButton').classList.remove('hidden');$('historyButton').href=`/app?job=${encodeURIComponent(job.id)}#jobs`;
+ $('resultPreview').replaceChildren();
+}
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=setTimeout(poll,Number(window.workerPollMs||4000))}
 async function poll(){if(!currentJob)return;try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`))}catch(e){$('jobMessage').textContent=e.message;schedulePoll()}}
  if(key==='video_generation'){$('serviceGuide').textContent='Chọn phương thức phù hợp, cung cấp nội dung tham chiếu và mô tả video bạn muốn tạo. AI sẽ tạo một video hoàn toàn mới dựa trên yêu cầu của bạn.';$('serviceGuide').classList.remove('hidden')}
@@ -129,13 +138,16 @@ $('serviceForm').addEventListener('submit',async event=>{
   openLoginModal(location.pathname+location.search+location.hash);
   return;
  }
- submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi…';
- try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f));if(event.currentTarget.__creatorFiles.first)data.set('first_frame',event.currentTarget.__creatorFiles.first);if(event.currentTarget.__creatorFiles.last)data.set('last_frame',event.currentTarget.__creatorFiles.last)}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});setStatus(job)}
- catch(e){setError(e.message)}
+ submitting=true;setError();$('submitButton').disabled=true;$('submitButton').textContent='Đang gửi tác vụ...';
+ try{const data=new FormData(event.currentTarget);data.set('language',language());if(key==='video_generation'&&event.currentTarget.__creatorFiles){event.currentTarget.__creatorFiles.images.forEach(f=>data.append('reference_images',f));event.currentTarget.__creatorFiles.videos.forEach(f=>data.append('reference_videos',f));if(event.currentTarget.__creatorFiles.first)data.set('first_frame',event.currentTarget.__creatorFiles.first);if(event.currentTarget.__creatorFiles.last)data.set('last_frame',event.currentTarget.__creatorFiles.last)}const job=await api(`/api/services/${key}/jobs`,{method:'POST',body:data});showQueuedJob(job)}
+ catch(e){setError(e.message==='Failed to fetch'?'Không thể kết nối dịch vụ xử lý.':e.message);$('retryButton').classList.remove('hidden')}
  finally{submitting=false;$('submitButton').disabled=false;$('submitButton').textContent=definitions[key]?.button||'Bắt đầu xử lý'}
 });
 $('cancelButton').onclick=async()=>{try{setStatus(await api(`/api/services/${key}/jobs/${currentJob.id}`,{method:'DELETE'}))}catch(e){setError(e.message)}};
 $('retryButton').onclick=()=>{clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError()};
 $('regenerateButton').onclick=()=>{if(!currentJob||currentJob.status!=='done')return;clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError();window.scrollTo({top:0,behavior:'smooth'})};
 $('reuseButton').onclick=()=>{if(!currentJob||currentJob.status!=='done')return;window.reuseVideoCreatorSettings?.();$('requestKey').value=requestKey();setError()};
+ $('historyButton').addEventListener('click',()=>clearTimeout(pollTimer));
+ $('regenerateButton').insertAdjacentHTML('afterend','<button type="button" id="continueButton" class="secondary hidden">Tạo tiếp</button>');
+ $('continueButton').onclick=()=>{clearTimeout(pollTimer);currentJob=null;$('jobState').classList.add('hidden');$('resultPlaceholder').classList.remove('hidden');$('requestKey').value=requestKey();setError();if(key==='video_generation')window.resetVideoCreator?.();else{document.querySelectorAll('#dynamicFields input[type=file]').forEach(input=>{input.value='';input.dispatchEvent(new Event('change',{bubbles:true}))});}document.querySelector('#dynamicFields textarea, #dynamicFields input, #dynamicFields select')?.focus();window.scrollTo({top:0,behavior:'smooth'})};
 init();

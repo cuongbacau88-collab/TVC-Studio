@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>TVC Studio AI — Dashboard</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
-<link rel="stylesheet" href="/static/styles.css?v=20260819.7">
+<link rel="stylesheet" href="/static/styles.css?v=20260820.6">
 
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
-<link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/motion-form.css?v=20260816.1"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.2">
+<link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/motion-form.css?v=20260816.1"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.3">
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
 <div class="v3-bg-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -131,6 +131,14 @@
 
         <span id="cost" class="simple-hidden-cost">—</span>
       </form>
+      <section id="motionQueuedState" class="motion-queued-state" hidden aria-live="polite">
+        <h3>🎬 Đã gửi tác vụ vào hàng chờ</h3>
+        <p><b id="motionQueuedJob">Job đang được tạo</b></p>
+        <p>Trạng thái: <strong>Đang chờ xử lý</strong></p>
+        <p>Bạn có thể tiếp tục sử dụng TVC Studio AI trong khi video được xử lý.</p>
+        <div class="motion-queued-actions"><a id="motionQueuedHistory" class="mini-btn" href="/app#jobs">Xem tiến trình</a><button id="motionContinueButton" class="mini-btn" type="button">Tạo tiếp</button></div>
+      </section>
+      <section id="motionSubmitError" class="motion-submit-error" hidden aria-live="assertive"><h3>❌ Không thể gửi tác vụ</h3><p id="motionSubmitErrorMessage"></p><button id="motionRetryButton" class="mini-btn" type="button">Thử lại</button></section>
     </article>
   </div>
 </section>
@@ -247,8 +255,8 @@
 </div>
 <div class="toast" id="toast"></div>
 <script src="/static/global-toolbar.js?v=20260819.2"></script>
-<script src="/static/motion-form.js?v=20260816.1"></script>
-<script src="/static/app.js?v=20260820.4"></script>
+<script src="/static/motion-form.js?v=20260820.2"></script>
+<script src="/static/app.js?v=20260820.5"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="/static/google-login.js?v=20260819.3"></script>
 </body></html>

@@ -4468,6 +4468,18 @@ body > .account-popover{
   display:grid;
   gap:18px;
 }
+.motion-queued-state{
+  margin-top:18px;padding:20px;border:1px solid rgba(95,215,255,.35);border-radius:16px;
+  background:linear-gradient(145deg,rgba(25,52,94,.92),rgba(48,39,92,.88));color:#f4f8ff;
+  box-shadow:0 14px 30px rgba(5,10,30,.2);
+}
+.motion-queued-state h3{margin:0 0 12px;color:#fff;font-size:16px}
+.motion-queued-state p{margin:7px 0;color:#c8d5e8;font-size:12px;line-height:1.5}
+.motion-queued-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.motion-queued-actions .mini-btn{border:1px solid rgba(255,255,255,.22);cursor:pointer;text-decoration:none}
+.motion-submit-error{margin-top:18px;padding:18px;border:1px solid rgba(255,120,145,.4);border-radius:16px;background:rgba(91,25,55,.7);color:#fff}
+.motion-submit-error h3{margin:0 0 8px;font-size:15px}.motion-submit-error p{color:#ffd6df;font-size:12px;line-height:1.5}
+.job-highlight{border-color:#65d8ff!important;box-shadow:0 0 0 2px rgba(101,216,255,.2),0 12px 30px rgba(20,105,160,.18)}
 .simple-field{
   display:grid;
   gap:8px;

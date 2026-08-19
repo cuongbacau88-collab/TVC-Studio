@@ -139,7 +139,7 @@ async function api(url,opt={}){
   if(token && !headers['Authorization']) headers['Authorization']='Bearer '+token;
   const opts=Object.assign({credentials:'same-origin'}, opt, {headers});
   const r=await fetch(url,opts);let j={};try{j=await r.json()}catch{};
-  if(!r.ok)throw new Error(j.detail||'Có lỗi xảy ra');return j
+  if(!r.ok){const messages={400:'Dữ liệu gửi lên chưa hợp lệ. Vui lòng kiểm tra lại.',422:'Dữ liệu gửi lên chưa hợp lệ. Vui lòng kiểm tra lại.',401:'Phiên đăng nhập hoặc quyền truy cập không hợp lệ.',403:'Phiên đăng nhập hoặc quyền truy cập không hợp lệ.',429:'Hệ thống đang có nhiều tác vụ. Vui lòng thử lại sau.',500:'Có lỗi xảy ra khi xử lý tác vụ.',503:'GPU hiện chưa sẵn sàng. Vui lòng thử lại.'};const error=new Error(messages[r.status]||j.detail||'Không thể kết nối dịch vụ xử lý.');error.status=r.status;throw error}return j
 }
 function referralFromUrl(){
   const p=new URLSearchParams(location.search);
@@ -335,7 +335,7 @@ function setJobSubmitLocked(locked,activeBtn=null){
     btn.disabled=disabled;
     btn.setAttribute('aria-disabled',disabled?'true':'false');
     if(locked && btn===activeBtn){
-      btn.innerHTML='<span><b>⏳ Đang tạo video...</b><small>Không cần bấm lại</small></span><em>…</em>';
+      btn.innerHTML='<span><b>⏳ Đang gửi tác vụ...</b><small>Không cần bấm lại</small></span><em>…</em>';
     }else if(!locked){
       btn.innerHTML=renderBtnHTML.get(btn);
     }
@@ -362,14 +362,34 @@ form.onsubmit=async e=>{
   try{
     const j=await api('/api/jobs',{method:'POST',body:fd});
     say(j.duplicate?('Job #'+j.job_id+' đã được nhận, không tạo trùng.'):('Đã tạo job #'+j.job_id));
-    me=await api('/api/me');showDashboard();goto('jobs');
+    me=await api('/api/me');showDashboard();showMotionQueuedState(j);
   }catch(err){
-    say(err.message);
+    showMotionSubmitError(err);
   }finally{
     setJobSubmitLocked(false);
   }
 
 }
+function showMotionSubmitError(error){
+  const state=$('#motionSubmitError');if(!state)return;
+  $('#motionSubmitErrorMessage').textContent=error.message==='Failed to fetch'?'Không thể kết nối dịch vụ xử lý.':error.message;state.hidden=false;
+}
+function showMotionQueuedState(job){
+  const state=$('#motionQueuedState');if(!state)return;
+  $('#motionSubmitError').hidden=true;
+  $('#motionQueuedJob').textContent=`Job #${job.job_id}`;
+  $('#motionQueuedHistory').href=`/app?job=${encodeURIComponent(job.job_id)}#jobs`;
+  state.hidden=false;form.hidden=true;window.scrollTo({top:0,behavior:'smooth'});
+}
+$('#motionContinueButton').onclick=()=>{
+  const state=$('#motionQueuedState');if(!state)return;
+  const aspect=$('#aspectRatio')?.value||'9:16',prompt=form.elements.prompt?.value||'';
+  motionForm?.reset();form.reset();if(form.elements.prompt)form.elements.prompt.value=prompt;
+  if($('#aspectRatio'))$('#aspectRatio').value=aspect;
+  $$('.simple-aspect').forEach(button=>button.classList.toggle('active',button.dataset.aspect===aspect));
+  state.hidden=true;form.hidden=false;setJobSubmitLocked(false);window.scrollTo({top:0,behavior:'smooth'});form.elements.image?.focus();
+};
+$('#motionRetryButton').onclick=()=>{$('#motionSubmitError').hidden=true;form.hidden=false;form.elements.image?.focus()};
 syncMotionPrice();
 function stateText(s){return {waiting:'Đang chờ',running:'Đang render',upscaling:'Đang nâng cấp video lên HD',done:'Hoàn thành',failed:'Render thất bại',cancelled:'Đã hủy',uploading:'Đang tải'}[s]||s}
 function jobResultUrl(j){return (j.service && j.service !== 'motion_studio')?`/api/services/${encodeURIComponent(j.service)}/jobs/${j.id}/result`:`/api/jobs/${j.id}/output`}
@@ -383,12 +403,14 @@ async function loadJobs(){
   }
   try{
     const jobs=await api('/api/jobs');
-    $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job">
+    const requestedJob=new URLSearchParams(location.search).get('job');
+    $('#jobsList').innerHTML=jobs.length?jobs.map(j=>`<div class="job ${String(j.id)===requestedJob?'job-highlight':''}" data-job-id="${j.id}">
       <div class="thumb">🎬</div>
       <div><b>#${j.id} • ${jobDisplayName(j)}</b><small>${j.aspect_ratio} • ${new Date(j.created_at).toLocaleString('vi-VN')}</small>${j.error?`<small style="color:#ff7a88">${j.error}</small>`:''}${jobOpenUrl(j)?`<small><a class="mini-btn" href="${jobOpenUrl(j)}">Mở lại job</a></small>`:''}</div>
       <div><progress value="${j.progress}" max="100"></progress><small>${j.progress}%</small></div>
       <div class="state ${j.status}">${stateText(j.status)}${j.has_output?`<div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;"><a class="mini-btn" href="${jobResultUrl(j)}" target="_blank" style="background:rgba(168,85,247,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">▶ Xem</a><a class="mini-btn" href="${jobResultUrl(j)}?download=1" download="tvc_result_${j.id}.${jobOutputExtension(j)}" style="background:rgba(217,70,239,0.35);border:1px solid rgba(255,255,255,0.4);color:#fff;font-weight:700;">⬇ Tải về</a></div>`:''}${j.can_cancel&&!j.service?`<br><button class="mini-btn cancel-job-btn" data-job-id="${j.id}" type="button">Hủy</button>`:''}</div>
-    </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>'
+    </div>`).join(''):'<div class="panel-card">Chưa có job nào.</div>';
+    if(requestedJob)document.querySelector(`[data-job-id="${CSS.escape(requestedJob)}"]`)?.scrollIntoView({block:'center',behavior:'smooth'});
   }catch(e){say(e.message)}
 }
 $('#refreshJobs').onclick=loadJobs;

@@ -116,7 +116,8 @@ function create(form,{onValidityChange=()=>{}}={}){
       if(!motionValid||motionDuration===null)await validateMotion();
       return validImage&&this.isValid();
     },
-    cleanup:()=>{validationToken++;revoke('image');revoke('motion')}
+    cleanup:()=>{validationToken++;revoke('image');revoke('motion')},
+    reset:()=>{validationToken++;revoke('image');revoke('motion');imageValid=false;motionValid=false;motionDuration=null;showError(imageError,'');showError(motionError,'');imagePreview.replaceChildren();motionPreview.replaceChildren();imagePreview.hidden=true;motionPreview.hidden=true;imageName.textContent='Chưa chọn ảnh';motionName.textContent='Chưa chọn video';update()}
   };
 }
 window.TVCMotionForm={create,fileError,readVideoDuration,limits:{MAX_IMAGE_BYTES,MAX_VIDEO_BYTES,MIN_DURATION,MAX_DURATION}};

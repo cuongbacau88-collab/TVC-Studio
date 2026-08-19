@@ -54,6 +54,16 @@ class MotionFormRegressionTests(unittest.TestCase):
         self.assertIn("setJobSubmitLocked(true,submitter)",self.app)
         self.assertIn("setJobSubmitLocked(false)",self.app)
 
+    def test_submit_stays_on_create_page_with_queue_actions(self):
+        self.assertIn("showMotionQueuedState(j)",self.app)
+        self.assertNotIn("goto('jobs');",self.app)
+        self.assertIn("motionQueuedHistory",self.html)
+        self.assertIn("motionContinueButton",self.html)
+        self.assertIn("motionSubmitError",self.html)
+        self.assertIn("showMotionSubmitError(err)",self.app)
+        self.assertIn("Đang gửi tác vụ...",self.app)
+        self.assertIn("reset:()=>",self.form)
+
     def test_mobile_preview_is_bounded_without_touching_scroll_contract(self):
         self.assertIn("max-width:100%",self.css)
         self.assertIn("max-height:240px",self.css)

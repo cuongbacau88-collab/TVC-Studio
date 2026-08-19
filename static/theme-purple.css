@@ -2801,3 +2801,70 @@ body.legal-body .legal-card a:focus-visible{
   border-top: 1.5px solid rgba(255, 255, 255, 0.95) !important;
 }
 
+/* Dashboard light-surface contract: replace legacy dark history and wallet rules. */
+body.app-body .tab,
+body.app-body #tab-wallet,
+body.app-body #tab-jobs,
+body.app-body .jobs,
+body.app-body .simple-list,
+body.app-body .sectionbar,
+body.app-body .wallet-grid,
+body.app-body .wallet-grid > *,
+body.app-body .simple-row,
+body.app-body .job,
+body.app-body .topup-notice,
+body.app-body .packs button,
+body.app-body #topupNote {
+  color: var(--stable-dark-text) !important;
+  background: rgba(245, 254, 255, 0.84) !important;
+  border-color: rgba(83, 196, 213, 0.48) !important;
+  box-shadow: 0 10px 24px rgba(17, 111, 135, 0.10) !important;
+}
+body.app-body #tab-wallet h3,
+body.app-body #tab-wallet h4,
+body.app-body #tab-wallet p,
+body.app-body #tab-wallet span,
+body.app-body #tab-wallet small,
+body.app-body #tab-wallet strong,
+body.app-body #tab-wallet b,
+body.app-body #tab-jobs h3,
+body.app-body #tab-jobs p,
+body.app-body #tab-jobs span,
+body.app-body #tab-jobs small,
+body.app-body #tab-jobs strong,
+body.app-body #tab-jobs b,
+body.app-body .simple-row,
+body.app-body .job {
+  color: var(--stable-body-text) !important;
+  font-weight: 600 !important;
+}
+body.app-body #tab-wallet .packs button.active {
+  color: #064c61 !important;
+  background: linear-gradient(145deg, rgba(238, 222, 255, .96), rgba(222, 205, 255, .86)) !important;
+  border-color: #a15cff !important;
+}
+body.app-body #tab-wallet .packs button:not(.active) b,
+body.app-body #tab-wallet .packs button:not(.active) small,
+body.app-body #tab-wallet .packs button:not(.active) span,
+body.app-body #tab-wallet .packs button:not(.active) strong { color: #15596d !important; }
+body.app-body #tab-wallet #requestTopup {
+  color: #fff !important;
+  background: linear-gradient(135deg, #0db7c5, #4b7ff2) !important;
+  font-weight: 800 !important;
+}
+body.app-body .toast {
+  color: #073e50 !important;
+  background: rgba(245, 254, 255, .98) !important;
+  border: 1px solid rgba(83, 196, 213, .62) !important;
+  box-shadow: 0 14px 30px rgba(17, 111, 135, .18) !important;
+  font-weight: 700 !important;
+}
+body.app-body .job progress { accent-color: #0db7c5 !important; }
+body.app-body .job .state { color: #08788b !important; font-weight: 800 !important; }
+body.app-body .job .state.failed { color: #c33e58 !important; }
+body.app-body .job-highlight {
+  background: rgba(229, 252, 255, .98) !important;
+  border-color: #16bfd0 !important;
+  box-shadow: 0 0 0 2px rgba(22, 191, 208, .20), 0 12px 30px rgba(20, 105, 160, .16) !important;
+}
+
