@@ -1,3 +1,4 @@
+.auth-session-toast{top:50% !important;left:50% !important;right:auto !important;bottom:auto !important;width:min(390px,calc(100vw - 32px)) !important;transform:translate(-50%,-50%) !important;color:#6d28d9 !important}.auth-session-toast__title{color:#6d28d9 !important}.auth-session-toast__message{color:#7c3aed !important}.auth-session-toast__close{color:#6d28d9 !important}
 .video-credit-price span{
   font-size:16px !important;
   font-weight:850 !important;
