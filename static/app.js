@@ -148,12 +148,6 @@ function referralFromUrl(){
 async function boot(){
   tvcInitToolbar();
   const ref=referralFromUrl();
-  try{
-    me=await api('/api/me');showDashboard();await refreshAll();
-    const returnTarget=window.TVCReturnNavigation?.consumeReturn()||'/';
-  }catch{
-    me=null;showDashboard();
-  }
   const initialPath=location.pathname;
   const initialHash=location.hash;
   const hashMap={'#affiliate':'affiliate','#jobs':'jobs','#wallet':'wallet','#account':'account','#create':'create'};
@@ -163,6 +157,14 @@ async function boot(){
   currentTab=targetTab;
   if(targetTab!=='create') goto(targetTab,{source:'boot'});
   else updateMobileToolState('create');
+
+  try{
+    me=await api('/api/me');showDashboard();await refreshAll();
+    if(targetTab==='affiliate') loadAffiliate();
+    const returnTarget=window.TVCReturnNavigation?.consumeReturn()||'/';
+  }catch{
+    me=null;showDashboard();
+  }
   pollPendingTopup();
 
   if(initialHash === '#login' || initialHash === '#register'){
