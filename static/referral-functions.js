@@ -7,12 +7,14 @@
  * Load and display all referral data
  */
 async function loadAffiliate(){
+  const $ = id => document.getElementById(id);
+  
   if(!me){
-    $('#refDirectCount').textContent='0';
-    $('#affLink').textContent='—';
-    $('#affCode').textContent='—';
-    $('#referrerState').innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
-    $('#referralUserList').innerHTML=`<div class="referral-users-empty">
+    if($('refDirectCount')) $('refDirectCount').textContent='0';
+    if($('affLink')) $('affLink').textContent='—';
+    if($('affCode')) $('affCode').textContent='—';
+    if($('referrerState')) $('referrerState').innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
+    if($('referralUserList')) $('referralUserList').innerHTML=`<div class="referral-users-empty">
       <div class="referral-users-empty-icon">👥</div>
       <p class="referral-users-empty-title">Chưa đăng nhập</p>
       <p class="referral-users-empty-desc">Đăng nhập để xem thông tin giới thiệu của bạn.</p>
@@ -28,49 +30,49 @@ async function loadAffiliate(){
     ]);
 
     // Update stats
-    $('#refDirectCount').textContent=summary.direct_referrals||0;
-    $('#refCurrentTier').textContent=summary.tier?.name||'Bạc';
-    $('#refCommissionRate').textContent=`Hoa hồng ${summary.tier?.rate_percent||10}%`;
-    $('#refAvailableRewards').textContent=Number(summary.available||0).toLocaleString('vi-VN');
-    $('#refAvailableVnd').textContent=`${Number(summary.available_vnd||0).toLocaleString('vi-VN')} ₫`;
-    $('#refTotalRewards').textContent=Number(summary.total_rewards||0).toLocaleString('vi-VN');
+    if($('refDirectCount')) $('refDirectCount').textContent=summary.direct_referrals||0;
+    if($('refCurrentTier')) $('refCurrentTier').textContent=summary.tier?.name||'Bạc';
+    if($('refCommissionRate')) $('refCommissionRate').textContent=`Hoa hồng ${summary.tier?.rate_percent||10}%`;
+    if($('refAvailableRewards')) $('refAvailableRewards').textContent=Number(summary.available||0).toLocaleString('vi-VN');
+    if($('refAvailableVnd')) $('refAvailableVnd').textContent=`${Number(summary.available_vnd||0).toLocaleString('vi-VN')} ₫`;
+    if($('refTotalRewards')) $('refTotalRewards').textContent=Number(summary.total_rewards||0).toLocaleString('vi-VN');
 
     // Update tier rates
-    $('#refSilverRulePercent').textContent=`${summary.commission_rates?.silver_percent||10}%`;
-    $('#refGoldRulePercent').textContent=`${summary.commission_rates?.gold_percent||15}%`;
-    $('#refGoldThresholdAmount').textContent=Number(summary.commission_rates?.gold_threshold_credits||1000).toLocaleString('vi-VN')+' Xu';
+    if($('refSilverRulePercent')) $('refSilverRulePercent').textContent=`${summary.commission_rates?.silver_percent||10}%`;
+    if($('refGoldRulePercent')) $('refGoldRulePercent').textContent=`${summary.commission_rates?.gold_percent||15}%`;
+    if($('refGoldThresholdAmount')) $('refGoldThresholdAmount').textContent=Number(summary.commission_rates?.gold_threshold_credits||1000).toLocaleString('vi-VN')+' Xu';
 
     // Show current tier badge
-    $('#tierSilverBadge').style.display = summary.tier?.key === 'silver' ? 'block' : 'none';
-    $('#tierGoldBadge').style.display = summary.tier?.key === 'gold' ? 'block' : 'none';
+    if($('tierSilverBadge')) $('tierSilverBadge').style.display = summary.tier?.key === 'silver' ? 'block' : 'none';
+    if($('tierGoldBadge')) $('tierGoldBadge').style.display = summary.tier?.key === 'gold' ? 'block' : 'none';
 
     // Update progress
     if(summary.tier?.next_sales_credits){
-      $('#tierProgressSection').style.display='block';
-      $('#refTierProgressBar').style.width=`${Math.min(100, Number(summary.progress_percent||0))}%`;
-      $('#refTierProgressText').textContent=`${Number(summary.tier.sales_credits||0).toLocaleString('vi-VN')} / ${Number(summary.tier.next_sales_credits).toLocaleString('vi-VN')} Xu doanh số đủ điều kiện • Còn ${Number(summary.credits_to_gold||0).toLocaleString('vi-VN')} Xu để đạt hạng Vàng`;
+      if($('tierProgressSection')) $('tierProgressSection').style.display='block';
+      if($('refTierProgressBar')) $('refTierProgressBar').style.width=`${Math.min(100, Number(summary.progress_percent||0))}%`;
+      if($('refTierProgressText')) $('refTierProgressText').textContent=`${Number(summary.tier.sales_credits||0).toLocaleString('vi-VN')} / ${Number(summary.tier.next_sales_credits).toLocaleString('vi-VN')} Xu doanh số đủ điều kiện • Còn ${Number(summary.credits_to_gold||0).toLocaleString('vi-VN')} Xu để đạt hạng Vàng`;
     }else{
-      $('#tierProgressSection').style.display='none';
+      if($('tierProgressSection')) $('tierProgressSection').style.display='none';
     }
 
     // Update referral links/codes
-    $('#affLink').textContent=summary.referral_link||'—';
-    $('#affCode').textContent=summary.referral_code||'—';
+    if($('affLink')) $('affLink').textContent=summary.referral_link||'—';
+    if($('affCode')) $('affCode').textContent=summary.referral_code||'—';
 
     // Handle referrer status
     if(summary.referrer){
-      $('#referralApplySection').style.display='none';
-      $('#referrerState').innerHTML=`<span class="referral-apply-status">✓ Tài khoản đã được ghi nhận người giới thiệu: <b>${summary.referrer.name}</b> (${summary.referrer.referral_code})</span>`;
+      if($('referralApplySection')) $('referralApplySection').style.display='none';
+      if($('referrerState')) $('referrerState').innerHTML=`<span class="referral-apply-status">✓ Tài khoản đã được ghi nhận người giới thiệu: <b>${summary.referrer.name}</b> (${summary.referrer.referral_code})</span>`;
     }else{
-      $('#referralApplySection').style.display='block';
-      $('#referrerState').innerHTML='';
-      $('#applyReferralCode').disabled=false;
-      $('#applyReferralBtn').disabled=false;
+      if($('referralApplySection')) $('referralApplySection').style.display='block';
+      if($('referrerState')) $('referrerState').innerHTML='';
+      if($('applyReferralCode')) $('applyReferralCode').disabled=false;
+      if($('applyReferralBtn')) $('applyReferralBtn').disabled=false;
       
       // Auto-fill from URL
       const ref=referralFromUrl();
-      if(ref&&!$('#applyReferralCode').value){
-        $('#applyReferralCode').value=ref;
+      if(ref && $('applyReferralCode') && !$('applyReferralCode').value){
+        $('applyReferralCode').value=ref;
       }
     }
 
@@ -82,7 +84,7 @@ async function loadAffiliate(){
 
   }catch(e){
     console.error(e);
-    say(e.message);
+    if(window.say) say(e.message);
   }
 }
 
@@ -90,7 +92,7 @@ async function loadAffiliate(){
  * Render referred users table/cards
  */
 function renderReferredUsers(refs){
-  const container=$('#referralUserList');
+  const container=document.getElementById('referralUserList');
   
   if(!refs||refs.length===0){
     container.innerHTML=`<div class="referral-users-empty">
@@ -132,7 +134,7 @@ function renderReferredUsers(refs){
  * Render commission history table/cards
  */
 function renderCommissionHistory(rewards){
-  const container=$('#referralRewardList');
+  const container=document.getElementById('referralRewardList');
 
   if(!rewards||rewards.length===0){
     container.innerHTML=`<div class="referral-history-empty">
@@ -182,10 +184,11 @@ function setupCopyButtons(){
     btn.addEventListener('click', async(e)=>{
       e.preventDefault();
       const target=btn.dataset.target;
-      const text=$(target)?.textContent||'';
+      const el=document.getElementById(target?.substring(1));
+      const text=el?.textContent||'';
       
       if(!text||text==='—'){
-        say('Không có nội dung để sao chép');
+        if(window.say) say('Không có nội dung để sao chép');
         return;
       }
 
@@ -200,10 +203,10 @@ function setupCopyButtons(){
           btn.textContent=original;
         }, 2000);
         
-        say('Đã sao chép');
+        if(window.say) say('Đã sao chép');
       }catch(err){
         console.error('Copy failed:', err);
-        say('Sao chép thất bại');
+        if(window.say) say('Sao chép thất bại');
       }
     });
   });
@@ -213,50 +216,57 @@ function setupCopyButtons(){
  * Setup CTA buttons
  */
 function setupCTAButtons(){
-  const linkText=$('#affLink')?.textContent||'';
+  const affLinkEl=document.getElementById('affLink');
+  const linkText=affLinkEl?.textContent||'—';
 
-  $('#ctaCopyLink')?.addEventListener('click', async()=>{
-    if(!linkText||linkText==='—'){
-      say('Chưa có link giới thiệu');
-      return;
-    }
-    try{
-      await navigator.clipboard.writeText(linkText);
-      say('Đã sao chép link giới thiệu');
-    }catch(err){
-      say('Sao chép thất bại');
-    }
-  });
-
-  $('#ctaShare')?.addEventListener('click', async()=>{
-    if(!linkText||linkText==='—'){
-      say('Chưa có link giới thiệu');
-      return;
-    }
-    
-    // Try Web Share API
-    if(navigator.share){
-      try{
-        await navigator.share({
-          title:'Giới Thiệu TVC Studio AI',
-          text:'Chia sẻ TVC Studio AI - Công cụ AI tạo video chuyên nghiệp',
-          url:linkText
-        });
-      }catch(err){
-        if(err.name!=='AbortError'){
-          console.error('Share failed:', err);
-        }
+  const ctaCopyLink=document.getElementById('ctaCopyLink');
+  if(ctaCopyLink){
+    ctaCopyLink.addEventListener('click', async()=>{
+      if(!linkText||linkText==='—'){
+        if(window.say) say('Chưa có link giới thiệu');
+        return;
       }
-    }else{
-      // Fallback: copy link
       try{
         await navigator.clipboard.writeText(linkText);
-        say('Đã sao chép link. Gửi cho bạn bè của bạn!');
+        if(window.say) say('Đã sao chép link giới thiệu');
       }catch(err){
-        say('Sao chép thất bại');
+        if(window.say) say('Sao chép thất bại');
       }
-    }
-  });
+    });
+  }
+
+  const ctaShare=document.getElementById('ctaShare');
+  if(ctaShare){
+    ctaShare.addEventListener('click', async()=>{
+      if(!linkText||linkText==='—'){
+        if(window.say) say('Chưa có link giới thiệu');
+        return;
+      }
+      
+      // Try Web Share API
+      if(navigator.share){
+        try{
+          await navigator.share({
+            title:'Giới Thiệu TVC Studio AI',
+            text:'Chia sẻ TVC Studio AI - Công cụ AI tạo video chuyên nghiệp',
+            url:linkText
+          });
+        }catch(err){
+          if(err.name!=='AbortError'){
+            console.error('Share failed:', err);
+          }
+        }
+      }else{
+        // Fallback: copy link
+        try{
+          await navigator.clipboard.writeText(linkText);
+          if(window.say) say('Đã sao chép link. Gửi cho bạn bè của bạn!');
+        }catch(err){
+          if(window.say) say('Sao chép thất bại');
+        }
+      }
+    });
+  }
 }
 
 /**
@@ -286,44 +296,49 @@ function setupFAQAccordion(){
  * Setup apply referral code form
  */
 function setupApplyReferralForm(){
-  $('#applyReferralBtn')?.addEventListener('click', async()=>{
-    const code=$('#applyReferralCode')?.value?.trim();
-    
-    if(!code){
-      say('Vui lòng nhập mã giới thiệu');
-      return;
-    }
-
-    // Validate: can't use own code
-    const ownCode=$('#affCode')?.textContent;
-    if(code===ownCode){
-      say('Bạn không thể sử dụng mã giới thiệu của chính mình');
-      return;
-    }
-
-    try{
-      $('#applyReferralBtn').disabled=true;
-      const result=await api('/api/affiliate/apply-code',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({code})
-      });
+  const applyBtn=document.getElementById('applyReferralBtn');
+  const applyCode=document.getElementById('applyReferralCode');
+  
+  if(applyBtn && applyCode){
+    applyBtn.addEventListener('click', async()=>{
+      const code=applyCode.value?.trim();
       
-      say(`✓ Đã liên kết với ${result.referrer_name}`);
-      await loadAffiliate();
-    }catch(e){
-      say(e.message);
-    }finally{
-      $('#applyReferralBtn').disabled=false;
-    }
-  });
+      if(!code){
+        if(window.say) say('Vui lòng nhập mã giới thiệu');
+        return;
+      }
 
-  // Allow Enter key
-  $('#applyReferralCode')?.addEventListener('keypress', (e)=>{
-    if(e.key==='Enter'){
-      $('#applyReferralBtn')?.click();
-    }
-  });
+      // Validate: can't use own code
+      const ownCode=document.getElementById('affCode')?.textContent;
+      if(code===ownCode){
+        if(window.say) say('Bạn không thể sử dụng mã giới thiệu của chính mình');
+        return;
+      }
+
+      try{
+        applyBtn.disabled=true;
+        const result=await api('/api/affiliate/apply-code',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({code})
+        });
+        
+        if(window.say) say(`✓ Đã liên kết với ${result.referrer_name}`);
+        await loadAffiliate();
+      }catch(e){
+        if(window.say) say(e.message);
+      }finally{
+        applyBtn.disabled=false;
+      }
+    });
+
+    // Allow Enter key
+    applyCode.addEventListener('keypress', (e)=>{
+      if(e.key==='Enter'){
+        applyBtn.click();
+      }
+    });
+  }
 }
 
 /**
@@ -353,25 +368,38 @@ function initReferralPage(){
   setupApplyReferralForm();
 
   // Refresh button
-  $('#refreshAffiliate')?.addEventListener('click', loadAffiliate);
+  const refreshBtn=document.getElementById('refreshAffiliate');
+  if(refreshBtn){
+    refreshBtn.addEventListener('click', loadAffiliate);
+  }
 
   // Load data
   loadAffiliate();
 }
 
 // Initialize when referral tab is clicked or page loads
-if(document.getElementById('tab-affiliate')){
-  initReferralPage();
-}
-
-// Also reinitialize when switching to referral tab
-const tabAffiliate=document.getElementById('tab-affiliate');
-if(tabAffiliate){
-  const observer=new MutationObserver(()=>{
+document.addEventListener('DOMContentLoaded', ()=>{
+  const tabAffiliate=document.getElementById('tab-affiliate');
+  if(tabAffiliate){
+    // Check if already active
     if(tabAffiliate.classList.contains('active')){
-      // Tab became active, reinitialize
-      setTimeout(initReferralPage, 100);
+      initReferralPage();
     }
-  });
-  observer.observe(tabAffiliate, {attributes:true, attributeFilter:['class']});
+    
+    // Watch for changes
+    const observer=new MutationObserver(()=>{
+      if(tabAffiliate.classList.contains('active')){
+        initReferralPage();
+      }
+    });
+    observer.observe(tabAffiliate, {attributes:true, attributeFilter:['class']});
+  }
+});
+
+// Also try immediate initialization if DOM is ready
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded', initReferralPage);
+}else{
+  // DOM already loaded
+  setTimeout(initReferralPage, 100);
 }
