@@ -487,6 +487,21 @@
 <script src="/static/motion-form.js?v=20260820.3"></script>
 <script src="/static/app.js?v=20260820.9"></script>
 <script src="/static/referral-functions.js?v=20260820.6"></script>
+<script>
+document.addEventListener('click', event=>{
+  const trigger=event.target.closest('.referral-faq-trigger');
+  if(!trigger) return;
+  const content=document.getElementById(`faq-${trigger.dataset.faq}`);
+  if(!content) return;
+  const shouldOpen=!content.classList.contains('open');
+  document.querySelectorAll('.referral-faq-content').forEach(item=>item.classList.remove('open'));
+  document.querySelectorAll('.referral-faq-trigger').forEach(item=>item.classList.remove('open'));
+  if(shouldOpen){
+    content.classList.add('open');
+    trigger.classList.add('open');
+  }
+});
+</script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <script src="/static/google-login.js?v=20260819.3"></script>
 </body></html>
