@@ -483,6 +483,19 @@ def find_referrer_by_code(con, code: str):
         (code,)
     ).fetchone()
 
+def capture_referral_attribution(request: Request, response: Response):
+    code = (request.query_params.get("ref") or "").strip().lower()
+    if not code or len(code) > 80:
+        return
+    con = db()
+    valid = find_referrer_by_code(con, code)
+    con.close()
+    if valid and not current_user(request, required=False):
+        response.set_cookie(
+            "tvc_referral_code", code, max_age=30 * 24 * 60 * 60,
+            httponly=True, secure=COOKIE_SECURE, samesite="lax", path="/"
+        )
+
 def ensure_user_referral_code(con, user_id: int):
     row = con.execute("SELECT referral_code FROM users WHERE id=?", (user_id,)).fetchone()
     if row and row["referral_code"]:
@@ -526,14 +539,27 @@ async def save_upload(upload: UploadFile, dest: Path, allowed_exts, max_mb):
     return size
 
 @app.get("/")
-def home():
-    return FileResponse(BASE / "static" / "index.html")
+def home(request: Request):
+    response = FileResponse(BASE / "static" / "index.html")
+    capture_referral_attribution(request, response)
+    return response
+
+@app.get("/referral")
+def referral_page(request: Request):
+    if current_user(request, required=False):
+        response = RedirectResponse("/app#affiliate")
+    else:
+        response = RedirectResponse("/app?return_to=%2Freferral#login")
+    capture_referral_attribution(request, response)
+    return response
 
 @app.get("/app")
 @app.get("/history")
 @app.get("/lich-su")
-def app_page():
-    return FileResponse(BASE / "static" / "app.html")
+def app_page(request: Request):
+    response = FileResponse(BASE / "static" / "app.html")
+    capture_referral_attribution(request, response)
+    return response
 
 @app.get("/admin")
 def admin_page():
@@ -607,7 +633,7 @@ async def google_login(request: Request, response: Response):
 
     body = await request.json()
     credential = (body.get("credential") or "").strip()
-    referral_code = (body.get("referral_code") or "").strip().lower()
+    referral_code = (body.get("referral_code") or request.cookies.get("tvc_referral_code") or "").strip().lower()
     if not credential:
         raise HTTPException(400, "Thiếu Google credential")
 
@@ -683,6 +709,7 @@ async def google_login(request: Request, response: Response):
 
         token = create_session(con, user_id, response)
         con.commit()
+        response.delete_cookie("tvc_referral_code", path="/")
         user = con.execute("SELECT role FROM users WHERE id=?", (user_id,)).fetchone()
         return {"ok": True, "token": token, "role": user["role"], "new_user": by_sub is None and by_email is None}
     except HTTPException:
@@ -695,12 +722,12 @@ async def google_login(request: Request, response: Response):
         con.close()
 
 @app.post("/api/register")
-async def register(request: Request):
+async def register(request: Request, response: Response):
     body = await request.json()
     email = (body.get("email") or "").strip().lower()
     name = (body.get("name") or "").strip()[:80]
     password = body.get("password") or ""
-    referral_code = (body.get("referral_code") or "").strip().lower()
+    referral_code = (body.get("referral_code") or request.cookies.get("tvc_referral_code") or "").strip().lower()
 
     if "@" not in email or len(password) < 8 or not name:
         raise HTTPException(400, "Tên, email hoặc mật khẩu chưa hợp lệ")
@@ -727,6 +754,7 @@ async def register(request: Request):
         con.close()
         raise HTTPException(409, "Email đã tồn tại")
     con.close()
+    response.delete_cookie("tvc_referral_code", path="/")
     return {"ok": True}
 
 @app.post("/api/login")
@@ -1818,7 +1846,7 @@ def affiliate_summary(request: Request):
 
     return {
         "referral_code": code,
-        "referral_link": f"{base_url}/app?ref={code}#affiliate",
+        "referral_link": f"{base_url}/referral?ref={code}",
         "direct_referrals": direct_count,
         "paying_referrals": paying_count,
         "tier": tier,
@@ -1850,7 +1878,6 @@ def my_referrals(request: Request):
         "SELECT id,name,email,created_at FROM users WHERE referred_by_user_id=? ORDER BY id DESC LIMIT 100",
         (u["id"],)
     ).fetchall()
-    con.close()
 
     def masked_email(value: str):
         value = (value or "").strip()
@@ -1863,15 +1890,23 @@ def my_referrals(request: Request):
             shown = local[:2] + "***" + local[-1:]
         return f"{shown}@{domain}"
 
-    return [
-        {
-            "id": r["id"],
-            "name": r["name"],
-            "email_masked": masked_email(r["email"]),
-            "created_at": r["created_at"],
-        }
-        for r in rows
-    ]
+    result = []
+    for r in rows:
+        qualified = con.execute(
+            "SELECT 1 FROM topups WHERE user_id=? AND status IN ('approved','paid','completed') LIMIT 1",
+            (r["id"],)
+        ).fetchone()
+        reward = con.execute(
+            "SELECT COALESCE(SUM(amount_credits),0) total FROM affiliate_rewards WHERE user_id=? AND source_user_id=?",
+            (u["id"], r["id"])
+        ).fetchone()["total"] or 0
+        status = "Đã nhận thưởng" if reward > 0 else "Đủ điều kiện" if qualified else "Đã đăng ký"
+        result.append({
+            "id": r["id"], "name": r["name"], "email_masked": masked_email(r["email"]),
+            "created_at": r["created_at"], "status": status, "reward_credits": round(float(reward), 2),
+        })
+    con.close()
+    return result
 
 @app.post("/api/affiliate/apply-code")
 async def affiliate_apply_code(request: Request):

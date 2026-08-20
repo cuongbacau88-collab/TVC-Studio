@@ -479,7 +479,7 @@ async function loadAffiliate(){
     return;
   }
   try{
-    const [summary,refs]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals')]);
+    const [summary,refs,rewards]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals'),api('/api/affiliate/rewards')]);
     if($('#refDirectCount')) $('#refDirectCount').textContent=summary.direct_referrals||0;
     if($('#refCurrentTier')) $('#refCurrentTier').textContent=summary.tier?.name||'Bạc';
     if($('#refCommissionRate')) $('#refCommissionRate').textContent=`Hoa hồng ${summary.tier?.rate_percent||0}%`;
@@ -507,8 +507,12 @@ async function loadAffiliate(){
 
     $('#referralUserList').innerHTML=refs.length?refs.map(r=>`<div class="simple-row referral-user-row">
       <div><b>${r.name||'Người dùng TVC'}</b><span>${r.email_masked||'—'}</span></div>
-      <span>${referralDate(r.created_at)}</span>
+      <span>${r.status||'Đã đăng ký'}${r.reward_credits?` • +${r.reward_credits} Xu`:''}<br>${referralDate(r.created_at)}</span>
     </div>`).join(''):'<div class="simple-row">Chưa có người được giới thiệu.</div>';
+    $('#referralRewardList').innerHTML=rewards.length?rewards.map(r=>`<div class="simple-row">
+      <div><b>${r.reward_type==='direct'?'Thưởng giới thiệu':'Thưởng cấp trên'}</b><span>${r.source_name||'Giao dịch referral'}</span></div>
+      <span style="color:#0b9caf">+${r.amount_credits} Xu<br>${referralDate(r.created_at)}</span>
+    </div>`).join(''):'<div class="simple-row">Chưa có phần thưởng nào.</div>';
   }catch(e){say(e.message)}
 }
 $('#refreshAffiliate').onclick=loadAffiliate;
