@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>TVC Studio AI — Dashboard</title><link rel="icon" type="image/png" href="/static/images/favicon-tvc.png">
-<link rel="stylesheet" href="/static/styles.css?v=20260820.12">
+<link rel="stylesheet" href="/static/styles.css?v=20260820.13">
 
 <link rel="stylesheet" href="/static/business-v3343.css?v=3343">
 <link rel="stylesheet" href="/static/ui-v3344.css?v=3344"><link rel="stylesheet" href="/static/responsive.css?v=20260816.1"><link rel="stylesheet" href="/static/motion-form.css?v=20260816.1"><link rel="stylesheet" href="/static/referral.css?v=20260820.2"><link rel="stylesheet" href="/static/theme-purple.css?v=20260820.9">
@@ -483,6 +483,12 @@
 </section>
 </div>
 <div class="toast" id="toast"></div>
+<aside class="auth-session-toast" id="authSessionToast" role="status" aria-live="polite" hidden>
+  <button class="auth-session-toast__close" id="authSessionToastClose" type="button" aria-label="Đóng">×</button>
+  <strong class="auth-session-toast__title">🔐 Xu đang chờ bạn đăng nhập 😆</strong>
+  <p class="auth-session-toast__message">Đăng nhập lại nha, để Xu chạy đúng vào tài khoản của bạn</p>
+  <button class="auth-session-toast__action" id="authSessionToastLogin" type="button">Đăng nhập</button>
+</aside>
 <script src="/static/global-toolbar.js?v=20260820.4"></script>
 <script src="/static/motion-form.js?v=20260820.3"></script>
 <script src="/static/app.js?v=20260820.10"></script>

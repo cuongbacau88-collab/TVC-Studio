@@ -184,6 +184,19 @@ function showAuth(returnUrl){
     }
   }
 }
+function showAuthSessionToast(){
+  const toast=$('#authSessionToast');
+  if(toast) toast.hidden=false;
+}
+function hideAuthSessionToast(){
+  const toast=$('#authSessionToast');
+  if(toast) toast.hidden=true;
+}
+$('#authSessionToastClose')?.addEventListener('click', hideAuthSessionToast);
+$('#authSessionToastLogin')?.addEventListener('click', ()=>{
+  hideAuthSessionToast();
+  showAuth(location.pathname + location.search + location.hash);
+});
 window.showAuth = showAuth;
 window.tvcOpenLoginModal = showAuth;
 
@@ -452,6 +465,7 @@ $('#requestTopup').onclick=async()=>{
 function packageName(key){return {starter:'Gói Thử',basic:'Gói Cơ bản',creator:'Gói Phổ biến',professional:'Gói Chuyên nghiệp'}[key]||key}
 async function loadWallet(){
   if(!me){
+    showAuthSessionToast();
     if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent='0';
     $('#topupList').innerHTML='<div class="simple-row">Vui lòng đăng nhập để nạp xu và xem lịch sử.</div>';
     $('#ledgerList').innerHTML='<div class="simple-row">Chưa có giao dịch.</div>';
