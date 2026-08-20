@@ -465,67 +465,6 @@ async function loadWallet(){
   }catch(e){say(e.message)}
 }
 
-function referralDate(value){
-  try{return new Date(value).toLocaleString('vi-VN')}catch(_){return value||'—'}
-}
-
-async function loadAffiliate(){
-  if(!me){
-    if($('#refDirectCount')) $('#refDirectCount').textContent='0';
-    $('#affLink').textContent='—';
-    $('#affCode').textContent='—';
-    $('#referrerState').innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
-    $('#referralUserList').innerHTML='<div class="simple-row">Chưa có người được giới thiệu.</div>';
-    return;
-  }
-  try{
-    const [summary,refs,rewards]=await Promise.all([api('/api/affiliate/summary'),api('/api/referrals'),api('/api/affiliate/rewards')]);
-    if($('#refDirectCount')) $('#refDirectCount').textContent=summary.direct_referrals||0;
-    if($('#refCurrentTier')) $('#refCurrentTier').textContent=summary.tier?.name||'Bạc';
-    if($('#refCommissionRate')) $('#refCommissionRate').textContent=`Hoa hồng ${summary.tier?.rate_percent||0}%`;
-    if($('#refAvailableRewards')) $('#refAvailableRewards').textContent=Number(summary.available||0).toLocaleString('vi-VN');
-    if($('#refAvailableVnd')) $('#refAvailableVnd').textContent=`${Number(summary.available_vnd||0).toLocaleString('vi-VN')} VND`;
-    if($('#refTotalRewards')) $('#refTotalRewards').textContent=Number(summary.total_rewards||0).toLocaleString('vi-VN');
-    if($('#refSilverRule')) $('#refSilverRule').textContent=`${summary.commission_rates?.silver_percent||10}%`;
-    if($('#refGoldRule')) $('#refGoldRule').textContent=`${summary.commission_rates?.gold_percent||15}%`;
-    if($('#refSilverRuleInline')) $('#refSilverRuleInline').textContent=`${summary.commission_rates?.silver_percent||10}%`;
-    if($('#refGoldRuleInline')) $('#refGoldRuleInline').textContent=`${summary.commission_rates?.gold_percent||15}%`;
-    if($('#refGoldThreshold')) $('#refGoldThreshold').textContent=Number(summary.commission_rates?.gold_threshold_credits||1000).toLocaleString('vi-VN')+' Xu';
-    if($('#refTierProgress')) $('#refTierProgress').textContent=summary.tier?.next_sales_credits ? `${Number(summary.tier.sales_credits||0).toLocaleString('vi-VN')} / ${Number(summary.tier.next_sales_credits).toLocaleString('vi-VN')} Xu • còn ${Number(summary.credits_to_gold||0).toLocaleString('vi-VN')} Xu` : 'Đã đạt hạng Vàng';
-    if($('#refTierProgressBar')) $('#refTierProgressBar').style.width=`${Math.min(100, Number(summary.progress_percent||0))}%`;
-    $('#affLink').textContent=summary.referral_link||'—';
-    $('#affCode').textContent=summary.referral_code||'—';
-
-    if(summary.referrer){
-      $('#referrerState').innerHTML=`<span class="linked-ref">✓ Đã liên kết với <b>${summary.referrer.name}</b> • ${summary.referrer.referral_code}</span>`;
-      $('#applyReferralCode').disabled=true;$('#applyReferralBtn').disabled=true;
-    }else{
-      $('#referrerState').innerHTML='<span class="muted">Chưa gắn người giới thiệu.</span>';
-      $('#applyReferralCode').disabled=false;$('#applyReferralBtn').disabled=false;
-      const ref=referralFromUrl();if(ref&&!$('#applyReferralCode').value)$('#applyReferralCode').value=ref;
-    }
-
-    $('#referralUserList').innerHTML=refs.length?refs.map(r=>`<div class="simple-row referral-user-row">
-      <div><b>${r.name||'Người dùng TVC'}</b><span>${r.email_masked||'—'}</span></div>
-      <span>${r.status||'Đã đăng ký'}${r.reward_credits?` • +${r.reward_credits} Xu`:''}<br>${referralDate(r.created_at)}</span>
-    </div>`).join(''):'<div class="simple-row">Chưa có người được giới thiệu.</div>';
-    $('#referralRewardList').innerHTML=rewards.length?rewards.map(r=>`<div class="simple-row">
-      <div><b>${r.reward_type==='direct'?'Thưởng giới thiệu':'Thưởng cấp trên'}</b><span>${r.source_name||'Giao dịch referral'}</span></div>
-      <span style="color:#0b9caf">+${r.amount_credits} Xu<br>${referralDate(r.created_at)}</span>
-    </div>`).join(''):'<div class="simple-row">Chưa có phần thưởng nào.</div>';
-  }catch(e){say(e.message)}
-}
-$('#refreshAffiliate').onclick=loadAffiliate;
-$('#copyAffLink').onclick=async()=>{await navigator.clipboard.writeText($('#affLink').textContent);say('Đã copy link giới thiệu')};
-$('#copyAffCode').onclick=async()=>{await navigator.clipboard.writeText($('#affCode').textContent);say('Đã copy mã giới thiệu')};
-$('#applyReferralBtn').onclick=async()=>{
-  try{
-    const j=await api('/api/affiliate/apply-code',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({code:$('#applyReferralCode').value})});
-    say('Đã liên kết với '+j.referrer_name);loadAffiliate()
-  }catch(e){say(e.message)}
-}
-
 async function refreshAll(){
   if(!me) return;
   await loadJobs();await loadWallet();

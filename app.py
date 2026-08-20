@@ -1952,9 +1952,11 @@ def affiliate_rewards(request: Request):
     u = current_user(request)
     con = db()
     rows = con.execute("""
-        SELECT r.*, src.name AS source_name, src.email AS source_email
+         SELECT r.*, src.name AS source_name, src.email AS source_email,
+             COALESCE(t.credits, 0) AS source_credits
         FROM affiliate_rewards r
         JOIN users src ON src.id=r.source_user_id
+         LEFT JOIN topups t ON t.id=r.topup_id
         WHERE r.user_id=?
         ORDER BY r.id DESC LIMIT 100
     """, (u["id"],)).fetchall()

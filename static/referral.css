@@ -1123,3 +1123,28 @@
     padding: 16px;
   }
 }
+
+/* Keep referral content readable when the light app theme overrides shared text colors. */
+.referral-page .referral-section-title,
+.referral-page .referral-stat-value,
+.referral-page .referral-stat-label,
+.referral-page .referral-stat-subtitle,
+.referral-page .referral-users-empty-title,
+.referral-page .referral-users-empty-desc,
+.referral-page .referral-history-empty-text,
+.referral-page .referral-apply-title,
+.referral-page .referral-apply-subtitle,
+.referral-page .referral-faq-trigger,
+.referral-page .referral-faq-content,
+.referral-page .referral-cta-title,
+.referral-page .referral-cta-subtitle {
+  color: #174b62 !important;
+}
+
+.referral-page .referral-stat-label,
+.referral-page .referral-stat-subtitle,
+.referral-page .referral-users-empty-desc,
+.referral-page .referral-apply-subtitle,
+.referral-page .referral-cta-subtitle {
+  color: #28677a !important;
+}
