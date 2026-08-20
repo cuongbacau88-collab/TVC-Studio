@@ -1,12 +1,12 @@
 .service-page .method-card.active{
-	background:linear-gradient(145deg,rgba(191,145,255,.92),rgba(139,92,246,.78)) !important;
-	border-color:#9d74ff !important;
-	color:#fff !important;
-	box-shadow:0 0 0 2px rgba(157,116,255,.36),0 0 28px rgba(111,81,255,.30),inset 0 1px 0 rgba(255,255,255,.52) !important;
+	background:linear-gradient(145deg,#f5edff 0%,#e8d7ff 100%) !important;
+	border-color:#7c3aed !important;
+	color:#174b62 !important;
+	box-shadow:0 0 0 2px rgba(124,58,237,.18),0 0 22px rgba(124,58,237,.20),inset 0 1px 0 rgba(255,255,255,.9) !important;
 }
 .service-page .method-card.active b,
 .service-page .method-card.active span{
-	color:#fff !important;
+	color:#174b62 !important;
 }
 *{box-sizing:border-box}:root{--svc-bg:#edfaff;--svc-bg-strong:#d7f4ff;--svc-panel:rgba(255,255,255,.76);--svc-panel-strong:rgba(255,255,255,.88);--svc-border:rgba(13,157,179,.18);--svc-text:#0f2436;--svc-muted:#537086;--svc-primary:#0ea5b8;--svc-primary-strong:#2f5ef7;--svc-primary-soft:#dffcff;--svc-shadow:0 28px 70px rgba(12,68,88,.14)}.hidden{display:none!important}
 .service-page{margin:0;min-height:100vh;background:radial-gradient(circle at top left,rgba(255,255,255,.96),transparent 24%),radial-gradient(circle at right top,rgba(76,205,234,.2),transparent 28%),linear-gradient(180deg,#f5fdff 0%,#eaf8ff 42%,#ebf6fc 100%);color:var(--svc-text);font-family:Inter,system-ui,sans-serif}.service-nav{height:76px;padding:0 max(20px,calc((100vw - 1240px)/2));display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(14,120,139,.12);background:rgba(255,255,255,.64);backdrop-filter:blur(18px);position:sticky;top:0;z-index:5}.service-nav .brand{color:var(--svc-text);text-decoration:none;font-weight:800;letter-spacing:.04em}.service-nav nav{display:flex;align-items:center;gap:18px}.service-nav nav a{color:var(--svc-muted);text-decoration:none;font-weight:600}.usage-balance{padding:9px 13px;border:1px solid rgba(18,165,188,.14);border-radius:999px;background:rgba(224,249,255,.75);box-shadow:inset 0 1px rgba(255,255,255,.8)}.usage-balance b{color:#0c7f8f}
