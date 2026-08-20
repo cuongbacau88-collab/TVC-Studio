@@ -219,6 +219,7 @@ def init_db():
         reward_type TEXT NOT NULL,
         amount_credits REAL NOT NULL,
         rate REAL NOT NULL,
+        status TEXT NOT NULL DEFAULT 'pending',
         created_at TEXT NOT NULL,
         UNIQUE(user_id, topup_id, reward_type)
     );
@@ -315,6 +316,13 @@ def init_db():
         if column not in topup_cols:
             con.execute(f"ALTER TABLE topups ADD COLUMN {column} {definition}")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_topups_order_code ON topups(order_code) WHERE order_code IS NOT NULL")
+    reward_cols = {r["name"] for r in con.execute("PRAGMA table_info(affiliate_rewards)").fetchall()}
+    if "status" not in reward_cols:
+        con.execute("ALTER TABLE affiliate_rewards ADD COLUMN status TEXT NOT NULL DEFAULT 'pending'")
+    if "reviewed_at" not in reward_cols:
+        con.execute("ALTER TABLE affiliate_rewards ADD COLUMN reviewed_at TEXT")
+    if "admin_note" not in reward_cols:
+        con.execute("ALTER TABLE affiliate_rewards ADD COLUMN admin_note TEXT")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by_user_id)")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
@@ -413,7 +421,7 @@ def get_tool_config(service_key: str):
     return dict(row) if row else None
 
 
-AFFILIATE_VND_PER_CREDIT = 2500
+AFFILIATE_VND_PER_CREDIT = 1000
 AFFILIATE_GOLD_SALES_CREDITS = 1000
 DEFAULT_SIGNUP_CREDITS = int(os.environ.get("DEFAULT_SIGNUP_CREDITS", "1000"))
 REFERRAL_BUYER_BONUS_RATE = 0.10
@@ -455,7 +463,7 @@ def affiliate_tier(con, user_id: int):
 
 def affiliate_totals(con, user_id: int):
     reward = con.execute(
-        "SELECT COALESCE(SUM(amount_credits),0) total FROM affiliate_rewards WHERE user_id=?",
+        "SELECT COALESCE(SUM(amount_credits),0) total FROM affiliate_rewards WHERE user_id=? AND status='approved'",
         (user_id,)
     ).fetchone()["total"] or 0
     reserved = con.execute("""
@@ -1976,8 +1984,8 @@ async def affiliate_request_withdrawal(request: Request):
     account = (body.get("account") or "").strip()[:200]
     note = (body.get("note") or "").strip()[:300]
 
-    if amount < 10:
-        raise HTTPException(400, "Tối thiểu 1 lượt cho mỗi lần rút")
+    if amount < 50:
+        raise HTTPException(400, "Tối thiểu 50 xu cho mỗi lần rút")
     if not method or not account:
         raise HTTPException(400, "Hãy nhập phương thức và thông tin nhận tiền")
 
@@ -2200,12 +2208,12 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
 
     if buyer_bonus:
         con.execute("""
-            INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
-            VALUES(?,?,?,?,?,?)
+            INSERT OR IGNORE INTO affiliate_rewards(
+                user_id,source_user_id,topup_id,reward_type,amount_credits,rate,status,created_at
+            ) VALUES(?,?,?,?,?,?,?,?)
         """, (
-            t["user_id"], buyer_bonus,
-            f"Thưởng +{settings['buyer_bonus_percent']}% từ mã giới thiệu",
-            "referral_bonus", topup_id, now_iso()
+            t["user_id"], t["user_id"], topup_id, "buyer_bonus", buyer_bonus,
+            buyer_bonus_rate, "pending", now_iso()
         ))
 
     direct_commission = 0.0
@@ -2216,11 +2224,11 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
         direct_commission = round(t["credits"] * tier["rate"], 2)
         con.execute("""
             INSERT OR IGNORE INTO affiliate_rewards(
-                user_id,source_user_id,topup_id,reward_type,amount_credits,rate,created_at
-            ) VALUES(?,?,?,?,?,?,?)
+                user_id,source_user_id,topup_id,reward_type,amount_credits,rate,status,created_at
+            ) VALUES(?,?,?,?,?,?,?,?)
         """, (
             referrer_id, t["user_id"], topup_id, "direct",
-            direct_commission, tier["rate"], now_iso()
+            direct_commission, tier["rate"], "pending", now_iso()
         ))
 
         # Gold partners receive 50% override on commission earned by their direct affiliate.
@@ -2234,11 +2242,11 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
                 override_commission = round(direct_commission * float(settings["parent_override_percent"]) / 100, 2)
                 con.execute("""
                     INSERT OR IGNORE INTO affiliate_rewards(
-                        user_id,source_user_id,topup_id,reward_type,amount_credits,rate,created_at
-                    ) VALUES(?,?,?,?,?,?,?)
+                        user_id,source_user_id,topup_id,reward_type,amount_credits,rate,status,created_at
+                    ) VALUES(?,?,?,?,?,?,?,?)
                 """, (
                     parent_id, referrer_id, topup_id, "tier_override",
-                    override_commission, float(settings["parent_override_percent"]) / 100, now_iso()
+                    override_commission, float(settings["parent_override_percent"]) / 100, "pending", now_iso()
                 ))
 
     con.commit()
@@ -2322,6 +2330,55 @@ def admin_affiliate_withdrawals(request: Request):
     """).fetchall()
     con.close()
     return [dict(r) for r in rows]
+
+@app.get("/api/admin/affiliate/rewards")
+def admin_affiliate_rewards(request: Request):
+    require_admin(request)
+    con = db()
+    rows = con.execute("""
+        SELECT r.*,u.email AS recipient_email,u.name AS recipient_name,
+               src.email AS source_email,t.order_code,t.package
+        FROM affiliate_rewards r
+        JOIN users u ON u.id=r.user_id
+        JOIN users src ON src.id=r.source_user_id
+        JOIN topups t ON t.id=r.topup_id
+        ORDER BY r.id DESC LIMIT 300
+    """).fetchall()
+    con.close()
+    return [dict(row) for row in rows]
+
+@app.post("/api/admin/affiliate/rewards/{reward_id}/approve")
+async def approve_affiliate_reward(reward_id: int, request: Request):
+    require_admin(request)
+    body = await request.json()
+    note = (body.get("admin_note") or "")[:300]
+    con = db()
+    con.execute("BEGIN IMMEDIATE")
+    reward = con.execute("SELECT * FROM affiliate_rewards WHERE id=?", (reward_id,)).fetchone()
+    if not reward:
+        con.rollback(); con.close(); raise HTTPException(404, "Không tìm thấy thưởng referral")
+    if reward["status"] != "pending":
+        con.rollback(); con.close(); raise HTTPException(409, "Thưởng referral đã được xử lý")
+    con.execute("UPDATE users SET credits=credits+? WHERE id=?", (reward["amount_credits"], reward["user_id"]))
+    con.execute("""INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at)
+                   VALUES(?,?,?,?,?,?)""", (
+        reward["user_id"], reward["amount_credits"], "Thưởng giới thiệu được Admin duyệt",
+        "referral_reward", reward_id, now_iso()
+    ))
+    con.execute("UPDATE affiliate_rewards SET status='approved',reviewed_at=?,admin_note=? WHERE id=?", (now_iso(), note, reward_id))
+    con.commit(); con.close()
+    return {"ok": True, "status": "approved", "amount_credits": reward["amount_credits"]}
+
+@app.post("/api/admin/affiliate/rewards/{reward_id}/reject")
+async def reject_affiliate_reward(reward_id: int, request: Request):
+    require_admin(request)
+    body = await request.json()
+    note = (body.get("admin_note") or "")[:300]
+    con = db()
+    changed = con.execute("UPDATE affiliate_rewards SET status='rejected',reviewed_at=?,admin_note=? WHERE id=? AND status='pending'", (now_iso(), note, reward_id)).rowcount
+    con.commit(); con.close()
+    if not changed: raise HTTPException(409, "Thưởng referral không còn pending")
+    return {"ok": True, "status": "rejected"}
 
 @app.get("/api/admin/affiliate/settings")
 def admin_affiliate_settings(request: Request):
