@@ -458,7 +458,10 @@ $('#requestTopup').onclick=async()=>{
       return;
     }
     say('Đã tạo yêu cầu nạp #'+(j.topup_id||j.order_code||''));loadWallet();
-  }catch(e){say(e.message)}
+  }catch(e){
+    if(!me||e.status===401) showAuthSessionToast();
+    else say(e.message);
+  }
   finally{
     if(btn){btn.disabled=false;btn.textContent='Thanh toán qua PayOS';}
   }
