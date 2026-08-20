@@ -244,7 +244,7 @@
           <h2 data-i18n="modelMotionTitle">AI Motion Studio</h2>
           <p data-i18n="modelMotionDesc">Sao chép chuyển động từ video mẫu</p>
           <div class="model-footer">
-            <div class="credit-price video-credit-price"><span>Tạo video AI chỉ từ 2 Xu / 1 Job</span></div>
+            <div class="credit-price video-credit-price"><span>2 Xu / 1 Job</span></div>
             <a class="model-button video-create-button" href="/app?tool=motion">Tạo video</a>
           </div>
         </div>
@@ -267,7 +267,7 @@
           <h2 data-i18n="videoCreatorTitle">AI Video Creator</h2>
           <p data-i18n="videoCreatorDesc">Tạo video AI từ prompt hoặc ảnh</p>
           <div class="model-footer">
-            <div class="credit-price video-credit-price"><span>Tạo video AI chỉ từ 2 Xu / 1 Job</span></div>
+            <div class="credit-price video-credit-price"><span>2 Xu / 1 Job</span></div>
             <a class="model-button video-create-button" href="/services/video_generation">Tạo video</a>
           </div>
         </div>
@@ -387,7 +387,7 @@
       if(desc)desc.textContent=tool.description;
       if(badge&&tool.badge)badge.textContent=tool.badge;
       if(cta)cta.textContent=tool.cta_text;
-      if(price){price.innerHTML=tool.is_free?'<b>MIỄN PHÍ</b><span>Miễn phí</span>':`<span class="video-credit-price">Tạo video AI chỉ từ ${tool.price_credits} Xu / 1 Job</span>`;}
+      if(price){price.innerHTML=tool.is_free?'<b>MIỄN PHÍ</b><span>Miễn phí</span>':`<span class="video-credit-price">${tool.price_credits} Xu / 1 Job</span>`;}
     });
   }catch(_){ }
 })();
