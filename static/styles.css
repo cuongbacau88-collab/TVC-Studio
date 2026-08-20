@@ -1,3 +1,9 @@
+.video-credit-price span{
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1.25 !important;
+  color:#185d70 !important;
+}
 .video-create-button{
   background:linear-gradient(135deg,#8d4ff0 0%,#b45cf2 52%,#e680d6 100%) !important;
   border:1px solid rgba(255,255,255,.62) !important;
