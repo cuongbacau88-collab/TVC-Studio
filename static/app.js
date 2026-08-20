@@ -223,6 +223,7 @@ function showDashboard(){
   $('#authGate')?.classList.remove('open');
   $('#dashboard')?.classList.remove('hidden');
   if(me){
+    hideAuthSessionToast();
     $('#TVC').textContent=me.usage_balance;$('#walletTVC').textContent=me.usage_balance;
     if($('#avatar')) $('#avatar').textContent=(me.name||me.email).slice(0,2).toUpperCase();tvcSyncToolbarAccount();
   }else{
