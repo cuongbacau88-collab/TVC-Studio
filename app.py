@@ -2258,16 +2258,16 @@ def admin_security_devices(request: Request):
         WITH activity AS (
             SELECT id AS row_id, user_id, email, role, visitor_id, ip_address, user_agent,
                    created_at, event, severity, http_status,
-                   CASE WHEN user_id IS NULL
-                        THEN 'visitor:' || COALESCE(visitor_id, 'legacy:' || ip_address || ':' || COALESCE(user_agent, ''))
+                    CASE WHEN visitor_id IS NOT NULL
+                        THEN 'visitor:' || visitor_id
                         ELSE 'user:' || user_id || ':' || ip_address || ':' || COALESCE(user_agent, '') END AS identity_key
             FROM security_logs
             WHERE NOT (event='admin_access' AND LOWER(severity)='info' AND http_status=200)
             UNION ALL
             SELECT l.id AS row_id, l.user_id, u.email, u.role, l.visitor_id, l.ip_address, l.user_agent,
                    l.created_at, NULL AS event, NULL AS severity, l.status_code AS http_status,
-                   CASE WHEN l.user_id IS NULL
-                        THEN 'visitor:' || COALESCE(l.visitor_id, 'legacy:' || l.ip_address || ':' || COALESCE(l.user_agent, ''))
+                    CASE WHEN l.visitor_id IS NOT NULL
+                        THEN 'visitor:' || l.visitor_id
                         ELSE 'user:' || l.user_id || ':' || l.ip_address || ':' || COALESCE(l.user_agent, '') END AS identity_key
             FROM admin_access_logs l
             LEFT JOIN users u ON u.id=l.user_id
@@ -2277,7 +2277,9 @@ def admin_security_devices(request: Request):
                    SUM(CASE WHEN event='google_login_success' THEN 1 ELSE 0 END) AS login_count,
                    SUM(CASE WHEN LOWER(severity) IN ('warning','high','critical') THEN 1 ELSE 0 END) AS warning_count,
                    SUM(CASE WHEN event IN ('new_ip_login','new_device_login') THEN 1 ELSE 0 END) AS new_event_count,
-                   SUM(CASE WHEN LOWER(severity) IN ('high','critical') OR event IN ('admin_access_denied','security_rate_limited') OR http_status IN (401,403,429) THEN 1 ELSE 0 END) AS danger_count
+                   SUM(CASE WHEN LOWER(severity) IN ('high','critical') OR event IN ('admin_access_denied','security_rate_limited') OR http_status IN (401,403,429) THEN 1 ELSE 0 END) AS danger_count,
+                   GROUP_CONCAT(DISTINCT email) AS account_emails,
+                   COUNT(DISTINCT email) AS account_count
             FROM activity GROUP BY identity_key
         ), latest AS (
             SELECT activity.*, ROW_NUMBER() OVER (PARTITION BY identity_key ORDER BY created_at DESC, row_id DESC) AS rank
@@ -2285,7 +2287,8 @@ def admin_security_devices(request: Request):
         )
         SELECT latest.email, latest.role, latest.visitor_id, latest.ip_address, latest.user_agent,
                summary.first_seen, summary.last_seen, summary.request_count, summary.login_count,
-               summary.warning_count, summary.new_event_count, summary.danger_count, latest.event AS last_event
+               summary.warning_count, summary.new_event_count, summary.danger_count, summary.account_emails,
+               summary.account_count, latest.event AS last_event
         FROM latest JOIN summary ON summary.identity_key=latest.identity_key
         WHERE latest.rank=1
         ORDER BY summary.last_seen DESC LIMIT 100

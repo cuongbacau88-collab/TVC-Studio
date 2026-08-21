@@ -192,10 +192,11 @@ function renderSecurityDevices(rows) {
   }[character]));
   const eventNames = { google_login_success: 'Đăng nhập Google', new_ip_login: 'IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
   const status = row => row.danger_count > 0 ? ['NGUY HIỂM', 'critical'] : row.warning_count > 0 ? ['CẦN CHÚ Ý', 'high'] : row.new_event_count > 0 ? ['MỚI', 'notice'] : ['TIN CẬY', 'info'];
-  const sourceName = row => row.email || (row.visitor_id ? `Khách #${String(row.visitor_id).slice(-4).toUpperCase()}` : 'Chưa đăng nhập');
-  root.innerHTML = table(['Nguồn truy cập', 'Thiết bị', 'IP gần nhất', 'Lần đầu', 'Lần cuối', 'Lượt/request', 'Đăng nhập', 'Cảnh báo', 'Trạng thái', 'Sự kiện gần nhất'], rows.map(row => [
-    escapeHtml(sourceName(row)), `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || ''))}</span>`, escapeHtml(row.ip_address),
-    formatLogTime(row.first_seen || row.last_seen), formatLogTime(row.last_seen), escapeHtml(row.request_count || 0), escapeHtml(row.login_count || 0), escapeHtml(row.warning_count || 0), `<span class="security-log-badge ${status(row)[1]}">${status(row)[0]}</span>`, escapeHtml(eventNames[row.last_event] || row.last_event || '—')
+  const sourceName = row => row.visitor_id ? `Khách #${String(row.visitor_id).slice(-4).toUpperCase()}` : (row.email || 'Chưa đăng nhập');
+  const accountDetail = row => row.account_count ? `<b>${escapeHtml(row.account_count)} tài khoản</b><br><span>${escapeHtml(String(row.account_emails || '').split(',').join(' • '))}</span>` : '<span class="admin-muted">Chưa đăng nhập</span>';
+  root.innerHTML = table(['Nguồn truy cập', 'Thiết bị', 'IP hiện tại', 'Lần đầu', 'Lần cuối', 'Lượt/request', 'Đăng nhập', 'Cảnh báo', 'Trạng thái', 'Tài khoản từng đăng nhập'], rows.map(row => [
+    `<b>${escapeHtml(sourceName(row))}</b>${row.visitor_id ? `<small class="security-device-id">ID: #${escapeHtml(String(row.visitor_id).slice(-4).toUpperCase())}</small>` : ''}`, `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || ''))}</span>`, escapeHtml(row.ip_address),
+    formatLogTime(row.first_seen || row.last_seen), formatLogTime(row.last_seen), escapeHtml(row.request_count || 0), escapeHtml(row.login_count || 0), escapeHtml(row.warning_count || 0), `<span class="security-log-badge ${status(row)[1]}">${status(row)[0]}</span>`, accountDetail(row)
   ]));
 }
 function topupStatusLabel(row) {
