@@ -42,12 +42,13 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs, securityLogs] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
     api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
-    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), api('/api/admin/access-logs')
+    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), api('/api/admin/access-logs'), api('/api/admin/security-logs')
   ]);
   renderAccessLogs(accessLogs);
+  renderSecurityLogs(securityLogs.items || []);
   renderAffiliateSettings(affiliateSettings);
   renderAffiliateRewards(affiliateRewards);
   $('#stats').innerHTML = [
@@ -104,6 +105,23 @@ function renderAccessLogs(rows) {
   root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Method', 'Đường dẫn', 'HTTP'], rows.map(row => [
     escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
     escapeHtml(row.method), escapeHtml(row.path), escapeHtml(row.status_code)
+  ]));
+}
+function renderSecurityLogs(rows) {
+  const root = $('#adminSecurityLogsTable'); if (!root) return;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[character]));
+  const eventNames = {
+    google_login_success: 'Đăng nhập Google thành công', google_login_failed: 'Đăng nhập Google thất bại',
+    google_token_invalid: 'Google token không hợp lệ', new_ip_login: 'Đăng nhập từ IP mới',
+    new_device_login: 'Đăng nhập từ thiết bị mới', admin_access_denied: 'Truy cập Admin bị từ chối',
+    admin_access: 'Truy cập Admin', logout: 'Đăng xuất'
+  };
+  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Sự kiện', 'Thiết bị', 'Mức độ', 'HTTP'], rows.map(row => [
+    escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
+    escapeHtml(eventNames[row.event] || row.event), escapeHtml(row.user_agent || '—'),
+    escapeHtml(row.severity.toUpperCase()), escapeHtml(row.http_status || '—')
   ]));
 }
 function topupStatusLabel(row) {
@@ -305,6 +323,10 @@ function initAdminTabs() {
   });
   $('#refreshAffiliateRewards')?.addEventListener('click', async () => renderAffiliateRewards(await api('/api/admin/affiliate/rewards')));
   $('#adminAccessLogsRefresh')?.addEventListener('click', async () => renderAccessLogs(await api('/api/admin/access-logs')));
+  $('#adminSecurityLogsRefresh')?.addEventListener('click', async () => {
+    const result = await api('/api/admin/security-logs');
+    renderSecurityLogs(result.items || []);
+  });
   $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const payload = {

@@ -1,5 +1,5 @@
 
-import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging, subprocess
+import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging, subprocess, uuid
 import urllib.error
 import urllib.request
 from pathlib import Path
@@ -163,6 +163,22 @@ def init_db():
         status_code INTEGER NOT NULL,
         user_agent TEXT,
         created_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS security_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at TEXT NOT NULL,
+        event TEXT NOT NULL,
+        severity TEXT NOT NULL,
+        user_id INTEGER,
+        email TEXT,
+        role TEXT,
+        ip_address TEXT NOT NULL,
+        user_agent TEXT,
+        method TEXT NOT NULL,
+        path TEXT NOT NULL,
+        http_status INTEGER,
+        request_id TEXT,
+        metadata TEXT
     );
     CREATE TABLE IF NOT EXISTS jobs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -342,6 +358,9 @@ def init_db():
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by_user_id)")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_security_logs_created_at ON security_logs(created_at DESC)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_security_logs_event ON security_logs(event)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_security_logs_ip ON security_logs(ip_address)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_rewards_user ON affiliate_rewards(user_id)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_affiliate_withdrawals_user ON affiliate_withdrawals(user_id)")
 
@@ -413,6 +432,40 @@ def access_log_ip(request: Request) -> str:
             return forwarded[:100]
     return (request.client.host if request.client else "unknown")[:100]
 
+def create_security_log(request: Request, event: str, severity: str, user=None,
+                        http_status: int | None = None, metadata: dict | None = None):
+    try:
+        con = db()
+        user_id = user.get("id") if user else None
+        email = user.get("email") if user else None
+        role = user.get("role") if user else None
+        known_ip = False
+        if event == "google_login_success" and user_id:
+            known_ip = bool(con.execute(
+                "SELECT 1 FROM security_logs WHERE user_id=? AND event='google_login_success' AND ip_address=? LIMIT 1",
+                (user_id, access_log_ip(request)),
+            ).fetchone())
+        con.execute(
+            "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (now_iso(), event, severity, user_id, email, role, access_log_ip(request),
+             request.headers.get("user-agent", "")[:500], request.method,
+             request.url.path[:500], http_status, request.headers.get("x-request-id") or str(uuid.uuid4()),
+             json.dumps(metadata, ensure_ascii=True) if metadata else None),
+        )
+        if event == "google_login_success" and user_id and not known_ip:
+            con.execute(
+                "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (now_iso(), "new_ip_login", "notice", user_id, email, role, access_log_ip(request),
+                 request.headers.get("user-agent", "")[:500], request.method, request.url.path[:500],
+                 http_status, request.headers.get("x-request-id") or str(uuid.uuid4()), None),
+            )
+        con.commit()
+        con.close()
+    except Exception:
+        logging.exception("Could not write security log event=%s", event)
+
 async def log_admin_access(request: Request, call_next):
     is_admin_path = request.url.path == "/admin" or request.url.path.startswith("/api/admin/")
     response = await call_next(request)
@@ -429,6 +482,10 @@ async def log_admin_access(request: Request, call_next):
             )
             con.commit()
             con.close()
+            if response.status_code in {401, 403}:
+                create_security_log(request, "admin_access_denied", "high", user, response.status_code)
+            else:
+                create_security_log(request, "admin_access", "info", user, response.status_code)
         except Exception:
             logging.exception("Could not write admin access log")
     return response
@@ -694,6 +751,8 @@ async def google_login(request: Request, response: Response):
     credential = (body.get("credential") or "").strip()
     referral_code = (body.get("referral_code") or request.cookies.get("tvc_referral_code") or "").strip().lower()
     if not credential:
+        create_security_log(request, "google_login_failed", "warning", http_status=400,
+                            metadata={"reason": "missing_credential"})
         raise HTTPException(400, "Thiếu Google credential")
 
     try:
@@ -701,14 +760,21 @@ async def google_login(request: Request, response: Response):
             credential, google_requests.Request(), GOOGLE_CLIENT_ID
         )
     except Exception:
+        create_security_log(request, "google_token_invalid", "warning", http_status=401)
         raise HTTPException(401, "Google credential không hợp lệ hoặc đã hết hạn")
 
     # verify_oauth2_token validates signature, exp, issuer and audience.
     if info.get("iss") not in {"accounts.google.com", "https://accounts.google.com"}:
+        create_security_log(request, "google_token_invalid", "warning", http_status=401,
+                            metadata={"reason": "invalid_issuer"})
         raise HTTPException(401, "Google issuer không hợp lệ")
     if info.get("aud") != GOOGLE_CLIENT_ID:
+        create_security_log(request, "google_token_invalid", "warning", http_status=401,
+                            metadata={"reason": "invalid_audience"})
         raise HTTPException(401, "Google audience không hợp lệ")
     if info.get("email_verified") is not True:
+        create_security_log(request, "google_login_failed", "warning", http_status=401,
+                            metadata={"reason": "email_not_verified"})
         raise HTTPException(401, "Email Google chưa được xác minh")
 
     google_sub = (info.get("sub") or "").strip()
@@ -716,6 +782,8 @@ async def google_login(request: Request, response: Response):
     name = (info.get("name") or email.split("@", 1)[0] or "Google User").strip()[:80]
     avatar_url = (info.get("picture") or "").strip()[:500]
     if not google_sub or "@" not in email:
+        create_security_log(request, "google_login_failed", "warning", http_status=401,
+                            metadata={"reason": "invalid_account_info"})
         raise HTTPException(401, "Google không trả về thông tin tài khoản hợp lệ")
 
     con = db()
@@ -769,10 +837,12 @@ async def google_login(request: Request, response: Response):
         token = create_session(con, user_id, response)
         con.commit()
         response.delete_cookie("tvc_referral_code", path="/")
-        user = con.execute("SELECT role FROM users WHERE id=?", (user_id,)).fetchone()
+        user = dict(con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone())
+        create_security_log(request, "google_login_success", "info", user, 200)
         return {"ok": True, "token": token, "role": user["role"], "new_user": by_sub is None and by_email is None}
     except HTTPException:
         con.rollback()
+        create_security_log(request, "google_login_failed", "warning", http_status=409)
         raise
     except sqlite3.IntegrityError:
         con.rollback()
@@ -853,6 +923,7 @@ async def admin_login(request: Request, response: Response):
 
 @app.post("/api/logout")
 def logout(request: Request, response: Response):
+    user = current_user(request, required=False)
     token = request.cookies.get("mh_session")
     if token:
         con = db()
@@ -860,6 +931,7 @@ def logout(request: Request, response: Response):
         con.commit()
         con.close()
     response.delete_cookie("mh_session", path="/")
+    create_security_log(request, "logout", "info", user, 200)
     return {"ok": True}
 
 def _file_digest(path: Path) -> str:
@@ -2092,6 +2164,32 @@ async def affiliate_request_withdrawal(request: Request):
 
 
 # ---------- ADMIN ----------
+@app.get("/api/admin/security-logs")
+def admin_security_logs(request: Request):
+    require_admin(request)
+    try:
+        page = max(1, int(request.query_params.get("page", "1")))
+        limit = min(100, max(1, int(request.query_params.get("limit", "50"))))
+    except ValueError:
+        raise HTTPException(400, "Phân trang không hợp lệ")
+    event = request.query_params.get("event", "").strip()[:80]
+    severity = request.query_params.get("severity", "").strip()[:20]
+    email = request.query_params.get("email", "").strip()[:200]
+    ip = request.query_params.get("ip", "").strip()[:100]
+    clauses, values = [], []
+    for field, value in (("event", event), ("severity", severity), ("email", email), ("ip_address", ip)):
+        if value:
+            clauses.append(f"{field} LIKE ?")
+            values.append(f"%{value}%")
+    where = " WHERE " + " AND ".join(clauses) if clauses else ""
+    con = db()
+    rows = con.execute(
+        "SELECT * FROM security_logs" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
+        (*values, limit, (page - 1) * limit),
+    ).fetchall()
+    con.close()
+    return {"page": page, "limit": limit, "items": [dict(row) for row in rows]}
+
 @app.get("/api/admin/access-logs")
 def admin_access_logs(request: Request):
     require_admin(request)
