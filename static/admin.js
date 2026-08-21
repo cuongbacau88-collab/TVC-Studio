@@ -192,9 +192,10 @@ function renderSecurityDevices(rows) {
   }[character]));
   const eventNames = { google_login_success: 'Đăng nhập Google', new_ip_login: 'IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
   const status = row => row.danger_count > 0 ? ['NGUY HIỂM', 'critical'] : row.warning_count > 0 ? ['CẦN CHÚ Ý', 'high'] : row.new_event_count > 0 ? ['MỚI', 'notice'] : ['TIN CẬY', 'info'];
-  root.innerHTML = table(['Tài khoản', 'Thiết bị', 'IP', 'Lần cuối', 'Số lần đăng nhập', 'Số cảnh báo', 'Trạng thái'], rows.map(row => [
-    escapeHtml(row.email || 'Chưa đăng nhập'), `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || ''))}</span>`, escapeHtml(row.ip_address),
-    formatLogTime(row.last_seen), escapeHtml(row.login_count || 0), escapeHtml(row.warning_count || 0), `<span class="security-log-badge ${status(row)[1]}">${status(row)[0]}</span>`
+  const sourceName = row => row.email || (row.visitor_id ? `Khách #${String(row.visitor_id).slice(-4).toUpperCase()}` : 'Chưa đăng nhập');
+  root.innerHTML = table(['Nguồn truy cập', 'Thiết bị', 'IP gần nhất', 'Lần đầu', 'Lần cuối', 'Lượt/request', 'Đăng nhập', 'Cảnh báo', 'Trạng thái', 'Sự kiện gần nhất'], rows.map(row => [
+    escapeHtml(sourceName(row)), `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || ''))}</span>`, escapeHtml(row.ip_address),
+    formatLogTime(row.first_seen || row.last_seen), formatLogTime(row.last_seen), escapeHtml(row.request_count || 0), escapeHtml(row.login_count || 0), escapeHtml(row.warning_count || 0), `<span class="security-log-badge ${status(row)[1]}">${status(row)[0]}</span>`, escapeHtml(eventNames[row.last_event] || row.last_event || '—')
   ]));
 }
 function topupStatusLabel(row) {
@@ -210,9 +211,10 @@ window.approveAffiliateReward = async id => {
 };
 window.rejectAffiliateReward = async id => {
   const note = prompt('Lý do từ chối (tuỳ chọn):') || '';
-  try { await api(`/api/admin/affiliate/rewards/${id}/reject`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_note:note})}); say('Đã từ chối thưởng referral'); load(); } catch (e) { say(e.message); }
+  try { await api(`/api/admin/affiliate/rewards/${id}/reject`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_note:note})}); say('Đã từ chối thưởng referral'); load(); } catch (e) {
+    say(e.message);
+  }
 };
-setInterval(()=>{if(document.visibilityState==='visible')load().catch(()=>{})},15000);
 
 async function loadAdminManagement() {
   try {

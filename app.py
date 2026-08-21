@@ -41,6 +41,8 @@ UPLOADS.mkdir(parents=True, exist_ok=True)
 OUTPUTS.mkdir(parents=True, exist_ok=True)
 
 SESSION_DAYS = 30
+VISITOR_COOKIE = "tvc_visitor_id"
+VISITOR_DAYS = 180
 MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
 try:
@@ -279,6 +281,12 @@ def init_db():
         updated_at TEXT NOT NULL
     );
     """)
+    for table in ("admin_access_logs", "security_logs"):
+        columns = {row["name"] for row in con.execute(f"PRAGMA table_info({table})").fetchall()}
+        if "visitor_id" not in columns:
+            con.execute(f"ALTER TABLE {table} ADD COLUMN visitor_id TEXT")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_security_logs_visitor_id ON security_logs(visitor_id)")
+    con.execute("CREATE INDEX IF NOT EXISTS idx_admin_access_logs_visitor_id ON admin_access_logs(visitor_id)")
     con.execute("""INSERT OR IGNORE INTO affiliate_settings(
         id,enabled,silver_rate_percent,gold_rate_percent,buyer_bonus_percent,
         gold_threshold_credits,parent_override_percent,updated_at
@@ -433,6 +441,29 @@ def access_log_ip(request: Request) -> str:
             return forwarded[:100]
     return (request.client.host if request.client else "unknown")[:100]
 
+def request_visitor_id(request: Request) -> str | None:
+    visitor_id = getattr(request.state, "visitor_id", None)
+    if visitor_id:
+        return visitor_id
+    value = request.cookies.get(VISITOR_COOKIE, "").strip()
+    return value[:100] if value.startswith("v_") else None
+
+async def identify_visitor(request: Request, call_next):
+    visitor_id = request.cookies.get(VISITOR_COOKIE, "").strip()
+    created = not visitor_id.startswith("v_")
+    if created:
+        visitor_id = f"v_{secrets.token_urlsafe(24)}"
+    request.state.visitor_id = visitor_id[:100]
+    response = await call_next(request)
+    if created:
+        response.set_cookie(
+            VISITOR_COOKIE, request.state.visitor_id, httponly=True,
+            secure=COOKIE_SECURE, samesite="lax", max_age=VISITOR_DAYS * 86400, path="/"
+        )
+    return response
+
+app.middleware("http")(identify_visitor)
+
 def create_security_log(request: Request, event: str, severity: str, user=None,
                         http_status: int | None = None, metadata: dict | None = None):
     try:
@@ -447,20 +478,20 @@ def create_security_log(request: Request, event: str, severity: str, user=None,
                 (user_id, access_log_ip(request)),
             ).fetchone())
         con.execute(
-            "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata) "
-            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata,visitor_id) "
+            "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
             (now_iso(), event, severity, user_id, email, role, access_log_ip(request),
              request.headers.get("user-agent", "")[:500], request.method,
              request.url.path[:500], http_status, request.headers.get("x-request-id") or str(uuid.uuid4()),
-             json.dumps(metadata, ensure_ascii=True) if metadata else None),
+             json.dumps(metadata, ensure_ascii=True) if metadata else None, request_visitor_id(request)),
         )
         if event == "google_login_success" and user_id and not known_ip:
             con.execute(
-                "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata) "
-                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO security_logs(created_at,event,severity,user_id,email,role,ip_address,user_agent,method,path,http_status,request_id,metadata,visitor_id) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (now_iso(), "new_ip_login", "notice", user_id, email, role, access_log_ip(request),
                  request.headers.get("user-agent", "")[:500], request.method, request.url.path[:500],
-                 http_status, request.headers.get("x-request-id") or str(uuid.uuid4()), None),
+                 http_status, request.headers.get("x-request-id") or str(uuid.uuid4()), None, request_visitor_id(request)),
             )
         con.commit()
         con.close()
@@ -475,11 +506,11 @@ async def log_admin_access(request: Request, call_next):
             user = current_user(request, required=False)
             con = db()
             con.execute(
-                "INSERT INTO admin_access_logs(ip_address,user_id,method,path,status_code,user_agent,created_at) "
-                "VALUES(?,?,?,?,?,?,?)",
+                "INSERT INTO admin_access_logs(ip_address,user_id,method,path,status_code,user_agent,created_at,visitor_id) "
+                "VALUES(?,?,?,?,?,?,?,?)",
                 (access_log_ip(request), user["id"] if user else None, request.method,
                  request.url.path[:500], response.status_code,
-                 request.headers.get("user-agent", "")[:500], now_iso()),
+                 request.headers.get("user-agent", "")[:500], now_iso(), request_visitor_id(request)),
             )
             con.commit()
             con.close()
@@ -2221,26 +2252,46 @@ def admin_security_logs(request: Request):
 
 @app.get("/api/admin/security-devices")
 def admin_security_devices(request: Request):
-        require_admin(request)
-        con = db()
-        rows = con.execute("""
-                SELECT email,role,ip_address,user_agent,
-                             SUM(CASE WHEN event='google_login_success' THEN 1 ELSE 0 END) AS login_count,
-                             SUM(CASE WHEN LOWER(severity) IN ('warning','high','critical') THEN 1 ELSE 0 END) AS warning_count,
-                             SUM(CASE WHEN event IN ('new_ip_login','new_device_login') THEN 1 ELSE 0 END) AS new_event_count,
-                             SUM(CASE WHEN LOWER(severity) IN ('high','critical') OR event IN ('admin_access_denied','security_rate_limited') THEN 1 ELSE 0 END) AS danger_count,
-                             MAX(created_at) AS last_seen,
-                             (SELECT event FROM security_logs newest
-                                WHERE newest.email=grouped.email AND newest.ip_address=grouped.ip_address
-                                    AND newest.user_agent=grouped.user_agent
-                                ORDER BY newest.id DESC LIMIT 1) AS last_event
-                FROM security_logs grouped
-                WHERE NOT (event='admin_access' AND LOWER(severity)='info' AND http_status=200)
-                GROUP BY email,role,ip_address,user_agent
-                ORDER BY last_seen DESC LIMIT 100
-        """).fetchall()
-        con.close()
-        return [dict(row) for row in rows]
+    require_admin(request)
+    con = db()
+    rows = con.execute("""
+        WITH activity AS (
+            SELECT id AS row_id, user_id, email, role, visitor_id, ip_address, user_agent,
+                   created_at, event, severity, http_status,
+                   CASE WHEN user_id IS NULL
+                        THEN 'visitor:' || COALESCE(visitor_id, 'legacy:' || ip_address || ':' || COALESCE(user_agent, ''))
+                        ELSE 'user:' || user_id || ':' || ip_address || ':' || COALESCE(user_agent, '') END AS identity_key
+            FROM security_logs
+            WHERE NOT (event='admin_access' AND LOWER(severity)='info' AND http_status=200)
+            UNION ALL
+            SELECT l.id AS row_id, l.user_id, u.email, u.role, l.visitor_id, l.ip_address, l.user_agent,
+                   l.created_at, NULL AS event, NULL AS severity, l.status_code AS http_status,
+                   CASE WHEN l.user_id IS NULL
+                        THEN 'visitor:' || COALESCE(l.visitor_id, 'legacy:' || l.ip_address || ':' || COALESCE(l.user_agent, ''))
+                        ELSE 'user:' || l.user_id || ':' || l.ip_address || ':' || COALESCE(l.user_agent, '') END AS identity_key
+            FROM admin_access_logs l
+            LEFT JOIN users u ON u.id=l.user_id
+        ), summary AS (
+            SELECT identity_key, MAX(created_at) AS last_seen, MIN(created_at) AS first_seen,
+                   COUNT(*) AS request_count,
+                   SUM(CASE WHEN event='google_login_success' THEN 1 ELSE 0 END) AS login_count,
+                   SUM(CASE WHEN LOWER(severity) IN ('warning','high','critical') THEN 1 ELSE 0 END) AS warning_count,
+                   SUM(CASE WHEN event IN ('new_ip_login','new_device_login') THEN 1 ELSE 0 END) AS new_event_count,
+                   SUM(CASE WHEN LOWER(severity) IN ('high','critical') OR event IN ('admin_access_denied','security_rate_limited') OR http_status IN (401,403,429) THEN 1 ELSE 0 END) AS danger_count
+            FROM activity GROUP BY identity_key
+        ), latest AS (
+            SELECT activity.*, ROW_NUMBER() OVER (PARTITION BY identity_key ORDER BY created_at DESC, row_id DESC) AS rank
+            FROM activity
+        )
+        SELECT latest.email, latest.role, latest.visitor_id, latest.ip_address, latest.user_agent,
+               summary.first_seen, summary.last_seen, summary.request_count, summary.login_count,
+               summary.warning_count, summary.new_event_count, summary.danger_count, latest.event AS last_event
+        FROM latest JOIN summary ON summary.identity_key=latest.identity_key
+        WHERE latest.rank=1
+        ORDER BY summary.last_seen DESC LIMIT 100
+    """).fetchall()
+    con.close()
+    return [dict(row) for row in rows]
 
 @app.get("/api/admin/access-logs")
 def admin_access_logs(request: Request):
