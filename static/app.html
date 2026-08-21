@@ -12,6 +12,7 @@
 @media(max-width:900px){body:has(#tab-affiliate.active) .referral-page{width:100%}body:has(#tab-affiliate.active) .referral-heading{display:flex;flex-direction:column;gap:12px}body:has(#tab-affiliate.active) .referral-heading .dark{align-self:flex-start}body:has(#tab-affiliate.active) .referral-stats{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}body:has(#tab-affiliate.active) .referral-stats article{min-height:100px;padding:14px 12px}body:has(#tab-affiliate.active) .referral-columns{grid-template-columns:minmax(0,1fr);gap:12px}body:has(#tab-affiliate.active) .affiliate-card{padding:16px}.share-box{padding:11px}.share-box>div{align-items:flex-start;flex-direction:column}.share-box .mini-copy{align-self:flex-start}.affiliate-withdraw-info{grid-template-columns:1fr}}
 @media(max-width:390px){body:has(#tab-affiliate.active) .referral-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}body:has(#tab-affiliate.active) .referral-stats article{min-height:82px}}
 .referral-page :is(.referral-header-text h1,.referral-section-title,.referral-stat-value,.referral-share-title,.referral-share-url,.referral-step-title,.referral-tier-name,.referral-benefit-title,.referral-progress-title,.referral-progress-label,.referral-users-empty-title,.referral-history-empty-text,.referral-apply-title,.referral-faq-trigger,.referral-faq-content,.referral-cta-title,.referral-users-table td,.referral-history-table td){color:#174b62!important}.referral-page :is(.referral-header-text p,.referral-stat-label,.referral-stat-subtitle,.referral-step-desc,.referral-tier-info,.referral-benefit-desc,.referral-progress-info,.referral-users-empty-desc,.referral-history-empty-text,.referral-apply-subtitle,.referral-apply-status,.referral-faq-icon,.referral-cta-subtitle,.referral-users-table th,.referral-history-table th){color:#28677a!important}.referral-page :is(.referral-apply-input,.referral-apply-input::placeholder){color:#174b62!important}
+.affiliate-wallet-panel{margin-top:18px;padding:18px;border:1px solid rgba(82,190,207,.34);border-radius:14px;background:rgba(239,254,255,.56)}.affiliate-wallet-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.affiliate-wallet-grid div{padding:12px;border-radius:10px;background:rgba(255,255,255,.7)}.affiliate-wallet-grid span,.affiliate-wallet-grid b{display:block}.affiliate-wallet-grid span{color:#4b6d7f;font-size:.85rem}.affiliate-wallet-grid b{margin-top:4px;color:#174b62;font-size:1.2rem}.affiliate-wallet-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}.affiliate-wallet-dialog{position:fixed;inset:0;z-index:100;background:rgba(7,44,60,.38);display:grid;place-items:center;padding:16px}.affiliate-wallet-dialog[hidden]{display:none}.affiliate-wallet-form{display:grid;gap:10px;width:min(460px,100%);padding:20px;border-radius:16px;background:#fff;color:#174b62}.affiliate-wallet-form input,.affiliate-wallet-form textarea{padding:10px;border:1px solid rgba(13,137,158,.25);border-radius:8px}.affiliate-wallet-form textarea{min-height:70px}@media(max-width:600px){.affiliate-wallet-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="app-body has-global-toolbar v3-liquid-theme">
@@ -229,6 +230,34 @@
         <div class="referral-stat-value" id="refDirectCount">0</div>
         <div class="referral-stat-subtitle">tài khoản</div>
       </div>
+    </div>
+
+    <section class="affiliate-wallet-panel">
+      <h2 class="referral-section-title">Ví Affiliate</h2>
+      <div class="affiliate-wallet-grid">
+        <div><span>Có thể sử dụng</span><b id="affiliateWalletAvailable">0 ₫</b></div>
+        <div><span>Đang chờ duyệt</span><b id="affiliateWalletPending">0 ₫</b></div>
+        <div><span>Đang chờ rút</span><b id="affiliateWalletReserved">0 ₫</b></div>
+      </div>
+      <div class="affiliate-wallet-actions">
+        <button type="button" class="referral-apply-btn" id="affiliateWithdrawBtn">Rút tiền</button>
+        <button type="button" class="referral-copy-btn" id="affiliateConvertBtn">Đổi sang Xu</button>
+      </div>
+      <p class="admin-muted">Xu sau khi quy đổi chỉ dùng cho dịch vụ và không thể đổi ngược thành số dư Affiliate.</p>
+      <div id="affiliateWalletHistory" class="simple-list"></div>
+    </section>
+
+    <div id="affiliateWithdrawDialog" class="affiliate-wallet-dialog" hidden>
+      <form id="affiliateWithdrawForm" class="affiliate-wallet-form">
+        <h3>Yêu cầu rút tiền</h3>
+        <input name="amount_vnd" type="number" min="1" placeholder="Số tiền VNĐ" required>
+        <input name="account_name" placeholder="Tên chủ tài khoản" required>
+        <input name="bank_name" placeholder="Ngân hàng" required>
+        <input name="account" placeholder="Số tài khoản" required>
+        <input name="method" value="BANK" placeholder="Phương thức" required>
+        <textarea name="note" placeholder="Ghi chú"></textarea>
+        <div><button type="submit" class="referral-apply-btn">Gửi yêu cầu</button><button type="button" class="referral-copy-btn" id="affiliateWithdrawCancel">Hủy</button></div>
+      </form>
     </div>
 
     <!-- SHARE SECTION -->
@@ -492,7 +521,7 @@
 <script src="/static/global-toolbar.js?v=20260820.4"></script>
 <script src="/static/motion-form.js?v=20260820.3"></script>
 <script src="/static/app.js?v=20260821.2"></script>
-<script src="/static/referral-functions.js?v=20260820.6"></script>
+<script src="/static/referral-functions.js?v=20260821.12"></script>
 <script>
 document.addEventListener('click', event=>{
   const trigger=event.target.closest('.referral-faq-trigger');

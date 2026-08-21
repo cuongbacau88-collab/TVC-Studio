@@ -27,10 +27,11 @@ async function loadAffiliate(){
   }
 
   try{
-    const [summary,refs,rewards]=await Promise.all([
+    const [summary,refs,rewards,wallet]=await Promise.all([
       api('/api/affiliate/summary'),
       api('/api/referrals'),
-      api('/api/affiliate/rewards')
+      api('/api/affiliate/rewards'),
+      api('/api/affiliate/wallet')
     ]);
 
     // Update stats
@@ -85,11 +86,24 @@ async function loadAffiliate(){
 
     // Display commission history
     renderCommissionHistory(rewards);
+    renderAffiliateWallet(wallet);
 
   }catch(e){
     console.error(e);
     say(e.message);
   }
+}
+
+function renderAffiliateWallet(wallet){
+  const money=value=>Number(value||0).toLocaleString('vi-VN')+' ₫';
+  const available=document.getElementById('affiliateWalletAvailable');
+  const pending=document.getElementById('affiliateWalletPending');
+  const reserved=document.getElementById('affiliateWalletReserved');
+  if(available) available.textContent=money(wallet.available_vnd);
+  if(pending) pending.textContent=money(wallet.pending_vnd);
+  if(reserved) reserved.textContent=money(wallet.reserved_vnd);
+  const history=document.getElementById('affiliateWalletHistory');
+  if(history) history.innerHTML=[...(wallet.conversions||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Đổi sang Xu · ${money(item.affiliate_amount_vnd)} · +${item.credits_received} Xu · Hoàn thành</div>`), ...(wallet.withdrawals||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Rút tiền · ${money(item.amount_vnd)} · ${item.bank_name||item.method} · ${item.status}</div>`)].join('');
 }
 
 /**
@@ -357,6 +371,20 @@ function initReferralPage(){
 
   // Refresh button
   $('#refreshAffiliate')?.addEventListener('click', loadAffiliate);
+  $('#affiliateWithdrawBtn')?.addEventListener('click', ()=>{ const dialog=$('#affiliateWithdrawDialog'); if(dialog) dialog.hidden=false; });
+  $('#affiliateWithdrawCancel')?.addEventListener('click', ()=>{ const dialog=$('#affiliateWithdrawDialog'); if(dialog) dialog.hidden=true; });
+  $('#affiliateWithdrawForm')?.addEventListener('submit', async event=>{
+    event.preventDefault();
+    const payload=Object.fromEntries(new FormData(event.target));
+    try{ await api('/api/affiliate/withdrawals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); say('Đã gửi yêu cầu rút tiền'); event.target.reset(); $('#affiliateWithdrawDialog').hidden=true; await loadAffiliate(); }
+    catch(error){ say(error.message); }
+  });
+  $('#affiliateConvertBtn')?.addEventListener('click', async()=>{
+    const amount=prompt('Nhập số tiền Affiliate muốn đổi sang Xu (VNĐ):');
+    if(!amount) return;
+    try{ const key=`affiliate-convert-${Date.now()}-${Math.random().toString(36).slice(2)}`; const result=await api('/api/affiliate/convert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_vnd:Number(amount),idempotency_key:key})}); say(`Đã đổi +${result.transaction.credits_received} Xu`); await loadAffiliate(); }
+    catch(error){ say(error.message); }
+  });
 
   // Load data
   loadAffiliate();

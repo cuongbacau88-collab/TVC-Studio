@@ -271,6 +271,30 @@ def init_db():
         reviewed_at TEXT,
         admin_note TEXT
     );
+    CREATE TABLE IF NOT EXISTS affiliate_wallet_transactions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type TEXT NOT NULL,
+        affiliate_amount_vnd INTEGER NOT NULL,
+        credits_received REAL NOT NULL DEFAULT 0,
+        exchange_rate INTEGER NOT NULL,
+        idempotency_key TEXT,
+        status TEXT NOT NULL DEFAULT 'completed',
+        created_at TEXT NOT NULL,
+        UNIQUE(user_id, type, idempotency_key)
+    );
+    CREATE TABLE IF NOT EXISTS affiliate_audit_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        actor_user_id INTEGER,
+        actor_role TEXT NOT NULL,
+        target_user_id INTEGER NOT NULL,
+        action TEXT NOT NULL,
+        amount_vnd INTEGER NOT NULL DEFAULT 0,
+        status_before TEXT,
+        status_after TEXT,
+        ip_address TEXT,
+        created_at TEXT NOT NULL
+    );
     CREATE TABLE IF NOT EXISTS affiliate_settings(
         id INTEGER PRIMARY KEY CHECK(id=1),
         enabled INTEGER NOT NULL DEFAULT 1,
@@ -365,6 +389,17 @@ def init_db():
         con.execute("ALTER TABLE affiliate_rewards ADD COLUMN reviewed_at TEXT")
     if "admin_note" not in reward_cols:
         con.execute("ALTER TABLE affiliate_rewards ADD COLUMN admin_note TEXT")
+    withdrawal_cols = {r["name"] for r in con.execute("PRAGMA table_info(affiliate_withdrawals)").fetchall()}
+    for column, definition in {
+        "account_name": "TEXT NOT NULL DEFAULT ''",
+        "bank_name": "TEXT NOT NULL DEFAULT ''",
+        "paid_at": "TEXT",
+    }.items():
+        if column not in withdrawal_cols:
+            con.execute(f"ALTER TABLE affiliate_withdrawals ADD COLUMN {column} {definition}")
+    settings_cols = {r["name"] for r in con.execute("PRAGMA table_info(affiliate_settings)").fetchall()}
+    if "minimum_withdrawal_vnd" not in settings_cols:
+        con.execute("ALTER TABLE affiliate_settings ADD COLUMN minimum_withdrawal_vnd INTEGER NOT NULL DEFAULT 50000")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
     con.execute("CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by_user_id)")
     con.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub) WHERE google_sub IS NOT NULL AND google_sub!=''")
@@ -576,7 +611,7 @@ def affiliate_settings(con):
         return {
             "enabled": True, "silver_rate_percent": 10.0, "gold_rate_percent": 15.0,
             "buyer_bonus_percent": 10.0, "gold_threshold_credits": 1000,
-            "parent_override_percent": 50.0,
+            "parent_override_percent": 50.0, "minimum_withdrawal_vnd": 50000,
         }
     return dict(row)
 
@@ -612,7 +647,12 @@ def affiliate_totals(con, user_id: int):
     reserved = con.execute("""
         SELECT COALESCE(SUM(amount_credits),0) total
         FROM affiliate_withdrawals
-        WHERE user_id=? AND status IN ('pending','paid')
+        WHERE user_id=? AND status IN ('pending','approved','paid')
+    """, (user_id,)).fetchone()["total"] or 0
+    converted = con.execute("""
+        SELECT COALESCE(SUM(credits_received),0) total
+        FROM affiliate_wallet_transactions
+        WHERE user_id=? AND type='affiliate_to_credits' AND status='completed'
     """, (user_id,)).fetchone()["total"] or 0
     paid = con.execute("""
         SELECT COALESCE(SUM(amount_credits),0) total
@@ -621,8 +661,11 @@ def affiliate_totals(con, user_id: int):
     """, (user_id,)).fetchone()["total"] or 0
     return {
         "total_rewards": round(float(reward), 2),
-        "available": round(max(0.0, float(reward) - float(reserved)), 2),
+        "available": round(max(0.0, float(reward) - float(reserved) - float(converted)), 2),
         "paid": round(float(paid), 2),
+        "pending": round(float(con.execute("SELECT COALESCE(SUM(amount_credits),0) total FROM affiliate_rewards WHERE user_id=? AND status='pending'", (user_id,)).fetchone()["total"] or 0), 2),
+        "reserved": round(float(reserved), 2),
+        "converted": round(float(converted), 2),
     }
 
 def affiliate_commission_vnd(amount_vnd: int, rate: float) -> int:
@@ -632,6 +675,15 @@ def affiliate_commission_vnd(amount_vnd: int, rate: float) -> int:
 def affiliate_commission_credits(amount_vnd: int, rate: float) -> float:
     """Convert the cash commission to the existing affiliate credit balance."""
     return round(affiliate_commission_vnd(amount_vnd, rate) / AFFILIATE_VND_PER_CREDIT, 2)
+
+def affiliate_audit(con, actor, target_user_id, action, amount_vnd=0,
+                    status_before=None, status_after=None, request=None):
+    con.execute(
+        "INSERT INTO affiliate_audit_logs(actor_user_id,actor_role,target_user_id,action,amount_vnd,status_before,status_after,ip_address,created_at) VALUES(?,?,?,?,?,?,?,?,?)",
+        (actor.get("id") if actor else None, actor.get("role", "user") if actor else "system", target_user_id,
+         action, int(amount_vnd or 0), status_before, status_after,
+         access_log_ip(request) if request else None, now_iso())
+    )
 
 def find_referrer_by_code(con, code: str):
     code = (code or "").strip().lower()
@@ -2172,39 +2224,105 @@ def affiliate_withdrawals(request: Request):
     con.close()
     return [dict(r) for r in rows]
 
+@app.get("/api/affiliate/wallet")
+def affiliate_wallet(request: Request):
+    u = current_user(request)
+    con = db()
+    totals = affiliate_totals(con, u["id"])
+    settings = affiliate_settings(con)
+    conversions = con.execute("SELECT * FROM affiliate_wallet_transactions WHERE user_id=? ORDER BY id DESC LIMIT 100", (u["id"],)).fetchall()
+    withdrawals = con.execute("SELECT * FROM affiliate_withdrawals WHERE user_id=? ORDER BY id DESC LIMIT 100", (u["id"],)).fetchall()
+    con.close()
+    return {
+        "approved_balance_vnd": int(round((totals["total_rewards"] - totals["pending"]) * AFFILIATE_VND_PER_CREDIT)),
+        "pending_vnd": int(round(totals["pending"] * AFFILIATE_VND_PER_CREDIT)),
+        "reserved_vnd": int(round(totals["reserved"] * AFFILIATE_VND_PER_CREDIT)),
+        "available_vnd": int(round(totals["available"] * AFFILIATE_VND_PER_CREDIT)),
+        "minimum_withdrawal_vnd": int(settings.get("minimum_withdrawal_vnd", 50000)),
+        "vnd_per_credit": AFFILIATE_VND_PER_CREDIT,
+        "conversions": [dict(row) for row in conversions],
+        "withdrawals": [dict(row) for row in withdrawals],
+    }
+
+@app.post("/api/affiliate/convert")
+async def affiliate_convert(request: Request):
+    u = current_user(request)
+    body = await request.json()
+    try:
+        amount_vnd = int(round(float(body.get("amount_vnd", 0))))
+    except (TypeError, ValueError):
+        raise HTTPException(400, "Số tiền quy đổi không hợp lệ")
+    idempotency_key = (body.get("idempotency_key") or "").strip()[:100]
+    if amount_vnd <= 0 or not idempotency_key:
+        raise HTTPException(400, "Thiếu số tiền hoặc mã thao tác")
+    con = db()
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        existing = con.execute("SELECT * FROM affiliate_wallet_transactions WHERE user_id=? AND type='affiliate_to_credits' AND idempotency_key=?", (u["id"], idempotency_key)).fetchone()
+        if existing:
+            con.commit()
+            return {"ok": True, "transaction": dict(existing), "duplicate": True}
+        totals = affiliate_totals(con, u["id"])
+        available_vnd = int(round(totals["available"] * AFFILIATE_VND_PER_CREDIT))
+        if amount_vnd > available_vnd:
+            raise HTTPException(400, "Số dư Affiliate khả dụng không đủ")
+        credits = round(amount_vnd / AFFILIATE_VND_PER_CREDIT, 2)
+        now = now_iso()
+        cur = con.execute("INSERT INTO affiliate_wallet_transactions(user_id,type,affiliate_amount_vnd,credits_received,exchange_rate,idempotency_key,status,created_at) VALUES(?,?,?,?,?,?,?,?)", (u["id"], "affiliate_to_credits", amount_vnd, credits, AFFILIATE_VND_PER_CREDIT, idempotency_key, "completed", now))
+        tx_id = cur.lastrowid
+        con.execute("UPDATE users SET credits=credits+? WHERE id=?", (credits, u["id"]))
+        con.execute("INSERT INTO credit_ledger(user_id,delta,reason,ref_type,ref_id,created_at) VALUES(?,?,?,?,?,?)", (u["id"], credits, "Đổi Affiliate sang Xu", "affiliate_conversion", tx_id, now))
+        affiliate_audit(con, u, u["id"], "affiliate_to_credits", amount_vnd, None, "completed", request)
+        con.commit()
+        return {"ok": True, "transaction": dict(con.execute("SELECT * FROM affiliate_wallet_transactions WHERE id=?", (tx_id,)).fetchone())}
+    except HTTPException:
+        con.rollback()
+        raise
+    finally:
+        con.close()
+
 @app.post("/api/affiliate/withdrawals")
 async def affiliate_request_withdrawal(request: Request):
     u = current_user(request)
     body = await request.json()
     try:
-        amount = round(float(body.get("amount_credits", 0)), 2)
+        amount_vnd = int(round(float(body.get("amount_vnd", 0))))
     except Exception:
-        raise HTTPException(400, "Số lượt không hợp lệ")
+        raise HTTPException(400, "Số tiền không hợp lệ")
+    account_name = (body.get("account_name") or "").strip()[:120]
+    bank_name = (body.get("bank_name") or "").strip()[:120]
     method = (body.get("method") or "").strip()[:50]
     account = (body.get("account") or "").strip()[:200]
     note = (body.get("note") or "").strip()[:300]
 
-    if amount < 50:
-        raise HTTPException(400, "Tối thiểu 50 xu cho mỗi lần rút")
-    if not method or not account:
-        raise HTTPException(400, "Hãy nhập phương thức và thông tin nhận tiền")
+    if not method or not account or not account_name or not bank_name:
+        raise HTTPException(400, "Hãy nhập tên chủ tài khoản, ngân hàng và thông tin nhận tiền")
 
     con = db()
-    totals = affiliate_totals(con, u["id"])
-    if amount > totals["available"] + 1e-9:
-        con.close()
-        raise HTTPException(400, "Số dư affiliate không đủ")
-
-    amount_vnd = int(round(amount * AFFILIATE_VND_PER_CREDIT))
-    cur = con.execute("""
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        settings = affiliate_settings(con)
+        minimum = int(settings.get("minimum_withdrawal_vnd", 50000))
+        if amount_vnd < minimum:
+            raise HTTPException(400, f"Mức rút tối thiểu là {minimum:,} VNĐ")
+        totals = affiliate_totals(con, u["id"])
+        available_vnd = int(round(totals["available"] * AFFILIATE_VND_PER_CREDIT))
+        if amount_vnd > available_vnd:
+            raise HTTPException(400, "Số dư Affiliate khả dụng không đủ")
+        amount = round(amount_vnd / AFFILIATE_VND_PER_CREDIT, 2)
+        cur = con.execute("""
         INSERT INTO affiliate_withdrawals(
-            user_id,amount_credits,amount_vnd,method,account,note,status,created_at
-        ) VALUES(?,?,?,?,?,?,'pending',?)
-    """, (u["id"], amount, amount_vnd, method, account, note, now_iso()))
-    con.commit()
-    wid = cur.lastrowid
-    con.close()
-    return {"ok": True, "withdrawal_id": wid, "amount_vnd": amount_vnd}
+            user_id,amount_credits,amount_vnd,method,account,account_name,bank_name,note,status,created_at
+        ) VALUES(?,?,?,?,?,?,?,?,'pending',?)
+        """, (u["id"], amount, amount_vnd, method, account, account_name, bank_name, note, now_iso()))
+        affiliate_audit(con, u, u["id"], "withdrawal_created", amount_vnd, None, "pending", request)
+        con.commit()
+        return {"ok": True, "withdrawal_id": cur.lastrowid, "amount_vnd": amount_vnd}
+    except HTTPException:
+        con.rollback()
+        raise
+    finally:
+        con.close()
 
 
 # ---------- ADMIN ----------
@@ -2859,6 +2977,7 @@ async def update_admin_affiliate_settings(request: Request):
             "buyer_bonus_percent": float(body.get("buyer_bonus_percent")),
             "gold_threshold_credits": int(body.get("gold_threshold_credits")),
             "parent_override_percent": float(body.get("parent_override_percent")),
+            "minimum_withdrawal_vnd": int(body.get("minimum_withdrawal_vnd", 50000)),
         }
     except (TypeError, ValueError):
         raise HTTPException(400, "Cấu hình hoa hồng không hợp lệ")
@@ -2866,9 +2985,11 @@ async def update_admin_affiliate_settings(request: Request):
         raise HTTPException(400, "Tỷ lệ hoa hồng phải từ 0 đến 100%")
     if values["gold_threshold_credits"] < 1:
         raise HTTPException(400, "Mốc lên Vàng phải lớn hơn 0")
+    if values["minimum_withdrawal_vnd"] < 1:
+        raise HTTPException(400, "Mức rút tối thiểu phải lớn hơn 0")
     con = db()
     con.execute("""UPDATE affiliate_settings SET enabled=?,silver_rate_percent=?,gold_rate_percent=?,
-        buyer_bonus_percent=?,gold_threshold_credits=?,parent_override_percent=?,updated_at=? WHERE id=1""",
+        buyer_bonus_percent=?,gold_threshold_credits=?,parent_override_percent=?,minimum_withdrawal_vnd=?,updated_at=? WHERE id=1""",
         (*values.values(), now_iso()))
     con.commit()
     settings = affiliate_settings(con)
@@ -2877,37 +2998,54 @@ async def update_admin_affiliate_settings(request: Request):
 
 @app.post("/api/admin/affiliate/withdrawals/{withdrawal_id}/paid")
 async def admin_affiliate_withdrawal_paid(withdrawal_id: int, request: Request):
-    require_admin(request)
+    actor = require_admin(request)
     body = await request.json()
     note = (body.get("admin_note") or "")[:300]
     con = db()
     w = con.execute("SELECT * FROM affiliate_withdrawals WHERE id=?", (withdrawal_id,)).fetchone()
     if not w:
         con.close(); raise HTTPException(404, "Không tìm thấy yêu cầu rút")
-    if w["status"] != "pending":
+    if w["status"] != "approved":
         con.close(); raise HTTPException(409, "Yêu cầu đã được xử lý")
     con.execute(
-        "UPDATE affiliate_withdrawals SET status='paid',reviewed_at=?,admin_note=? WHERE id=?",
+        "UPDATE affiliate_withdrawals SET status='paid',paid_at=?,admin_note=? WHERE id=?",
         (now_iso(), note, withdrawal_id)
     )
+    affiliate_audit(con, actor, w["user_id"], "withdrawal_paid", w["amount_vnd"], w["status"], "paid", request)
     con.commit(); con.close()
     return {"ok": True}
 
+@app.post("/api/admin/affiliate/withdrawals/{withdrawal_id}/approve")
+async def admin_affiliate_withdrawal_approve(withdrawal_id: int, request: Request):
+    actor = require_admin(request)
+    body = await request.json()
+    note = (body.get("admin_note") or "")[:300]
+    con = db()
+    con.execute("BEGIN IMMEDIATE")
+    changed = con.execute("UPDATE affiliate_withdrawals SET status='approved',reviewed_at=?,admin_note=? WHERE id=? AND status='pending'", (now_iso(), note, withdrawal_id)).rowcount
+    if not changed:
+        con.rollback(); con.close(); raise HTTPException(409, "Yêu cầu không còn pending")
+    w = con.execute("SELECT user_id,amount_vnd FROM affiliate_withdrawals WHERE id=?", (withdrawal_id,)).fetchone()
+    affiliate_audit(con, actor, w["user_id"], "withdrawal_approved", w["amount_vnd"], "pending", "approved", request)
+    con.commit(); con.close()
+    return {"ok": True, "status": "approved"}
+
 @app.post("/api/admin/affiliate/withdrawals/{withdrawal_id}/reject")
 async def admin_affiliate_withdrawal_reject(withdrawal_id: int, request: Request):
-    require_admin(request)
+    actor = require_admin(request)
     body = await request.json()
     note = (body.get("admin_note") or "")[:300]
     con = db()
     w = con.execute("SELECT * FROM affiliate_withdrawals WHERE id=?", (withdrawal_id,)).fetchone()
     if not w:
         con.close(); raise HTTPException(404, "Không tìm thấy yêu cầu rút")
-    if w["status"] != "pending":
+    if w["status"] not in {"pending", "approved"}:
         con.close(); raise HTTPException(409, "Yêu cầu đã được xử lý")
     con.execute(
         "UPDATE affiliate_withdrawals SET status='rejected',reviewed_at=?,admin_note=? WHERE id=?",
         (now_iso(), note, withdrawal_id)
     )
+    affiliate_audit(con, actor, w["user_id"], "withdrawal_rejected", w["amount_vnd"], w["status"], "rejected", request)
     con.commit(); con.close()
     return {"ok": True}
 

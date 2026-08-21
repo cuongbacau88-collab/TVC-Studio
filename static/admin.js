@@ -91,7 +91,7 @@ async function load() {
 
   $('#affiliateWithdrawals').innerHTML = table(['ID', 'Khách', 'Xu', 'VND', 'Phương thức', 'Tài khoản', 'Trạng thái', ''], aw.map(x => [
     x.id, x.email, x.amount_credits, Number(x.amount_vnd).toLocaleString('vi-VN') + ' đ', x.method, x.account, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">Đã trả</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">Từ chối</button>` : ''
+    x.status === 'pending' ? `<button class="mini-btn approve" onclick="approveWithdrawal(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">Từ chối</button>` : x.status === 'approved' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">Đã chuyển tiền</button>` : ''
   ]));
 
   $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'Mã', 'Hạng', 'Tỷ lệ', 'Giới thiệu', 'Doanh số', 'Thưởng', 'Có thể rút', 'Người GT'], au.map(x => [
@@ -108,6 +108,7 @@ function renderAffiliateSettings(settings) {
   $('#affiliateBuyerBonus').value = settings.buyer_bonus_percent;
   $('#affiliateGoldThreshold').value = settings.gold_threshold_credits;
   $('#affiliateParentOverride').value = settings.parent_override_percent;
+  if ($('#affiliateMinimumWithdrawal')) $('#affiliateMinimumWithdrawal').value = settings.minimum_withdrawal_vnd || 50000;
 }
 function renderAffiliateRewards(rows) {
   const root = $('#affiliateRewardsTable'); if (!root) return;
@@ -334,7 +335,12 @@ window.addCredits = async (id, email) => {
   } catch (e) { say(e.message); }
 };
 
+window.approveWithdrawal = async id => {
+  if (!confirm('Duyệt yêu cầu rút tiền này? Chưa xác nhận đã chuyển khoản.')) return;
+  try { await api(`/api/admin/affiliate/withdrawals/${id}/approve`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say('Đã duyệt yêu cầu rút'); load(); } catch (e) { say(e.message); }
+};
 window.payWithdrawal = async id => {
+  if (!confirm('Xác nhận Admin đã chuyển khoản thực tế cho yêu cầu này?')) return;
   const note = prompt('Ghi chú thanh toán (tuỳ chọn):') || '';
   try {
     await api(`/api/admin/affiliate/withdrawals/${id}/paid`, {
@@ -493,12 +499,21 @@ function initAdminTabs() {
       buyer_bonus_percent: Number($('#affiliateBuyerBonus').value),
       gold_threshold_credits: Number($('#affiliateGoldThreshold').value),
       parent_override_percent: Number($('#affiliateParentOverride').value),
+      minimum_withdrawal_vnd: Number($('#affiliateMinimumWithdrawal').value || 50000),
     };
     try {
       const result = await api('/api/admin/affiliate/settings', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) });
       renderAffiliateSettings(result.settings);
       $('#affiliateSettingsStatus').textContent = 'Đã lưu ' + new Date().toLocaleTimeString('vi-VN');
       say('Đã cập nhật tỷ lệ hoa hồng Affiliate');
+    } catch (error) { say(error.message); }
+  });
+  $('#affiliateMinimumWithdrawalSave')?.addEventListener('click', async () => {
+    try {
+      const settings = await api('/api/admin/affiliate/settings');
+      settings.minimum_withdrawal_vnd = Number($('#affiliateMinimumWithdrawal').value || 0);
+      await api('/api/admin/affiliate/settings', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(settings) });
+      say('Đã lưu mức rút tối thiểu');
     } catch (error) { say(error.message); }
   });
 }
