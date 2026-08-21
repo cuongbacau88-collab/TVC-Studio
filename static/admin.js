@@ -42,12 +42,13 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview, affiliateSettings] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
     api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
-    api('/api/admin/affiliate/settings')
+    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards')
   ]);
   renderAffiliateSettings(affiliateSettings);
+  renderAffiliateRewards(affiliateRewards);
   $('#stats').innerHTML = [
     ['Người dùng', overview.users_total], ['User mới hôm nay', overview.new_users.today], ['User mới 7 ngày', overview.new_users.seven_days], ['User mới 30 ngày', overview.new_users.thirty_days],
     ['Xu đang lưu hành', overview.credits_circulating], ['Doanh thu nạp Xu', Number(overview.topup_revenue_vnd || 0).toLocaleString('vi-VN') + ' đ'], ['Tổng job AI', overview.jobs_total],
@@ -56,7 +57,7 @@ async function load() {
 
   $('#topups').innerHTML = table(['ID', 'Khách', 'Gói', 'Tiền', 'Xu', 'Trạng thái', ''], t.map(x => [
     x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + ' đ', x.credits, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button> <button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
+    x.status === 'pending' ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button> ${!x.order_code ? `<button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button>` : ''} <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
   ]));
 
   $('#users').innerHTML = table(['ID', 'Email', 'Tên', 'Xu', 'Role', ''], u.map(x => [
@@ -87,6 +88,20 @@ function renderAffiliateSettings(settings) {
   $('#affiliateGoldThreshold').value = settings.gold_threshold_credits;
   $('#affiliateParentOverride').value = settings.parent_override_percent;
 }
+function renderAffiliateRewards(rows) {
+  const root = $('#affiliateRewardsTable'); if (!root) return;
+  root.innerHTML = table(['ID','Người nhận','Nguồn','Loại','Xu','Trạng thái',''], rows.map(row => [
+    row.id, row.recipient_email, row.source_email, row.reward_type, row.amount_credits, row.status,
+    row.status === 'pending' ? `<button class="mini-btn approve" onclick="approveAffiliateReward(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectAffiliateReward(${row.id})">Từ chối</button>` : ''
+  ]));
+}
+window.approveAffiliateReward = async id => {
+  try { const result = await api(`/api/admin/affiliate/rewards/${id}/approve`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say(`Đã cộng ${result.amount_credits} Xu thưởng referral`); load(); } catch (e) { say(e.message); }
+};
+window.rejectAffiliateReward = async id => {
+  const note = prompt('Lý do từ chối (tuỳ chọn):') || '';
+  try { await api(`/api/admin/affiliate/rewards/${id}/reject`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_note:note})}); say('Đã từ chối thưởng referral'); load(); } catch (e) { say(e.message); }
+};
 setInterval(()=>{if(document.visibilityState==='visible')load().catch(()=>{})},15000);
 
 async function loadAdminManagement() {
@@ -113,7 +128,7 @@ function renderAdminTransactions(rows) {
   const root = $('#adminTransactionsTable'); if (!root) return;
   root.innerHTML = table(['ID','User','Gói','Số tiền','Xu','Mã GD','Trạng thái','Thời gian',''], rows.map(row => [
     row.id, row.email, row.package, Number(row.amount_vnd).toLocaleString('vi-VN') + ' đ', row.credits, row.order_code || '—', row.status, row.created_at,
-    row.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${row.id})">Từ chối</button>` : ''
+    row.status === 'pending' ? `${row.order_code ? `<button class="mini-btn approve" onclick="syncTopup(${row.id})">Đồng bộ</button>` : `<button class="mini-btn approve" onclick="approve(${row.id})">Duyệt</button>`} <button class="mini-btn reject" onclick="rejectT(${row.id})">Từ chối</button>` : ''
   ]));
 }
 
@@ -269,6 +284,7 @@ function initAdminTabs() {
     await api(`/api/admin/tools/${form.dataset.toolKey}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
     say('Đã lưu cấu hình công cụ');
   });
+  $('#refreshAffiliateRewards')?.addEventListener('click', async () => renderAffiliateRewards(await api('/api/admin/affiliate/rewards')));
   $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const payload = {

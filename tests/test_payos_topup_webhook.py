@@ -156,6 +156,13 @@ class PayOSTopupWebhookTests(unittest.TestCase):
         status_check.assert_not_called()
         self.assertEqual(("pending", 10, 0), self.topup_state())
 
+    def test_admin_cannot_approve_unpaid_payos_topup(self):
+        with patch.object(app, "require_admin", return_value=None):
+            with self.assertRaises(HTTPException) as raised:
+                app.approve_topup(1, json_request({}))
+        self.assertEqual(409, raised.exception.status_code)
+        self.assertEqual(("pending", 10, 0), self.topup_state())
+
 
 if __name__ == "__main__":
     unittest.main()

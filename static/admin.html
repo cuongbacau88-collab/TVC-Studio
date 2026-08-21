@@ -58,6 +58,7 @@ body.admin-page .wf-canvas-container{min-height:600px}
       <div class="affiliate-settings-actions"><button class="dark" type="submit">Lưu cấu hình hoa hồng</button><span id="affiliateSettingsStatus" class="admin-muted"></span></div>
     </form>
   </article>
+  <article class="panel-card affiliate-settings-card"><div class="sectionbar"><div><h3>Thưởng Referral chờ duyệt</h3><span class="admin-muted">Không cộng tự động; Admin xác nhận từng khoản</span></div><button class="dark" id="refreshAffiliateRewards" type="button">Làm mới</button></div><div id="affiliateRewardsTable" class="table-wrap"></div></article>
   <section class="admin-grid">
     <article class="panel-card"><div class="sectionbar"><h3>Yêu cầu nạp Xu</h3><button class="dark" id="refresh">Làm mới</button></div><div id="topups" class="table-wrap"></div></article>
     <article class="panel-card"><h3>Người dùng</h3><div id="users" class="table-wrap"></div></article>
@@ -266,7 +267,7 @@ body.admin-page .wf-canvas-container{min-height:600px}
   </div>
 </div>
 </div><div class="toast" id="toast"></div>
-<script src="/static/admin.js?v=20260820.6"></script>
+<script src="/static/admin.js?v=20260821.1"></script>
 <script>
 
 const TVC_I18N = {

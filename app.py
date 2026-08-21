@@ -2177,6 +2177,9 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
     if t["status"] != "pending":
         con.rollback(); con.close()
         raise HTTPException(409, "Yêu cầu đã xử lý")
+    if not _internal and t["order_code"]:
+        con.rollback(); con.close()
+        raise HTTPException(409, "PayOS chưa xác nhận thanh toán; hãy dùng Đồng bộ")
     if _internal and (verified_amount is None or int(verified_amount) != int(t["amount_vnd"])):
         con.execute("UPDATE topups SET needs_review=1 WHERE id=?", (topup_id,))
         con.commit(); con.close()
