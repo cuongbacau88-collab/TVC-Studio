@@ -46,18 +46,47 @@ class AffiliateBonusIdempotencyTests(unittest.TestCase):
     def user(self, user_id):
         return {"id": user_id, "role": "user", "email": "buyer@example.com" if user_id == self.buyer_id else "referrer@example.com"}
 
-    def test_settlement_creates_bonus_and_direct_once(self):
+    def test_settlement_separates_service_credits_reward_x_and_money(self):
         request = request_json({}, "/api/admin/topups/1/approve")
         with patch.object(app, "require_admin", return_value=None):
             result = app.approve_topup(self.topup_id, request)
         self.assertEqual(2, result["buyer_bonus"])
-        self.assertEqual(2.0, result["direct_commission"])
+        self.assertEqual(2000, result["direct_commission"])
         with patch.object(app, "require_admin", return_value=None), self.assertRaises(app.HTTPException) as raised:
             app.approve_topup(self.topup_id, request)
         self.assertEqual(409, raised.exception.status_code)
         con = app.db()
-        rewards = con.execute("SELECT reward_type,amount_credits FROM affiliate_rewards WHERE topup_id=? ORDER BY reward_type", (self.topup_id,)).fetchall()
-        self.assertEqual([("buyer_bonus", 2.0), ("direct", 2.0)], [(row["reward_type"], row["amount_credits"]) for row in rewards])
+        buyer_credits = con.execute("SELECT credits FROM users WHERE id=?", (self.buyer_id,)).fetchone()["credits"]
+        self.assertEqual(20, buyer_credits)
+        rewards = con.execute("SELECT reward_type,amount_credits,status FROM affiliate_rewards WHERE topup_id=?", (self.topup_id,)).fetchall()
+        self.assertEqual([("buyer_bonus", 2.0, "pending")], [(row["reward_type"], row["amount_credits"], row["status"]) for row in rewards])
+        commissions = con.execute("SELECT commission_type,amount_vnd,status FROM affiliate_commissions WHERE topup_id=?", (self.topup_id,)).fetchall()
+        self.assertEqual([("direct", 2000, "pending")], [(row["commission_type"], row["amount_vnd"], row["status"]) for row in commissions])
+        con.close()
+
+    def test_second_topup_does_not_create_second_buyer_bonus(self):
+        with patch.object(app, "require_admin", return_value=None):
+            app.approve_topup(self.topup_id, request_json({}, "/api/admin/topups/1/approve"))
+            con = app.db()
+            con.execute("INSERT INTO topups(user_id,package,amount_vnd,credits,status,created_at) VALUES(?,?,?,?,?,?)", (self.buyer_id, "Second", 20000, 20, "pending", app.now_iso()))
+            second_id = con.execute("SELECT last_insert_rowid()").fetchone()[0]
+            con.commit(); con.close()
+            app.approve_topup(second_id, request_json({}, "/api/admin/topups/2/approve"))
+        con = app.db()
+        self.assertEqual(1, con.execute("SELECT COUNT(*) FROM affiliate_rewards WHERE user_id=? AND reward_type='buyer_bonus'", (self.buyer_id,)).fetchone()[0])
+        self.assertEqual(40, con.execute("SELECT credits FROM users WHERE id=?", (self.buyer_id,)).fetchone()["credits"])
+        con.close()
+
+    def test_approving_buyer_bonus_does_not_change_service_credits(self):
+        with patch.object(app, "require_admin", return_value=None):
+            app.approve_topup(self.topup_id, request_json({}, "/api/admin/topups/1/approve"))
+        reward_id = app.db().execute("SELECT id FROM affiliate_rewards WHERE topup_id=?", (self.topup_id,)).fetchone()[0]
+        with patch.object(app, "require_admin", return_value=None):
+            result = asyncio.run(app.approve_affiliate_reward(reward_id, request_json({}, f"/api/admin/affiliate/rewards/{reward_id}/approve")))
+        self.assertFalse(result["credited_to_service"])
+        con = app.db()
+        self.assertEqual(20, con.execute("SELECT credits FROM users WHERE id=?", (self.buyer_id,)).fetchone()["credits"])
+        self.assertEqual(2, con.execute("SELECT delta FROM affiliate_reward_credit_ledger WHERE reward_id=?", (reward_id,)).fetchone()["delta"])
         con.close()
 
     def test_binding_never_creates_reward_and_cannot_rebind(self):

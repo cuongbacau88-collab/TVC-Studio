@@ -48,25 +48,14 @@ class AffiliateWalletTests(unittest.TestCase):
     def user(self):
         return {"id": self.user_id, "role": "user", "email": "affiliate@example.com"}
 
-    def test_withdrawal_reserves_and_conversion_cannot_reuse_it(self):
+    def test_legacy_withdrawal_and_conversion_are_disabled(self):
         with patch.object(app, "current_user", return_value=self.user()):
-            result = asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 150000, "account_name": "Affiliate", "bank_name": "Bank", "account": "123", "method": "BANK"})))
-            self.assertEqual(150000, result["amount_vnd"])
-            with self.assertRaises(app.HTTPException):
+            with self.assertRaises(app.HTTPException) as withdrawal:
+                asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 150000})))
+            with self.assertRaises(app.HTTPException) as conversion:
                 asyncio.run(app.affiliate_convert(request_json({"amount_vnd": 100000, "idempotency_key": "blocked"}, path="/api/affiliate/convert")))
-
-    def test_conversion_keeps_decimal_and_idempotency(self):
-        with patch.object(app, "current_user", return_value=self.user()):
-            first = asyncio.run(app.affiliate_convert(request_json({"amount_vnd": 49900, "idempotency_key": "same"}, path="/api/affiliate/convert")))
-            second = asyncio.run(app.affiliate_convert(request_json({"amount_vnd": 49900, "idempotency_key": "same"}, path="/api/affiliate/convert")))
-        self.assertEqual(49.9, first["transaction"]["credits_received"])
-        self.assertTrue(second["duplicate"])
-        con = app.db(); self.assertEqual(49.9, con.execute("SELECT credits FROM users WHERE id=?", (self.user_id,)).fetchone()["credits"]); con.close()
-
-    def test_minimum_withdrawal_is_enforced(self):
-        with patch.object(app, "current_user", return_value=self.user()):
-            with self.assertRaises(app.HTTPException):
-                asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 49999, "account_name": "Affiliate", "bank_name": "Bank", "account": "123", "method": "BANK"})))
+        self.assertEqual(410, withdrawal.exception.status_code)
+        self.assertEqual(410, conversion.exception.status_code)
 
     def test_zero_balance_rejects_withdrawal_and_conversion(self):
         con = app.db()
@@ -76,17 +65,19 @@ class AffiliateWalletTests(unittest.TestCase):
         con.execute("DELETE FROM affiliate_wallet_transactions WHERE user_id=?", (self.user_id,))
         con.commit(); con.close()
         with patch.object(app, "current_user", return_value=self.user()):
-            with self.assertRaises(app.HTTPException):
-                asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 50000, "account_name": "Affiliate", "bank_name": "Bank", "account": "123", "method": "BANK"})))
-            with self.assertRaises(app.HTTPException):
+            with self.assertRaises(app.HTTPException) as withdrawal:
+                asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 50000})))
+            with self.assertRaises(app.HTTPException) as conversion:
                 asyncio.run(app.affiliate_convert(request_json({"amount_vnd": 50000, "idempotency_key": "zero"}, path="/api/affiliate/convert")))
+        self.assertEqual(410, withdrawal.exception.status_code)
+        self.assertEqual(410, conversion.exception.status_code)
 
     def test_referral_ui_zero_balance_and_minimum_messages(self):
         js = Path("static/referral-functions.js").read_text()
-        self.assertIn("Ví đang hơi nhẹ 😄 Kiếm thêm hoa hồng rồi quay lại rút nhé!", js)
-        self.assertIn("Chưa có hoa hồng để đổi rồi 😄 Kiếm thêm chút nữa rồi quay lại nhé!", js)
-        self.assertIn("Sắp đủ rồi 😄 Bạn cần tối thiểu", js)
-        self.assertIn("Thiếu chỗ nhận tiền rồi 😄 Hãy điền đầy đủ thông tin ngân hàng trước nhé!", js)
+        self.assertNotIn("affiliateWithdrawBtn", js)
+        self.assertNotIn("affiliateConvertBtn", js)
+        self.assertIn("affiliateMoneyApproved", Path("static/app.html").read_text())
+        self.assertIn("zalo.me/0867863222", Path("static/app.html").read_text())
 
 
 if __name__ == "__main__":

@@ -41,9 +41,9 @@ async function loadAffiliate(){
     setText('refDirectCount',summary.direct_referrals||0);
     setText('refCurrentTier',summary.tier?.name||'Bạc');
     setText('refCommissionRate',`Hoa hồng ${summary.tier?.rate_percent||10}%`);
-    setText('refAvailableRewards',Number(summary.available||0).toLocaleString('vi-VN'));
-    setText('refAvailableVnd',`${Number(summary.available_vnd||0).toLocaleString('vi-VN')} ₫`);
-    setText('refTotalRewards',Number(summary.total_rewards||0).toLocaleString('vi-VN'));
+    setText('refAvailableRewards',`${Number(summary.money_approved_vnd||0).toLocaleString('vi-VN')} ₫`);
+    setText('refAvailableVnd',`Thanh toán ngày 25 • Đã trả ${Number(summary.money_paid_vnd||0).toLocaleString('vi-VN')} ₫`);
+    setText('refTotalRewards',`${Number(summary.reward_approved_credits||0).toLocaleString('vi-VN')} Xu`);
 
     // Update tier rates
     setText('refSilverRulePercent',`${summary.commission_rates?.silver_percent||10}%`);
@@ -93,6 +93,7 @@ async function loadAffiliate(){
 
     // Display commission history
     renderCommissionHistory(rewards);
+    window.__affiliateWallet = wallet;
     renderAffiliateWallet(wallet);
 
   }catch(e){
@@ -101,29 +102,17 @@ async function loadAffiliate(){
   }
 }
 
-function getAffiliateWalletState(wallet = {}){
-  const availableVnd = Number(wallet.available_vnd || 0);
-  const minimumVnd = Number(wallet.minimum_withdrawal_vnd || 50000);
-  const vndPerCredit = Number(wallet.vnd_per_credit || 1000);
-  return {
-    availableVnd,
-    minimumVnd,
-    vndPerCredit,
-    canWithdraw: availableVnd >= minimumVnd,
-    canConvert: availableVnd > 0,
-  };
-}
-
 function renderAffiliateWallet(wallet){
   const money=value=>Number(value||0).toLocaleString('vi-VN')+' ₫';
-  const available=document.getElementById('affiliateWalletAvailable');
-  const pending=document.getElementById('affiliateWalletPending');
-  const reserved=document.getElementById('affiliateWalletReserved');
-  if(available) available.textContent=money(wallet.available_vnd);
-  if(pending) pending.textContent=money(wallet.pending_vnd);
-  if(reserved) reserved.textContent=money(wallet.reserved_vnd);
+  const setText=(id,value)=>{const node=document.getElementById(id);if(node) node.textContent=value;};
+  setText('affiliateMoneyPending', money(wallet.money_pending_vnd));
+  setText('affiliateMoneyApproved', money(wallet.money_approved_vnd));
+  setText('affiliateMoneyPaid', money(wallet.money_paid_vnd));
+  setText('affiliateRewardApproved', `${Number(wallet.reward_approved_credits||0).toLocaleString('vi-VN')} Xu`);
+  setText('affiliateRewardPending', `${Number(wallet.reward_pending_credits||0).toLocaleString('vi-VN')} Xu`);
+  setText('affiliateNextPayout', wallet.next_payout_date ? new Date(wallet.next_payout_date).toLocaleDateString('vi-VN') : 'Ngày 25 hàng tháng');
   const history=document.getElementById('affiliateWalletHistory');
-  if(history) history.innerHTML=[...(wallet.conversions||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Đổi sang Xu · ${money(item.affiliate_amount_vnd)} · +${item.credits_received} Xu · Hoàn thành</div>`), ...(wallet.withdrawals||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Rút tiền · ${money(item.amount_vnd)} · ${item.bank_name||item.method} · ${item.status}</div>`)].join('');
+  if(history) history.innerHTML=[...(wallet.commissions||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Hoa hồng ${item.commission_type} · ${money(item.amount_vnd)} · ${item.status}</div>`), ...(wallet.rewards||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Xu thưởng ${item.reward_type} · +${item.amount_credits} Xu · ${item.status}</div>`)].join('');
 }
 
 /**
@@ -391,139 +380,8 @@ function initReferralPage(){
   setupCTAButtons();
   setupApplyReferralForm();
 
-  const stateFromWallet = () => getAffiliateWalletState(window.__affiliateWallet || {});
-
   // Refresh button
   $('#refreshAffiliate')?.addEventListener('click', loadAffiliate);
-
-  $('#affiliateWithdrawBtn')?.addEventListener('click', ()=>{
-    const wallet = window.__affiliateWallet || {};
-    const { availableVnd, minimumVnd } = getAffiliateWalletState(wallet);
-    if(availableVnd <= 0){
-      say('Ví đang hơi nhẹ 😄 Kiếm thêm hoa hồng rồi quay lại rút nhé!');
-      return;
-    }
-    if(availableVnd < minimumVnd){
-      const missing = minimumVnd - availableVnd;
-      say(`Sắp đủ rồi 😄 Bạn cần tối thiểu ${minimumVnd.toLocaleString('vi-VN')}đ để rút. Hiện ví đang có ${availableVnd.toLocaleString('vi-VN')}đ.\nCòn thiếu: ${missing.toLocaleString('vi-VN')}đ`);
-      return;
-    }
-    const dialog=$('#affiliateWithdrawDialog');
-    if(dialog){
-      const availableLabel = $('#affiliateWithdrawAvailable');
-      const minimumLabel = $('#affiliateWithdrawMinimum');
-      if(availableLabel) availableLabel.textContent = `${availableVnd.toLocaleString('vi-VN')}đ`;
-      if(minimumLabel) minimumLabel.textContent = `${minimumVnd.toLocaleString('vi-VN')}đ`;
-      dialog.hidden=false;
-    }
-  });
-
-  $('#affiliateWithdrawCancel')?.addEventListener('click', ()=>{ const dialog=$('#affiliateWithdrawDialog'); if(dialog) dialog.hidden=true; });
-  $('#affiliateWithdrawForm')?.addEventListener('submit', async event=>{
-    event.preventDefault();
-    const form = event.target;
-    const wallet = window.__affiliateWallet || {};
-    const { availableVnd, minimumVnd } = getAffiliateWalletState(wallet);
-    const formData = Object.fromEntries(new FormData(form));
-    const amount = Number(formData.amount_vnd || 0);
-    const requiredFields = [formData.account_name, formData.bank_name, formData.account, formData.method];
-    if(requiredFields.some(field => !String(field || '').trim())){
-      say('Thiếu chỗ nhận tiền rồi 😄 Hãy điền đầy đủ thông tin ngân hàng trước nhé!');
-      return;
-    }
-    if(!Number.isFinite(amount) || amount <= 0){
-      say('Nhập một số tiền hợp lệ để rút nhé 😄');
-      return;
-    }
-    if(amount > availableVnd){
-      say(`Ví chưa giàu tới mức đó đâu 😄 Bạn chỉ có thể rút tối đa ${availableVnd.toLocaleString('vi-VN')}đ.`);
-      return;
-    }
-    if(amount < minimumVnd){
-      say(`Thêm chút nữa là được 😄 Mức rút tối thiểu hiện là ${minimumVnd.toLocaleString('vi-VN')}đ.`);
-      return;
-    }
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='Đang xử lý...'; }
-    try{
-      await api('/api/affiliate/withdrawals',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(formData)});
-      say('Yêu cầu rút tiền đã được gửi 🎉 Admin sẽ kiểm tra và xử lý cho bạn.');
-      form.reset();
-      const dialog=$('#affiliateWithdrawDialog'); if(dialog) dialog.hidden=true;
-      await loadAffiliate();
-    }catch(error){
-      say(error.message);
-    }finally{
-      if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='Gửi yêu cầu rút'; }
-    }
-  });
-
-  $('#affiliateConvertBtn')?.addEventListener('click', ()=>{
-    const wallet = window.__affiliateWallet || {};
-    const { availableVnd, vndPerCredit } = getAffiliateWalletState(wallet);
-    if(availableVnd <= 0){
-      say('Chưa có hoa hồng để đổi rồi 😄 Kiếm thêm chút nữa rồi quay lại nhé!');
-      return;
-    }
-    const dialog=$('#affiliateConvertDialog');
-    if(dialog){
-      const availableLabel = $('#affiliateConvertAvailable');
-      const rateLabel = $('#affiliateConvertRate');
-      const amountInput = $('#affiliateConvertAmount');
-      const previewLabel = $('#affiliateConvertPreview');
-      if(availableLabel) availableLabel.textContent = `${availableVnd.toLocaleString('vi-VN')}đ`;
-      if(rateLabel) rateLabel.textContent = `1 Xu = ${vndPerCredit.toLocaleString('vi-VN')}đ`;
-      if(amountInput){ amountInput.value=''; }
-      if(previewLabel){ previewLabel.textContent = '0 Xu'; }
-      dialog.hidden=false;
-    }
-  });
-
-  $('#affiliateConvertAmount')?.addEventListener('input', event=>{
-    const wallet = window.__affiliateWallet || {};
-    const { vndPerCredit } = getAffiliateWalletState(wallet);
-    const amount = Number(event.target.value || 0);
-    const preview = $('#affiliateConvertPreview');
-    if(preview){
-      const credits = Number.isFinite(amount) && amount > 0 ? amount / vndPerCredit : 0;
-      preview.textContent = `${credits.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} Xu`;
-    }
-  });
-
-  $('#affiliateConvertForm')?.addEventListener('submit', async event=>{
-    event.preventDefault();
-    const form=event.target;
-    const wallet=window.__affiliateWallet || {};
-    const { availableVnd, vndPerCredit } = getAffiliateWalletState(wallet);
-    const amount = Number(new FormData(form).get('amount_vnd') || 0);
-    if(!Number.isFinite(amount) || amount <= 0){
-      say('Nhập một số tiền hợp lệ để đổi sang Xu nhé 😄');
-      return;
-    }
-    if(amount > availableVnd){
-      say(`Ví chưa đủ lực 😄 Bạn chỉ có thể đổi tối đa ${availableVnd.toLocaleString('vi-VN')}đ.`);
-      return;
-    }
-    const credits = amount / vndPerCredit;
-    const confirmed = window.confirm(`Bạn đang đổi:\n${amount.toLocaleString('vi-VN')}đ Affiliate\n→\n${credits.toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} Xu\n\nXu sau khi đổi chỉ dùng cho dịch vụ và không thể đổi ngược thành tiền Affiliate.\n\nXác nhận đổi?`);
-    if(!confirmed) return;
-    const submitBtn = form.querySelector('button[type="submit"]');
-    if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='Đang xử lý...'; }
-    try{
-      const key=`affiliate-convert-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const result=await api('/api/affiliate/convert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount_vnd:amount,idempotency_key:key})});
-      say(`Đổi thành công 🎉 ${amount.toLocaleString('vi-VN')}đ đã biến thành ${Number(result.transaction.credits_received).toLocaleString('vi-VN', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} Xu để bạn dùng dịch vụ!`);
-      form.reset();
-      const dialog=$('#affiliateConvertDialog'); if(dialog) dialog.hidden=true;
-      await loadAffiliate();
-    }catch(error){
-      say(error.message);
-    }finally{
-      if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='Xác nhận đổi'; }
-    }
-  });
-
-  $('#affiliateConvertCancel')?.addEventListener('click', ()=>{ const dialog=$('#affiliateConvertDialog'); if(dialog) dialog.hidden=true; });
 
   // Load data
   loadAffiliate();

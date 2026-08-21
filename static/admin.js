@@ -59,10 +59,10 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs, securityLogs, securityDevices] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, affiliateCommissions, affiliatePayouts, accessLogs, securityLogs, securityDevices] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
     api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
-    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), loadAdminAccessLogs(), loadAdminSecurityLogs(), api('/api/admin/security-devices')
+    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), api('/api/admin/affiliate/commissions'), api('/api/admin/affiliate/payouts'), loadAdminAccessLogs(), loadAdminSecurityLogs(), api('/api/admin/security-devices')
   ]);
   renderAccessLogs(accessLogs);
   renderSecurityLogs(securityLogs);
@@ -89,13 +89,24 @@ async function load() {
     x.id, x.email, jobDisplayName(x), x.quality + 'p', x.cost, x.status, x.progress + '%', x.error || ''
   ]));
 
-  $('#affiliateWithdrawals').innerHTML = table(['ID', 'Khách', 'Xu', 'VND', 'Phương thức', 'Tài khoản', 'Trạng thái', ''], aw.map(x => [
-    x.id, x.email, x.amount_credits, Number(x.amount_vnd).toLocaleString('vi-VN') + ' đ', x.method, x.account, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="approveWithdrawal(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectWithdrawal(${x.id})">Từ chối</button>` : x.status === 'approved' ? `<button class="mini-btn approve" onclick="payWithdrawal(${x.id})">Đã chuyển tiền</button>` : ''
+  $('#affiliateWithdrawals').innerHTML = table(['ID', 'Referrer', 'Topup', 'Commission', 'Rate', 'Trạng thái', ''], affiliateCommissions.map(x => [
+    x.id, x.recipient_email, x.topup_id, Number(x.amount_vnd).toLocaleString('vi-VN') + ' đ', Number(x.rate * 100).toLocaleString('vi-VN') + '%', x.status,
+    x.status === 'pending' ? `<button class="mini-btn approve" onclick="approveAffiliateCommission(${x.id})">Duyệt</button>` : x.status === 'approved' ? `<button class="mini-btn approve" onclick="payAffiliateCommission(${x.id})">Đã chuyển tiền</button>` : ''
   ]));
+  const withdrawalSection = $('#affiliate-withdrawals');
+  const sectionTitle = withdrawalSection?.querySelector('h3');
+  if (sectionTitle) sectionTitle.textContent = 'Hoa hồng tiền & Thanh toán Affiliate';
+  let payoutRoot = $('#affiliatePayouts');
+  if (!payoutRoot && withdrawalSection) {
+    payoutRoot = document.createElement('div');
+    payoutRoot.id = 'affiliatePayouts';
+    payoutRoot.className = 'table-wrap';
+    withdrawalSection.appendChild(payoutRoot);
+  }
+  if (payoutRoot) payoutRoot.innerHTML = table(['User', 'Approved balance', 'Số commission', 'Kỳ thanh toán', 'Trạng thái'], (affiliatePayouts.items || []).map(x => [x.email, Number(x.approved_vnd).toLocaleString('vi-VN') + ' đ', x.commission_count, affiliatePayouts.payout_date, 'Chờ Admin chuyển khoản']));
 
-  $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'Mã', 'Hạng', 'Tỷ lệ', 'Giới thiệu', 'Doanh số', 'Thưởng', 'Có thể rút', 'Người GT'], au.map(x => [
-    x.id, x.email, x.referral_code, x.tier, x.rate_percent + '%', x.direct_referrals, x.sales_credits, x.total_rewards, x.available, x.referrer?.email || ''
+  $('#affiliateUsers').innerHTML = table(['ID', 'Email', 'Mã', 'Hạng', 'Tỷ lệ', 'Giới thiệu', 'Doanh số', 'Money approved', 'Reward Xu', 'Người GT'], au.map(x => [
+    x.id, x.email, x.referral_code, x.tier, x.rate_percent + '%', x.direct_referrals, x.sales_credits, Number(x.money_approved_vnd || 0).toLocaleString('vi-VN') + ' đ', `${x.reward_approved_credits || 0} Xu`, x.referrer?.email || ''
   ]));
   await loadAdminManagement();
 }
@@ -227,6 +238,12 @@ function topupStatusLabel(row) {
 }
 window.approveAffiliateReward = async id => {
   try { const result = await api(`/api/admin/affiliate/rewards/${id}/approve`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say(`Đã cộng ${result.amount_credits} Xu thưởng referral`); load(); } catch (e) { say(e.message); }
+};
+window.payAffiliateCommission = async id => {
+  try { await api(`/api/admin/affiliate/commissions/${id}/paid`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say('Đã đánh dấu commission Affiliate đã thanh toán'); load(); } catch (e) { say(e.message); }
+};
+window.approveAffiliateCommission = async id => {
+  try { await api(`/api/admin/affiliate/commissions/${id}/approve`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say('Đã duyệt commission Affiliate'); load(); } catch (e) { say(e.message); }
 };
 window.rejectAffiliateReward = async id => {
   const note = prompt('Lý do từ chối (tuỳ chọn):') || '';
