@@ -1500,6 +1500,8 @@ PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "").strip()
 PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "").strip()
 PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "https://tvcstudioai.info/app#wallet").strip()
 PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "https://tvcstudioai.info/api/payments/cancel").strip()
+if PAYOS_CANCEL_URL == "https://tvcstudioai.info/app#wallet":
+    PAYOS_CANCEL_URL = "https://tvcstudioai.info/api/payments/cancel"
 
 def payos_ready() -> bool:
     return bool(PAYOS_CLIENT_ID and PAYOS_API_KEY and PAYOS_CHECKSUM_KEY)
