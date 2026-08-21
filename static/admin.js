@@ -42,11 +42,12 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
     api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
-    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards')
+    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), api('/api/admin/access-logs')
   ]);
+  renderAccessLogs(accessLogs);
   renderAffiliateSettings(affiliateSettings);
   renderAffiliateRewards(affiliateRewards);
   $('#stats').innerHTML = [
@@ -93,6 +94,16 @@ function renderAffiliateRewards(rows) {
   root.innerHTML = table(['ID','Người nhận','Nguồn','Loại','Xu','Trạng thái',''], rows.map(row => [
     row.id, row.recipient_email, row.source_email, row.reward_type, row.amount_credits, row.status,
     row.status === 'pending' ? `<button class="mini-btn approve" onclick="approveAffiliateReward(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectAffiliateReward(${row.id})">Từ chối</button>` : ''
+  ]));
+}
+function renderAccessLogs(rows) {
+  const root = $('#adminAccessLogsTable'); if (!root) return;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[character]));
+  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Method', 'Đường dẫn', 'HTTP'], rows.map(row => [
+    escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
+    escapeHtml(row.method), escapeHtml(row.path), escapeHtml(row.status_code)
   ]));
 }
 function topupStatusLabel(row) {
@@ -293,6 +304,7 @@ function initAdminTabs() {
     say('Đã lưu cấu hình công cụ');
   });
   $('#refreshAffiliateRewards')?.addEventListener('click', async () => renderAffiliateRewards(await api('/api/admin/affiliate/rewards')));
+  $('#adminAccessLogsRefresh')?.addEventListener('click', async () => renderAccessLogs(await api('/api/admin/access-logs')));
   $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const payload = {

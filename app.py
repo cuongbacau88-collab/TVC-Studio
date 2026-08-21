@@ -109,6 +109,7 @@ WORKER_POLL_INTERVAL = max(1.0, float(os.getenv("WORKER_POLL_INTERVAL", "4") or 
 
 app = FastAPI(title="TVC Studio AI Business V3.3.46")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
+TRUST_PROXY = os.getenv("TRUST_PROXY", "false").strip().lower() in {"1", "true", "yes", "on"}
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -152,6 +153,16 @@ def init_db():
         token TEXT PRIMARY KEY,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         expires_at TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS admin_access_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip_address TEXT NOT NULL,
+        user_id INTEGER,
+        method TEXT NOT NULL,
+        path TEXT NOT NULL,
+        status_code INTEGER NOT NULL,
+        user_agent TEXT,
+        created_at TEXT NOT NULL
     );
     CREATE TABLE IF NOT EXISTS jobs(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -388,6 +399,35 @@ def init_db():
 
     con.commit()
     con.close()
+
+def access_log_ip(request: Request) -> str:
+    if TRUST_PROXY:
+        forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
+        if forwarded:
+            return forwarded[:100]
+    return (request.client.host if request.client else "unknown")[:100]
+
+async def log_admin_access(request: Request, call_next):
+    is_admin_path = request.url.path == "/admin" or request.url.path.startswith("/api/admin/")
+    response = await call_next(request)
+    if is_admin_path:
+        try:
+            user = current_user(request, required=False)
+            con = db()
+            con.execute(
+                "INSERT INTO admin_access_logs(ip_address,user_id,method,path,status_code,user_agent,created_at) "
+                "VALUES(?,?,?,?,?,?,?)",
+                (access_log_ip(request), user["id"] if user else None, request.method,
+                 request.url.path[:500], response.status_code,
+                 request.headers.get("user-agent", "")[:500], now_iso()),
+            )
+            con.commit()
+            con.close()
+        except Exception:
+            logging.exception("Could not write admin access log")
+    return response
+
+app.middleware("http")(log_admin_access)
 
 init_db()
 
@@ -2046,6 +2086,17 @@ async def affiliate_request_withdrawal(request: Request):
 
 
 # ---------- ADMIN ----------
+@app.get("/api/admin/access-logs")
+def admin_access_logs(request: Request):
+    require_admin(request)
+    con = db()
+    rows = con.execute(
+        "SELECT l.*,u.email FROM admin_access_logs l "
+        "LEFT JOIN users u ON u.id=l.user_id ORDER BY l.id DESC LIMIT 300"
+    ).fetchall()
+    con.close()
+    return [dict(row) for row in rows]
+
 @app.get("/api/admin/stats")
 def admin_stats(request: Request):
     require_admin(request)
