@@ -56,8 +56,8 @@ async function load() {
   ].map(x => `<div class="stat"><span>${x[0]}</span><b>${x[1]}</b></div>`).join('');
 
   $('#topups').innerHTML = table(['ID', 'Khách', 'Gói', 'Tiền', 'Xu', 'Trạng thái', ''], t.map(x => [
-    x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + ' đ', x.credits, x.status,
-    x.status === 'pending' ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button> ${!x.order_code ? `<button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button>` : ''} <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
+    x.id, x.email, x.package, x.amount_vnd.toLocaleString('vi-VN') + ' đ', x.credits, topupStatusLabel(x),
+    x.payment_method === 'PAYOS' && ['pending', 'pending_payment'].includes(x.status) ? `<button class="mini-btn approve" onclick="syncTopup(${x.id})">Đồng bộ</button>` : x.payment_method === 'MANUAL' && x.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${x.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${x.id})">Từ chối</button>` : ''
   ]));
 
   $('#users').innerHTML = table(['ID', 'Email', 'Tên', 'Xu', 'Role', ''], u.map(x => [
@@ -95,6 +95,14 @@ function renderAffiliateRewards(rows) {
     row.status === 'pending' ? `<button class="mini-btn approve" onclick="approveAffiliateReward(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectAffiliateReward(${row.id})">Từ chối</button>` : ''
   ]));
 }
+function topupStatusLabel(row) {
+  if (row.payment_method === 'PAYOS' && row.status === 'pending_payment') return 'Chờ thanh toán';
+  if (row.status === 'paid' || row.status === 'completed') return 'Thành công';
+  if (row.status === 'cancelled') return 'Đã hủy';
+  if (row.status === 'rejected') return 'Đã từ chối';
+  if (row.status === 'pending') return row.payment_method === 'MANUAL' ? 'Chờ duyệt' : 'Chờ thanh toán';
+  return row.status;
+}
 window.approveAffiliateReward = async id => {
   try { const result = await api(`/api/admin/affiliate/rewards/${id}/approve`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})}); say(`Đã cộng ${result.amount_credits} Xu thưởng referral`); load(); } catch (e) { say(e.message); }
 };
@@ -127,8 +135,8 @@ function renderAdminUsers(users) {
 function renderAdminTransactions(rows) {
   const root = $('#adminTransactionsTable'); if (!root) return;
   root.innerHTML = table(['ID','User','Gói','Số tiền','Xu','Mã GD','Trạng thái','Thời gian',''], rows.map(row => [
-    row.id, row.email, row.package, Number(row.amount_vnd).toLocaleString('vi-VN') + ' đ', row.credits, row.order_code || '—', row.status, row.created_at,
-    row.status === 'pending' ? `${row.order_code ? `<button class="mini-btn approve" onclick="syncTopup(${row.id})">Đồng bộ</button>` : `<button class="mini-btn approve" onclick="approve(${row.id})">Duyệt</button>`} <button class="mini-btn reject" onclick="rejectT(${row.id})">Từ chối</button>` : ''
+    row.id, row.email, row.package, Number(row.amount_vnd).toLocaleString('vi-VN') + ' đ', row.credits, row.order_code || '—', topupStatusLabel(row), row.created_at,
+    row.payment_method === 'PAYOS' && ['pending', 'pending_payment'].includes(row.status) ? `<button class="mini-btn approve" onclick="syncTopup(${row.id})">Đồng bộ</button>` : row.payment_method === 'MANUAL' && row.status === 'pending' ? `<button class="mini-btn approve" onclick="approve(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectT(${row.id})">Từ chối</button>` : ''
   ]));
 }
 

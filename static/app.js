@@ -145,7 +145,20 @@ function referralFromUrl(){
   const p=new URLSearchParams(location.search);
   return (p.get('ref')||'').trim();
 }
+async function handlePayosCancelRedirect(){
+  const params=new URLSearchParams(location.search);
+  const orderCode=params.get('orderCode')||params.get('order_code');
+  const status=(params.get('status')||'').toUpperCase();
+  const cancelled=params.get('cancel')==='true'||status==='CANCELLED'||status==='CANCELED'||params.get('code')==='01';
+  if(!orderCode||!cancelled)return;
+  try{
+    await fetch(`/api/payments/cancel?orderCode=${encodeURIComponent(orderCode)}`,{credentials:'same-origin'});
+    sessionStorage.removeItem('tvc_pending_topup');
+    say('Thanh toán đã hủy, số dư không thay đổi.');
+  }catch(_){ }
+}
 async function boot(){
+  await handlePayosCancelRedirect();
   tvcInitToolbar();
   const ref=referralFromUrl();
   const initialPath=location.pathname;
@@ -467,6 +480,7 @@ $('#requestTopup').onclick=async()=>{
   }
 }
 function packageName(key){return {starter:'Gói Thử',basic:'Gói Cơ bản',creator:'Gói Phổ biến',professional:'Gói Chuyên nghiệp'}[key]||key}
+function topupStatusLabel(row){return row.status==='pending_payment'||(row.status==='pending'&&row.payment_method==='PAYOS')?'Chờ thanh toán':row.status==='paid'||row.status==='completed'?'Đã thanh toán':row.status==='cancelled'?'Đã hủy':row.status==='rejected'?'Đã từ chối':row.status==='pending'?'Chờ duyệt':row.status}
 async function loadWallet(){
   if(!me){
     if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent='0';
@@ -479,7 +493,7 @@ async function loadWallet(){
     const videoTurns=Math.max(0,Number(me.usage_balance||me.credits||0));
     if($('#walletVideoRemaining')) $('#walletVideoRemaining').textContent=videoTurns;
     const [tops,led]=await Promise.all([api('/api/topups'),api('/api/ledger')]);
-    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} xu</b><span>${x.status} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
+    $('#topupList').innerHTML=tops.length?tops.map(x=>`<div class="simple-row"><b>#${x.id} • ${packageName(x.package)} • ${x.credits} xu</b><span>${topupStatusLabel(x)} • ${x.amount_vnd.toLocaleString('vi-VN')}đ</span></div>`).join(''):'<div class="simple-row">Chưa có yêu cầu nạp.</div>';
     $('#ledgerList').innerHTML=led.length?led.map(x=>`<div class="simple-row"><b>${x.reason}</b><span style="color:${x.delta>=0?'#61df94':'#ff8490'}">${x.delta>0?'+':''}${x.delta} xu</span></div>`).join(''):'<div class="simple-row">Chưa có giao dịch.</div>'
   }catch(e){say(e.message)}
 }

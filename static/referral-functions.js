@@ -67,7 +67,7 @@ async function loadAffiliate(){
       $('#referrerState').innerHTML='';
       $('#applyReferralCode').disabled=false;
       $('#applyReferralBtn').disabled=false;
-      
+
       // Auto-fill from URL
       const ref=referralFromUrl();
       if(ref&&!$('#applyReferralCode').value){
@@ -92,7 +92,7 @@ async function loadAffiliate(){
  */
 function renderReferredUsers(refs){
   const container=$('#referralUserList');
-  
+
   if(!refs||refs.length===0){
     container.innerHTML=`<div class="referral-users-empty">
       <div class="referral-users-empty-icon">👥</div>
@@ -115,7 +115,7 @@ function renderReferredUsers(refs){
     const doanhs=Number(r.sales_credits||0).toLocaleString('vi-VN')+' Xu';
     const reward=r.reward_credits?Number(r.reward_credits).toLocaleString('vi-VN')+' Xu':'—';
     const date=new Date(r.created_at).toLocaleDateString('vi-VN');
-    
+
     html+=`<tr data-label="user">
       <td data-label="user"><b>${r.name||'Người dùng TVC'}</b><br><small>${email}</small></td>
       <td data-label="date">${date}</td>
@@ -184,7 +184,7 @@ function setupCopyButtons(){
       e.preventDefault();
       const target=btn.dataset.target;
       const text=$(target)?.textContent||'';
-      
+
       if(!text||text==='—'){
         say('Không có nội dung để sao chép');
         return;
@@ -195,12 +195,12 @@ function setupCopyButtons(){
         const original=btn.textContent;
         btn.classList.add('copied');
         btn.textContent='✓ Đã Sao Chép';
-        
+
         setTimeout(()=>{
           btn.classList.remove('copied');
           btn.textContent=original;
         }, 2000);
-        
+
         say('Đã sao chép');
       }catch(err){
         console.error('Copy failed:', err);

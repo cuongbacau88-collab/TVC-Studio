@@ -311,6 +311,7 @@ def init_db():
         "checkout_url": "TEXT",
         "paid_at": "TEXT",
         "payment_reference": "TEXT",
+        "cancelled_at": "TEXT",
         "needs_review": "INTEGER NOT NULL DEFAULT 0",
     }.items():
         if column not in topup_cols:
@@ -1498,7 +1499,7 @@ PAYOS_CLIENT_ID = os.getenv("PAYOS_CLIENT_ID", "").strip()
 PAYOS_API_KEY = os.getenv("PAYOS_API_KEY", "").strip()
 PAYOS_CHECKSUM_KEY = os.getenv("PAYOS_CHECKSUM_KEY", "").strip()
 PAYOS_RETURN_URL = os.getenv("PAYOS_RETURN_URL", "https://tvcstudioai.info/app#wallet").strip()
-PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "https://tvcstudioai.info/app#wallet").strip()
+PAYOS_CANCEL_URL = os.getenv("PAYOS_CANCEL_URL", "https://tvcstudioai.info/api/payments/cancel").strip()
 
 def payos_ready() -> bool:
     return bool(PAYOS_CLIENT_ID and PAYOS_API_KEY and PAYOS_CHECKSUM_KEY)
@@ -1545,7 +1546,7 @@ def payos_payment_status(order_code: int) -> dict | None:
         return None
 
 def reconcile_pending_topups(rows) -> None:
-    pending_rows = [row for row in rows if row["status"] == "pending" and row["order_code"]][:20]
+    pending_rows = [row for row in rows if row["status"] in {"pending", "pending_payment"} and row["order_code"]][:20]
     for row in pending_rows:
         payment = payos_payment_status(row["order_code"])
         if payment and payment["status"] == "PAID" and payment["amount"] == int(row["amount_vnd"]):
@@ -1674,7 +1675,7 @@ async def create_payment_link(request: Request):
     con = db()
     cur = con.execute("""
         INSERT INTO topups(user_id,package,amount_vnd,credits,note,status,created_at,order_code,payment_link_id,checkout_url)
-        VALUES(?,?,?,?,?,'pending',?,?,?,?)
+        VALUES(?,?,?,?,?,'pending_payment',?,?,?,?)
     """, (user_id, package, amount, credits, note, now_iso(), order_code, None, None))
     con.commit()
     tid = cur.lastrowid
@@ -1687,7 +1688,7 @@ async def create_payment_link(request: Request):
         )
     except Exception:
         con = db()
-        con.execute("DELETE FROM topups WHERE id=? AND status='pending'", (tid,))
+        con.execute("DELETE FROM topups WHERE id=? AND status='pending_payment'", (tid,))
         con.commit()
         con.close()
         raise
@@ -1695,7 +1696,7 @@ async def create_payment_link(request: Request):
     checkout_url = payment.get("checkoutUrl") or payment.get("checkout_url")
     con = db()
     con.execute(
-        "UPDATE topups SET payment_link_id=?,checkout_url=? WHERE id=? AND status='pending'",
+        "UPDATE topups SET payment_link_id=?,checkout_url=? WHERE id=? AND status='pending_payment'",
         (payment.get("paymentLinkId"), checkout_url, tid)
     )
     con.commit()
@@ -1747,6 +1748,11 @@ async def payos_webhook(request: Request):
     if str(data.get("code", "00")) not in {"00", ""} or data.get("success") is False:
         return {"success": True}
 
+    payment_status = str(data.get("status") or data.get("paymentStatus") or "").upper()
+    if payment_status and payment_status not in {"PAID", "SUCCESS", "COMPLETED"}:
+        logging.info("PAYOS_NON_PAYMENT orderCode=%s status=%s", raw_order_code, payment_status)
+        return {"success": True, "message": "Payment is not completed"}
+
     if not raw_order_code:
         return {"success": True, "message": "Ping received without orderCode"}
 
@@ -1772,13 +1778,13 @@ async def payos_webhook(request: Request):
     webhook_link_id = data.get("paymentLinkId") or data.get("payment_link_id")
     if topup["payment_link_id"] and webhook_link_id and str(topup["payment_link_id"]) != str(webhook_link_id):
         logging.warning("PAYOS_PAYMENT_LINK_MISMATCH orderCode=%s topup_id=%s", order_code, topup["id"])
-        con = db(); con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status='pending'", (topup["id"],)); con.commit(); con.close()
+        con = db(); con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status IN ('pending','pending_payment')", (topup["id"],)); con.commit(); con.close()
         return {"success": True, "message": "Payment link mismatch requires review"}
     if webhook_amount is None or webhook_amount != int(topup["amount_vnd"]):
         logging.warning("PAYOS_AMOUNT_MISMATCH orderCode=%s topup_id=%s expected=%s received=%s",
                         order_code, topup["id"], topup["amount_vnd"], webhook_amount)
         con = db()
-        con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status='pending'", (topup["id"],))
+        con.execute("UPDATE topups SET needs_review=1 WHERE id=? AND status IN ('pending','pending_payment')", (topup["id"],))
         con.commit(); con.close()
         return {"success": True, "message": "Amount mismatch requires review"}
 
@@ -1791,11 +1797,33 @@ async def payos_webhook(request: Request):
                  topup["id"], topup["user_id"], topup["credits"])
     return {"success": True}
 
+@app.get("/api/payments/cancel")
+async def payos_payment_cancel(request: Request):
+    raw_order_code = request.query_params.get("orderCode") or request.query_params.get("order_code")
+    if raw_order_code:
+        try:
+            order_code = int(raw_order_code)
+        except (TypeError, ValueError):
+            order_code = None
+        if order_code is not None:
+            con = db()
+            changed = con.execute(
+                "UPDATE topups SET status='cancelled',cancelled_at=?,reviewed_at=? "
+                "WHERE order_code=? AND status IN ('pending','pending_payment')",
+                (now_iso(), now_iso(), order_code),
+            ).rowcount
+            con.commit()
+            con.close()
+            if changed:
+                logging.info("PAYOS_PAYMENT_CANCELLED orderCode=%s", order_code)
+    return RedirectResponse("/app#wallet", status_code=303)
+
 @app.get("/api/topups")
 def my_topups(request: Request):
     u = current_user(request)
     con = db()
-    rows = con.execute("SELECT * FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
+    rows = con.execute("SELECT *, CASE WHEN order_code IS NOT NULL THEN 'PAYOS' ELSE 'MANUAL' END payment_method "
+                       "FROM topups WHERE user_id=? ORDER BY id DESC", (u["id"],)).fetchall()
     con.close()
     return [dict(r) for r in rows]
 
@@ -1811,6 +1839,8 @@ def my_topup_status(topup_id: int, request: Request):
         "id": row["id"], "status": row["status"], "credits": row["credits"],
         "amount_vnd": row["amount_vnd"], "paid_at": row["paid_at"],
         "payment_reference": row["payment_reference"],
+        "payment_method": "PAYOS" if row["order_code"] else "MANUAL",
+        "cancelled_at": row["cancelled_at"],
     }
 
 
@@ -2019,7 +2049,7 @@ def admin_stats(request: Request):
         "waiting": con.execute("SELECT COUNT(*) c FROM jobs WHERE status='waiting'").fetchone()["c"],
         "running": con.execute("SELECT COUNT(*) c FROM jobs WHERE status='running'").fetchone()["c"],
         "done": con.execute("SELECT COUNT(*) c FROM jobs WHERE status='done'").fetchone()["c"],
-        "pending_topups": con.execute("SELECT COUNT(*) c FROM topups WHERE status='pending'").fetchone()["c"],
+        "pending_topups": con.execute("SELECT COUNT(*) c FROM topups WHERE status='pending' AND order_code IS NULL").fetchone()["c"],
         "pending_withdrawals": con.execute("SELECT COUNT(*) c FROM affiliate_withdrawals WHERE status='pending'").fetchone()["c"],
         "affiliate_rewards": round(float(con.execute("SELECT COALESCE(SUM(amount_credits),0) c FROM affiliate_rewards").fetchone()["c"] or 0), 2),
     }
@@ -2090,7 +2120,9 @@ async def admin_lock_user(user_id: int, request: Request):
 def admin_transactions(request: Request):
     require_admin(request)
     con = db()
-    rows = con.execute("""SELECT t.id,t.user_id,u.email,u.name,t.package,t.amount_vnd,t.credits,t.order_code,t.status,t.created_at,t.reviewed_at
+    rows = con.execute("""SELECT t.id,t.user_id,u.email,u.name,t.package,t.amount_vnd,t.credits,t.order_code,
+        CASE WHEN t.order_code IS NOT NULL THEN 'PAYOS' ELSE 'MANUAL' END payment_method,
+        t.status,t.created_at,t.reviewed_at,t.cancelled_at
         FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 300""").fetchall()
     con.close()
     return [dict(r) for r in rows]
@@ -2138,7 +2170,9 @@ def admin_topups(request: Request):
     require_admin(request)
     con = db()
     rows = con.execute("""
-        SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200
+         SELECT t.*,u.email,u.name,
+             CASE WHEN t.order_code IS NOT NULL THEN 'PAYOS' ELSE 'MANUAL' END payment_method
+         FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200
     """).fetchall()
     con.close()
     return [dict(r) for r in rows]
@@ -2174,12 +2208,14 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
     if not t:
         con.rollback(); con.close()
         raise HTTPException(404, "Không tìm thấy yêu cầu")
-    if t["status"] != "pending":
+    if t["status"] not in {"pending", "pending_payment"}:
         con.rollback(); con.close()
         raise HTTPException(409, "Yêu cầu đã xử lý")
-    if not _internal and t["order_code"]:
-        con.rollback(); con.close()
-        raise HTTPException(409, "PayOS chưa xác nhận thanh toán; hãy dùng Đồng bộ")
+    if t["order_code"]:
+        if not _internal:
+            con.rollback(); con.close()
+            raise HTTPException(409, "PayOS được xử lý tự động, không thể duyệt thủ công")
+
     if _internal and (verified_amount is None or int(verified_amount) != int(t["amount_vnd"])):
         con.execute("UPDATE topups SET needs_review=1 WHERE id=?", (topup_id,))
         con.commit(); con.close()
@@ -2262,6 +2298,10 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
 def reject_topup(topup_id: int, request: Request):
     require_admin(request)
     con = db()
+    row = con.execute("SELECT status,order_code FROM topups WHERE id=?", (topup_id,)).fetchone()
+    if row and row["order_code"]:
+        con.close()
+        raise HTTPException(409, "PayOS được xử lý tự động, không thể từ chối thủ công")
     con.execute("UPDATE topups SET status='rejected',reviewed_at=? WHERE id=? AND status='pending'", (now_iso(), topup_id))
     con.commit()
     con.close()

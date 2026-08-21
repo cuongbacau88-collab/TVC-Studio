@@ -28,6 +28,15 @@ def json_request(payload):
     }, receive)
 
 
+def get_request(path):
+    from urllib.parse import urlsplit
+    parsed = urlsplit(path)
+    return Request({
+        "type": "http", "method": "GET", "path": parsed.path,
+        "query_string": parsed.query.encode(), "headers": [],
+    })
+
+
 class PayOSTopupWebhookTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -73,12 +82,14 @@ class PayOSTopupWebhookTests(unittest.TestCase):
             setattr(app, name, value)
         self.temp.cleanup()
 
-    def payload(self, order_code=123456, amount=199000, payment_link_id="link-1", success=True):
+    def payload(self, order_code=123456, amount=199000, payment_link_id="link-1", success=True, status=None):
         data = {
             "orderCode": order_code, "amount": amount,
             "paymentLinkId": payment_link_id, "reference": "ref-1",
             "code": "00", "success": success,
         }
+        if status is not None:
+            data["status"] = status
         return {"code": "00", "success": success, "data": data,
                 "signature": app.payos_signature(data)}
 
@@ -112,7 +123,7 @@ class PayOSTopupWebhookTests(unittest.TestCase):
         try:
             row = con.execute("SELECT * FROM topups WHERE id=?", (result["topup_id"],)).fetchone()
             self.assertEqual(self.user_id, row["user_id"])
-            self.assertEqual("pending", row["status"])
+            self.assertEqual("pending_payment", row["status"])
             self.assertEqual("link-new", row["payment_link_id"])
         finally:
             con.close()
@@ -160,6 +171,23 @@ class PayOSTopupWebhookTests(unittest.TestCase):
         with patch.object(app, "require_admin", return_value=None):
             with self.assertRaises(HTTPException) as raised:
                 app.approve_topup(1, json_request({}))
+        self.assertEqual(409, raised.exception.status_code)
+        self.assertEqual(("pending", 10, 0), self.topup_state())
+
+    def test_cancelled_payos_topup_is_closed_without_credit(self):
+        response = asyncio.run(app.payos_payment_cancel(get_request("/api/payments/cancel?orderCode=123456")))
+        self.assertEqual(303, response.status_code)
+        self.assertEqual(("cancelled", 10, 0), self.topup_state())
+
+    def test_cancelled_webhook_does_not_credit(self):
+        result = asyncio.run(app.payos_webhook(json_request(self.payload(status="CANCELLED"))))
+        self.assertTrue(result["success"])
+        self.assertEqual(("pending", 10, 0), self.topup_state())
+
+    def test_admin_reject_cannot_process_payos_topup(self):
+        with patch.object(app, "require_admin", return_value=None):
+            with self.assertRaises(HTTPException) as raised:
+                app.reject_topup(1, json_request({}))
         self.assertEqual(409, raised.exception.status_code)
         self.assertEqual(("pending", 10, 0), self.topup_state())
 
