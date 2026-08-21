@@ -838,6 +838,7 @@ async def google_login(request: Request, response: Response):
         con.commit()
         response.delete_cookie("tvc_referral_code", path="/")
         user = dict(con.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone())
+        con.close()
         create_security_log(request, "google_login_success", "info", user, 200)
         return {"ok": True, "token": token, "role": user["role"], "new_user": by_sub is None and by_email is None}
     except HTTPException:
