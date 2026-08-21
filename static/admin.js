@@ -16,7 +16,12 @@ async function api(url, opt = {}) {
   const r = await fetch(url, opt);
   let j = {};
   try { j = await r.json(); } catch {}
-  if (!r.ok) throw new Error(j.detail || 'Lỗi hệ thống');
+  if (!r.ok) {
+    const error = new Error(j.detail || 'Lỗi hệ thống');
+    error.status = r.status;
+    error.url = url;
+    throw error;
+  }
   return j;
 }
 
@@ -30,18 +35,23 @@ function redirectToLogin() {
 }
 
 async function boot() {
+  let me;
   try {
-    const me = await api('/api/me');
-    if (me.role !== 'admin') throw new Error('Không có quyền admin');
-    initAdminTabs();
-    await load();
-  } catch (e) {
-    if (e && e.message === 'Không có quyền admin') {
-      alert('Tài khoản hiện tại không phải admin.');
-      location.href = '/';
-      return;
-    }
+    me = await api('/api/me');
+  } catch (error) {
     redirectToLogin();
+    return;
+  }
+  if (me.role !== 'admin') {
+    alert('Tài khoản hiện tại không phải admin.');
+    location.href = '/';
+    return;
+  }
+  initAdminTabs();
+  try {
+    await load();
+  } catch (error) {
+    say(`Không tải được một số dữ liệu quản trị: ${error.message}`);
   }
 }
 
