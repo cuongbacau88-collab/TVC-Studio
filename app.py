@@ -2224,13 +2224,18 @@ def admin_security_devices(request: Request):
         require_admin(request)
         con = db()
         rows = con.execute("""
-                SELECT email,role,ip_address,user_agent,COUNT(*) AS event_count,
+                SELECT email,role,ip_address,user_agent,
+                             SUM(CASE WHEN event='google_login_success' THEN 1 ELSE 0 END) AS login_count,
+                             SUM(CASE WHEN LOWER(severity) IN ('warning','high','critical') THEN 1 ELSE 0 END) AS warning_count,
+                             SUM(CASE WHEN event IN ('new_ip_login','new_device_login') THEN 1 ELSE 0 END) AS new_event_count,
+                             SUM(CASE WHEN LOWER(severity) IN ('high','critical') OR event IN ('admin_access_denied','security_rate_limited') THEN 1 ELSE 0 END) AS danger_count,
                              MAX(created_at) AS last_seen,
                              (SELECT event FROM security_logs newest
                                 WHERE newest.email=grouped.email AND newest.ip_address=grouped.ip_address
                                     AND newest.user_agent=grouped.user_agent
                                 ORDER BY newest.id DESC LIMIT 1) AS last_event
                 FROM security_logs grouped
+                WHERE NOT (event='admin_access' AND LOWER(severity)='info' AND http_status=200)
                 GROUP BY email,role,ip_address,user_agent
                 ORDER BY last_seen DESC LIMIT 100
         """).fetchall()

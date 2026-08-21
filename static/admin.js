@@ -191,9 +191,10 @@ function renderSecurityDevices(rows) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
   const eventNames = { google_login_success: 'Đăng nhập Google', new_ip_login: 'IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
-  root.innerHTML = table(['Tài khoản', 'Thiết bị', 'IP', 'Lần cuối', 'Số sự kiện', 'Sự kiện gần nhất'], rows.map(row => [
-    escapeHtml(row.email || 'Chưa đăng nhập'), escapeHtml(shortDevice(row.user_agent || '')), escapeHtml(row.ip_address),
-    formatLogTime(row.last_seen), escapeHtml(row.event_count), escapeHtml(eventNames[row.last_event] || row.last_event || '—')
+  const status = row => row.danger_count > 0 ? ['NGUY HIỂM', 'critical'] : row.warning_count > 0 ? ['CẦN CHÚ Ý', 'high'] : row.new_event_count > 0 ? ['MỚI', 'notice'] : ['TIN CẬY', 'info'];
+  root.innerHTML = table(['Tài khoản', 'Thiết bị', 'IP', 'Lần cuối', 'Số lần đăng nhập', 'Số cảnh báo', 'Trạng thái'], rows.map(row => [
+    escapeHtml(row.email || 'Chưa đăng nhập'), `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || ''))}</span>`, escapeHtml(row.ip_address),
+    formatLogTime(row.last_seen), escapeHtml(row.login_count || 0), escapeHtml(row.warning_count || 0), `<span class="security-log-badge ${status(row)[1]}">${status(row)[0]}</span>`
   ]));
 }
 function topupStatusLabel(row) {
