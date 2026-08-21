@@ -76,8 +76,14 @@ class AffiliateWalletTests(unittest.TestCase):
         js = Path("static/referral-functions.js").read_text()
         self.assertNotIn("affiliateWithdrawBtn", js)
         self.assertNotIn("affiliateConvertBtn", js)
-        self.assertIn("affiliateMoneyApproved", Path("static/app.html").read_text())
-        self.assertIn("zalo.me/0867863222", Path("static/app.html").read_text())
+        html = Path("static/app.html").read_text()
+        css = Path("static/referral.css").read_text()
+        self.assertIn("affiliateMoneyApproved", html)
+        self.assertIn("affiliatePeopleModal", html)
+        self.assertIn("affiliateMoneyModal", html)
+        self.assertIn("zalo.me/0867863222", html)
+        self.assertIn("legacy-referral-stats", html)
+        self.assertIn("@media (max-width: 768px)", css)
 
 
 if __name__ == "__main__":

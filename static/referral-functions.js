@@ -40,6 +40,7 @@ async function loadAffiliate(){
     // Update stats
     setText('refDirectCount',summary.direct_referrals||0);
     setText('refCurrentTier',summary.tier?.name||'Bạc');
+    setText('refCurrentTierProgress',`${summary.tier?.key === 'gold' ? '🥇' : '🥈'} ${summary.tier?.name||'Bạc'}`);
     setText('refCommissionRate',`Hoa hồng ${summary.tier?.rate_percent||10}%`);
     setText('refAvailableRewards',`${Number(summary.money_approved_vnd||0).toLocaleString('vi-VN')} ₫`);
     setText('refAvailableVnd',`Thanh toán ngày 25 • Đã trả ${Number(summary.money_paid_vnd||0).toLocaleString('vi-VN')} ₫`);
@@ -111,6 +112,9 @@ function renderAffiliateWallet(wallet){
   setText('affiliateRewardApproved', `${Number(wallet.reward_approved_credits||0).toLocaleString('vi-VN')} Xu`);
   setText('affiliateRewardPending', `${Number(wallet.reward_pending_credits||0).toLocaleString('vi-VN')} Xu`);
   setText('affiliateNextPayout', wallet.next_payout_date ? new Date(wallet.next_payout_date).toLocaleDateString('vi-VN') : 'Ngày 25 hàng tháng');
+  setText('affiliateMoneyDetailPending', money(wallet.money_pending_vnd));
+  setText('affiliateMoneyDetailApproved', money(wallet.money_approved_vnd));
+  setText('affiliateMoneyDetailPaid', money(wallet.money_paid_vnd));
   const history=document.getElementById('affiliateWalletHistory');
   if(history) history.innerHTML=[...(wallet.commissions||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Hoa hồng ${item.commission_type} · ${money(item.amount_vnd)} · ${item.status}</div>`), ...(wallet.rewards||[]).map(item=>`<div class="simple-list-row">${new Date(item.created_at).toLocaleDateString('vi-VN')} · Xu thưởng ${item.reward_type} · +${item.amount_credits} Xu · ${item.status}</div>`)].join('');
 }
@@ -141,8 +145,8 @@ function renderReferredUsers(refs){
     const status=r.status||'Đã đăng ký';
     const statusClass=status.includes('Đủ')?'completed':status.includes('Chờ')?'pending':'active';
     const email=r.email_masked||'—';
-    const doanhs=Number(r.sales_credits||0).toLocaleString('vi-VN')+' Xu';
-    const reward=r.reward_credits?Number(r.reward_credits).toLocaleString('vi-VN')+' Xu':'—';
+    const doanhs=Number(r.sales_vnd||0).toLocaleString('vi-VN')+'đ';
+    const reward=r.commission_vnd?Number(r.commission_vnd).toLocaleString('vi-VN')+'đ':'—';
     const date=new Date(r.created_at).toLocaleDateString('vi-VN');
 
     html+=`<tr data-label="user">
@@ -379,6 +383,14 @@ function initReferralPage(){
   setupCopyButtons();
   setupCTAButtons();
   setupApplyReferralForm();
+
+  const openModal = id => { const modal = document.getElementById(id); if(modal) modal.hidden=false; };
+  const closeModals = () => document.querySelectorAll('.affiliate-modal').forEach(modal=>{ modal.hidden=true; });
+  $('#refDirectCard')?.addEventListener('click', ()=>openModal('affiliatePeopleModal'));
+  $('#affiliateMoneyCard')?.addEventListener('click', ()=>openModal('affiliateMoneyModal'));
+  $('#affiliateMoneyDetails')?.addEventListener('click', ()=>openModal('affiliateMoneyModal'));
+  document.querySelectorAll('[data-close-affiliate-modal]').forEach(button=>button.addEventListener('click', closeModals));
+  document.addEventListener('keydown', event=>{ if(event.key==='Escape') closeModals(); }, {once:false});
 
   // Refresh button
   $('#refreshAffiliate')?.addEventListener('click', loadAffiliate);

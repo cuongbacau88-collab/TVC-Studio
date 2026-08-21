@@ -2195,10 +2195,15 @@ def my_referrals(request: Request):
             "SELECT COALESCE(SUM(amount_vnd),0) total FROM affiliate_commissions WHERE user_id=? AND source_user_id=?",
             (u["id"], r["id"])
         ).fetchone()["total"] or 0
+        sales_vnd = con.execute(
+            "SELECT COALESCE(SUM(amount_vnd),0) total FROM topups WHERE user_id=? AND status IN ('approved','paid','completed')",
+            (r["id"],)
+        ).fetchone()["total"] or 0
         status = "Đã nhận thưởng" if reward > 0 else "Đủ điều kiện" if qualified else "Đã đăng ký"
         result.append({
             "id": r["id"], "name": r["name"], "email_masked": masked_email(r["email"]),
-            "created_at": r["created_at"], "status": status, "reward_credits": round(float(reward), 2),
+            "created_at": r["created_at"], "status": status,
+            "sales_vnd": int(sales_vnd), "commission_vnd": int(reward),
         })
     con.close()
     return result
