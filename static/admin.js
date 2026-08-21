@@ -69,6 +69,7 @@ async function load() {
   renderSecurityDevices(securityDevices);
   renderAffiliateSettings(affiliateSettings);
   renderAffiliateRewards(affiliateRewards);
+  await loadAffiliateRiskReports();
   $('#stats').innerHTML = [
     ['Người dùng', overview.users_total], ['User mới hôm nay', overview.new_users.today], ['User mới 7 ngày', overview.new_users.seven_days], ['User mới 30 ngày', overview.new_users.thirty_days],
     ['Xu đang lưu hành', overview.credits_circulating], ['Doanh thu nạp Xu', Number(overview.topup_revenue_vnd || 0).toLocaleString('vi-VN') + ' đ'], ['Tổng job AI', overview.jobs_total],
@@ -113,6 +114,22 @@ function renderAffiliateRewards(rows) {
   root.innerHTML = table(['ID','Người nhận','Nguồn','Loại','Xu','Trạng thái',''], rows.map(row => [
     row.id, row.recipient_email, row.source_email, row.reward_type, row.amount_credits, row.status,
     row.status === 'pending' ? `<button class="mini-btn approve" onclick="approveAffiliateReward(${row.id})">Duyệt</button> <button class="mini-btn reject" onclick="rejectAffiliateReward(${row.id})">Từ chối</button>` : ''
+  ]));
+}
+async function loadAffiliateRiskReports() {
+  const level = $('#affiliateRiskLevel')?.value || '';
+  const search = $('#affiliateRiskSearch')?.value.trim() || '';
+  const params = new URLSearchParams({ level, search });
+  try { renderAffiliateRiskReports((await api(`/api/admin/affiliate/risk-reports?${params}`)).items || []); }
+  catch (error) { say('Không tải được báo cáo rủi ro: ' + error.message); }
+}
+function renderAffiliateRiskReports(rows) {
+  const root = $('#affiliateRiskTable'); if (!root) return;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+  const levelClass = level => level === 'Nghi ngờ cao' ? 'critical' : level === 'Nghi ngờ' ? 'high' : level === 'Cần theo dõi' ? 'warning' : 'info';
+  const detail = row => `<details><summary>Chi tiết</summary><div class="affiliate-risk-reasons"><b>Visitor:</b> ${escapeHtml(row.visitor_ids.join(', ') || '—')}<br><b>IP/network:</b> ${escapeHtml(row.ips.join(', ') || '—')} / ${escapeHtml(row.networks.join(', ') || '—')}<br><b>Thời gian:</b> ${formatLogTime(row.registered_at)} / ${formatLogTime(row.login_at)}<br><b>Tài khoản khác:</b> ${escapeHtml(row.other_accounts.join(' • ') || '—')}<ul>${row.reasons.map(reason => `<li>${escapeHtml(reason)}</li>`).join('')}</ul></div></details>`;
+  root.innerHTML = table(['Referrer','Tài khoản được giới thiệu','Risk score','Mức độ','Device / Browser','IP / Network','Thời gian','Lý do / Chi tiết'], rows.map(row => [
+    escapeHtml(row.referrer.email), escapeHtml(row.referred.email), `<span class="affiliate-risk-score">${row.risk_score}</span>`, `<span class="security-log-badge ${levelClass(row.level)}">${escapeHtml(row.level)}</span>`, escapeHtml(shortDevice(row.referrer_device || row.referred_device || '—')), escapeHtml(`${row.ips.join(', ') || '—'} / ${row.networks.join(', ') || '—'}`), formatLogTime(row.registered_at), `${escapeHtml(row.reasons[0] || '—')} ${detail(row)}`
   ]));
 }
 function renderAccessLogs(rows) {
@@ -383,6 +400,16 @@ function activateSecuritySubtab(tab) {
   });
 }
 
+function activateAffiliateSubtab(tab) {
+  const next = ['affiliate-config', 'affiliate-members', 'affiliate-risk', 'affiliate-withdrawals'].includes(tab) ? tab : 'affiliate-config';
+  $$('.affiliate-subtab').forEach(button => button.classList.toggle('active', button.dataset.affiliateTab === next));
+  $$('.affiliate-subsection').forEach(section => {
+    const active = section.id === next;
+    section.style.display = active ? 'block' : 'none';
+    section.classList.toggle('active', active);
+  });
+}
+
 function initAdminTabs() {
   $$('.admin-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -393,6 +420,7 @@ function initAdminTabs() {
   activateAdminTab(location.hash.slice(1), { updateUrl: false });
   $$('.system-subtab').forEach(button => button.addEventListener('click', () => activateSystemTab(button.dataset.systemTab)));
   $$('.security-subtab').forEach(button => button.addEventListener('click', () => activateSecuritySubtab(button.dataset.securityTab)));
+  $$('.affiliate-subtab').forEach(button => button.addEventListener('click', () => activateAffiliateSubtab(button.dataset.affiliateTab)));
 
   $('#adminUserSearch')?.addEventListener('input', async e => {
     const users = await api(`/api/admin/users?q=${encodeURIComponent(e.target.value)}`);
@@ -453,6 +481,9 @@ function initAdminTabs() {
     renderSecurityLogs(await loadAdminSecurityLogs());
   });
   $('#adminSecurityDevicesRefresh')?.addEventListener('click', async () => renderSecurityDevices(await api('/api/admin/security-devices')));
+  $('#affiliateRiskRefresh')?.addEventListener('click', loadAffiliateRiskReports);
+  $('#affiliateRiskLevel')?.addEventListener('change', loadAffiliateRiskReports);
+  $('#affiliateRiskSearch')?.addEventListener('change', loadAffiliateRiskReports);
   $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const payload = {

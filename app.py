@@ -2,6 +2,7 @@
 import os, sqlite3, secrets, hashlib, hmac, mimetypes, shutil, time, json, sys, logging, subprocess, uuid
 import urllib.error
 import urllib.request
+import ipaddress
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
@@ -2640,6 +2641,114 @@ def admin_affiliate_users(request: Request):
         })
     con.close()
     return result
+
+def affiliate_risk_network(ip: str) -> str:
+    try:
+        address = ipaddress.ip_address(ip)
+        if address.version == 6:
+            return str(ipaddress.ip_network(f"{address}/64", strict=False).network_address) + "/64"
+        return str(ipaddress.ip_network(f"{address}/24", strict=False).network_address) + "/24"
+    except ValueError:
+        return ip or "unknown"
+
+def affiliate_risk_device(user_agent: str) -> str:
+    return " ".join((user_agent or "").lower().split())
+
+def affiliate_risk_level(score: int) -> str:
+    if score >= 100:
+        return "Nghi ngờ cao"
+    if score >= 60:
+        return "Nghi ngờ"
+    if score >= 30:
+        return "Cần theo dõi"
+    return "Bình thường"
+
+@app.get("/api/admin/affiliate/risk-reports")
+def admin_affiliate_risk_reports(request: Request):
+    require_admin(request)
+    search = request.query_params.get("search", "").strip().lower()[:200]
+    level = request.query_params.get("level", "").strip().lower()[:30]
+    con = db()
+    users = con.execute("""
+        SELECT child.id AS referred_id, child.email AS referred_email, child.created_at AS referred_created_at,
+               parent.id AS referrer_id, parent.email AS referrer_email, parent.created_at AS referrer_created_at
+        FROM users child JOIN users parent ON parent.id=child.referred_by_user_id
+        WHERE child.role!='admin' ORDER BY child.id DESC LIMIT 500
+    """).fetchall()
+    activity_rows = con.execute("""
+        SELECT user_id,visitor_id,ip_address,user_agent,created_at,event
+        FROM security_logs WHERE user_id IS NOT NULL
+        UNION ALL
+        SELECT user_id,visitor_id,ip_address,user_agent,created_at,NULL AS event
+        FROM admin_access_logs WHERE user_id IS NOT NULL
+        ORDER BY created_at DESC
+    """).fetchall()
+    all_users = con.execute("SELECT id,email FROM users WHERE role!='admin'").fetchall()
+    con.close()
+    activity = {}
+    for row in activity_rows:
+        activity.setdefault(row["user_id"], []).append(dict(row))
+    email_by_id = {row["id"]: row["email"] for row in all_users}
+    reports = []
+    for pair in users:
+        referrer = activity.get(pair["referrer_id"], [])
+        referred = activity.get(pair["referred_id"], [])
+        ref_visitor_ids = {row["visitor_id"] for row in referrer if row["visitor_id"]}
+        child_visitor_ids = {row["visitor_id"] for row in referred if row["visitor_id"]}
+        ref_ips = {row["ip_address"] for row in referrer if row["ip_address"]}
+        child_ips = {row["ip_address"] for row in referred if row["ip_address"]}
+        ref_networks = {affiliate_risk_network(ip) for ip in ref_ips}
+        child_networks = {affiliate_risk_network(ip) for ip in child_ips}
+        ref_devices = {affiliate_risk_device(row["user_agent"]) for row in referrer if row["user_agent"]}
+        child_devices = {affiliate_risk_device(row["user_agent"]) for row in referred if row["user_agent"]}
+        shared_visitors = ref_visitor_ids & child_visitor_ids
+        shared_ips = ref_ips & child_ips
+        shared_networks = ref_networks & child_networks
+        shared_devices = ref_devices & child_devices
+        score = 0
+        reasons = []
+        if shared_visitors:
+            score += 70
+            reasons.append("Referrer và referred dùng cùng visitor_id")
+        if shared_devices:
+            score += 10
+            reasons.append("Cùng browser / User-Agent")
+        if shared_ips or shared_networks:
+            score += 20
+            reasons.append("Cùng public IP hoặc network; đây chỉ là tín hiệu phụ")
+        visitor_accounts = max((sum(1 for rows in activity.values() if visitor in {r["visitor_id"] for r in rows}) for visitor in shared_visitors), default=0)
+        if visitor_accounts >= 3:
+            score += 50
+            reasons.append(f"Có {visitor_accounts} tài khoản từng xuất hiện trên cùng visitor")
+        network_account_count = 0
+        for network in shared_networks:
+            accounts_on_network = sum(
+                1 for rows in activity.values()
+                if any(affiliate_risk_network(row["ip_address"]) == network for row in rows if row["ip_address"])
+            )
+            network_account_count = max(network_account_count, accounts_on_network)
+        if network_account_count >= 3:
+            score += 30
+            reasons.append(f"Nhiều tài khoản cùng network ({network_account_count})")
+        child_time = referred[0]["created_at"] if referred else pair["referred_created_at"]
+        ref_time = referrer[0]["created_at"] if referrer else pair["referrer_created_at"]
+        report_level = affiliate_risk_level(score)
+        haystack = " ".join([pair["referrer_email"], pair["referred_email"], *ref_ips, *child_ips, *ref_visitor_ids, *child_visitor_ids]) .lower()
+        if search and search not in haystack:
+            continue
+        if level and report_level.lower() != level:
+            continue
+        reports.append({
+            "referrer": {"id": pair["referrer_id"], "email": pair["referrer_email"]},
+            "referred": {"id": pair["referred_id"], "email": pair["referred_email"]},
+            "risk_score": score, "level": report_level, "reasons": reasons or ["Chưa có tín hiệu mạnh; cùng IP không đủ để kết luận"],
+            "visitor_ids": sorted(ref_visitor_ids | child_visitor_ids), "ips": sorted(ref_ips | child_ips),
+            "networks": sorted(ref_networks | child_networks), "same_device": bool(shared_devices),
+            "referrer_device": next(iter(ref_devices), ""), "referred_device": next(iter(child_devices), ""),
+            "registered_at": child_time, "login_at": (referred[0]["created_at"] if referred else None),
+            "other_accounts": sorted({email_by_id[user_id] for user_id, rows in activity.items() if any(visitor in {r["visitor_id"] for r in rows} for visitor in shared_visitors) if user_id not in {pair["referrer_id"], pair["referred_id"]}}),
+        })
+    return {"items": reports}
 
 @app.get("/api/admin/affiliate/withdrawals")
 def admin_affiliate_withdrawals(request: Request):
