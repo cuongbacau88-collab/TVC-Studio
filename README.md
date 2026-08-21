@@ -11,6 +11,8 @@
 Đặt webhook PayOS về `https://tvcstudioai.info/api/payos/webhook`. Webhook được kiểm tra chữ ký và cộng xu idempotent theo `orderCode`, nên PayOS gửi lại cùng một webhook cũng không cộng trùng.
 
 `returnUrl` chỉ đưa khách quay lại ví và hiển thị trạng thái đang xác nhận. Xu chỉ được cộng sau khi backend xác thực webhook, đối chiếu `orderCode`, số tiền và giao dịch pending trong database. Admin sync/approve chỉ là fallback cho giao dịch cần đối soát.
+
+Worker giới hạn file output ở 2 GB mặc định. Có thể thay đổi bằng biến môi trường `WORKER_MAX_OUTPUT_MB`; giới hạn được kiểm tra cả theo `Content-Length` và kích thước stream thực tế.
 # TVC Studio AI Business V2.1
 
 Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credits, job queue, admin và Worker API.

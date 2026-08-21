@@ -42,6 +42,10 @@ OUTPUTS.mkdir(parents=True, exist_ok=True)
 SESSION_DAYS = 30
 MAX_IMAGE_MB = 25
 MAX_VIDEO_MB = 300
+try:
+    WORKER_MAX_OUTPUT_BYTES = max(1, int(os.getenv("WORKER_MAX_OUTPUT_MB", "2048")) * 1024 * 1024)
+except ValueError:
+    WORKER_MAX_OUTPUT_BYTES = 2048 * 1024 * 1024
 MAX_MOTION_DURATION_SECONDS = 20.0
 JOB_SUBMIT_INFLIGHT_SECONDS = 600
 JOB_SUBMIT_COOLDOWN_SECONDS = 8
@@ -2588,14 +2592,24 @@ async def worker_complete(
         raise HTTPException(404, "Không tìm thấy job")
     if job["status"] not in {"waiting", "running"}:
         raise HTTPException(409, "Job không ở trạng thái nhận kết quả")
+    declared_size = output.headers.get("content-length")
+    try:
+        if declared_size is not None and int(declared_size) > WORKER_MAX_OUTPUT_BYTES:
+            raise HTTPException(413, "File output vượt quá giới hạn cho phép")
+    except ValueError:
+        pass
     out = OUTPUTS / f"job_{job_id}{ext}"
     temporary = OUTPUTS / f".job_{job_id}{ext}.uploading"
     try:
         with temporary.open("wb") as destination:
+            output_size = 0
             while True:
                 chunk = await output.read(1024 * 1024)
                 if not chunk:
                     break
+                output_size += len(chunk)
+                if output_size > WORKER_MAX_OUTPUT_BYTES:
+                    raise HTTPException(413, "File output vượt quá giới hạn cho phép")
                 destination.write(chunk)
         validation_error = validate_local_output(job, temporary)
         if validation_error:

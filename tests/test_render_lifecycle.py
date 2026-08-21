@@ -21,6 +21,7 @@ class RenderLifecycleTests(unittest.TestCase):
             "WORKER_UNAVAILABLE_TIMEOUT_SECONDS": app.WORKER_UNAVAILABLE_TIMEOUT_SECONDS,
             "WORKER_HEARTBEAT_TIMEOUT_SECONDS": app.WORKER_HEARTBEAT_TIMEOUT_SECONDS,
             "JOB_RENDER_TIMEOUT_SECONDS": app.JOB_RENDER_TIMEOUT_SECONDS,
+            "WORKER_MAX_OUTPUT_BYTES": app.WORKER_MAX_OUTPUT_BYTES,
         }
         app.BASE = self.root
         app.DATA = self.root / "data"
@@ -33,6 +34,7 @@ class RenderLifecycleTests(unittest.TestCase):
         app.WORKER_UNAVAILABLE_TIMEOUT_SECONDS = 60
         app.WORKER_HEARTBEAT_TIMEOUT_SECONDS = 60
         app.JOB_RENDER_TIMEOUT_SECONDS = 60
+        app.WORKER_MAX_OUTPUT_BYTES = 1024
         app.init_db()
         con = app.db()
         con.execute(
@@ -141,6 +143,14 @@ class RenderLifecycleTests(unittest.TestCase):
         self.assertTrue((app.BASE / row["output_path"]).is_file())
         history = {item["id"]: item for item in app.my_jobs(self.request())}
         self.assertEqual(1, history[job_id]["has_output"])
+
+    def test_worker_output_size_limit_rejects_oversized_upload(self):
+        job_id, _ = self.create_job()
+        upload = UploadFile(filename="result.mp4", file=io.BytesIO(b"x" * 1025))
+        with self.assertRaises(HTTPException) as raised:
+            asyncio.run(app.worker_complete(job_id, upload, app.WORKER_TOKEN))
+        self.assertEqual(413, raised.exception.status_code)
+        self.assertIsNone(self.row(job_id)["output_path"])
 
     def test_pending_rendering_and_failed_history_never_expose_output(self):
         pending, _ = self.create_job(status="waiting", progress=0)
