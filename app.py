@@ -2654,6 +2654,19 @@ def affiliate_risk_network(ip: str) -> str:
 def affiliate_risk_device(user_agent: str) -> str:
     return " ".join((user_agent or "").lower().split())
 
+def affiliate_risk_close_login(referrer_rows, referred_rows, minutes=15) -> bool:
+    def parse(value):
+        try:
+            return datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except (TypeError, ValueError):
+            return None
+    referrer_times = [parse(row["created_at"]) for row in referrer_rows]
+    referred_times = [parse(row["created_at"]) for row in referred_rows]
+    return any(
+        left and right and abs((left - right).total_seconds()) <= minutes * 60
+        for left in referrer_times for right in referred_times
+    )
+
 def affiliate_risk_level(score: int) -> str:
     if score >= 100:
         return "Nghi ngờ cao"
@@ -2689,6 +2702,11 @@ def admin_affiliate_risk_reports(request: Request):
     for row in activity_rows:
         activity.setdefault(row["user_id"], []).append(dict(row))
     email_by_id = {row["id"]: row["email"] for row in all_users}
+    visitor_accounts = {}
+    for user_id, rows in activity.items():
+        for row in rows:
+            if row["visitor_id"]:
+                visitor_accounts.setdefault(row["visitor_id"], set()).add(user_id)
     reports = []
     for pair in users:
         referrer = activity.get(pair["referrer_id"], [])
@@ -2705,31 +2723,24 @@ def admin_affiliate_risk_reports(request: Request):
         shared_ips = ref_ips & child_ips
         shared_networks = ref_networks & child_networks
         shared_devices = ref_devices & child_devices
+        close_login = affiliate_risk_close_login(referrer, referred)
         score = 0
         reasons = []
         if shared_visitors:
-            score += 70
-            reasons.append("Referrer và referred dùng cùng visitor_id")
-        if shared_devices:
-            score += 10
-            reasons.append("Cùng browser / User-Agent")
-        if shared_ips or shared_networks:
-            score += 20
-            reasons.append("Cùng public IP hoặc network; đây chỉ là tín hiệu phụ")
-        visitor_accounts = max((sum(1 for rows in activity.values() if visitor in {r["visitor_id"] for r in rows}) for visitor in shared_visitors), default=0)
-        if visitor_accounts >= 3:
-            score += 50
-            reasons.append(f"Có {visitor_accounts} tài khoản từng xuất hiện trên cùng visitor")
-        network_account_count = 0
-        for network in shared_networks:
-            accounts_on_network = sum(
-                1 for rows in activity.values()
-                if any(affiliate_risk_network(row["ip_address"]) == network for row in rows if row["ip_address"])
-            )
-            network_account_count = max(network_account_count, accounts_on_network)
-        if network_account_count >= 3:
+            account_count = max(len(visitor_accounts.get(visitor, set())) for visitor in shared_visitors)
+            if account_count >= 3:
+                score += 60
+                reasons.append(f"Cùng visitor_id liên kết với {account_count} tài khoản và có quan hệ referrer/referred")
+            else:
+                score += 30
+                reasons.append("Cùng visitor_id xuất hiện trên 2 tài khoản có quan hệ referrer/referred")
+        elif shared_ips and shared_devices and close_login:
             score += 30
-            reasons.append(f"Nhiều tài khoản cùng network ({network_account_count})")
+            reasons.append("Visitor khác nhau nhưng cùng IP, browser/device và đăng nhập trong 15 phút")
+        elif shared_ips:
+            reasons.append("Chỉ cùng IP; visitor và browser/device khác nhau nên không kết luận")
+        if shared_devices and not shared_visitors:
+            reasons.append("Cùng browser/User-Agent nhưng chưa đủ để kết luận")
         child_time = referred[0]["created_at"] if referred else pair["referred_created_at"]
         ref_time = referrer[0]["created_at"] if referrer else pair["referrer_created_at"]
         report_level = affiliate_risk_level(score)
@@ -2741,7 +2752,7 @@ def admin_affiliate_risk_reports(request: Request):
         reports.append({
             "referrer": {"id": pair["referrer_id"], "email": pair["referrer_email"]},
             "referred": {"id": pair["referred_id"], "email": pair["referred_email"]},
-            "risk_score": score, "level": report_level, "reasons": reasons or ["Chưa có tín hiệu mạnh; cùng IP không đủ để kết luận"],
+            "risk_score": score, "level": report_level, "reasons": reasons or ["Không có tín hiệu rủi ro mạnh"],
             "visitor_ids": sorted(ref_visitor_ids | child_visitor_ids), "ips": sorted(ref_ips | child_ips),
             "networks": sorted(ref_networks | child_networks), "same_device": bool(shared_devices),
             "referrer_device": next(iter(ref_devices), ""), "referred_device": next(iter(child_devices), ""),

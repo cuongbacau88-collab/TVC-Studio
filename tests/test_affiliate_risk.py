@@ -37,7 +37,8 @@ class AffiliateRiskTests(unittest.TestCase):
         with patch.object(app, "require_admin", return_value=None):
             result = app.admin_affiliate_risk_reports(request)
         self.assertEqual(len(result["items"]), 1)
-        self.assertGreaterEqual(result["items"][0]["risk_score"], 70)
+        self.assertEqual(result["items"][0]["risk_score"], 30)
+        self.assertEqual(result["items"][0]["level"], "Cần theo dõi")
         self.assertTrue(any("visitor_id" in reason for reason in result["items"][0]["reasons"]))
         con = app.db()
         after = con.execute("SELECT credits,referred_by_user_id FROM users ORDER BY id").fetchall()
