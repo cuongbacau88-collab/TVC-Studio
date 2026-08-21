@@ -68,6 +68,26 @@ class AffiliateWalletTests(unittest.TestCase):
             with self.assertRaises(app.HTTPException):
                 asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 49999, "account_name": "Affiliate", "bank_name": "Bank", "account": "123", "method": "BANK"})))
 
+    def test_zero_balance_rejects_withdrawal_and_conversion(self):
+        con = app.db()
+        con.execute("UPDATE users SET credits=0 WHERE id=?", (self.user_id,))
+        con.execute("DELETE FROM affiliate_rewards WHERE user_id=?", (self.user_id,))
+        con.execute("DELETE FROM affiliate_withdrawals WHERE user_id=?", (self.user_id,))
+        con.execute("DELETE FROM affiliate_wallet_transactions WHERE user_id=?", (self.user_id,))
+        con.commit(); con.close()
+        with patch.object(app, "current_user", return_value=self.user()):
+            with self.assertRaises(app.HTTPException):
+                asyncio.run(app.affiliate_request_withdrawal(request_json({"amount_vnd": 50000, "account_name": "Affiliate", "bank_name": "Bank", "account": "123", "method": "BANK"})))
+            with self.assertRaises(app.HTTPException):
+                asyncio.run(app.affiliate_convert(request_json({"amount_vnd": 50000, "idempotency_key": "zero"}, path="/api/affiliate/convert")))
+
+    def test_referral_ui_zero_balance_and_minimum_messages(self):
+        js = Path("static/referral-functions.js").read_text()
+        self.assertIn("Ví đang hơi nhẹ 😄 Kiếm thêm hoa hồng rồi quay lại rút nhé!", js)
+        self.assertIn("Chưa có hoa hồng để đổi rồi 😄 Kiếm thêm chút nữa rồi quay lại nhé!", js)
+        self.assertIn("Sắp đủ rồi 😄 Bạn cần tối thiểu", js)
+        self.assertIn("Thiếu chỗ nhận tiền rồi 😄 Hãy điền đầy đủ thông tin ngân hàng trước nhé!", js)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -249,14 +249,27 @@
 
     <div id="affiliateWithdrawDialog" class="affiliate-wallet-dialog" hidden>
       <form id="affiliateWithdrawForm" class="affiliate-wallet-form">
-        <h3>Yêu cầu rút tiền</h3>
-        <input name="amount_vnd" type="number" min="1" placeholder="Số tiền VNĐ" required>
-        <input name="account_name" placeholder="Tên chủ tài khoản" required>
+        <h3>RÚT TIỀN AFFILIATE</h3>
+        <p class="admin-muted">Số dư khả dụng: <b id="affiliateWithdrawAvailable">0đ</b></p>
+        <p class="admin-muted">Mức rút tối thiểu: <b id="affiliateWithdrawMinimum">0đ</b></p>
+        <input name="amount_vnd" type="number" min="1" placeholder="Số tiền muốn rút" required>
         <input name="bank_name" placeholder="Ngân hàng" required>
         <input name="account" placeholder="Số tài khoản" required>
+        <input name="account_name" placeholder="Chủ tài khoản" required>
         <input name="method" value="BANK" placeholder="Phương thức" required>
         <textarea name="note" placeholder="Ghi chú"></textarea>
-        <div><button type="submit" class="referral-apply-btn">Gửi yêu cầu</button><button type="button" class="referral-copy-btn" id="affiliateWithdrawCancel">Hủy</button></div>
+        <div><button type="button" class="referral-copy-btn" id="affiliateWithdrawCancel">Hủy</button><button type="submit" class="referral-apply-btn">Gửi yêu cầu rút</button></div>
+      </form>
+    </div>
+
+    <div id="affiliateConvertDialog" class="affiliate-wallet-dialog" hidden>
+      <form id="affiliateConvertForm" class="affiliate-wallet-form">
+        <h3>ĐỔI HOA HỒNG SANG XU</h3>
+        <p class="admin-muted">Số dư Affiliate: <b id="affiliateConvertAvailable">0đ</b></p>
+        <p class="admin-muted"><b id="affiliateConvertRate">1 Xu = 1000đ</b></p>
+        <input id="affiliateConvertAmount" name="amount_vnd" type="number" min="1" step="1" placeholder="Số tiền muốn đổi" required>
+        <p class="admin-muted">Bạn sẽ nhận: <b id="affiliateConvertPreview">0 Xu</b></p>
+        <div><button type="button" class="referral-copy-btn" id="affiliateConvertCancel">Hủy</button><button type="submit" class="referral-apply-btn">Xác nhận đổi</button></div>
       </form>
     </div>
 
