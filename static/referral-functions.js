@@ -9,11 +9,16 @@
 async function loadAffiliate(){
   const $ = id => document.getElementById(id);
   if(!me){
-    $('#refDirectCount').textContent='0';
-    $('#affLink').textContent='—';
-    $('#affCode').textContent='—';
-    $('#referrerState').innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
-    $('#referralUserList').innerHTML=`<div class="referral-users-empty">
+    const directCount=$('refDirectCount');
+    const affLink=$('affLink');
+    const affCode=$('affCode');
+    const referrerState=$('referrerState');
+    const referralUserList=$('referralUserList');
+    if(directCount) directCount.textContent='0';
+    if(affLink) affLink.textContent='—';
+    if(affCode) affCode.textContent='—';
+    if(referrerState) referrerState.innerHTML='<span class="muted">Vui lòng đăng nhập để sử dụng tính năng giới thiệu.</span>';
+    if(referralUserList) referralUserList.innerHTML=`<div class="referral-users-empty">
       <div class="referral-users-empty-icon">👥</div>
       <p class="referral-users-empty-title">Chưa đăng nhập</p>
       <p class="referral-users-empty-desc">Đăng nhập để xem thông tin giới thiệu của bạn.</p>
