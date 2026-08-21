@@ -389,6 +389,8 @@ def init_db():
         con.execute("ALTER TABLE affiliate_rewards ADD COLUMN reviewed_at TEXT")
     if "admin_note" not in reward_cols:
         con.execute("ALTER TABLE affiliate_rewards ADD COLUMN admin_note TEXT")
+    con.execute("""CREATE UNIQUE INDEX IF NOT EXISTS idx_affiliate_rewards_once
+                   ON affiliate_rewards(user_id,topup_id,reward_type)""")
     withdrawal_cols = {r["name"] for r in con.execute("PRAGMA table_info(affiliate_withdrawals)").fetchall()}
     for column, definition in {
         "account_name": "TEXT NOT NULL DEFAULT ''",
@@ -2175,27 +2177,30 @@ async def affiliate_apply_code(request: Request):
         raise HTTPException(400, "Hãy nhập mã giới thiệu")
 
     con = db()
-    me_row = con.execute(
-        "SELECT id,referred_by_user_id,referral_code FROM users WHERE id=?", (u["id"],)
-    ).fetchone()
-    if me_row["referred_by_user_id"]:
-        con.close()
-        raise HTTPException(409, "Tài khoản đã có người giới thiệu")
-    referrer = find_referrer_by_code(con, code)
-    if not referrer:
-        con.close()
-        raise HTTPException(404, "Mã giới thiệu không tồn tại")
-    if referrer["id"] == u["id"]:
-        con.close()
-        raise HTTPException(400, "Không thể nhập mã của chính mình")
+    try:
+        con.execute("BEGIN IMMEDIATE")
+        me_row = con.execute(
+            "SELECT id,referred_by_user_id,referral_code FROM users WHERE id=?", (u["id"],)
+        ).fetchone()
+        if me_row["referred_by_user_id"]:
+            raise HTTPException(409, "Tài khoản đã có người giới thiệu; không tạo reward mới")
+        referrer = find_referrer_by_code(con, code)
+        if not referrer:
+            raise HTTPException(404, "Mã giới thiệu không tồn tại")
+        if referrer["id"] == u["id"]:
+            raise HTTPException(400, "Không thể nhập mã của chính mình")
 
-    con.execute(
-        "UPDATE users SET referred_by_user_id=?,referred_at=? WHERE id=?",
-        (referrer["id"], now_iso(), u["id"])
-    )
-    con.commit()
-    con.close()
-    return {"ok": True, "referrer_name": referrer["name"]}
+        con.execute(
+            "UPDATE users SET referred_by_user_id=?,referred_at=? WHERE id=? AND referred_by_user_id IS NULL",
+            (referrer["id"], now_iso(), u["id"])
+        )
+        con.commit()
+        return {"ok": True, "referrer_name": referrer["name"], "rewards_created": 0}
+    except HTTPException:
+        con.rollback()
+        raise
+    finally:
+        con.close()
 
 @app.get("/api/affiliate/rewards")
 def affiliate_rewards(request: Request):
