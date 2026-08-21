@@ -379,6 +379,11 @@ function initReferralPage(){
   if(!tabAffiliate || tabAffiliate.dataset.referralInitialized==='true') return;
   tabAffiliate.dataset.referralInitialized='true';
 
+  ['affiliatePeopleModal','affiliateMoneyModal'].forEach(id=>{
+    const modal=document.getElementById(id);
+    if(modal && modal.parentElement!==document.body) document.body.appendChild(modal);
+  });
+
   // Setup event listeners
   setupCopyButtons();
   setupCTAButtons();
