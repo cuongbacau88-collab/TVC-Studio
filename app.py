@@ -625,6 +625,14 @@ def affiliate_totals(con, user_id: int):
         "paid": round(float(paid), 2),
     }
 
+def affiliate_commission_vnd(amount_vnd: int, rate: float) -> int:
+    """Calculate cash commission from the amount actually paid."""
+    return int(round(int(amount_vnd) * float(rate)))
+
+def affiliate_commission_credits(amount_vnd: int, rate: float) -> float:
+    """Convert the cash commission to the existing affiliate credit balance."""
+    return round(affiliate_commission_vnd(amount_vnd, rate) / AFFILIATE_VND_PER_CREDIT, 2)
+
 def find_referrer_by_code(con, code: str):
     code = (code or "").strip().lower()
     if not code:
@@ -2510,6 +2518,7 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
     ).fetchone()
     settings = affiliate_settings(con)
     buyer_bonus_rate = float(settings["buyer_bonus_percent"]) / 100
+    # Buyer bonus is a usage-credit benefit, so it intentionally remains based on credits.
     buyer_bonus = int(round(t["credits"] * buyer_bonus_rate)) if (settings["enabled"] and buyer["referred_by_user_id"]) else 0
 
     # Mark approved first so tier calculations include this transaction.
@@ -2537,11 +2546,14 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
         ))
 
     direct_commission = 0.0
+    direct_commission_vnd = 0
     override_commission = 0.0
+    override_commission_vnd = 0
     if settings["enabled"] and buyer["referred_by_user_id"]:
         referrer_id = buyer["referred_by_user_id"]
         tier = affiliate_tier(con, referrer_id)
-        direct_commission = round(t["credits"] * tier["rate"], 2)
+        direct_commission_vnd = affiliate_commission_vnd(t["amount_vnd"], tier["rate"])
+        direct_commission = affiliate_commission_credits(t["amount_vnd"], tier["rate"])
         con.execute("""
             INSERT OR IGNORE INTO affiliate_rewards(
                 user_id,source_user_id,topup_id,reward_type,amount_credits,rate,status,created_at
@@ -2559,7 +2571,9 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
             parent_id = parent["referred_by_user_id"]
             parent_tier = affiliate_tier(con, parent_id)
             if parent_tier["key"] == "gold":
-                override_commission = round(direct_commission * float(settings["parent_override_percent"]) / 100, 2)
+                override_rate = float(settings["parent_override_percent"]) / 100
+                override_commission_vnd = int(round(direct_commission_vnd * override_rate))
+                override_commission = round(override_commission_vnd / AFFILIATE_VND_PER_CREDIT, 2)
                 con.execute("""
                     INSERT OR IGNORE INTO affiliate_rewards(
                         user_id,source_user_id,topup_id,reward_type,amount_credits,rate,status,created_at
@@ -2575,7 +2589,9 @@ def approve_topup(topup_id: int, request: Request, _internal: bool = False,
         "ok": True,
         "buyer_bonus": buyer_bonus,
         "direct_commission": direct_commission,
+        "direct_commission_vnd": direct_commission_vnd,
         "override_commission": override_commission,
+        "override_commission_vnd": override_commission_vnd,
     }
 
 @app.post("/api/admin/topups/{topup_id}/reject")
