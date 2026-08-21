@@ -341,7 +341,7 @@ window.rejectWithdrawal = async id => {
 };
 
 let wfInitialized = false;
-const ADMIN_TABS = ['overview', 'users-admin', 'transactions-admin', 'jobs-admin', 'tools-admin', 'workflow-studio'];
+const ADMIN_TABS = ['overview', 'users-admin', 'transactions-admin', 'jobs-admin', 'tools-admin', 'workflow-studio', 'system-admin'];
 
 function activateAdminTab(tab, { updateUrl = true } = {}) {
   const nextTab = ADMIN_TABS.includes(tab) ? tab : 'overview';
@@ -356,6 +356,28 @@ function activateAdminTab(tab, { updateUrl = true } = {}) {
     wfInitialized = true;
     initWorkflowStudio();
   }
+  if (nextTab === 'system-admin') activateSystemTab(document.querySelector('.system-subtab.active')?.dataset.systemTab || 'security', false);
+}
+
+function activateSystemTab(tab, updateUrl = true) {
+  const next = ['security', 'affiliate', 'referral', 'settings'].includes(tab) ? tab : 'security';
+  $$('.system-subtab').forEach(button => button.classList.toggle('active', button.dataset.systemTab === next));
+  $$('.system-subpane').forEach(pane => {
+    const active = pane.id === `system-${next}`;
+    pane.style.display = active ? 'block' : 'none';
+    pane.classList.toggle('active', active);
+  });
+  if (updateUrl && location.hash === '#system-admin') history.replaceState(null, '', '#system-admin');
+}
+
+function activateSecuritySubtab(tab) {
+  const next = ['security-logs', 'security-devices', 'security-access'].includes(tab) ? tab : 'security-logs';
+  $$('.security-subtab').forEach(button => button.classList.toggle('active', button.dataset.securityTab === next));
+  $$('.security-subsection').forEach(section => {
+    const active = section.id === next;
+    section.style.display = active ? 'block' : 'none';
+    section.classList.toggle('active', active);
+  });
 }
 
 function initAdminTabs() {
@@ -366,6 +388,8 @@ function initAdminTabs() {
   });
   window.addEventListener('hashchange', () => activateAdminTab(location.hash.slice(1), { updateUrl: false }));
   activateAdminTab(location.hash.slice(1), { updateUrl: false });
+  $$('.system-subtab').forEach(button => button.addEventListener('click', () => activateSystemTab(button.dataset.systemTab)));
+  $$('.security-subtab').forEach(button => button.addEventListener('click', () => activateSecuritySubtab(button.dataset.securityTab)));
 
   $('#adminUserSearch')?.addEventListener('input', async e => {
     const users = await api(`/api/admin/users?q=${encodeURIComponent(e.target.value)}`);
