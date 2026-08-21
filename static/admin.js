@@ -13,7 +13,10 @@ function say(t) {
 }
 
 async function api(url, opt = {}) {
-  const r = await fetch(url, opt);
+  const headers = new Headers(opt.headers || {});
+  const token = localStorage.getItem('token');
+  if (token && !headers.has('Authorization')) headers.set('Authorization', `Bearer ${token}`);
+  const r = await fetch(url, { ...opt, headers, credentials: 'include' });
   let j = {};
   try { j = await r.json(); } catch {}
   if (!r.ok) {
