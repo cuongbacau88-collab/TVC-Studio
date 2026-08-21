@@ -2141,11 +2141,6 @@ def admin_topups(request: Request):
         SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200
     """).fetchall()
     con.close()
-    reconcile_pending_topups(rows)
-    if any(row["status"] == "pending" and row["order_code"] for row in rows):
-        con = db()
-        rows = con.execute("SELECT t.*,u.email,u.name FROM topups t JOIN users u ON u.id=t.user_id ORDER BY t.id DESC LIMIT 200").fetchall()
-        con.close()
     return [dict(r) for r in rows]
 
 @app.post("/api/admin/topups/{topup_id}/sync")

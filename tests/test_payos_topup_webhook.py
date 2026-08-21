@@ -147,6 +147,15 @@ class PayOSTopupWebhookTests(unittest.TestCase):
         self.assertEqual(409, raised.exception.status_code)
         self.assertEqual(("paid", 230, 1), self.topup_state())
 
+    def test_loading_admin_topups_does_not_settle_pending_payment(self):
+        payment = {"status": "PAID", "amount": 199000, "reference": "ref-1", "payment_link_id": "link-1"}
+        with patch.object(app, "require_admin", return_value=None), \
+                patch.object(app, "payos_payment_status", return_value=payment) as status_check:
+            rows = app.admin_topups(json_request({}))
+        self.assertEqual("pending", rows[0]["status"])
+        status_check.assert_not_called()
+        self.assertEqual(("pending", 10, 0), self.topup_state())
+
 
 if __name__ == "__main__":
     unittest.main()
