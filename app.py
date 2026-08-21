@@ -5,6 +5,7 @@ import urllib.request
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, Request, Response, UploadFile, File, Form, HTTPException, Header
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
@@ -484,8 +485,10 @@ async def log_admin_access(request: Request, call_next):
             con.close()
             if response.status_code in {401, 403}:
                 create_security_log(request, "admin_access_denied", "high", user, response.status_code)
-            else:
-                create_security_log(request, "admin_access", "info", user, response.status_code)
+            elif response.status_code == 429:
+                create_security_log(request, "security_rate_limited", "high", user, response.status_code)
+            elif request.method in {"POST", "PUT", "PATCH", "DELETE"} and response.status_code < 400:
+                create_security_log(request, "admin_sensitive_action", "notice", user, response.status_code)
         except Exception:
             logging.exception("Could not write admin access log")
     return response
@@ -2174,11 +2177,12 @@ def admin_security_logs(request: Request):
     except ValueError:
         raise HTTPException(400, "Phân trang không hợp lệ")
     event = request.query_params.get("event", "").strip()[:80]
-    severity = request.query_params.get("severity", "").strip()[:20]
+    severity = request.query_params.get("severity", "").strip()[:20].lower()
+    severity_min = request.query_params.get("severity_min", "").strip()[:20].lower()
     email = request.query_params.get("email", "").strip()[:200]
     ip = request.query_params.get("ip", "").strip()[:100]
     search = request.query_params.get("search", "").strip()[:200]
-    clauses, values = [], []
+    clauses, values = ["NOT (event='admin_access' AND LOWER(severity)='info' AND http_status=200)"], []
     for field, value in (("event", event), ("severity", severity), ("email", email), ("ip_address", ip)):
         if value:
             clauses.append(f"{field} LIKE ?")
@@ -2186,6 +2190,10 @@ def admin_security_logs(request: Request):
     if search:
         clauses.append("(email LIKE ? OR ip_address LIKE ?)")
         values.extend([f"%{search}%", f"%{search}%"])
+    if severity_min in {"info", "notice", "warning", "high", "critical"}:
+        severity_order = {"info": 10, "notice": 20, "warning": 30, "high": 40, "critical": 50}
+        clauses.append("CASE LOWER(severity) WHEN 'info' THEN 10 WHEN 'notice' THEN 20 WHEN 'warning' THEN 30 WHEN 'high' THEN 40 WHEN 'critical' THEN 50 ELSE 0 END >= ?")
+        values.append(severity_order[severity_min])
     where = " WHERE " + " AND ".join(clauses) if clauses else ""
     con = db()
     total = con.execute("SELECT COUNT(*) AS count FROM security_logs" + where, values).fetchone()["count"]
@@ -2193,8 +2201,23 @@ def admin_security_logs(request: Request):
         "SELECT * FROM security_logs" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
         (*values, limit, (page - 1) * limit),
     ).fetchall()
+    timezone_name = request.query_params.get("timezone", "").strip()[:80]
+    try:
+        local_zone = ZoneInfo(timezone_name or os.getenv("APP_TIMEZONE", "Asia/Ho_Chi_Minh"))
+    except Exception:
+        local_zone = ZoneInfo("Asia/Ho_Chi_Minh")
+    local_today = datetime.now(local_zone).date()
+    start_local = datetime.combine(local_today, datetime.min.time(), local_zone)
+    end_local = start_local + timedelta(days=1)
+    start_utc, end_utc = start_local.astimezone(timezone.utc).isoformat(), end_local.astimezone(timezone.utc).isoformat()
+    stats = {
+        "logins_today": con.execute("SELECT COUNT(*) AS count FROM security_logs WHERE event='google_login_success' AND created_at>=? AND created_at<?", (start_utc, end_utc)).fetchone()["count"],
+        "new_ips_today": con.execute("SELECT COUNT(*) AS count FROM security_logs WHERE event='new_ip_login' AND created_at>=? AND created_at<?", (start_utc, end_utc)).fetchone()["count"],
+        "warnings_today": con.execute("SELECT COUNT(*) AS count FROM security_logs WHERE LOWER(severity)='warning' AND created_at>=? AND created_at<?", (start_utc, end_utc)).fetchone()["count"],
+        "danger_today": con.execute("SELECT COUNT(*) AS count FROM security_logs WHERE LOWER(severity) IN ('high','critical') AND created_at>=? AND created_at<?", (start_utc, end_utc)).fetchone()["count"],
+    }
     con.close()
-    return {"page": page, "limit": limit, "total": total, "items": [dict(row) for row in rows]}
+    return {"page": page, "limit": limit, "total": total, "stats": stats, "items": [dict(row) for row in rows]}
 
 @app.get("/api/admin/security-devices")
 def admin_security_devices(request: Request):

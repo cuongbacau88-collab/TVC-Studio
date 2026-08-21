@@ -3,7 +3,7 @@ const $$ = s => document.querySelectorAll(s);
 const toast = $('#toast');
 const adminLogState = {
   access: { page: 1, limit: 25, search: '' },
-  security: { page: 1, limit: 25, search: '', event: '', severity: '' },
+  security: { page: 1, limit: 25, search: '', event: '', severity_min: 'warning', timezone: Intl.DateTimeFormat().resolvedOptions().timeZone },
 };
 
 function say(t) {
@@ -133,18 +133,36 @@ function renderSecurityLogs(rows) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
   const eventNames = {
-    google_login_success: 'Đăng nhập Google thành công', google_login_failed: 'Đăng nhập Google thất bại',
+    google_login_success: 'Đăng nhập Google', google_login_failed: 'Đăng nhập Google thất bại',
     google_token_invalid: 'Google token không hợp lệ', new_ip_login: 'Đăng nhập từ IP mới',
-    new_device_login: 'Đăng nhập từ thiết bị mới', admin_access_denied: 'Truy cập Admin bị từ chối',
-    admin_access: 'Truy cập Admin', logout: 'Đăng xuất'
+    new_device_login: 'Thiết bị mới', admin_access_denied: 'Truy cập Admin bị từ chối',
+    security_rate_limited: 'Bị giới hạn truy cập', admin_sensitive_action: 'Thao tác Admin nhạy cảm', logout: 'Đăng xuất'
   };
   const items = Array.isArray(rows) ? rows : rows.items || [];
+  renderSecurityStats(rows.stats || {});
   root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Sự kiện', 'Thiết bị', 'Mức độ', 'HTTP'], items.map(row => [
-    escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
-    escapeHtml(eventNames[row.event] || row.event), escapeHtml(row.user_agent || '—'),
-    escapeHtml(row.severity.toUpperCase()), escapeHtml(row.http_status || '—')
+    formatLogTime(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
+    escapeHtml(eventNames[row.event] || row.event), `<span class="security-log-device" title="${escapeHtml(row.user_agent || '—')}">${escapeHtml(shortDevice(row.user_agent || '—'))}</span>`,
+    `<span class="security-log-badge ${escapeHtml(String(row.severity || 'info').toLowerCase())}">${escapeHtml(String(row.severity || 'info').toUpperCase())}</span>`, escapeHtml(row.http_status || '—')
   ]));
   renderLogPagination('security', rows.total ?? items.length);
+}
+function formatLogTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value ?? '');
+  return escapeLogHtml(new Intl.DateTimeFormat('vi-VN', { timeZone: adminLogState.security.timezone, year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false }).format(date));
+}
+function escapeLogHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character])); }
+function shortDevice(userAgent) {
+  if (!userAgent) return '—';
+  if (/curl\//i.test(userAgent)) return 'curl';
+  const browser = /Edg\//i.test(userAgent) ? 'Edge' : /Chrome\//i.test(userAgent) ? 'Chrome' : /Firefox\//i.test(userAgent) ? 'Firefox' : /Safari\//i.test(userAgent) && !/Chrome\//i.test(userAgent) ? 'Safari' : /PostmanRuntime/i.test(userAgent) ? 'Postman' : 'Trình duyệt';
+  const platform = /iPhone|iPad/i.test(userAgent) ? 'iPhone' : /Android/i.test(userAgent) ? 'Android' : /Windows NT 10/i.test(userAgent) ? 'Windows 10' : /Windows/i.test(userAgent) ? 'Windows' : /Mac OS X/i.test(userAgent) ? 'macOS' : /Linux/i.test(userAgent) ? 'Linux' : '';
+  return platform ? `${browser} · ${platform}` : browser;
+}
+function renderSecurityStats(stats) {
+  const root = $('#adminSecurityLogStats'); if (!root) return;
+  root.innerHTML = [['Đăng nhập hôm nay', stats.logins_today || 0, ''], ['IP mới', stats.new_ips_today || 0, ''], ['Cảnh báo', stats.warnings_today || 0, 'warning'], ['Nguy hiểm', stats.danger_today || 0, 'danger']].map(([label, value, tone]) => `<div class="security-log-stat ${tone}"><span>${label}</span><strong>${value}</strong></div>`).join('');
 }
 function logQuery(type) {
   const state = adminLogState[type];
@@ -172,11 +190,10 @@ function renderSecurityDevices(rows) {
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
-  const deviceName = userAgent => /Android/i.test(userAgent) ? 'Android' : /iPhone|iPad/i.test(userAgent) ? 'iPhone/iPad' : /Windows/i.test(userAgent) ? 'Windows' : /Mac OS/i.test(userAgent) ? 'macOS' : /Linux/i.test(userAgent) ? 'Linux' : 'Thiết bị không xác định';
-  const eventNames = { google_login_success: 'Đăng nhập Google thành công', new_ip_login: 'Đăng nhập từ IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
+  const eventNames = { google_login_success: 'Đăng nhập Google', new_ip_login: 'IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
   root.innerHTML = table(['Tài khoản', 'Thiết bị', 'IP', 'Lần cuối', 'Số sự kiện', 'Sự kiện gần nhất'], rows.map(row => [
-    escapeHtml(row.email || 'Chưa đăng nhập'), escapeHtml(deviceName(row.user_agent || '')), escapeHtml(row.ip_address),
-    escapeHtml(row.last_seen), escapeHtml(row.event_count), escapeHtml(eventNames[row.last_event] || row.last_event || '—')
+    escapeHtml(row.email || 'Chưa đăng nhập'), escapeHtml(shortDevice(row.user_agent || '')), escapeHtml(row.ip_address),
+    formatLogTime(row.last_seen), escapeHtml(row.event_count), escapeHtml(eventNames[row.last_event] || row.last_event || '—')
   ]));
 }
 function topupStatusLabel(row) {
@@ -404,7 +421,7 @@ function initAdminTabs() {
     renderSecurityLogs(await loadAdminSecurityLogs());
   });
   $('#adminSecurityLogsSeverity')?.addEventListener('change', async event => {
-    adminLogState.security.severity = event.target.value; adminLogState.security.page = 1;
+    adminLogState.security.severity_min = event.target.value; adminLogState.security.page = 1;
     renderSecurityLogs(await loadAdminSecurityLogs());
   });
   $('#adminSecurityDevicesRefresh')?.addEventListener('click', async () => renderSecurityDevices(await api('/api/admin/security-devices')));
