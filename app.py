@@ -2177,30 +2177,69 @@ def admin_security_logs(request: Request):
     severity = request.query_params.get("severity", "").strip()[:20]
     email = request.query_params.get("email", "").strip()[:200]
     ip = request.query_params.get("ip", "").strip()[:100]
+    search = request.query_params.get("search", "").strip()[:200]
     clauses, values = [], []
     for field, value in (("event", event), ("severity", severity), ("email", email), ("ip_address", ip)):
         if value:
             clauses.append(f"{field} LIKE ?")
             values.append(f"%{value}%")
+    if search:
+        clauses.append("(email LIKE ? OR ip_address LIKE ?)")
+        values.extend([f"%{search}%", f"%{search}%"])
     where = " WHERE " + " AND ".join(clauses) if clauses else ""
     con = db()
+    total = con.execute("SELECT COUNT(*) AS count FROM security_logs" + where, values).fetchone()["count"]
     rows = con.execute(
         "SELECT * FROM security_logs" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
         (*values, limit, (page - 1) * limit),
     ).fetchall()
     con.close()
-    return {"page": page, "limit": limit, "items": [dict(row) for row in rows]}
+    return {"page": page, "limit": limit, "total": total, "items": [dict(row) for row in rows]}
+
+@app.get("/api/admin/security-devices")
+def admin_security_devices(request: Request):
+        require_admin(request)
+        con = db()
+        rows = con.execute("""
+                SELECT email,role,ip_address,user_agent,COUNT(*) AS event_count,
+                             MAX(created_at) AS last_seen,
+                             (SELECT event FROM security_logs newest
+                                WHERE newest.email=grouped.email AND newest.ip_address=grouped.ip_address
+                                    AND newest.user_agent=grouped.user_agent
+                                ORDER BY newest.id DESC LIMIT 1) AS last_event
+                FROM security_logs grouped
+                GROUP BY email,role,ip_address,user_agent
+                ORDER BY last_seen DESC LIMIT 100
+        """).fetchall()
+        con.close()
+        return [dict(row) for row in rows]
 
 @app.get("/api/admin/access-logs")
 def admin_access_logs(request: Request):
     require_admin(request)
+    try:
+        page = max(1, int(request.query_params.get("page", "1")))
+        limit = min(100, max(1, int(request.query_params.get("limit", "50"))))
+    except ValueError:
+        raise HTTPException(400, "Phân trang không hợp lệ")
+    search = request.query_params.get("search", "").strip()[:200]
+    clauses, values = [], []
+    if search:
+        clauses.append("(u.email LIKE ? OR l.ip_address LIKE ? OR l.path LIKE ? OR l.method LIKE ?)")
+        values.extend([f"%{search}%"] * 4)
+    where = " WHERE " + " AND ".join(clauses) if clauses else ""
     con = db()
+    total = con.execute(
+        "SELECT COUNT(*) AS count FROM admin_access_logs l LEFT JOIN users u ON u.id=l.user_id" + where,
+        values,
+    ).fetchone()["count"]
     rows = con.execute(
         "SELECT l.*,u.email FROM admin_access_logs l "
-        "LEFT JOIN users u ON u.id=l.user_id ORDER BY l.id DESC LIMIT 300"
+        "LEFT JOIN users u ON u.id=l.user_id" + where + " ORDER BY l.id DESC LIMIT ? OFFSET ?",
+        (*values, limit, (page - 1) * limit),
     ).fetchall()
     con.close()
-    return [dict(row) for row in rows]
+    return {"page": page, "limit": limit, "total": total, "items": [dict(row) for row in rows]}
 
 @app.get("/api/admin/stats")
 def admin_stats(request: Request):

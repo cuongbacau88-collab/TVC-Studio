@@ -1,6 +1,10 @@
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 const toast = $('#toast');
+const adminLogState = {
+  access: { page: 1, limit: 25, search: '' },
+  security: { page: 1, limit: 25, search: '', event: '', severity: '' },
+};
 
 function say(t) {
   toast.textContent = t;
@@ -42,13 +46,14 @@ async function boot() {
 }
 
 async function load() {
-  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs, securityLogs] = await Promise.all([
+  const [s, t, u, j, aw, au, overview, affiliateSettings, affiliateRewards, accessLogs, securityLogs, securityDevices] = await Promise.all([
     api('/api/admin/stats'), api('/api/admin/topups'), api('/api/admin/users'), api('/api/admin/jobs'),
     api('/api/admin/affiliate/withdrawals'), api('/api/admin/affiliate/users'), api('/api/admin/overview'),
-    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), api('/api/admin/access-logs'), api('/api/admin/security-logs')
+    api('/api/admin/affiliate/settings'), api('/api/admin/affiliate/rewards'), loadAdminAccessLogs(), loadAdminSecurityLogs(), api('/api/admin/security-devices')
   ]);
   renderAccessLogs(accessLogs);
-  renderSecurityLogs(securityLogs.items || []);
+  renderSecurityLogs(securityLogs);
+  renderSecurityDevices(securityDevices);
   renderAffiliateSettings(affiliateSettings);
   renderAffiliateRewards(affiliateRewards);
   $('#stats').innerHTML = [
@@ -102,10 +107,12 @@ function renderAccessLogs(rows) {
   const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
   }[character]));
-  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Method', 'Đường dẫn', 'HTTP'], rows.map(row => [
+  const items = Array.isArray(rows) ? rows : rows.items || [];
+  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Method', 'Đường dẫn', 'HTTP'], items.map(row => [
     escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
     escapeHtml(row.method), escapeHtml(row.path), escapeHtml(row.status_code)
   ]));
+  renderLogPagination('access', rows.total ?? items.length);
 }
 function renderSecurityLogs(rows) {
   const root = $('#adminSecurityLogsTable'); if (!root) return;
@@ -118,10 +125,45 @@ function renderSecurityLogs(rows) {
     new_device_login: 'Đăng nhập từ thiết bị mới', admin_access_denied: 'Truy cập Admin bị từ chối',
     admin_access: 'Truy cập Admin', logout: 'Đăng xuất'
   };
-  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Sự kiện', 'Thiết bị', 'Mức độ', 'HTTP'], rows.map(row => [
+  const items = Array.isArray(rows) ? rows : rows.items || [];
+  root.innerHTML = table(['Thời gian', 'IP', 'Tài khoản', 'Sự kiện', 'Thiết bị', 'Mức độ', 'HTTP'], items.map(row => [
     escapeHtml(row.created_at), escapeHtml(row.ip_address), escapeHtml(row.email || 'Chưa đăng nhập'),
     escapeHtml(eventNames[row.event] || row.event), escapeHtml(row.user_agent || '—'),
     escapeHtml(row.severity.toUpperCase()), escapeHtml(row.http_status || '—')
+  ]));
+  renderLogPagination('security', rows.total ?? items.length);
+}
+function logQuery(type) {
+  const state = adminLogState[type];
+  const params = new URLSearchParams({ page: state.page, limit: state.limit });
+  Object.entries(state).forEach(([key, value]) => { if (key !== 'page' && key !== 'limit' && value) params.set(key, value); });
+  return params;
+}
+function loadAdminAccessLogs() { return api(`/api/admin/access-logs?${logQuery('access')}`); }
+function loadAdminSecurityLogs() { return api(`/api/admin/security-logs?${logQuery('security')}`); }
+function renderLogPagination(type, total) {
+  const state = adminLogState[type];
+  const prefix = type === 'access' ? 'Access' : 'Security';
+  const root = $(`#admin${prefix}LogsPagination`);
+  const summary = $(`#admin${prefix}LogsSummary`);
+  if (!root || !summary) return;
+  const pages = Math.max(1, Math.ceil(total / state.limit));
+  state.page = Math.min(state.page, pages);
+  const start = total ? (state.page - 1) * state.limit + 1 : 0;
+  const end = Math.min(state.page * state.limit, total);
+  summary.textContent = total ? `Đang xem ${start}-${end} trên ${total} bản ghi` : 'Không có bản ghi phù hợp';
+  root.innerHTML = `<button class="mini-btn" data-log-page="prev" ${state.page <= 1 ? 'disabled' : ''}>‹ Trước</button><span>Trang ${state.page}/${pages}</span><button class="mini-btn" data-log-page="next" ${state.page >= pages ? 'disabled' : ''}>Sau ›</button>`;
+}
+function renderSecurityDevices(rows) {
+  const root = $('#adminSecurityDevicesTable'); if (!root) return;
+  const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+  }[character]));
+  const deviceName = userAgent => /Android/i.test(userAgent) ? 'Android' : /iPhone|iPad/i.test(userAgent) ? 'iPhone/iPad' : /Windows/i.test(userAgent) ? 'Windows' : /Mac OS/i.test(userAgent) ? 'macOS' : /Linux/i.test(userAgent) ? 'Linux' : 'Thiết bị không xác định';
+  const eventNames = { google_login_success: 'Đăng nhập Google thành công', new_ip_login: 'Đăng nhập từ IP mới', admin_access: 'Truy cập Admin', admin_access_denied: 'Truy cập Admin bị từ chối', logout: 'Đăng xuất' };
+  root.innerHTML = table(['Tài khoản', 'Thiết bị', 'IP', 'Lần cuối', 'Số sự kiện', 'Sự kiện gần nhất'], rows.map(row => [
+    escapeHtml(row.email || 'Chưa đăng nhập'), escapeHtml(deviceName(row.user_agent || '')), escapeHtml(row.ip_address),
+    escapeHtml(row.last_seen), escapeHtml(row.event_count), escapeHtml(eventNames[row.last_event] || row.last_event || '—')
   ]));
 }
 function topupStatusLabel(row) {
@@ -322,11 +364,37 @@ function initAdminTabs() {
     say('Đã lưu cấu hình công cụ');
   });
   $('#refreshAffiliateRewards')?.addEventListener('click', async () => renderAffiliateRewards(await api('/api/admin/affiliate/rewards')));
-  $('#adminAccessLogsRefresh')?.addEventListener('click', async () => renderAccessLogs(await api('/api/admin/access-logs')));
+  $('#adminAccessLogsRefresh')?.addEventListener('click', async () => renderAccessLogs(await loadAdminAccessLogs()));
   $('#adminSecurityLogsRefresh')?.addEventListener('click', async () => {
-    const result = await api('/api/admin/security-logs');
-    renderSecurityLogs(result.items || []);
+    renderSecurityLogs(await loadAdminSecurityLogs());
   });
+  ['access', 'security'].forEach(type => {
+    const prefix = type === 'access' ? 'Access' : 'Security';
+    const state = adminLogState[type];
+    const search = $(`#admin${prefix}LogsSearch`);
+    search?.addEventListener('change', async event => {
+      state.search = event.target.value.trim(); state.page = 1;
+      type === 'access' ? renderAccessLogs(await loadAdminAccessLogs()) : renderSecurityLogs(await loadAdminSecurityLogs());
+    });
+    $(`#admin${prefix}LogsLimit`)?.addEventListener('change', async event => {
+      state.limit = Number(event.target.value) || 25; state.page = 1;
+      type === 'access' ? renderAccessLogs(await loadAdminAccessLogs()) : renderSecurityLogs(await loadAdminSecurityLogs());
+    });
+    $(`#admin${prefix}LogsPagination`)?.addEventListener('click', async event => {
+      const button = event.target.closest('[data-log-page]'); if (!button || button.disabled) return;
+      state.page += button.dataset.logPage === 'next' ? 1 : -1;
+      type === 'access' ? renderAccessLogs(await loadAdminAccessLogs()) : renderSecurityLogs(await loadAdminSecurityLogs());
+    });
+  });
+  $('#adminSecurityLogsEvent')?.addEventListener('change', async event => {
+    adminLogState.security.event = event.target.value; adminLogState.security.page = 1;
+    renderSecurityLogs(await loadAdminSecurityLogs());
+  });
+  $('#adminSecurityLogsSeverity')?.addEventListener('change', async event => {
+    adminLogState.security.severity = event.target.value; adminLogState.security.page = 1;
+    renderSecurityLogs(await loadAdminSecurityLogs());
+  });
+  $('#adminSecurityDevicesRefresh')?.addEventListener('click', async () => renderSecurityDevices(await api('/api/admin/security-devices')));
   $('#affiliateSettingsForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const payload = {
