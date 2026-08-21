@@ -402,6 +402,12 @@ def init_db():
 
 def access_log_ip(request: Request) -> str:
     if TRUST_PROXY:
+        cloudflare_ip = request.headers.get("cf-connecting-ip", "").strip()
+        if cloudflare_ip:
+            return cloudflare_ip[:100]
+        true_client_ip = request.headers.get("true-client-ip", "").strip()
+        if true_client_ip:
+            return true_client_ip[:100]
         forwarded = request.headers.get("x-forwarded-for", "").split(",")[0].strip()
         if forwarded:
             return forwarded[:100]
