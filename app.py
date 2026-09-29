@@ -4,6 +4,7 @@ import urllib.error
 import urllib.request
 import ipaddress
 from pathlib import Path
+from urllib.parse import urlsplit
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Any
 from zoneinfo import ZoneInfo
@@ -114,6 +115,14 @@ WORKER_POLL_INTERVAL = max(1.0, float(os.getenv("WORKER_POLL_INTERVAL", "4") or 
 app = FastAPI(title="TVC Studio AI Business V3.3.46")
 app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
 TRUST_PROXY = os.getenv("TRUST_PROXY", "false").strip().lower() in {"1", "true", "yes", "on"}
+
+def downloader_destination():
+    """The downloader is a separate service with its own storage and login."""
+    target = os.getenv("TVC_DOWNLOADER_URL", "").strip()
+    parts = urlsplit(target)
+    if parts.scheme not in {"http", "https"} or not parts.netloc or parts.username or parts.password:
+        return None
+    return target.rstrip("/") + "/"
 
 def now_iso():
     return datetime.now(timezone.utc).isoformat()
@@ -785,6 +794,13 @@ def home(request: Request):
     response = FileResponse(BASE / "static" / "index.html")
     capture_referral_attribution(request, response)
     return response
+
+@app.get("/downloader")
+def downloader_page():
+    target = downloader_destination()
+    if target:
+        return RedirectResponse(target, status_code=302)
+    return FileResponse(BASE / "static" / "downloader-setup.html", status_code=503)
 
 @app.get("/referral")
 def referral_page(request: Request):

@@ -17,6 +17,12 @@ Worker giới hạn file output ở 2 GB mặc định. Có thể thay đổi b�
 Nhật ký Admin lấy IP kết nối trực tiếp mặc định. Khi triển khai sau Cloudflare hoặc reverse proxy tin cậy, đặt `TRUST_PROXY=true` để ưu tiên `CF-Connecting-IP`, sau đó `True-Client-IP` và `X-Forwarded-For` nhằm ghi IP WAN của khách.
 # TVC Studio AI Business V2.1
 
+## Trình tải video trên trang chủ
+
+Trang chủ có thẻ **Kho video mẫu** và menu **Quét và tải video** dẫn tới `/downloader`. TVC Downloader chạy riêng trên Ubuntu để giữ hàng đợi, video và cookie trong `data/`; ứng dụng AI này chỉ điều hướng tới địa chỉ đã cấu hình.
+
+Với tên miền DuckDNS của bồ, đặt `TVC_DOWNLOADER_URL=https://cuongbx.duckdns.org/downloader/` trong môi trường triển khai TVC Studio AI rồi khởi động lại ứng dụng. Caddy trên Ubuntu cần chuyển riêng `/downloader/` vào container TVC Downloader; xem README của trình tải. Giữ xác thực của trình tải và tuyệt đối không đưa cookie nền tảng vào repo. Nếu chưa đặt biến, `/downloader` hiển thị thông báo cấu hình thay vì dẫn sang một địa chỉ sai.
+
 Web kinh doanh AI video có backend thật, database SQLite, tài khoản, credits, job queue, admin và Worker API.
 
 ## Tính năng đã chạy
